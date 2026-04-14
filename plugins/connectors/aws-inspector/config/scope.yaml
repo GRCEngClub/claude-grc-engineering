@@ -1,0 +1,46 @@
+# aws-inspector scope configuration
+#
+# Scope audits to production resources only. Use --scope-file to activate
+# this file, or set defaults.scope_file in your connector config.
+#
+# When no scope file is used, the connector scans all resources in the
+# configured account (unchanged default behavior).
+
+# profiles: AWS CLI profile names to scan across multiple accounts.
+# Each profile should be configured via `aws configure --profile <name>`.
+# If empty, uses the single profile from --profile or connector config.
+profiles: []
+# profiles:
+#   - prod-us
+#   - prod-eu
+
+# Tag-based filtering for S3 buckets (AND logic).
+# Buckets missing the specified tag(s) are skipped.
+# IAM, EBS, and CloudTrail checks are account-level and not tag-filterable.
+#
+# Option A: single tag key/value
+# tag_key: "env"
+# tag_value: "production"
+#
+# Option B: multiple tag filters (all must match)
+# tag_filters:
+#   - env=production
+#   - team=platform
+
+# Region override (replaces --regions and config defaults)
+regions: []
+# regions:
+#   - us-east-1
+#   - eu-west-1
+
+# S3 bucket name patterns (glob). Only matching buckets are scanned.
+bucket_patterns: []
+# bucket_patterns:
+#   - prod-*
+#   - company-prod-*
+
+# S3 bucket name exclusions (glob). Matching buckets are skipped.
+bucket_exclude: []
+# bucket_exclude:
+#   - prod-test-*
+#   - prod-sandbox-*

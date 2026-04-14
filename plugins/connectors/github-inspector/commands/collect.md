@@ -19,6 +19,8 @@ node plugins/connectors/github-inspector/scripts/collect.js [options]
   - `@me` — all repos you own
   - `org:<name>` — all repos in an org you're a member of
   - `repo:<owner>/<name>` — single repo
+  - `repos-file` — scan repos listed in a YAML config file (see below)
+- `--repos-file=<path>` — path to repos YAML file (default: `config/repos.yaml` in the plugin dir)
 - `--refresh` — ignore cache; always re-query GitHub
 - `--output=<fmt>` — `silent` (default for CLI piping) | `summary` (one-line summary) | `json`
 - `--limit=<n>` — cap the number of repos scanned (useful for testing)
@@ -74,6 +76,30 @@ GitHub's REST API gives you 5,000 requests/hour authenticated. The connector bud
 
 # Single repo for testing
 /github-inspector:collect --scope=repo:acme/prod-api
+
+# Curated list from config file
+/github-inspector:collect --scope=repos-file
+
+# Custom repos file path
+/github-inspector:collect --scope=repos-file --repos-file=./my-repos.yaml
+```
+
+## Repos file format
+
+Create a YAML file listing specific repositories to scan:
+
+```yaml
+# config/repos.yaml
+repos:
+  - acme/prod-api
+  - acme/billing-service
+  - acme/infrastructure
+  - other-org/shared-lib
+  - acme/svc-*            # glob pattern: all svc- repos in acme
+
+exclude:
+  - acme/deprecated-app
+  - acme/test-*           # exclude test repos
 ```
 
 ## CI/CD usage

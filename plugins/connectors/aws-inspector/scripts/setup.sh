@@ -131,5 +131,10 @@ fi
 cat <<'EOF'
 Next:
   /aws-inspector:collect
+  /aws-inspector:collect --tag-filter=env=production
+  /aws-inspector:collect --scope-file=config/scope.yaml
   /grc-engineer:gap-assessment SOC2,FedRAMP-Moderate --sources=aws-inspector
+
+To scope audits to production resources, edit:
+  plugins/connectors/aws-inspector/config/scope.yaml
 EOF

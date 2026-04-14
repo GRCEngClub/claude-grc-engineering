@@ -18,6 +18,8 @@ node plugins/connectors/aws-inspector/scripts/collect.js [options]
 - `--regions=<csv>` — regions to scan (default: the config's `default_region`; IAM + S3 + CloudTrail have global/multi-region considerations)
 - `--services=<csv>` — subset of `iam,s3,cloudtrail,ebs` (default: all)
 - `--profile=<name>` — override the configured AWS profile
+- `--scope-file=<path>` — path to scope YAML file for production filtering (default: `config/scope.yaml` in plugin dir)
+- `--tag-filter=<csv>` — inline tag filters as `key=value` pairs, e.g. `--tag-filter=env=production,team=platform`
 - `--output=<fmt>` — `silent` | `summary` (default) | `json`
 - `--refresh` — ignore cache; re-query AWS
 - `--quiet` — no stderr progress
@@ -85,7 +87,8 @@ Minimum IAM policy for a read-only scan:
       "Action": [
         "iam:GetAccountPasswordPolicy", "iam:GetAccountSummary",
         "iam:ListUsers", "iam:ListAccessKeys", "iam:GetLoginProfile", "iam:GetUser", "iam:ListMFADevices", "iam:ListUserPolicies", "iam:ListAttachedUserPolicies",
-        "s3:ListAllMyBuckets", "s3:GetBucketEncryption", "s3:GetBucketPublicAccessBlock", "s3:GetBucketVersioning", "s3:GetBucketLogging", "s3:GetBucketLocation",
+        "s3:ListAllMyBuckets", "s3:GetBucketEncryption", "s3:GetBucketPublicAccessBlock", "s3:GetBucketVersioning", "s3:GetBucketLogging", "s3:GetBucketLocation", "s3:GetBucketTagging",
+        "sts:GetCallerIdentity",
         "cloudtrail:DescribeTrails", "cloudtrail:GetTrailStatus", "cloudtrail:GetEventSelectors",
         "ec2:GetEbsEncryptionByDefault"
       ],
@@ -111,7 +114,58 @@ The AWS-managed `SecurityAudit` policy is a superset that also works.
 
 # Alternate profile
 /aws-inspector:collect --profile=audit-role
+
+# Production only (tag filter)
+/aws-inspector:collect --tag-filter=env=production
+
+# Production only (scope file)
+/aws-inspector:collect --scope-file=config/scope.yaml
 ```
+
+## Production scoping
+
+To scan only production resources, create or edit `config/scope.yaml` in the plugin directory:
+
+```yaml
+# Multi-account: scan dedicated production AWS accounts
+profiles:
+  - prod-us
+  - prod-eu
+
+# Tag filtering: only scan S3 buckets tagged env=production
+tag_key: "env"
+tag_value: "production"
+
+# Restrict to production regions
+regions:
+  - us-east-1
+  - eu-west-1
+
+# Bucket name patterns (glob)
+bucket_patterns:
+  - prod-*
+  - company-prod-*
+
+# Exclude test buckets
+bucket_exclude:
+  - prod-test-*
+```
+
+```bash
+# Use the default scope file
+/aws-inspector:collect --scope-file=config/scope.yaml
+
+# Or use inline tag filters without a scope file
+/aws-inspector:collect --tag-filter=env=production
+
+# Combine with other flags
+/aws-inspector:collect --scope-file=config/scope.yaml --services=s3 --output=json
+```
+
+**Notes:**
+- Tag filtering applies to S3 buckets only. IAM, EBS, and CloudTrail checks are account-level.
+- Multi-profile mode resolves each profile's account ID via `sts:GetCallerIdentity`.
+- When no scope file is active and no `--tag-filter` is passed, all resources are scanned (unchanged default).
 
 ## CI/CD usage
 
