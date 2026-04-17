@@ -1,0 +1,70 @@
+name: Connector request
+description: Propose a new connector or an expansion of an existing connector.
+title: "[Connector]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Connector requests are strongest when they show a real tool, a clear
+        auth story, and a path to schema-valid Findings.
+
+  - type: input
+    id: tool_name
+    attributes:
+      label: Tool or platform
+      placeholder: Azure, Datadog, ServiceNow, CrowdStrike...
+    validations:
+      required: true
+
+  - type: input
+    id: cli_sdk
+    attributes:
+      label: CLI or SDK availability
+      description: Link the CLI or SDK that the connector would wrap.
+      placeholder: https://learn.microsoft.com/cli/azure/
+    validations:
+      required: true
+
+  - type: textarea
+    id: auth_model
+    attributes:
+      label: Authentication model
+      description: Explain how users would authenticate without inventing a new secret store.
+      placeholder: Existing CLI profile, OAuth token, service account, API token in env var...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: connector_tier
+    attributes:
+      label: Priority tier
+      description: Pick the best fit for the request.
+      options:
+        - Tier-1 candidate
+        - Tier-2 candidate
+        - Not sure yet
+    validations:
+      required: true
+
+  - type: textarea
+    id: justification
+    attributes:
+      label: Why does this belong in the toolkit?
+      description: Explain the user problem, the audience, and why the connector should exist here instead of as a one-off script.
+    validations:
+      required: true
+
+  - type: textarea
+    id: output_shape
+    attributes:
+      label: Expected findings or control coverage
+      description: Describe the kinds of checks, data, or controls this connector can evaluate well.
+      placeholder: Access reviews, MFA coverage, branch protection, vulnerability findings...
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References or prior art
+      description: Share docs, sample output, or related open-source tooling if available.

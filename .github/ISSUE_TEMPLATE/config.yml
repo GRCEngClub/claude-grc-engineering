@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussions
+    url: https://github.com/GRCEngClub/claude-grc-engineering/discussions
+    about: Ask open-ended questions, workshop ideas, or get help choosing the right contribution path.
+  - name: Security policy
+    url: https://github.com/GRCEngClub/claude-grc-engineering/blob/main/SECURITY.md
+    about: Please review the private reporting process for vulnerabilities before opening anything public.

@@ -1,0 +1,88 @@
+{
+  "projectName": "claude-grc-engineering",
+  "projectOwner": "GRCEngClub",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "CONTRIBUTORS.md"
+  ],
+  "imageSize": 100,
+  "contributorsPerLine": 6,
+  "commit": false,
+  "skipCi": true,
+  "contributors": [
+    {
+      "login": "ajy0127",
+      "name": "AJ Yawn",
+      "avatar_url": "https://github.com/ajy0127.png?size=100",
+      "profile": "https://github.com/ajy0127",
+      "contributions": [
+        "maintenance",
+        "ideas",
+        "content"
+      ]
+    },
+    {
+      "login": "ethanolivertroy",
+      "name": "Ethan Troy",
+      "avatar_url": "https://github.com/ethanolivertroy.png?size=100",
+      "profile": "https://github.com/ethanolivertroy",
+      "contributions": [
+        "projectManagement",
+        "code",
+        "doc",
+        "maintenance"
+      ]
+    }
+  ],
+  "types": {
+    "code": {
+      "symbol": "💻",
+      "description": "Code"
+    },
+    "doc": {
+      "symbol": "📖",
+      "description": "Documentation"
+    },
+    "review": {
+      "symbol": "👀",
+      "description": "Reviewed pull requests"
+    },
+    "question": {
+      "symbol": "💬",
+      "description": "Answered questions"
+    },
+    "ideas": {
+      "symbol": "🤔",
+      "description": "Ideas, planning, and feedback"
+    },
+    "infra": {
+      "symbol": "🚇",
+      "description": "Infrastructure"
+    },
+    "content": {
+      "symbol": "🖋",
+      "description": "Content"
+    },
+    "bug": {
+      "symbol": "🐛",
+      "description": "Bug reports"
+    },
+    "example": {
+      "symbol": "💡",
+      "description": "Examples"
+    },
+    "test": {
+      "symbol": "⚠️",
+      "description": "Tests"
+    },
+    "maintenance": {
+      "symbol": "🚧",
+      "description": "Maintenance"
+    },
+    "projectManagement": {
+      "symbol": "📆",
+      "description": "Project management"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+# Default ownership
+* @GRCEngClub/GRC-Eng-Leadership-Team
+
+# Sensitive contract and licensing areas
+/schemas/** @GRCEngClub/GRC-Eng-Leadership-Team
+/plugins/frameworks/cis-controls/** @GRCEngClub/GRC-Eng-Leadership-Team

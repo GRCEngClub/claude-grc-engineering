@@ -1,0 +1,77 @@
+name: Plugin proposal
+description: Propose a plugin in a new or expanding category such as reporting, dashboards, transforms, programs, or meetings.
+title: "[Plugin]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for Architecture v2 ideas that are not simply a new
+        connector or framework plugin.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Proposed category
+      options:
+        - Reporting
+        - Dashboards
+        - Document transformation
+        - Program management
+        - Meetings
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: command_name
+    attributes:
+      label: Proposed command or plugin name
+      placeholder: /report:executive-summary, /dashboard:standup, /program:risk-register
+    validations:
+      required: true
+
+  - type: dropdown
+    id: persona
+    attributes:
+      label: Primary persona or audience
+      options:
+        - grc-engineer
+        - grc-auditor
+        - grc-internal
+        - grc-tprm
+        - Executive / leadership audience
+        - Multi-persona
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the workflow gap and why current plugins do not cover it cleanly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Expected inputs
+      description: List the data or artifacts the plugin would consume.
+      placeholder: Findings JSON, metrics time-series, risk register entries, markdown policies...
+    validations:
+      required: true
+
+  - type: textarea
+    id: outputs
+    attributes:
+      label: Expected outputs
+      description: Describe what the plugin should produce and who would consume it.
+      placeholder: Markdown brief, PDF, PPTX, updated YAML state, terminal dashboard...
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: References, mockups, or similar workflows
+      description: Share examples, screenshots, or tools that illustrate the shape of the idea.

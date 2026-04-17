@@ -1,0 +1,61 @@
+name: Framework request
+description: Propose a new framework plugin or a major gap in an existing framework plugin.
+title: "[Framework]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Framework plugins should rely on SCF crosswalks and implementation
+        guidance, not verbatim standard text.
+
+  - type: input
+    id: framework_name
+    attributes:
+      label: Framework or baseline
+      placeholder: HIPAA, APRA CPS 234, MAS TRM, FedRAMP Low...
+    validations:
+      required: true
+
+  - type: input
+    id: issuer
+    attributes:
+      label: Issuing body
+      placeholder: HHS, APRA, MAS, FedRAMP PMO...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: licensing
+    attributes:
+      label: Licensing or access model
+      options:
+        - Publicly available
+        - Publicly available with attribution requirements
+        - Licensed or paywalled
+        - Not sure yet
+    validations:
+      required: true
+
+  - type: input
+    id: baselines
+    attributes:
+      label: Target baselines, profiles, or maturity levels
+      description: Name the versions or profiles that matter first.
+      placeholder: FedRAMP Low Rev. 5, CPS 234 core requirements, MAS TRM 2021...
+
+  - type: textarea
+    id: scf_status
+    attributes:
+      label: SCF crosswalk status
+      description: Tell us whether SCF already maps this framework or whether that mapping work is still missing.
+      placeholder: SCF appears to cover..., SCF gap unknown..., custom mapping likely needed...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Why is this framework important for the community?
+      description: Share the real-world audience, geography, or customer pressure behind the request.
+    validations:
+      required: true

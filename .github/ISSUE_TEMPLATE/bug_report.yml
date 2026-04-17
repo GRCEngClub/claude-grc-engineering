@@ -1,0 +1,61 @@
+name: Bug report
+description: Report a defect in a plugin, schema, workflow, or documentation path.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the toolkit. Please include enough detail for
+        a maintainer to reproduce the problem without guessing.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the bug and the impact it had on your work.
+      placeholder: The connector collected findings, but the generated JSON failed schema validation...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Share the smallest repeatable sequence that shows the problem.
+      placeholder: |
+        1. Run ...
+        2. Use ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+      placeholder: The command should have emitted schema-valid findings and exited 0.
+    validations:
+      required: true
+
+  - type: input
+    id: area
+    attributes:
+      label: Affected area
+      description: Name the plugin, schema, script, or doc page involved.
+      placeholder: connectors/github-inspector, schemas/finding.schema.json, README.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment details
+      description: Include OS, shell, Node version, Claude Code version, and any relevant external tool versions.
+      render: shell
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, screenshots, or failing output
+      description: Paste sanitized output. Remove secrets and internal-only data before submitting.
+      render: shell
