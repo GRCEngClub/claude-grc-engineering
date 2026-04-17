@@ -7,7 +7,7 @@ the repository, and how contributors can grow into maintainership.
 ## Leadership team
 
 The project is co-led by AJ Yawn and Ethan Troy through
-`@GRCEngClub/GRC-Eng-Leadership-Team`.
+`@GRCEngClub/grc-eng-leadership-team`.
 
 The leadership team is responsible for:
 
