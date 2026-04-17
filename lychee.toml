@@ -1,0 +1,26 @@
+# lychee config: link checker for the toolkit's Markdown corpus.
+
+# Run headers that reduce false-positive rate-limit blocks.
+accept = [200, 203, 206, 403, 429]
+max_concurrency = 8
+timeout = 20
+retry_wait_time = 4
+max_retries = 2
+
+# Skip links that lychee consistently false-flags or that are intentional.
+exclude = [
+  # Localhost / placeholder URLs in examples
+  "^http://localhost",
+  "^https://localhost",
+  "^http://127\\.0\\.0\\.1",
+  "^https://example\\.com",
+  "^https://hooks\\.slack\\.com/\\.\\.\\.",
+  # LinkedIn gates most profile URLs behind auth
+  "^https://(www\\.)?linkedin\\.com",
+  # Some regulator sites return 5xx to scrapers but render fine in browsers
+  "^https://www\\.ecfr\\.gov",
+]
+
+exclude_all_private = true
+no_progress = true
+github_token = "${GITHUB_TOKEN}"

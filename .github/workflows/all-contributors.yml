@@ -1,0 +1,19 @@
+name: Recognize contributors
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  recognize:
+    name: all-contributors bot
+    # Only trigger on PR comments that invoke the bot.
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '@all-contributors')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run all-contributors bot
+        uses: all-contributors/all-contributors-bot@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

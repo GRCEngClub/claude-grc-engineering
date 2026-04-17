@@ -1,0 +1,32 @@
+name: Link check
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '.github/workflows/link-check.yml'
+      - 'lychee.toml'
+  schedule:
+    # Weekly, Mondays 08:00 UTC — catches rotted external links (SCF API,
+    # regulatory URLs, upstream tool repos) without blocking day-to-day PRs.
+    - cron: '0 8 * * 1'
+
+concurrency:
+  group: link-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lychee:
+    name: lychee
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --config lychee.toml
+            --verbose
+            --no-progress
+            './**/*.md'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

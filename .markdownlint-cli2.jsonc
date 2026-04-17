@@ -1,0 +1,24 @@
+{
+  // Config for markdownlint-cli2.
+  // The toolkit's docs include long single-line tables, framework control
+  // identifiers that look like emphasis (e.g. AC-2(1)), and verbatim quoted
+  // regulation text. Relax the noisiest rules while keeping structural ones.
+  "config": {
+    "default": true,
+    "line-length": false,
+    "no-duplicate-heading": { "siblings_only": true },
+    "no-inline-html": {
+      "allowed_elements": ["br", "details", "summary", "a", "img", "sub", "sup", "kbd", "table", "thead", "tbody", "tr", "th", "td"]
+    },
+    "no-trailing-punctuation": { "punctuation": ".,;:!" },
+    "no-bare-urls": false,
+    "code-block-style": false,
+    "first-line-heading": false,
+    "heading-style": { "style": "atx" },
+    "ul-style": { "style": "dash" }
+  },
+  "ignores": [
+    "node_modules/**",
+    "**/generated/**"
+  ]
+}

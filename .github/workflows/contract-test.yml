@@ -1,0 +1,60 @@
+name: Contract test
+
+on:
+  pull_request:
+    paths:
+      - 'schemas/**'
+      - 'tests/fixtures/**'
+      - 'plugins/connectors/**'
+      - '.github/workflows/contract-test.yml'
+  push:
+    branches: [main]
+
+concurrency:
+  group: contract-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-fixtures:
+    name: Validate Finding fixtures against schema v1
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install ajv-cli + formats
+        run: npm install --no-save ajv-cli@5 ajv-formats@3
+
+      - name: Validate every fixture under tests/fixtures/findings
+        run: |
+          set -eo pipefail
+          shopt -s globstar nullglob
+          fixtures=(tests/fixtures/findings/**/*.json)
+          if [ ${#fixtures[@]} -eq 0 ]; then
+            echo "::warning::No fixtures found under tests/fixtures/findings/"
+            exit 0
+          fi
+          echo "Found ${#fixtures[@]} fixture(s). Validating against schemas/finding.schema.json ..."
+          failed=0
+          for f in "${fixtures[@]}"; do
+            if npx --no-install ajv validate \
+              --spec=draft2020 \
+              -c ajv-formats \
+              -s schemas/finding.schema.json \
+              -d "$f" \
+              --errors=line 2>&1; then
+              echo "  ✓ $f"
+            else
+              echo "  ✗ $f"
+              failed=$((failed + 1))
+            fi
+          done
+          if [ $failed -gt 0 ]; then
+            echo "::error::$failed fixture(s) failed schema validation"
+            exit 1
+          fi
+          echo "All ${#fixtures[@]} fixtures valid."

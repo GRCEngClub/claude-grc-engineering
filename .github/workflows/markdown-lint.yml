@@ -1,0 +1,27 @@
+name: Markdown lint
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '.github/workflows/markdown-lint.yml'
+      - '.markdownlint-cli2.jsonc'
+  push:
+    branches: [main]
+
+concurrency:
+  group: md-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: markdownlint-cli2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: |
+            **/*.md
+            !node_modules
+            !**/generated/**
