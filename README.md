@@ -59,6 +59,8 @@ Full walkthrough: [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 | Build audit workpapers and evidence packages | `/grc-auditor:generate-workpaper`, `/grc-engineer:collect-evidence` |
 | Generate OSCAL SSP, SAP, SAR, or POA&M from findings and framework configs | `/oscal:*` (see OSCAL plugin) |
 | Analyze a vendor security questionnaire (SIG, CAIQ, Yardstick) | `/grc-tprm:analyze-questionnaire` |
+| Discover which of the 249 SCF-mapped frameworks have dedicated plugins | `/grc-engineer:frameworks` |
+| Scaffold a new framework plugin from the SCF crosswalk | `/grc-engineer:scaffold-framework` |
 
 Every command's reference page lives in its plugin's `commands/` directory with full input and output documentation.
 
@@ -81,6 +83,8 @@ Every command's reference page lives in its plugin's `commands/` directory with 
 ### Framework plugins
 
 A reference layer: control IDs, families, implementation guidance, evidence patterns, and framework-specific workflow commands. Normative control text is not reproduced. Consult your licensed copy of the standard for authoritative requirements.
+
+> **249 frameworks, one command to discover them**: the Club's goal is a dedicated plugin for every framework in the [SCF crosswalk](https://securecontrolsframework.com). Run `/grc-engineer:frameworks` to see which have plugins and which are crosswalk-supported today via `/grc-engineer:gap-assessment`. New frameworks can be scaffolded in one command with `/grc-engineer:scaffold-framework <scf-framework-id>` — see the [Framework Plugin Guide](docs/FRAMEWORK-PLUGIN-GUIDE.md) for the three depth tiers (Stub / Reference / Full).
 
 | Plugin | Namespace | Scope |
 |---|---|---|
@@ -180,7 +184,9 @@ SCF data is fetched from [`hackidle.github.io/scf-api`](https://hackidle.github.
 
 - [`docs/QUICKSTART.md`](docs/QUICKSTART.md): zero to first gap report in 10 minutes
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): pipeline model, plugin categories, extensibility
+- [`docs/ARCHITECTURE-V2-RFC.md`](docs/ARCHITECTURE-V2-RFC.md): proposed 5 new plugin categories — open for comment through 2026-05-02
 - [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md): add a connector, improve a framework plugin
+- [`docs/FRAMEWORK-PLUGIN-GUIDE.md`](docs/FRAMEWORK-PLUGIN-GUIDE.md): depth tiers (Stub / Reference / Full), level-up checklists, anti-patterns
 - [`docs/SCF-ATTRIBUTION.md`](docs/SCF-ATTRIBUTION.md): SCF licensing and usage
 - [`docs/ENTERPRISE-DEPLOYMENT.md`](docs/ENTERPRISE-DEPLOYMENT.md): AWS Bedrock and Google Vertex AI configuration
 - [`schemas/finding.schema.json`](schemas/finding.schema.json): the data contract
