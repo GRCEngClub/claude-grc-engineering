@@ -2,7 +2,20 @@
   "name": "essential8",
   "description": "Essential 8 Plugin - Australian Cyber Security Centre mitigation strategies with 3 maturity levels",
   "version": "0.1.0",
-  "author": {"name": "GRC Engineering Club Contributors"},
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
-  "license": "MIT"
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "apac-aus-essential-8-2024",
+    "display_name": "Australia - Essential Eight (2024)",
+    "region": "APAC",
+    "country": "AU",
+    "depth": "reference",
+    "scf_controls_mapped": 37,
+    "framework_controls_mapped": 24,
+    "industry": [],
+    "regulator": ""
+  }
 }

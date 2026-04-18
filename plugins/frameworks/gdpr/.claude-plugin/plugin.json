@@ -2,7 +2,20 @@
   "name": "gdpr",
   "description": "GDPR Plugin - EU General Data Protection Regulation with DPIA, data subject rights, and 72-hour breach notification",
   "version": "0.1.0",
-  "author": {"name": "GRC Engineering Club Contributors"},
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
-  "license": "MIT"
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "emea-eu-gdpr-2016",
+    "display_name": "EU General Data Protection Regulation (GDPR) (2016)",
+    "region": "EMEA",
+    "country": "",
+    "depth": "reference",
+    "scf_controls_mapped": 42,
+    "framework_controls_mapped": 227,
+    "industry": [],
+    "regulator": ""
+  }
 }

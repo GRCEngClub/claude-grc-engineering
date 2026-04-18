@@ -13,6 +13,9 @@
     "review-pr": "node plugins/grc-engineer/scripts/review-pr.js",
     "collect-evidence": "node plugins/grc-engineer/scripts/collect-evidence.js",
     "transform-risk": "node plugins/grc-engineer/scripts/transform-risk.js",
+    "frameworks": "node plugins/grc-engineer/scripts/frameworks.js",
+    "scaffold-framework": "node plugins/grc-engineer/scripts/scaffold-framework.js",
+    "generate-coverage": "node plugins/grc-engineer/scripts/generate-coverage.js",
     "test:contract": "ajv validate --spec=draft2020 -c ajv-formats -s schemas/finding.schema.json -d 'tests/fixtures/findings/**/*.json'",
     "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules'"
   },

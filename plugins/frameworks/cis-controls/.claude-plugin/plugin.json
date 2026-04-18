@@ -2,8 +2,21 @@
   "name": "cis-controls",
   "description": "CIS Controls v8 Plugin - Center for Internet Security baseline with IG1/IG2/IG3 implementation groups and 153 safeguards",
   "version": "0.1.0",
-  "author": {"name": "GRC Engineering Club Contributors"},
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "CC-BY-SA-4.0 AND MIT",
-  "license_note": "CIS-derived content (commands, skills) is CC BY-SA 4.0 per the upstream CIS Controls license. Original glue code is MIT. See LICENSE-CIS.md."
+  "license_note": "CIS-derived content (commands, skills) is CC BY-SA 4.0 per the upstream CIS Controls license. Original glue code is MIT. See LICENSE-CIS.md.",
+  "framework_metadata": {
+    "scf_framework_id": "general-cis-csc-8-1",
+    "display_name": "Critical Security Controls (CSC) (v8.1)",
+    "region": "Global",
+    "country": "",
+    "depth": "reference",
+    "scf_controls_mapped": 234,
+    "framework_controls_mapped": 166,
+    "industry": [],
+    "regulator": ""
+  }
 }

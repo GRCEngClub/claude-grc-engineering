@@ -187,6 +187,7 @@ SCF data is fetched from [`hackidle.github.io/scf-api`](https://hackidle.github.
 - [`docs/ARCHITECTURE-V2-RFC.md`](docs/ARCHITECTURE-V2-RFC.md): proposed 5 new plugin categories — open for comment through 2026-05-02
 - [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md): add a connector, improve a framework plugin
 - [`docs/FRAMEWORK-PLUGIN-GUIDE.md`](docs/FRAMEWORK-PLUGIN-GUIDE.md): depth tiers (Stub / Reference / Full), level-up checklists, anti-patterns
+- [`docs/FRAMEWORK-COVERAGE.md`](docs/FRAMEWORK-COVERAGE.md): auto-generated status of all 249 SCF-mapped frameworks — which have plugins, at what depth
 - [`docs/SCF-ATTRIBUTION.md`](docs/SCF-ATTRIBUTION.md): SCF licensing and usage
 - [`docs/ENTERPRISE-DEPLOYMENT.md`](docs/ENTERPRISE-DEPLOYMENT.md): AWS Bedrock and Google Vertex AI configuration
 - [`schemas/finding.schema.json`](schemas/finding.schema.json): the data contract

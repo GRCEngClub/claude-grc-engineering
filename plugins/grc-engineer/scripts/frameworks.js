@@ -37,42 +37,17 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
 const FRAMEWORKS_DIR = path.join(REPO_ROOT, 'plugins', 'frameworks');
 const MARKETPLACE_FILE = path.join(REPO_ROOT, '.claude-plugin', 'marketplace.json');
 
-/**
- * Legacy plugins shipped before the framework_metadata convention existed.
- * Maps plugin slug → SCF framework_id so the discovery command can cross-
- * reference them. Kept here as a dictionary (rather than file-per-plugin)
- * so contributors can remove entries as they add framework_metadata to the
- * respective plugin.json. Values verified against the SCF crosswalks index.
- */
-const LEGACY_SCF_MAPPINGS = {
-  // SCF IDs verified against https://hackidle.github.io/scf-api/api/crosswalks.json
-  // (SCF v2026.1). Where the plugin maps to multiple SCF entries (e.g. FedRAMP
-  // has low/moderate/high/li-saas baselines, CMMC has three levels), we pick
-  // the most-common primary baseline here. Plugins can override by setting
-  // `framework_metadata.scf_framework_id` in their plugin.json, at which point
-  // the entry here becomes unused.
-  'soc2': 'general-aicpa-tsc-2017',
-  'nist-800-53': 'general-nist-800-53-r5-2',
-  'iso27001': 'general-iso-27001-2022',
-  'fedramp-rev5': 'usa-federal-gsa-fedramp-5-mod',
-  'pci-dss': 'general-pci-dss-4-0-1',
-  'cmmc': 'usa-federal-dow-cmmc-2-level-2',
-  'cis-controls': 'general-cis-csc-8-1',
-  'gdpr': 'emea-eu-gdpr-2016',
-  'csa-ccm': 'general-csa-cmm-4-1-0',
-  'nydfs': 'usa-state-ny-dfs-23-nycrr500-2023-amd2',
-  'dora': 'emea-eu-dora-2023',
-  'essential8': 'apac-aus-essential-8-2024',
-  'glba': 'usa-federal-law-glba-cfr-314-2023',
-  'ismap': 'apac-jpn-ismap',
-  // Unmapped deliberately — either no direct SCF entry or ambiguous crosswalk:
-  //   fedramp-20x  (no dedicated SCF entry; 20X KSI is an authorization process)
-  //   hitrust      (HITRUST CSF licensing may exclude it from SCF)
-  //   stateramp    (no dedicated SCF entry)
-  //   pbmm         (no dedicated SCF entry; Canada ITSG-33 exists as sibling)
-  //   irap         (Australian IRAP uses the ISM; mapping to apac-aus-ism-2024-june is arguable)
-  //   us-export    (spans ITAR + EAR; no single SCF entry)
-};
+// Every shipped framework plugin is expected to carry a `framework_metadata`
+// block in its plugin.json with `scf_framework_id`. Plugins without one show
+// up as "(no SCF mapping recorded)" so contributors can add the block.
+//
+// Deliberately unmapped plugins (no direct SCF entry or ambiguous crosswalk):
+//   fedramp-20x  (no dedicated SCF entry; 20X KSI is an authorization process)
+//   hitrust      (HITRUST CSF licensing may exclude it from SCF)
+//   stateramp    (no dedicated SCF entry)
+//   pbmm         (no dedicated SCF entry; Canada ITSG-33 exists as sibling)
+//   irap         (Australian IRAP uses the ISM; mapping arguable)
+//   us-export    (spans ITAR + EAR; no single SCF entry)
 
 function parseArgs(argv) {
   const args = argv.slice(2);
@@ -150,13 +125,12 @@ async function listShippedPlugins() {
     const meta = await loadPluginMetadata(slug);
     if (!meta) continue;
     const fwMeta = meta.framework_metadata || null;
-    const legacyScfId = LEGACY_SCF_MAPPINGS[slug] || null;
     plugins.push({
       slug,
       display_name: meta.description ? meta.description.split('—')[0].trim().split(' Plugin')[0] : slug,
-      scf_framework_id: fwMeta?.scf_framework_id || legacyScfId,
+      scf_framework_id: fwMeta?.scf_framework_id || null,
       depth: fwMeta?.depth || 'unknown',
-      region: fwMeta?.region?.toLowerCase() || (legacyScfId ? regionFromFrameworkId(legacyScfId) : null),
+      region: fwMeta?.region?.toLowerCase() || (fwMeta?.scf_framework_id ? regionFromFrameworkId(fwMeta.scf_framework_id) : null),
     });
   }
   return plugins;

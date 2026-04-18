@@ -1,0 +1,37 @@
+name: Update framework coverage
+
+on:
+  schedule:
+    # Weekly on Sundays at 04:00 UTC — catches new SCF crosswalks and plugin additions
+    - cron: '0 4 * * 0'
+  workflow_dispatch:
+
+concurrency:
+  group: coverage-update
+  cancel-in-progress: true
+
+jobs:
+  regenerate:
+    name: Regenerate docs/FRAMEWORK-COVERAGE.md
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Regenerate coverage doc
+        run: node plugins/grc-engineer/scripts/generate-coverage.js
+      - name: Open PR if changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'docs: regenerate framework coverage'
+          title: 'docs: regenerate FRAMEWORK-COVERAGE.md'
+          body: |
+            Weekly auto-regeneration of `docs/FRAMEWORK-COVERAGE.md` from SCF crosswalks + current plugin state.
+            
+            This PR only opens when the generated content has actually changed.
+          branch: bot/regenerate-coverage
+          delete-branch: true

@@ -2,7 +2,20 @@
   "name": "glba",
   "description": "GLBA Plugin - Gramm-Leach-Bliley Act for financial institutions with Safeguards Rule and Privacy Rule compliance",
   "version": "0.1.0",
-  "author": {"name": "GRC Engineering Club Contributors"},
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
-  "license": "MIT"
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "usa-federal-law-glba-cfr-314-2023",
+    "display_name": "Gramm Leach Bliley Act (GLBA) (2023)",
+    "region": "Americas",
+    "country": "US",
+    "depth": "reference",
+    "scf_controls_mapped": 70,
+    "framework_controls_mapped": 52,
+    "industry": [],
+    "regulator": ""
+  }
 }

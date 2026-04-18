@@ -6,5 +6,16 @@
     "name": "GRC Engineering Club Contributors"
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
-  "license": "MIT"
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "usa-federal-dow-cmmc-2-level-2",
+    "display_name": "Cybersecurity Maturity Model Certification (CMMC) 2.0 - Level 2",
+    "region": "Americas",
+    "country": "US",
+    "depth": "reference",
+    "scf_controls_mapped": 198,
+    "framework_controls_mapped": 110,
+    "industry": [],
+    "regulator": ""
+  }
 }

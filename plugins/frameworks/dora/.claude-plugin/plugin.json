@@ -2,7 +2,20 @@
   "name": "dora",
   "description": "DORA Plugin - EU Digital Operational Resilience Act for financial entities with ICT risk management (effective January 2025)",
   "version": "0.1.0",
-  "author": {"name": "GRC Engineering Club Contributors"},
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
-  "license": "MIT"
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "emea-eu-dora-2023",
+    "display_name": "EU Digital Operational Resilience Act (DORA) (2023)",
+    "region": "EMEA",
+    "country": "",
+    "depth": "reference",
+    "scf_controls_mapped": 102,
+    "framework_controls_mapped": 241,
+    "industry": [],
+    "regulator": ""
+  }
 }

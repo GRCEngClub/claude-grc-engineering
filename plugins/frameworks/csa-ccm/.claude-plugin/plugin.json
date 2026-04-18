@@ -2,7 +2,20 @@
   "name": "csa-ccm",
   "description": "CSA CCM Plugin - Cloud Security Alliance Cloud Controls Matrix with 197 controls and CAIQ support",
   "version": "0.1.0",
-  "author": {"name": "GRC Engineering Club Contributors"},
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
-  "license": "MIT"
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "general-csa-cmm-4-1-0",
+    "display_name": "Cloud Controls Matrix (CCM) (v4.1.0)",
+    "region": "Global",
+    "country": "",
+    "depth": "reference",
+    "scf_controls_mapped": 291,
+    "framework_controls_mapped": 207,
+    "industry": [],
+    "regulator": ""
+  }
 }

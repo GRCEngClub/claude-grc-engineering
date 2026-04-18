@@ -6,5 +6,16 @@
     "name": "GRC Engineering Club Contributors"
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
-  "license": "MIT"
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "general-aicpa-tsc-2017",
+    "display_name": "Trust Services Criteria (TSC) (2017)",
+    "region": "Global",
+    "country": "",
+    "depth": "reference",
+    "scf_controls_mapped": 412,
+    "framework_controls_mapped": 399,
+    "industry": [],
+    "regulator": ""
+  }
 }
