@@ -1,10 +1,13 @@
 # RFC: Architecture v2 — expanding beyond framework-centric plugins
 
-**Status**: Draft — open for community comment
+**Status**: Draft — open for community comment (with [Amendment A1](#amendment-a1--2026-04-18) applied in-document)
 **Authors**: GRC Engineering Club leadership team
 **Target merge**: after 2-week comment window closes
 **Replaces**: n/a (first architecture RFC)
 **Affected surface**: plugin taxonomy, directory layout, data schemas, namespace conventions
+**Tracking issue**: [#38](https://github.com/GRCEngClub/claude-grc-engineering/issues/38)
+
+> **Important**: see [Amendment A1](#amendment-a1--2026-04-18) at the bottom of this document. Two plugin categories emerged after the RFC was published and deserve to be in scope; the directory-restructure recommendation has been softened based on subsequent plugin additions.
 
 ## TL;DR
 
@@ -258,3 +261,107 @@ Comments are welcome on anything, but especially:
 - Schemas we'd need that aren't listed
 
 Silence = assent. At the end of the window, the leadership team resolves open threads and marks this document `Accepted` (or `Revised` with a follow-up RFC).
+
+---
+
+## Amendment A1 — 2026-04-18
+
+Published: 2026-04-18 (one week into the original comment window).
+Author: leadership team.
+Status: in-line amendment; does not restart the comment window.
+
+Reflects decisions made between the RFC's publication and this amendment date. The original body above is preserved unchanged; items below supersede or extend it.
+
+### A1.1 — Two additional plugin categories
+
+Work landed after the RFC surfaced two categories the original proposal didn't name. Both are real patterns with distinct shapes; neither fits cleanly under the original five.
+
+**Bridges** — `plugins/bridges/`
+
+Normalization plugins that read another plugin's output (typically a vendor's official MCP server or Claude Code plugin) and emit records conforming to `schemas/finding.schema.json` v1. Different from connectors because they don't invoke external tools directly — they consume what another plugin already produces. Different from reporting because their output is Findings, not deliverables.
+
+Examples in flight:
+
+- [`#44`](https://github.com/GRCEngClub/claude-grc-engineering/issues/44) — Vanta bridge over [`VantaInc/vanta-mcp-plugin`](https://github.com/VantaInc/vanta-mcp-plugin)
+- [`#45`](https://github.com/GRCEngClub/claude-grc-engineering/issues/45) — Drata bridge over Drata's AI MCP
+
+Namespace convention: `/vanta-bridge:*`, `/drata-bridge:*` (the bridge suffix makes the "normalization layer" role explicit, distinguishing these from the vendor's own `/vanta:*` commands when both plugins are installed).
+
+**Knowledge sources** — `plugins/knowledge-sources/`
+
+Plugins that query authoritative external documentation at assessment time and return citation-backed answers. Different from everything else because they don't produce Findings, deliverables, or state — they're invoked by other plugins to cite current authoritative guidance instead of baking stale content into framework plugins.
+
+Example in flight:
+
+- [`#46`](https://github.com/GRCEngClub/claude-grc-engineering/issues/46) — Google Developer Knowledge API plugin (`/gcp-docs:*`)
+
+Namespace convention: thin and verb-based — `/<source>:query`, `/<source>:cite`.
+
+### A1.2 — Updated plugin taxonomy
+
+The v2 taxonomy is now **seven categories** (three original + five proposed + two emerged):
+
+| Category | Location | Data shape | Status |
+|---|---|---|---|
+| Persona | `plugins/personas/` (renamed from top-level per A1.4) | commands / skills | existing |
+| Framework | `plugins/frameworks/` | reference + workflow | existing, 21 plugins |
+| Connector | `plugins/connectors/` | Findings | existing, 4 plugins |
+| Reporting | `plugins/reporting/` | deliverables (PDF/DOCX/slides) | new, not yet built |
+| Dashboards | `plugins/dashboards/` | live state views | new, not yet built |
+| Document transformation | `plugins/transforms/` | doc format conversion | new, not yet built |
+| Program management | `plugins/programs/` | persistent GitOps state | new, not yet built |
+| Meetings | `plugins/meetings/` | narrative wrappers | new, not yet built |
+| **Bridges** | `plugins/bridges/` | **Findings (normalized from vendor MCPs)** | **new from A1.1** |
+| **Knowledge sources** | `plugins/knowledge-sources/` | **citations** | **new from A1.1** |
+| OSCAL / FedRAMP showcase | top-level (`plugins/oscal/`, `plugins/fedramp-ssp/`) | OSCAL documents | existing |
+
+### A1.3 — `framework_metadata` is now settled
+
+The RFC listed `framework_metadata` as a proposed sibling-schema addition. It has since been implemented and backfilled across 15 framework plugins via the `/grc-engineer:scaffold-framework` command and a one-shot backfill (#43). The convention is:
+
+```json
+"framework_metadata": {
+  "scf_framework_id": "<SCF framework_id>",
+  "display_name": "<human-readable>",
+  "region": "Americas|APAC|EMEA|Global",
+  "country": "<ISO-3166-1 alpha-2 or empty>",
+  "depth": "stub|reference|full",
+  "scf_controls_mapped": <int>,
+  "framework_controls_mapped": <int>,
+  "industry": [],
+  "regulator": ""
+}
+```
+
+Drives the `/grc-engineer:frameworks` discovery command and auto-generated [`docs/FRAMEWORK-COVERAGE.md`](FRAMEWORK-COVERAGE.md). No further RFC review needed — treat as accepted.
+
+### A1.4 — Directory restructure: now recommending Option C, not Option A
+
+The original RFC recommended **Option A**: full move of persona plugins into `plugins/personas/` with a one-shot breaking change in v0.3. Since publication we have:
+
+- Added `plugins/frameworks/singapore-pdpa/` (first scaffold-command output)
+- Backfilled `framework_metadata` on 14 existing framework plugin.json files
+- Opened 15 framework issues that assume current paths
+
+Option A's cost has gone up. Every in-flight framework PR would need to rebase onto the new tree, and the growing `framework_metadata` pattern means path changes propagate into plugin internals.
+
+**Revised recommendation**: **Option C — keep persona plugins at top level; only new categories get new dirs.**
+
+- `plugins/grc-engineer/`, `plugins/grc-auditor/`, `plugins/grc-internal/`, `plugins/grc-tprm/` stay where they are.
+- `plugins/frameworks/`, `plugins/connectors/` unchanged.
+- New categories (`plugins/reporting/`, `plugins/dashboards/`, `plugins/transforms/`, `plugins/programs/`, `plugins/meetings/`, `plugins/bridges/`, `plugins/knowledge-sources/`) get their own top-level dirs inside `plugins/`.
+- Future new persona (e.g. `grc-ciso`) goes at top level alongside the existing four.
+
+Revisit Option A in a future RFC if/when the persona group gets large enough to warrant consolidation. Breaking paths pre-1.0 without a forcing function is churn.
+
+### A1.5 — Comment window, unchanged
+
+Amendment A1 does **not** restart the RFC's comment window. Original window still closes **2026-05-02**. Comments on the amendment are welcome under the same tracking issue ([#38](https://github.com/GRCEngClub/claude-grc-engineering/issues/38)).
+
+### A1.6 — What this amendment does not touch
+
+- The five original proposed categories (reporting, dashboards, transforms, programs, meetings) — unchanged.
+- The `grc-ciso` persona proposal — still open for comment.
+- Sibling schemas for metrics, risks, exceptions, vendors, policies — still proposed, unchanged.
+- GitOps-first statefulness (`grc-data/`) — still the recommended default.
+- Output-format choices (pandoc, python-pptx, Node) — unchanged.
