@@ -61,6 +61,29 @@ proposes these new categories:
 - Program management
 - Meetings
 
+## Platform integrations (MCP bridges and knowledge sources)
+
+Teams using commercial GRC platforms shouldn't have to choose between their
+platform and this toolkit. Bridges pull platform-owned data into the Finding
+schema so `/grc-engineer:gap-assessment` can consume it alongside the toolkit's
+direct connectors.
+
+- **Vanta MCP bridge** — wraps [`VantaInc/vanta-mcp-server`](https://github.com/VantaInc/vanta-mcp-server)
+  (official, MIT). Replaces the stale `vanta-go-export` entry.
+- **Drata MCP bridge** — wraps [Drata's AI MCP](https://drata.com/products/ai/mcp).
+- **OneTrust / Archer / ServiceNow GRC** — candidates for future MCP or SDK bridges
+  once those platforms ship stable programmatic surfaces.
+
+Knowledge-source plugins query authoritative external docs at assessment time
+rather than baking stale guidance into framework plugins:
+
+- **Google Developer Knowledge API** — GCP and Workspace security/compliance
+  documentation retrieval with citation-backed answers.
+- **FedRAMP docs MCP** — live FedRAMP documentation lookup (candidate for
+  in-house maintenance).
+- **NIST / SCF** — the Club already fetches SCF crosswalks; cross-reference
+  with NIST 800-53 rev data via the existing SCF API.
+
 ## Schema v1.1 candidates
 
 Potential contract work after the current schema baseline stabilizes:
