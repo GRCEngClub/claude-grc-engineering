@@ -1,0 +1,27 @@
+# github-inspector repo scope configuration
+#
+# List specific repositories to scan instead of using --scope=@me or --scope=org:<name>.
+# Use --scope=repos-file to activate this list (or set defaults.scope in your connector config).
+#
+# Each entry is an owner/repo slug:
+#
+# repos:
+#   - acme/prod-api
+#   - acme/billing-service
+#   - acme/infrastructure
+#   - other-org/shared-lib
+#
+# You can also use glob-style patterns (matched against full_name):
+#
+# repos:
+#   - acme/*            # all repos in the acme org
+#   - acme/svc-*        # repos starting with svc- in acme
+#
+# To exclude specific repos from org or pattern matches, add an exclude list:
+#
+# exclude:
+#   - acme/deprecated-app
+#   - acme/test-*
+
+repos: []
+# exclude: []

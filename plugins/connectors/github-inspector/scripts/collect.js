@@ -7,8 +7,8 @@
  * controls, and writes a Findings array to the shared cache.
  *
  * Usage:
- *   node collect.js [--scope=@me|org:<name>|repo:<owner/name>]
- *                   [--refresh] [--output=silent|summary|json]
+ *   node collect.js [--scope=@me|org:<name>|repo:<owner/name>|repos-file]
+ *                   [--repos-file=<path>] [--refresh] [--output=silent|summary|json]
  *                   [--limit=<n>] [--concurrency=<n>] [--quiet]
  */
 
@@ -25,6 +25,8 @@ const execFileP = promisify(execFile);
 const CONFIG_DIR = process.env.CLAUDE_GRC_CONFIG_DIR || path.join(os.homedir(), '.config', 'claude-grc');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'connectors', 'github-inspector.yaml');
 const CACHE_DIR = path.join(os.homedir(), '.cache', 'claude-grc', 'findings', 'github-inspector');
+const PLUGIN_DIR = path.resolve(new URL('.', import.meta.url).pathname, '..');
+const DEFAULT_REPOS_FILE = path.join(PLUGIN_DIR, 'config', 'repos.yaml');
 const RUNS_LOG = path.join(os.homedir(), '.cache', 'claude-grc', 'runs.log');
 const SOURCE = 'github-inspector';
 const SOURCE_VERSION = '0.1.0';
@@ -55,7 +57,7 @@ async function main(argv) {
   // 1. Enumerate repos
   let repos;
   try {
-    repos = await enumerateRepos(scope, { includeArchived, includeForks, limit: args.limit });
+    repos = await enumerateRepos(scope, { includeArchived, includeForks, limit: args.limit, reposFile: args.reposFile });
   } catch (err) {
     if (err.code === 'AUTH_FAILED') fail(EXIT.AUTH, err.message);
     throw err;
@@ -138,17 +140,22 @@ function parseArgs(argv) {
       case 'quiet': out.quiet = true; break;
       case 'include-archived': out.includeArchived = v === undefined || v === 'true'; break;
       case 'include-forks': out.includeForks = v === undefined || v === 'true'; break;
+      case 'repos-file': out.reposFile = v; break;
       default: fail(EXIT.USAGE, `Unknown flag: --${k}`);
     }
   }
   return out;
 }
 
-async function enumerateRepos(scope, { includeArchived, includeForks, limit }) {
+async function enumerateRepos(scope, { includeArchived, includeForks, limit, reposFile }) {
   // scope variants:
-  //   @me        → /user/repos?per_page=100&affiliation=owner
-  //   org:<n>    → /orgs/<n>/repos?per_page=100
-  //   repo:<o/r> → /repos/<o>/<r> (single)
+  //   @me             → /user/repos?per_page=100&affiliation=owner
+  //   org:<n>         → /orgs/<n>/repos?per_page=100
+  //   repo:<o/r>      → /repos/<o>/<r> (single)
+  //   repos-file      → read repos from YAML config file
+  if (scope === 'repos-file') {
+    return enumerateFromFile(reposFile, { includeArchived, includeForks, limit });
+  }
   if (scope.startsWith('repo:')) {
     const slug = scope.slice(5);
     const { stdout } = await gh(['api', `/repos/${slug}`]);
@@ -157,7 +164,7 @@ async function enumerateRepos(scope, { includeArchived, includeForks, limit }) {
   let endpoint;
   if (scope === '@me') endpoint = '/user/repos?affiliation=owner&per_page=100';
   else if (scope.startsWith('org:')) endpoint = `/orgs/${scope.slice(4)}/repos?per_page=100`;
-  else fail(EXIT.USAGE, `Unknown scope format: ${scope}`);
+  else fail(EXIT.USAGE, `Unknown scope format: ${scope}. Valid: @me, org:<name>, repo:<owner/name>, repos-file`);
 
   // Paginate via gh api --paginate
   const { stdout } = await gh(['api', '--paginate', endpoint]);
@@ -168,6 +175,100 @@ async function enumerateRepos(scope, { includeArchived, includeForks, limit }) {
     if (!includeForks && r.fork) return false;
     return true;
   }).slice(0, limit || undefined);
+}
+
+async function enumerateFromFile(reposFilePath, { includeArchived, includeForks, limit }) {
+  const filePath = reposFilePath || DEFAULT_REPOS_FILE;
+  let content;
+  try {
+    content = await fs.readFile(filePath, 'utf8');
+  } catch {
+    fail(EXIT.USAGE, `Repos file not found: ${filePath}. Create it or use a different --scope.`);
+  }
+  const cfg = parseYaml(content);
+
+  // Support both array-style and the flat YAML our parser produces
+  let repoSlugs = cfg.repos;
+  if (!repoSlugs || (Array.isArray(repoSlugs) && repoSlugs.length === 0)) {
+    fail(EXIT.USAGE, `No repos listed in ${filePath}. Add entries under the 'repos:' key.`);
+  }
+  // Our minimal YAML parser returns arrays as objects with numeric keys; normalize
+  if (!Array.isArray(repoSlugs)) {
+    repoSlugs = Object.values(repoSlugs).filter(v => typeof v === 'string');
+  }
+
+  const excludePatterns = normalizeList(cfg.exclude || []);
+
+  // Resolve slugs: plain slugs are fetched directly, glob patterns expand via org listing
+  const plainSlugs = [];
+  const globPatterns = [];
+  for (const slug of repoSlugs) {
+    if (slug.includes('*')) globPatterns.push(slug);
+    else plainSlugs.push(slug);
+  }
+
+  const repos = [];
+
+  // Fetch explicit repos in parallel (bounded)
+  for (const slug of plainSlugs) {
+    try {
+      const { stdout } = await gh(['api', `/repos/${slug}`]);
+      repos.push(JSON.parse(stdout));
+    } catch (err) {
+      process.stderr.write(`[${SOURCE}] warning: could not fetch repo ${slug}: ${err.message.split('\n')[0]}\n`);
+    }
+  }
+
+  // Expand glob patterns by fetching org repos and matching
+  const orgCache = new Map();
+  for (const pattern of globPatterns) {
+    const orgName = pattern.split('/')[0];
+    if (!orgCache.has(orgName)) {
+      try {
+        const { stdout } = await gh(['api', '--paginate', `/orgs/${orgName}/repos?per_page=100`]);
+        orgCache.set(orgName, parseConcatenatedJsonArrays(stdout));
+      } catch {
+        // Fall back to user repos if not an org
+        try {
+          const { stdout } = await gh(['api', '--paginate', `/users/${orgName}/repos?per_page=100`]);
+          orgCache.set(orgName, parseConcatenatedJsonArrays(stdout));
+        } catch (err) {
+          process.stderr.write(`[${SOURCE}] warning: could not list repos for ${orgName}: ${err.message.split('\n')[0]}\n`);
+          orgCache.set(orgName, []);
+        }
+      }
+    }
+    const orgRepos = orgCache.get(orgName);
+    const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+    for (const r of orgRepos) {
+      if (regex.test(r.full_name) && !repos.some(existing => existing.full_name === r.full_name)) {
+        repos.push(r);
+      }
+    }
+  }
+
+  // Apply exclude patterns
+  const filtered = repos.filter(r => {
+    if (!includeArchived && r.archived) return false;
+    if (!includeForks && r.fork) return false;
+    for (const pat of excludePatterns) {
+      if (pat.includes('*')) {
+        const regex = new RegExp('^' + pat.replace(/\*/g, '.*') + '$');
+        if (regex.test(r.full_name)) return false;
+      } else if (r.full_name === pat) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  return filtered.slice(0, limit || undefined);
+}
+
+function normalizeList(val) {
+  if (Array.isArray(val)) return val;
+  if (val && typeof val === 'object') return Object.values(val).filter(v => typeof v === 'string');
+  return [];
 }
 
 function parseConcatenatedJsonArrays(s) {
