@@ -151,6 +151,7 @@ plugins/
 **Breaking change**: moving persona plugins into `plugins/personas/` changes their path. The marketplace registers plugins by `source` path — marketplace.json must update, and any external references to `plugins/grc-engineer/**` break. This is the sharpest downside of the restructure.
 
 **Mitigation options**:
+
 - (A) Full move + deprecation notice in CHANGELOG v0.3. One clean break.
 - (B) Add symlinks from old paths for one minor version, remove in v0.4. Reduces blast radius for external consumers but complicates tooling.
 - (C) Leave persona plugins at top level; only new categories get new dirs. Less clean but zero breakage.

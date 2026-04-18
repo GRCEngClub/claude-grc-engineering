@@ -18,8 +18,9 @@ exclude = [
   "^https://hooks\\.slack\\.com/\\.\\.\\.",
   # LinkedIn gates most profile URLs behind auth
   "^https://(www\\.)?linkedin\\.com",
-  # GitHub org pages that require auth (teams, private org views) bounce to login
+  # GitHub org pages that require auth (teams, private projects) bounce to login or 404
   "^https://github\\.com/orgs/.*/teams/",
+  "^https://github\\.com/orgs/.*/projects/",
   # Some regulator sites return 5xx to scrapers but render fine in browsers
   "^https://www\\.ecfr\\.gov",
   # canada.ca returns HTTP/2 protocol errors to lychee's client; renders fine in browsers
