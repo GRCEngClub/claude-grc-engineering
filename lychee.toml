@@ -28,8 +28,6 @@ exclude = [
   "^https://github\\.com/ethanolivertroy/frdocx-to-froscal-ssp$",
   # FedRAMP reorganized /resources/templates; dedicated docs pass needed to update affected links
   "^https://www\\.fedramp\\.gov/resources/templates",
-  # ARCHITECTURE-V2-RFC.md lands in PR #7; can remove this exclusion after that merge
-  "ARCHITECTURE-V2-RFC\\.md$",
 ]
 
 exclude_all_private = true
