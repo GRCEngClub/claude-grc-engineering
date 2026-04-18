@@ -1,6 +1,6 @@
 {
   "name": "grc-engineering-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "GRC engineering toolkit for Claude Code: connector findings to SCF crosswalk to multi-framework gap reports, policy-as-code, OSCAL workflows.",
   "type": "module",
   "scripts": {

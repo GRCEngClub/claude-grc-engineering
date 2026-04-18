@@ -4,6 +4,40 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+## [0.0.2] — 2026-04-18
+
+This release marks the official handoff of the toolkit to the [GRC Engineering Club](https://grcengclub.com). Content below summarizes the handoff + community scaffolding that landed between 0.0.1 and 0.0.2.
+
+### Added
+
+**Community scaffolding**
+
+- `CODE_OF_CONDUCT.md` (Contributor Covenant v2.1)
+- `CONTRIBUTORS.md` seeded via the all-contributors pattern; AJ Yawn and Ethan Troy listed as co-leads
+- `GOVERNANCE.md` — co-lead governance model, decision process, path to maintainership
+- `MAINTAINERS.md` — leadership team with expertise areas
+- `SECURITY.md` — private advisory-first vulnerability reporting
+- `ROADMAP.md` — Tier-2 connectors, framework gaps, schema v1.1 candidates
+- `.github/ISSUE_TEMPLATE/{bug_report, connector_request, framework_request, plugin_proposal, config}.yml`
+- `.github/PULL_REQUEST_TEMPLATE.md`
+- `.github/CODEOWNERS` with leadership team ownership and sensitive-file routing
+
+**Continuous integration**
+
+- `.github/workflows/contract-test.yml` — validates every `tests/fixtures/findings/**/*.json` against `schemas/finding.schema.json` v1 on every PR
+- `.github/workflows/markdown-lint.yml` — `markdownlint-cli2` with a docs-aware config
+- `.github/workflows/link-check.yml` — `lychee` on PR and weekly cron
+- `.github/workflows/all-contributors.yml` — contributor-recognition bot wired to PR comments
+- `package.json` gains `test:contract` and `lint:md` scripts plus `ajv-cli` / `markdownlint-cli2` devDependencies
+
+**Architecture v2 RFC**
+
+- `docs/ARCHITECTURE-V2-RFC.md` — design proposal for five new plugin categories (reporting, dashboards, transforms, programs, meetings), sibling schemas for metrics/risks/exceptions/vendors/policies, a new `grc-ciso` persona, and a GitOps-first statefulness model. 2-week community comment window tracked in [#38](https://github.com/GRCEngClub/claude-grc-engineering/issues/38).
+
+**Roadmap seeding**
+
+- Public project board at [github.com/orgs/GRCEngClub/projects/1](https://github.com/orgs/GRCEngClub/projects/1) with custom fields (Category, Difficulty, Target release, Plugin depth, Region) and 29 seeded issues covering 15 framework-plugin gaps, 7 Tier-2 connectors, tooling, docs, and the framework-coverage meta tracker.
+
 ### Changed
 
 **Ownership transfer to GRC Engineering Club**
