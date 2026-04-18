@@ -1,0 +1,34 @@
+# {{SLUG}} — {{DISPLAY_NAME}}
+
+Reference-depth framework plugin. Install and run:
+
+```bash
+/plugin install {{SLUG}}@grc-engineering-suite
+/{{NAMESPACE}}:scope                    # determine applicability first
+/{{NAMESPACE}}:evidence-checklist       # see what to collect
+/{{NAMESPACE}}:assess                   # run the gap assessment
+```
+
+## Status: Reference
+
+This plugin is at **Reference depth** — it provides scope determination, evidence checklist, and a framework-specific gap assessment, all backed by the SCF crosswalk ({{SCF_CONTROLS_MAPPED}} SCF controls → {{FRAMEWORK_CONTROLS_MAPPED}} {{DISPLAY_NAME}} controls).
+
+### Level up to Full
+
+Full depth adds framework-native workflow commands tied to the audit ritual. If you have domain expertise for {{DISPLAY_NAME}}, see [`docs/FRAMEWORK-PLUGIN-GUIDE.md`](../../../../docs/FRAMEWORK-PLUGIN-GUIDE.md) for the level-up checklist.
+
+## Metadata
+
+| | |
+|---|---|
+| SCF framework ID | `{{SCF_FRAMEWORK_ID}}` |
+| Region | {{REGION}} |
+| Country | {{COUNTRY}} |
+| SCF controls mapped | {{SCF_CONTROLS_MAPPED}} |
+| Framework controls mapped | {{FRAMEWORK_CONTROLS_MAPPED}} |
+| Depth | Reference |
+
+## References
+
+- [Secure Controls Framework](https://securecontrolsframework.com) — crosswalk source (CC BY-ND 4.0)
+- [SCF API entry](https://hackidle.github.io/scf-api/api/crosswalks/{{SCF_FRAMEWORK_ID}}.json)

@@ -1,0 +1,19 @@
+{
+  "name": "singapore-pdpa",
+  "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) — Reference plugin with evidence checklist, scope determination, and SCF-backed gap assessment. Level up to Full by adding framework-specific workflow commands.",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "apac-sgp-pdpa-2012",
+    "display_name": "Singapore - Personal Data Protection Ac (PDPA) (2012)",
+    "region": "APAC",
+    "country": "SG",
+    "depth": "reference",
+    "scf_controls_mapped": 30,
+    "framework_controls_mapped": 14,
+    "industry": [],
+    "regulator": ""
+  }
+}

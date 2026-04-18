@@ -1,0 +1,34 @@
+---
+description: {{DISPLAY_NAME}} compliance gap assessment via the SCF crosswalk
+---
+
+# {{DISPLAY_NAME}} Assessment
+
+Runs a compliance gap assessment against **{{DISPLAY_NAME}}** by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier.
+
+This is a **stub plugin** — the underlying gap assessment is powered by the SCF crosswalk ({{SCF_CONTROLS_MAPPED}} SCF controls mapped to {{FRAMEWORK_CONTROLS_MAPPED}} framework controls). To add framework-specific workflow commands, evidence checklists, or implementation guidance, see [`docs/FRAMEWORK-PLUGIN-GUIDE.md`](../../../../../docs/FRAMEWORK-PLUGIN-GUIDE.md) for the level-up path to Reference or Full depth.
+
+## Usage
+
+```
+/{{NAMESPACE}}:assess [--sources=<connector-list>]
+```
+
+Delegates to:
+
+```
+/grc-engineer:gap-assessment "{{SCF_FRAMEWORK_ID}}" [--sources=<connector-list>]
+```
+
+## Arguments
+
+- `--sources=<connector-list>` (optional) — comma-separated list of connector plugins to pull evidence from (e.g. `aws-inspector,github-inspector,okta-inspector`). Defaults to whichever connectors are configured and have recent runs.
+
+## Output
+
+A prioritized gap report listing unmet {{DISPLAY_NAME}} requirements, severity-tagged and grouped by SCF family. The report maps back to the {{FRAMEWORK_CONTROLS_MAPPED}} framework-native controls via the SCF crosswalk.
+
+## Further reading
+
+- [Secure Controls Framework](https://securecontrolsframework.com)
+- [SCF API entry for this framework](https://hackidle.github.io/scf-api/api/crosswalks/{{SCF_FRAMEWORK_ID}}.json)
