@@ -66,11 +66,14 @@ proposes these new categories:
 Teams using commercial GRC platforms shouldn't have to choose between their
 platform and this toolkit. Bridges pull platform-owned data into the Finding
 schema so `/grc-engineer:gap-assessment` can consume it alongside the toolkit's
-direct connectors.
+direct connectors. Vendor-owned Claude Code plugins (when they exist) are
+**installed alongside** the Club toolkit, not vendored — bridges are
+normalization layers, not forks.
 
-- **Vanta MCP bridge** — wraps [`VantaInc/vanta-mcp-server`](https://github.com/VantaInc/vanta-mcp-server)
-  (official, MIT). Replaces the stale `vanta-go-export` entry.
-- **Drata MCP bridge** — wraps [Drata's AI MCP](https://drata.com/products/ai/mcp).
+- **Vanta bridge** — normalizes output from [`VantaInc/vanta-mcp-plugin`](https://github.com/VantaInc/vanta-mcp-plugin)
+  (official Vanta Claude Code plugin, MIT) into Finding schema. Replaces the
+  stale `vanta-go-export` entry.
+- **Drata bridge** — companion pattern for [Drata's AI MCP](https://drata.com/products/ai/mcp).
 - **OneTrust / Archer / ServiceNow GRC** — candidates for future MCP or SDK bridges
   once those platforms ship stable programmatic surfaces.
 
