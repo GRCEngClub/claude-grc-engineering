@@ -21,7 +21,7 @@ Full depth adds framework-native workflow commands tied to the audit ritual. If 
 
 | Property | Value |
 |---|---|
-| SCF framework ID | `uk-ncsc-ce-2021` |
+| SCF framework ID | `emea-gbr-ce-2021` |
 | Region | EMEA |
 | Country | GB |
 | SCF controls mapped | 30 |

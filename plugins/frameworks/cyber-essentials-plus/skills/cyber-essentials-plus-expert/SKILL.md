@@ -10,7 +10,7 @@ Reference-depth expertise for **UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell
 
 ## Framework identity
 
-- **SCF framework ID**: `uk-ncsc-ce-2021`
+- **SCF framework ID**: `emea-gbr-ce-2021`
 - **Region**: EMEA
 - **Country**: GB
 - **Regulator/Certifying bodies**: UK National Cyber Security Centre (NCSC) and IASME Consortium (accredited certification body)
@@ -68,7 +68,7 @@ The NCSC owns the Cyber Essentials scheme and sets the technical requirements. T
 - `/cyber-essentials-plus:assess` — run a gap assessment against all five controls
 - `/cyber-essentials-plus:evidence-checklist` — enumerate evidence requirements by control
 
-All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID `uk-ncsc-ce-2021` for the control-by-control mechanics, and wrap the results in CE+-specific terminology.
+All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID `emea-gbr-ce-2021` for the control-by-control mechanics, and wrap the results in CE+-specific terminology.
 
 ## Levelling up to Full
 
