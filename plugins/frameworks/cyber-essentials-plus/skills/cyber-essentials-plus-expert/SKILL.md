@@ -82,7 +82,7 @@ Full-depth plugins add framework-specific workflow commands tied to the audit ri
 ## References
 
 - [Secure Controls Framework](https://securecontrolsframework.com)
-- [SCF API entry for this framework](https://hackidle.github.io/scf-api/api/crosswalks/uk-ncsc-ce-2021.json)
+- [SCF API entry for this framework](https://www.securecontrolsframework.com)
 - [NCSC Cyber Essentials overview](https://www.ncsc.gov.uk/cyberessentials/overview)
 - [IASME Consortium](https://iasme.co.uk/cyber-essentials/)
-- [Danzell question set (IASME portal)](https://iasme.co.uk/cyber-essentials/cyber-essentials-requirements-for-it-infrastructure/)
+- [Danzell question set (IASME portal)](https://iasme.co.uk/cyber-essentials/preview-the-self-assessment-questions-for-cyber-essentials/)

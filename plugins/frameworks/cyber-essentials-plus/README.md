@@ -40,6 +40,6 @@ Full depth adds framework-native workflow commands tied to the audit ritual. If 
 ## References
 
 - [Secure Controls Framework](https://securecontrolsframework.com) — crosswalk source (CC BY-ND 4.0)
-- [SCF API entry](https://hackidle.github.io/scf-api/api/crosswalks/uk-ncsc-ce-2021.json)
+- [SCF API entry](https://www.securecontrolsframework.com)
 - [NCSC Cyber Essentials](https://www.ncsc.gov.uk/cyberessentials/overview)
 - [IASME Consortium](https://iasme.co.uk/cyber-essentials/)
