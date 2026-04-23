@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "source": "poam-automation",
+  "source_version": "1.0.0",
+  "run_id": "poam-automation-pass-001",
+  "collected_at": "2026-04-22T00:00:00Z",
+  "resource": {
+    "type": "cloud_workload",
+    "id": "web-server-prod-01",
+    "region": "us-east-1"
+  },
+  "evaluations": [
+    {
+      "control_framework": "FedRAMP-20x",
+      "control_id": "POAM-0005",
+      "status": "pass",
+      "severity": "low",
+      "message": "Finding remediated — patched via vendor update on 2026-04-01",
+      "assessed_at": "2026-04-22T00:00:00Z"
+    }
+  ]
+}

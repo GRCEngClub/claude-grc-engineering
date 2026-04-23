@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "source": "poam-automation",
+  "source_version": "1.0.0",
+  "run_id": "poam-automation-accepted-001",
+  "collected_at": "2026-04-22T00:00:00Z",
+  "resource": {
+    "type": "cloud_workload",
+    "id": "legacy-server-01",
+    "region": "us-east-1"
+  },
+  "evaluations": [
+    {
+      "control_framework": "FedRAMP-20x",
+      "control_id": "POAM-0003",
+      "status": "skipped",
+      "severity": "medium",
+      "message": "Finding exceeded 192-day remediation threshold (210 days since detection). Accepted per VDR-TFR-MAV. Compensating controls documented.",
+      "assessed_at": "2026-04-22T00:00:00Z"
+    }
+  ],
+  "findings": [
+    {
+      "id": "POAM-0003",
+      "title": "SSL Certificate Signed Using Weak Algorithm",
+      "severity": "medium",
+      "description": "Legacy system SSL certificate uses SHA-1. Vendor patch unavailable. Finding accepted after exceeding 192-day threshold per FedRAMP 20x VDR-TFR-MAV policy.",
+      "related_control_ids": ["SC-8", "SC-23"],
+      "related_resource_ids": ["legacy-server-01"]
+    }
+  ]
+}
