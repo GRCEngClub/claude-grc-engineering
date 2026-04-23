@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "source": "poam-automation",
+  "source_version": "1.0.0",
+  "run_id": "poam-automation-fail-001",
+  "collected_at": "2026-04-22T00:00:00Z",
+  "resource": {
+    "type": "cloud_workload",
+    "id": "app-server-prod-01",
+    "region": "us-east-1"
+  },
+  "evaluations": [
+    {
+      "control_framework": "FedRAMP-20x",
+      "control_id": "POAM-0001",
+      "status": "fail",
+      "severity": "critical",
+      "message": "Log4Shell Remote Code Execution (CVE-2021-44228) — CISA KEV confirmed, N4 adverse impact, LEV, IRV",
+      "remediation": {
+        "summary": "Upgrade log4j to 2.15.0 or later. Apply vendor patch immediately. Finding is on the CISA Known Exploited Vulnerabilities catalog — exploitation in the wild confirmed.",
+        "effort_hours": 4
+      },
+      "assessed_at": "2026-04-22T00:00:00Z"
+    }
+  ],
+  "findings": [
+    {
+      "id": "POAM-0001",
+      "title": "Log4Shell Remote Code Execution",
+      "severity": "critical",
+      "description": "JNDI injection via log4j allows unauthenticated remote code execution. CVE-2021-44228. EPSS: 0.9754. CISA KEV: Yes.",
+      "related_control_ids": ["SI-2", "RA-5", "SI-3"],
+      "related_resource_ids": ["app-server-prod-01"]
+    }
+  ]
+}
