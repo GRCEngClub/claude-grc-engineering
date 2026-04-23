@@ -1,3 +1,8 @@
+---
+name: poam-automation-expert
+description: "Expertise in FedRAMP POA&M lifecycle management, FedRAMP 20x VDR generation, and vulnerability classification using CISA KEV, EPSS, N-ratings, LEV/IRV, and NIST 800-53 control mappings."
+---
+
 # POA&M Automation Expert
 
 ## Tool Behavior
