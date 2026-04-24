@@ -1,70 +1,258 @@
 ---
-description: Set up continuous compliance monitoring and alerting
+description: Run recurring compliance checks and emit machine-readable alerts
 ---
 
 # Monitor Continuous
 
-Establishes continuous compliance monitoring with automated testing, trend analysis, and alerting for control degradation.
+Runs a single pass of recurring compliance monitoring: orchestrates
+`/grc-engineer:gap-assessment`, applies warn/critical thresholds per framework,
+optionally chains `/grc-engineer:record-automation-metrics`, and emits a
+structured JSON summary suitable for cron, GitHub Actions, Slack, email, or
+PagerDuty.
+
+Implementation: [`scripts/monitor-continuous.js`](../scripts/monitor-continuous.js).
 
 ## Usage
 
 ```bash
-/grc-engineer:monitor-continuous <frameworks> [schedule] [options]
+/grc-engineer:monitor-continuous <frameworks> [options]
+/grc-engineer:monitor-continuous --config=<path>
 ```
+
+The host scheduler (cron, EventBridge, GitHub Actions) provides recurrence; this
+command executes one monitoring pass per invocation. The `schedule` value is
+recorded in the output summary so downstream dashboards can group runs by
+cadence.
 
 ## Arguments
 
-- `$1` - Comma-separated frameworks (e.g., "SOC2,PCI-DSS,NIST")
-- `$2` - Schedule (optional): "daily", "weekly", "hourly" (default: "daily")
-- `$3` - Options (optional): `--slack-webhook=URL`, `--email=address`, `--dashboard`
+- `<frameworks>` - Comma-separated frameworks (e.g. `SOC2,PCI-DSS,NIST-800-53`).
+  Required unless supplied via `--config`.
+
+## Options
+
+- `--config=<path>` - YAML or JSON config (see below). CLI flags override config values.
+- `--sources=<csv>` - Connectors whose cached findings should feed the assessment.
+- `--schedule=<name>` - Label only (`daily`, `weekly`, `hourly`). Recorded in output.
+- `--report-dir=<path>` - Where gap-assessment writes its bundle (default: `./monitor-continuous-<run_id>/`).
+- `--output=<path>` - Write the JSON summary to this path. stdout always gets it too.
+- `--warn-threshold=<0..1>` - Per-framework pass-rate warning floor (default: `0.90`).
+- `--critical-threshold=<0..1>` - Per-framework pass-rate critical floor (default: `0.80`).
+- `--record-metrics` - After assessment, run `record-automation-metrics.js`.
+- `--metrics-config=<path>` - Config for record-automation-metrics (implies `--record-metrics`).
+- `--window-label=<label>` - Forwarded to record-automation-metrics.
+- `--cache-dir=<path>` - Forwarded to gap-assessment (finding cache dir).
+- `--offline` - Use the local SCF cache only (no network).
+- `--no-exit-code` - Always exit 0 even on threshold breach.
+- `--quiet` - Suppress stderr progress.
+- `--dry-run` - Resolve config + print planned actions; no subprocess runs.
 
 ## Examples
 
 ```bash
-# Daily monitoring for multiple frameworks
-/grc-engineer:monitor-continuous SOC2,PCI-DSS,NIST daily
+# Single pass over three frameworks using cached findings
+node plugins/grc-engineer/scripts/monitor-continuous.js SOC2,PCI-DSS,NIST-800-53
 
-# Hourly monitoring with Slack alerts
-/grc-engineer:monitor-continuous PCI-DSS hourly --slack-webhook=https://hooks.slack.com/...
+# Daily monitoring driven by a config file
+node plugins/grc-engineer/scripts/monitor-continuous.js \
+  --config=plugins/grc-engineer/examples/monitor-continuous.yaml
 
-# Weekly monitoring with dashboard
-/grc-engineer:monitor-continuous SOC2,NIST,ISO weekly --dashboard
+# Chain automation-metrics snapshot on the same run
+node plugins/grc-engineer/scripts/monitor-continuous.js SOC2 \
+  --metrics-config=./automation-metrics.yaml --window-label=current-week
 
-# Monitor all controls continuously
-/grc-engineer:monitor-continuous ALL daily --email=security@company.com
+# Dry-run to validate config without spawning subprocesses
+node plugins/grc-engineer/scripts/monitor-continuous.js \
+  --config=./monitor-continuous.yaml --dry-run
 ```
 
-## Features
+## Exit codes
 
-### 1. Automated Control Testing
+- `0` - All frameworks at or above the warning threshold.
+- `2` - At least one framework below the warning threshold.
+- `3` - At least one framework below the critical threshold.
+- `1` - Usage error or subprocess failure.
 
-- Runs `/grc-engineer:test-control` on schedule
-- Tests all controls for selected frameworks
-- Tracks pass/fail rates over time
-- Identifies degrading controls
+Set `--no-exit-code` to always exit 0 (for example, when a CI step must
+continue running downstream notification steps regardless of status).
 
-### 2. Trend Analysis
+## Config file
 
-- 30-day compliance trend visualization
-- Control effectiveness over time
-- Framework compliance scoring
-- Degradation detection
+YAML or JSON. Example: [`examples/monitor-continuous.yaml`](../examples/monitor-continuous.yaml).
 
-### 3. Alerting
+```yaml
+frameworks: [SOC2, PCI-DSS, NIST-800-53]
+schedule: daily
+sources: [aws-inspector, github-inspector]
+thresholds:
+  warning: 0.90
+  critical: 0.80
+report_dir: ./monitor-reports
+record_metrics:
+  enabled: true
+  config: ./automation-metrics.yaml
+  window_label: current-week
+```
 
-- Immediate alerts on control failures
-- Daily/weekly summary reports
-- Slack, email, or PagerDuty integration
-- Configurable thresholds
+## Output contract
 
-### 4. Compliance Dashboard
+stdout is a single JSON document. Downstream alerting tools (Slack, email,
+PagerDuty) should key off `summary.overall_status`, `alerts[]`, and
+`framework_results[].status`.
 
-- Real-time compliance status
-- Control health visualization
-- Framework comparison
-- Evidence collection status
+```json
+{
+  "schema_version": "1.0.0",
+  "kind": "monitor_continuous_run",
+  "run_id": "20260424T140000-a1b2c3d4",
+  "generated_at": "2026-04-24T14:00:00Z",
+  "schedule": "daily",
+  "frameworks": ["SOC2", "PCI-DSS", "NIST-800-53"],
+  "sources": ["aws-inspector", "github-inspector"],
+  "thresholds": { "warning": 0.9, "critical": 0.8 },
+  "framework_results": [
+    {
+      "framework": "SOC2",
+      "evaluated": 50,
+      "passing": 49,
+      "failing": 1,
+      "inconclusive": 0,
+      "total_controls": 64,
+      "pass_rate": 0.98,
+      "pass_rate_pct": 98,
+      "coverage_pct": 78,
+      "status": "ok"
+    }
+  ],
+  "summary": {
+    "overall_status": "warning",
+    "overall_pass_rate": 0.92,
+    "tier1_blockers": 3,
+    "tier2_findings": 7,
+    "tier3_recommendations": 4,
+    "passes": 118,
+    "inconclusive": 2
+  },
+  "alerts": [
+    {
+      "severity": "warning",
+      "framework": "PCI-DSS",
+      "pass_rate": 0.86,
+      "threshold": 0.9,
+      "message": "PCI-DSS pass rate 86.0% below warning floor 90%"
+    }
+  ],
+  "artifacts": {
+    "gap_report_dir": "./monitor-reports",
+    "metrics": { "skipped": false, "failed": false }
+  },
+  "gap_assessment_summary": { "...": "pass-through from gap-assessment.js" }
+}
+```
 
-## Output
+## What this command does not ship
+
+By design, the runner is transport-agnostic. It does **not** POST to Slack,
+send email, or page on-call. Those steps live in the host scheduler (examples
+below), so the same run output can drive any combination of channels.
+
+For trend analysis over time, consume the JSON output (or the `grc-data/metrics/`
+snapshots written when `record_metrics` is enabled) with a reporting workflow
+such as `/report:exec-summary`.
+
+## Setup
+
+### 1. Stage a config file
+
+Copy `plugins/grc-engineer/examples/monitor-continuous.yaml` to your project
+root and edit the framework list, thresholds, and optional
+`record_metrics.config` pointer.
+
+### 2. Schedule in your host
+
+The runner itself is stateless; point a scheduler at it.
+
+GitHub Actions:
+
+```yaml
+# .github/workflows/compliance-monitor.yml
+name: Continuous Compliance Monitoring
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 02:00 UTC
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+
+      - name: Run monitor-continuous
+        run: |
+          node plugins/grc-engineer/scripts/monitor-continuous.js \
+            --config=./monitor-continuous.yaml \
+            --output=./monitor-result.json
+        continue-on-error: true
+
+      - name: Alert on threshold breach
+        if: always()
+        run: |
+          STATUS=$(jq -r '.summary.overall_status' monitor-result.json)
+          if [ "$STATUS" = "critical" ] || [ "$STATUS" = "warning" ]; then
+            jq '.alerts' monitor-result.json
+            exit 1
+          fi
+```
+
+Cron on a runner:
+
+```bash
+0 2 * * *  cd /srv/grc && node plugins/grc-engineer/scripts/monitor-continuous.js \
+             --config=./monitor-continuous.yaml --output=./monitor-result.json
+```
+
+### 3. Wire alerts downstream
+
+The runner emits JSON; wiring to channels is a CI concern. Example Slack step
+that only fires when the run crossed the warning threshold:
+
+```yaml
+- uses: slackapi/slack-github-action@v1
+  if: failure()
+  with:
+    payload: |
+      {
+        "text": "Compliance alert: $(jq -r '.summary.overall_status' monitor-result.json)",
+        "attachments": $(jq '.alerts' monitor-result.json)
+      }
+  env:
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+```
+
+## Roadmap (not in this runner yet)
+
+These were part of the original `/monitor-continuous` spec and are tracked for
+follow-up:
+
+- 30-day trend analysis over `grc-data/metrics/` history
+- Control-health degradation detection (per-control pass rates over time)
+- Built-in Slack/email/PagerDuty HTTP calls
+- Live compliance dashboard
+- Auto-remediation hooks
+
+---
+
+<details>
+<summary>Legacy reference output (pre-executable spec)</summary>
+
+The example below was the narrative output described before the command had an
+executable runner. It is kept for reference while reporting workflows continue
+to build on this data. The actual runtime contract is the JSON shape above.
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -204,194 +392,7 @@ RECOMMENDATIONS
    Estimated time: 2 hours
 ```
 
-## Setup
-
-### 1. Install Monitoring Agent
-
-```bash
-# Create monitoring configuration
-cat > compliance-monitor.yaml <<EOF
-frameworks:
-  - SOC2
-  - PCI-DSS
-  - NIST-800-53
-
-schedule:
-  full_test: "0 2 * * *"      # Daily at 2 AM
-  quick_check: "0 */6 * * *"  # Every 6 hours
-  summary: "0 6 * * *"        # Daily summary at 6 AM
-
-alerts:
-  slack:
-    webhook_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
-    channel: "#security-alerts"
-  email:
-    recipients:
-      - security@company.com
-      - compliance@company.com
-    smtp_server: smtp.company.com
-
-thresholds:
-  critical: 0.80   # Alert if <80% compliance
-  warning: 0.90    # Warn if <90% compliance
-  degradation: -0.05  # Alert if 5% drop
-
-dashboard:
-  enabled: true
-  port: 3000
-  refresh_interval: 300  # 5 minutes
-
-retention_days: 90
-EOF
-
-# Create automation metric snapshot config
-cat > automation-metrics.yaml <<EOF
-defaults:
-  window_label: current-week
-  out_dir: ./grc-data/metrics
-  dimensions:
-    audience: ciso-weekly
-entries:
-  - framework: fedramp-moderate
-    provider: aws
-  - framework: soc2
-    controls_total: 64
-    controls_automated: 22
-EOF
-
-# Deploy monitoring
-/grc-engineer:monitor-continuous SOC2,PCI-DSS,NIST --config=compliance-monitor.yaml
-```
-
-### 2. CloudWatch Integration (AWS)
-
-```bash
-# Create EventBridge rule for daily tests
-aws events put-rule \
-  --name daily-compliance-test \
-  --schedule-expression "cron(0 2 * * ? *)"
-
-# Create Lambda function to run tests
-# (Deploy test-control.js as Lambda)
-```
-
-### 3. Slack Integration
-
-```bash
-# Test Slack webhook
-curl -X POST https://hooks.slack.com/services/YOUR/WEBHOOK/URL \
-  -H 'Content-Type: application/json' \
-  -d '{"text":"Compliance monitoring active: 96% compliant"}'
-```
-
-## Dashboard
-
-The monitoring dashboard provides:
-
-- **Real-time Status**: Current compliance percentage
-- **30-Day Trend**: Line chart of compliance over time
-- **Control Health**: Green/yellow/red status per control
-- **Framework Comparison**: Side-by-side framework scores
-- **Recent Failures**: Last 10 control failures with remediation
-- **Alert History**: All alerts sent in last 30 days
-
-Access dashboard:
-
-```bash
-http://localhost:3000/compliance-dashboard
-```
-
-## Alerting Rules
-
-### Critical Alerts (Immediate)
-
-- Overall compliance drops below 80%
-- Any control fails for 2+ consecutive days
-- PCI-DSS compliance drops below 90%
-- Security control fails (encryption, access control)
-
-### Warning Alerts (Daily Digest)
-
-- Overall compliance 80-90%
-- Control degrading (5% drop in 7 days)
-- Non-security control failures
-- Upcoming audit deadline (<30 days)
-
-### Info Alerts (Weekly Summary)
-
-- Compliance trend (improving/declining)
-- Controls tested this week
-- Evidence collection status
-- Recommendations for improvement
-
-## CI/CD Integration
-
-```yaml
-# .github/workflows/compliance-monitor.yml
-name: Continuous Compliance Monitoring
-
-on:
-  schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM UTC
-  workflow_dispatch:     # Manual trigger
-
-jobs:
-  test-compliance:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Ensure automation snapshot config exists
-        run: test -f automation-metrics.yaml
-
-      - name: Run Control Tests
-        run: |
-          /grc-engineer:monitor-continuous SOC2,PCI-DSS,NIST daily \
-            --output=json > results.json
-
-      - name: Check Compliance Threshold
-        run: |
-          COMPLIANCE=$(jq '.summary.compliance_percentage' results.json)
-          if (( $(echo "$COMPLIANCE < 0.90" | bc -l) )); then
-            echo "::error::Compliance below 90%: $COMPLIANCE"
-            exit 1
-          fi
-
-      - name: Record automation snapshots
-        run: |
-          node plugins/grc-engineer/scripts/record-automation-metrics.js \
-            --config=automation-metrics.yaml \
-            --window-label=current-week
-
-      - name: Send to Slack
-        if: failure()
-        uses: slackapi/slack-github-action@v1
-        with:
-          payload: |
-            {
-              "text": "⚠️ Compliance Alert: Dropped to $COMPLIANCE%",
-              "channel": "#security-alerts"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-```
-
-## Metrics Collected
-
-- **Compliance Score**: Percentage of passing controls
-- **Framework Scores**: Individual framework compliance
-- **Control Health**: Pass rate per control over 30 days
-- **Test Execution Time**: Duration of test runs
-- **Failure Rate**: Controls failing per day
-- **Remediation Time**: Time to fix failed controls
-- **Evidence Coverage**: Percentage of controls with evidence
+</details>
 
 ## Related Commands
 
