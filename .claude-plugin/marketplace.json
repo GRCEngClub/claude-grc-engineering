@@ -201,6 +201,12 @@
       "source": "./plugins/frameworks/singapore-pdpa",
       "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) — reference-depth plugin backed by the SCF crosswalk (30 SCF → 14 framework controls).",
       "version": "0.1.0"
+    },
+    {
+      "name": "us-finra",
+      "source": "./plugins/frameworks/us-finra",
+      "description": "FINRA Broker-Dealer Cybersecurity Guidance — stub-depth plugin backed by the SCF crosswalk (17 SCF → 39 framework controls).",
+      "version": "0.1.0"
     }
   ]
 }
