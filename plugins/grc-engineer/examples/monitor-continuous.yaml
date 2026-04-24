@@ -1,0 +1,41 @@
+# Example configuration for /grc-engineer:monitor-continuous.
+#
+# Runs gap-assessment for the listed frameworks, evaluates pass rates against
+# the configured thresholds, and optionally chains record-automation-metrics to
+# keep grc-data/metrics/ fresh for the weekly reporting workflows.
+#
+# Invoke:
+#   node plugins/grc-engineer/scripts/monitor-continuous.js \
+#     --config=plugins/grc-engineer/examples/monitor-continuous.yaml
+
+frameworks:
+  - SOC2
+  - PCI-DSS
+  - NIST-800-53
+
+# Label only — recorded in the summary for downstream dashboards. Actual
+# scheduling lives in the host scheduler (cron, GitHub Actions, EventBridge).
+schedule: daily
+
+# Connectors to read cached findings from. Leave empty to auto-discover every
+# source under the findings cache dir.
+sources:
+  - aws-inspector
+  - github-inspector
+
+# Per-framework pass-rate thresholds. A framework whose pass rate drops below
+# `critical` exits the run with code 3; below `warning` exits with code 2.
+thresholds:
+  warning: 0.90
+  critical: 0.80
+
+# Where gap-assessment should write its report bundle. Omit to auto-generate
+# a ./monitor-continuous-<run_id>/ directory per run.
+report_dir: ./monitor-reports
+
+# Optional: chain record-automation-metrics after the assessment so weekly
+# automation coverage history stays fresh without a separate cron job.
+record_metrics:
+  enabled: true
+  config: ./automation-metrics.yaml
+  window_label: current-week
