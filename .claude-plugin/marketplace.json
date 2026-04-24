@@ -201,6 +201,12 @@
       "source": "./plugins/frameworks/singapore-pdpa",
       "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) — reference-depth plugin backed by the SCF crosswalk (30 SCF → 14 framework controls).",
       "version": "0.1.0"
+    },
+    {
+      "name": "ind-dpdpa",
+      "source": "./plugins/frameworks/ind-dpdpa",
+      "description": "India DPDPA (2023) + DPDP Rules (2025) — stub-depth plugin backed by the SCF crosswalk (41 SCF → 96 framework controls). The enforceable framework comprises the Act and Rules (finalized November 2025).",
+      "version": "0.1.0"
     }
   ]
 }
