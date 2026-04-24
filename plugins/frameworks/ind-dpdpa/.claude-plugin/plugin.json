@@ -1,0 +1,19 @@
+{
+  "name": "ind-dpdpa",
+  "description": "India Digital Personal Data Protection Act (DPDPA) 2023 + DPDP Rules 2025 — Stub plugin backed by the SCF crosswalk. Upgrade to Reference to add scope determination and evidence checklist covering both Act obligations and Rules operational requirements.",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "apac-ind-dpdpa-2023",
+    "display_name": "India - DPDPA (2023) + DPDP Rules (2025)",
+    "region": "APAC",
+    "country": "IN",
+    "depth": "stub",
+    "scf_controls_mapped": 41,
+    "framework_controls_mapped": 96,
+    "industry": [],
+    "regulator": "MeitY"
+  }
+}
