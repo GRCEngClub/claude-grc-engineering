@@ -42,7 +42,10 @@ const RECORD_METRICS_SCRIPT = path.join(__dirname, 'record-automation-metrics.js
 const DEFAULT_WARN = 0.90;
 const DEFAULT_CRITICAL = 0.80;
 
-const EXIT = { OK: 0, USAGE: 2, WARNING: 2, CRITICAL: 3, ERROR: 1 };
+// Exit-code contract — keep aligned with usage() text and the command doc.
+// USAGE and ERROR intentionally share code 1 so CI can distinguish a true
+// compliance warning (exit 2) from a user/config mistake (exit 1).
+const EXIT = { OK: 0, ERROR: 1, USAGE: 1, WARNING: 2, CRITICAL: 3 };
 
 function usage() {
   return `Usage:
@@ -224,17 +227,42 @@ function resolveConfigPath(baseDir, value) {
   return path.isAbsolute(asString) ? asString : path.resolve(baseDir, asString);
 }
 
+// Accept either an array of strings or a comma-separated string. Anything
+// else (object, number, nested arrays) is a config mistake.
+function coerceStringList(value, fieldName) {
+  if (value === undefined || value === null) return null;
+  if (Array.isArray(value)) {
+    if (!value.every(item => typeof item === 'string')) {
+      fail(`${fieldName} must be a list of strings`, EXIT.USAGE);
+    }
+    return value.map(s => s.trim()).filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    return value.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  fail(`${fieldName} must be a list of strings or a comma-separated string`, EXIT.USAGE);
+}
+
+function coerceThreshold(value, fieldName) {
+  if (value === undefined || value === null) return null;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1) {
+    fail(`${fieldName} must be a number between 0 and 1 (got: ${JSON.stringify(value)})`, EXIT.USAGE);
+  }
+  return parsed;
+}
+
 function mergeConfigWithCli(cliOpts, configData, configPath) {
   // CLI flags override config values. Start from config, then overlay CLI.
   const baseDir = configPath ? path.dirname(configPath) : process.cwd();
   const merged = {
-    frameworks: configData.frameworks || [],
-    sources: configData.sources || null,
+    frameworks: coerceStringList(configData.frameworks, 'frameworks') || [],
+    sources: coerceStringList(configData.sources, 'sources'),
     schedule: configData.schedule || null,
     reportDir: resolveConfigPath(baseDir, configData.report_dir || configData.reportDir),
     outputPath: resolveConfigPath(baseDir, configData.output || configData.output_path),
-    warnThreshold: configData.thresholds?.warning ?? null,
-    criticalThreshold: configData.thresholds?.critical ?? null,
+    warnThreshold: coerceThreshold(configData.thresholds?.warning, 'thresholds.warning'),
+    criticalThreshold: coerceThreshold(configData.thresholds?.critical, 'thresholds.critical'),
     cacheDir: resolveConfigPath(baseDir, configData.cache_dir || configData.cacheDir),
     offline: Boolean(configData.offline),
     recordMetrics: Boolean(configData.record_metrics?.enabled),
@@ -361,15 +389,19 @@ function classifyFramework(stat, resolved) {
 }
 
 function rollupStatus(frameworkResults) {
-  const order = { ok: 0, warning: 1, critical: 2, no_data: -1 };
+  // no_data ranks between ok and warning-from-threshold: a framework the
+  // connectors didn't evaluate is a real problem (nothing to attest from),
+  // but not a compliance breach. Treat it as warning-severity so alerts,
+  // overall_status, and exit code all agree.
+  const order = { ok: 0, no_data: 1, warning: 1, critical: 2 };
   let worst = 'ok';
-  let hasData = false;
   for (const f of frameworkResults) {
-    if (f.status === 'no_data') continue;
-    hasData = true;
     if ((order[f.status] ?? 0) > (order[worst] ?? 0)) worst = f.status;
   }
-  return hasData ? worst : 'no_data';
+  // Surface no_data as "warning" at the top level so downstream tooling
+  // keying off overall_status sees a non-ok state; framework_results[i].status
+  // still distinguishes no_data from a threshold-driven warning.
+  return worst === 'no_data' ? 'warning' : worst;
 }
 
 function buildAlerts(frameworkResults, resolved) {
