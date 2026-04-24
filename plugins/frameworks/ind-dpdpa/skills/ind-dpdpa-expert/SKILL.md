@@ -21,6 +21,7 @@ Stub-depth expertise for **India DPDPA (2023) + DPDP Rules (2025)**. This plugin
 **Framework composition**: The enforceable framework comprises the DPDPA Act (2023) and the DPDP Rules (finalized November 2025). When leveling up to Reference depth, the evidence checklist must cover both:
 
 **Act obligations** (statutory requirements):
+
 - Territorial scope (who and where the framework applies)
 - Data Principal rights (correction, erasure, grievance redressal)
 - Data Fiduciary obligations (controller-like responsibilities)
@@ -29,6 +30,7 @@ Stub-depth expertise for **India DPDPA (2023) + DPDP Rules (2025)**. This plugin
 - Children's data protection (verifiable parental consent, no behavioral advertising)
 
 **Rules operational requirements** (November 2025):
+
 - 72-hour breach notification timeline
 - Consent manager registration by November 2026
 - Specific consent recording and management standards
@@ -36,6 +38,7 @@ Stub-depth expertise for **India DPDPA (2023) + DPDP Rules (2025)**. This plugin
 - Grievance redressal officer requirements
 
 TODO: add framework-specific sections for Reference-depth upgrade:
+
 - Territorial scope (extraterritorial application, thresholds)
 - Controlled-entity obligations (Data Fiduciary, Consent Manager, Significant Data Fiduciary)
 - Mandatory timelines (breach notification: 72 hours; consent manager registration: November 2026)
