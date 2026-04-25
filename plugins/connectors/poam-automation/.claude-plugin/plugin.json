@@ -1,0 +1,9 @@
+{
+  "name": "poam-automation",
+  "version": "1.0.0",
+  "description": "FedRAMP POA&M lifecycle management and VDR generation. Converts Nessus, Tenable, Qualys, and Wiz scanner exports into a FedRAMP-compliant POA&M, manages the full finding lifecycle, generates FedRAMP 20x VDR reports with live CISA KEV and EPSS enrichment, and produces per-release Product Vulnerability Disclosure Reports.",
+  "author": "Brian Montiel",
+  "license": "MIT",
+  "repository": "https://github.com/brianmontiel/poam-automation-tool",
+  "keywords": ["fedramp", "poam", "vdr", "grc", "vulnerability-management", "cisa-kev", "epss", "fedramp-20x"]
+}
