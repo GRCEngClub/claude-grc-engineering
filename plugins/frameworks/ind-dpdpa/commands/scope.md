@@ -10,7 +10,7 @@ Run this **before** `/ind-dpdpa:assess`. The assessment behaves differently depe
 
 ## Usage
 
-```
+```bash
 /ind-dpdpa:scope [--section=applicability|role|sdf|cross-border|sectoral|exemptions]
 ```
 

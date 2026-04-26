@@ -10,7 +10,7 @@ The single most common DPDPA-era breach failure is **clock collision** — runni
 
 ## Usage
 
-```
+```bash
 /ind-dpdpa:breach-process [--phase=detect|classify|notify|investigate|review] [--sectors=<list>]
 ```
 
@@ -34,7 +34,7 @@ This is broader than a "cyber incident":
 |---|---|---|
 | Ransomware encrypts customer database; production access lost | Yes (availability) | Yes |
 | Unauthorised employee exports customer list to personal cloud | Yes (confidentiality) | Maybe (insider threat) |
-| DDoS causes service unavailability; no data exfil | No (data still confidential, intact, available after the event) | Yes |
+| DDoS causes service unavailability; no data exfil | Context-dependent — likely **Yes** if the unavailability blocks Data Principals from accessing their personal data (loss of access falls within Section 2's availability/loss-of-access limb). Document the determination basis. | Yes |
 | Misconfigured S3 bucket exposes customer records publicly | Yes (confidentiality) | Yes |
 | Bug deletes a Principal's account record without backup | Yes (availability for that Principal) | Possibly |
 | Cross-tenant data leak in SaaS product | Yes | Yes |

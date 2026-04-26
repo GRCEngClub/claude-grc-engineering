@@ -10,7 +10,7 @@ Run `/ind-dpdpa:scope` first to know which themes apply to your entity.
 
 ## Usage
 
-```
+```bash
 /ind-dpdpa:evidence-checklist [--theme=<theme>] [--role=<fiduciary|processor>] [--sdf]
 ```
 

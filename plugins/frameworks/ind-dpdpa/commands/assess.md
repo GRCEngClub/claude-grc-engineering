@@ -8,7 +8,7 @@ Runs a compliance gap assessment against the **Digital Personal Data Protection 
 
 ## Usage
 
-```
+```bash
 /ind-dpdpa:assess [--scope=<scope>] [--sources=<connector-list>] [--role=<fiduciary|processor|consent-manager>]
 ```
 
@@ -68,7 +68,7 @@ Significant Data Fiduciary status carries additional obligations (DPO, DPIA, per
 
 Under the hood:
 
-```
+```bash
 /grc-engineer:gap-assessment "apac-ind-dpdpa-2023" [--sources=<connector-list>]
 ```
 
