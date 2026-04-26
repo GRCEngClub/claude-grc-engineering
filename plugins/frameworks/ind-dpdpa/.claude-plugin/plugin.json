@@ -1,0 +1,22 @@
+{
+  "name": "ind-dpdpa",
+  "description": "India DPDPA 2023 + DPDP Rules 2025 — Reference-depth plugin: scope, evidence checklist, breach process, and sectoral overlap (RBI / SEBI / IRDAI / TRAI) for Data Fiduciaries operating in India.",
+  "version": "0.2.0",
+  "author": {
+    "name": "Devam Shah",
+    "url": "https://github.com/DevamShah"
+  },
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "apac-ind-dpdpa-2023",
+    "display_name": "India - DPDPA (2023) + DPDP Rules (2025)",
+    "region": "APAC",
+    "country": "IN",
+    "depth": "reference",
+    "scf_controls_mapped": 41,
+    "framework_controls_mapped": 96,
+    "industry": [],
+    "regulator": "Data Protection Board of India (DPB) under MeitY"
+  }
+}
