@@ -2,7 +2,7 @@
   "name": "fedramp-ssp",
   "version": "0.1.0",
   "description": "Convert FedRAMP Rev 5 Moderate SSP DOCX templates to validated OSCAL 1.2.0 JSON. Wraps ethanolivertroy/frdocx-to-froscal-ssp — ready for oscal-cli, Compliance Trestle, eMASS, and FedRAMP 20X workflows.",
-  "author": "GRC Engineering Club Contributors",
+  "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "keywords": ["fedramp", "oscal", "ssp", "docx", "compliance-as-code"]
