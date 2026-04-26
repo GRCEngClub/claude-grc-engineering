@@ -26,7 +26,7 @@ If `--sectors` is passed, the parallel-clock matrix is rendered for those sector
 
 ## What is a "personal data breach"?
 
-Section 2 defines a personal data breach as any unauthorised processing or accidental disclosure, acquisition, sharing, use, alteration, destruction or loss of access to personal data, that compromises the **confidentiality, integrity, or availability** of personal data.
+Section 2(u) covers any incident that compromises the **confidentiality, integrity, or availability** of personal data — including unauthorised processing, accidental disclosure or sharing, alteration, destruction, and loss of access. Consult the Act for the authoritative wording.
 
 This is broader than a "cyber incident":
 

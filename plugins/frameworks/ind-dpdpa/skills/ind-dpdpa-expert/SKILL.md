@@ -49,7 +49,7 @@ The Act and the Rules **must be read together**. The Act sets substantive obliga
 | **Consent Manager** | A registrable entity that manages consents on behalf of Data Principals — gives, manages, reviews, withdraws consent across multiple Fiduciaries. | (No direct GDPR analogue) |
 | **Personal data** | Any data about an individual who is identifiable by or in relation to such data. | Personal data (Article 4(1)) |
 | **Processing** | Wholly or partly automated operation/s on personal data — collection, storage, use, sharing, disclosure, erasure, destruction. | Processing |
-| **Personal data breach** | Any unauthorised processing or accidental disclosure, acquisition, sharing, use, alteration, destruction or loss of access to personal data, that compromises its confidentiality, integrity, or availability. | Personal data breach |
+| **Personal data breach** | Any incident that compromises the confidentiality, integrity, or availability of personal data — covering unauthorised processing, accidental disclosure or sharing, alteration, destruction, and loss of access (see Section 2(u) of the Act for the authoritative wording). | Personal data breach |
 
 DPDPA does **not** define "sensitive personal data" as a separate category (unlike GDPR Article 9 or India's earlier SPDI Rules 2011). All personal data is governed by the same baseline obligations, with intensified obligations for children's data (Section 9) and SDF processing (Section 10).
 
@@ -339,7 +339,7 @@ Penalties are imposed by the DPB after inquiry. Bands (per breach class):
 - Up to **₹200 crore** — failure to fulfil obligations relating to children (Section 9)
 - Up to **₹150 crore** — failure to fulfil additional obligations of an SDF (Section 10)
 - Up to **₹50 crore** — failure to inform the Board / affected Principal of a breach (Section 8(6))
-- Up to **₹50 crore** — failure of a Data Principal to comply with Section 15 duties
+- Up to **₹10,000** — failure of a Data Principal to comply with Section 15 duties (this is a Principal-side penalty under the Schedule, distinct from the crore-scale Fiduciary penalties above)
 
 The DPB considers nature, gravity, duration, type and nature of personal data, repetitive conduct, mitigation, and benefit gained / loss avoided in determining the actual penalty. Recidivism is treated as an aggravating factor.
 
