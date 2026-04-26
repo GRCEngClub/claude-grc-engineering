@@ -11,8 +11,8 @@
   },
   "evaluations": [
     {
-      "control_framework": "FedRAMP-20x",
-      "control_id": "POAM-0001",
+      "control_framework": "NIST-800-53-r5",
+      "control_id": "SI-2",
       "status": "fail",
       "severity": "critical",
       "message": "Log4Shell Remote Code Execution (CVE-2021-44228) — CISA KEV confirmed, N4 adverse impact, LEV, IRV",

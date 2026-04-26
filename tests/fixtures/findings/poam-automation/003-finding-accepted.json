@@ -11,8 +11,8 @@
   },
   "evaluations": [
     {
-      "control_framework": "FedRAMP-20x",
-      "control_id": "POAM-0003",
+      "control_framework": "NIST-800-53-r5",
+      "control_id": "SI-2",
       "status": "skipped",
       "severity": "medium",
       "message": "Finding exceeded 192-day remediation threshold (210 days since detection). Accepted per VDR-TFR-MAV. Compensating controls documented.",

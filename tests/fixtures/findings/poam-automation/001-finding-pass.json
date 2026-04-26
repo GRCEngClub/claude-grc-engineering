@@ -11,8 +11,8 @@
   },
   "evaluations": [
     {
-      "control_framework": "FedRAMP-20x",
-      "control_id": "POAM-0005",
+      "control_framework": "NIST-800-53-r5",
+      "control_id": "SI-2",
       "status": "pass",
       "severity": "low",
       "message": "Finding remediated — patched via vendor update on 2026-04-01",

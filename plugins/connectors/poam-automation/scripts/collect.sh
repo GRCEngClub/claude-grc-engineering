@@ -38,6 +38,8 @@ fi
 
 TOOL_PATH=$(grep 'tool_path:' "${CONFIG_FILE}" | sed 's/tool_path: *"//' | sed 's/"//')
 TOOL_DIR=$(dirname "${TOOL_PATH}")
+TOOL_PYTHON=$(grep '^python:' "${CONFIG_FILE}" | sed 's/python: *"//' | sed 's/"//')
+TOOL_PYTHON="${TOOL_PYTHON:-python3}"
 
 echo "=== poam-automation collect ==="
 echo "  POA&M:    ${POAM_FILE}"
@@ -51,7 +53,7 @@ mkdir -p "${CACHE_DIR}"
 
 VDR_OUTPUT="${CACHE_DIR}/vdr_run.xlsx"
 cd "${TOOL_DIR}"
-python3 grc_tool.py vdr --poam "${POAM_FILE}" --baseline "${BASELINE}" --output "${VDR_OUTPUT}" 2>&1
+"${TOOL_PYTHON}" grc_tool.py vdr --poam "${POAM_FILE}" --baseline "${BASELINE}" --output "${VDR_OUTPUT}" 2>&1
 
 VDR_JSON="${VDR_OUTPUT/.xlsx/.json}"
 
@@ -60,7 +62,7 @@ if [[ ! -f "${VDR_JSON}" ]]; then
   exit 2
 fi
 
-python3 - <<PYEOF
+"${TOOL_PYTHON}" - <<PYEOF
 import json, sys, uuid
 from datetime import datetime, timezone
 
@@ -73,21 +75,9 @@ collected_at = "${COLLECTED_AT}"
 
 n_to_severity = {"N5": "critical", "N4": "high", "N3": "medium", "N2": "low", "N1": "info"}
 
-nist_map = {
-    "SI-2": "NIST-800-53-r5",
-    "RA-5": "NIST-800-53-r5",
-    "SC-8": "NIST-800-53-r5",
-    "SC-28": "NIST-800-53-r5",
-    "AC-3": "NIST-800-53-r5",
-    "AC-6": "NIST-800-53-r5",
-    "IA-2": "NIST-800-53-r5",
-    "IA-5": "NIST-800-53-r5",
-    "CM-6": "NIST-800-53-r5",
-    "CM-7": "NIST-800-53-r5",
-    "AU-2": "NIST-800-53-r5",
-    "AU-12": "NIST-800-53-r5",
-}
-
+# All POA&M vulnerability findings map to NIST 800-53 SI-2 (Flaw Remediation),
+# the canonical control for vulnerability/patch lifecycle. Related controls
+# (RA-5 vulnerability scanning, etc.) are captured in `related_control_ids`.
 for v in vdr.get("active_vulnerabilities", []):
     sev = n_to_severity.get(v.get("adverse_impact", "N2"), "medium")
     cve = v.get("cve", "")
