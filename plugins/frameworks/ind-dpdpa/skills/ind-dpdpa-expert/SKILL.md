@@ -14,11 +14,11 @@ Stub-depth expertise for **India DPDPA (2023) + DPDP Rules (2025)**. This plugin
 - **Region**: APAC
 - **Country**: IN
 - **Regulator**: Ministry of Electronics and Information Technology (MeitY)
-- **Enforceable framework**: DPDPA Act (2023) + DPDP Rules (finalized November 2025)
+- **Enforceable framework**: DPDPA Act (as of 11 August 2023, G.S.R. 843(E)) + DPDP Rules (as of 13 November 2025, G.S.R. 846(E))
 
 ## Scope and posture (placeholder — fill in when leveling up)
 
-**Framework composition**: The enforceable framework comprises the DPDPA Act (2023) and the DPDP Rules (finalized November 2025). When leveling up to Reference depth, the evidence checklist must cover both:
+**Framework composition**: The enforceable framework comprises the DPDPA Act (as of 11 August 2023, G.S.R. 843(E)) and the DPDP Rules (as of 13 November 2025, G.S.R. 846(E)). When leveling up to Reference depth, the evidence checklist must cover both:
 
 **Act obligations** (statutory requirements):
 
@@ -29,10 +29,10 @@ Stub-depth expertise for **India DPDPA (2023) + DPDP Rules (2025)**. This plugin
 - Cross-border transfer allowlist model
 - Children's data protection (verifiable parental consent, no behavioral advertising)
 
-**Rules operational requirements** (November 2025):
+**Rules operational requirements** (as of 13 November 2025, per G.S.R. 846(E)):
 
 - 72-hour breach notification timeline
-- Consent manager registration by November 2026
+- Consent manager registration by November 2026 (per G.S.R. 846(E))
 - Specific consent recording and management standards
 - Data transfer mechanisms and allowlist countries
 - Grievance redressal officer requirements
@@ -57,3 +57,8 @@ Full-depth plugins add framework-specific workflow commands (examples in sibling
 ## Levelling up
 
 See the [Framework Plugin Guide](../../../../../docs/FRAMEWORK-PLUGIN-GUIDE.md) for the Stub → Reference → Full progression checklist.
+
+## Sources
+
+- **DPDPA Act**: Digital Personal Data Protection Act, 2023 (G.S.R. 843(E), published 11 August 2023)
+- **DPDP Rules**: Digital Personal Data Protection Rules, 2025 (G.S.R. 846(E), published 13 November 2025)
