@@ -34,12 +34,20 @@ fail=0
 checked=0
 in_ci="${GITHUB_ACTIONS:-false}"
 
-# Escape values that get interpolated into GitHub Actions workflow commands
-# (`::group::`, `::error file=…::…`). Filenames here come from `find` over a
-# PR-controlled tree, so a crafted path containing `%`, CR, or LF could
-# otherwise inject additional workflow commands into the CI log.
+# Escape values that get interpolated into GitHub Actions workflow commands.
+# Filenames here come from `find` over a PR-controlled tree, so a crafted path
+# containing `%`, CR, LF, `:`, or `,` could otherwise inject additional
+# workflow commands or break annotation property parsing.
+#
+# Two escape modes mirror @actions/toolkit's escapeData / escapeProperty:
+# - data:     used in the message body (`::name::message` and `::group::value`)
+# - property: used in `key=value` parameters (`::error file=...,line=...::msg`).
+#             Properties additionally escape `:` and `,` because those are the
+#             property delimiters; failing to escape them lets a crafted file
+#             path inject fake `line=`/`title=` parameters or break the `::`.
 # See: https://docs.github.com/actions/reference/workflow-commands-for-github-actions
-gha_escape() {
+# Reference: https://github.com/actions/toolkit/blob/main/packages/core/src/command.ts
+gha_escape_data() {
   local s="$1"
   s="${s//%/%25}"
   s="${s//$'\r'/%0D}"
@@ -47,9 +55,17 @@ gha_escape() {
   printf '%s' "$s"
 }
 
+gha_escape_property() {
+  local s
+  s="$(gha_escape_data "$1")"
+  s="${s//:/%3A}"
+  s="${s//,/%2C}"
+  printf '%s' "$s"
+}
+
 emit_group_start() {
   if [[ "$in_ci" == "true" ]]; then
-    printf '::group::%s\n' "$(gha_escape "$1")"
+    printf '::group::%s\n' "$(gha_escape_data "$1")"
   else
     printf '── %s\n' "$1"
   fi
@@ -64,7 +80,7 @@ emit_group_end() {
 emit_error() {
   local file="$1" message="$2"
   if [[ "$in_ci" == "true" ]]; then
-    printf '::error file=%s::%s\n' "$(gha_escape "$file")" "$(gha_escape "$message")"
+    printf '::error file=%s::%s\n' "$(gha_escape_property "$file")" "$(gha_escape_data "$message")"
   else
     printf 'ERROR (%s): %s\n' "$file" "$message" >&2
   fi
@@ -73,7 +89,7 @@ emit_error() {
 emit_summary_error() {
   local message="$1"
   if [[ "$in_ci" == "true" ]]; then
-    printf '::error::%s\n' "$(gha_escape "$message")"
+    printf '::error::%s\n' "$(gha_escape_data "$message")"
   else
     printf 'ERROR: %s\n' "$message" >&2
   fi
