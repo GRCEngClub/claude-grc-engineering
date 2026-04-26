@@ -73,7 +73,7 @@ Deep expertise in the Swiss Federal Act on Data Protection (nFADP) — Switzerla
 
 - **Trigger threshold**: Processing likely to result in **high risk** to personality or fundamental rights
 - **High-risk indicators**: Systematic profiling, large-scale processing of sensitive data, public monitoring
-- **DSo consultation**: If DSO is appointed, they must be consulted on high-risk processing
+- **DSO consultation**: If DSO is appointed, they must be consulted on high-risk processing
 - **Content**: Systematic description of processing, necessity/proportionality assessment, risk assessment, mitigation measures
 
 #### **Breach Notification**

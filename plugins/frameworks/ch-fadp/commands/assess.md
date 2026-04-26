@@ -10,13 +10,13 @@ This is a **stub plugin** — the underlying gap assessment is powered by the SC
 
 ## Usage
 
-```
+```text
 /ch-fadp:assess [--sources=<connector-list>]
 ```
 
 Delegates to:
 
-```
+```text
 /grc-engineer:gap-assessment "CH-FADP" [--sources=<connector-list>]
 ```
 
