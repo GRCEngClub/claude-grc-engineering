@@ -2,7 +2,7 @@
   "name": "github-inspector",
   "version": "0.1.0",
   "description": "GRC connector for GitHub: evaluates repo protections, branch policies, Actions, secret scanning, Dependabot, and deploy keys. Emits findings conforming to schemas/finding.schema.json v1.",
-  "author": "GRC Engineering Club Contributors",
+  "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "keywords": ["grc", "compliance", "github", "scf", "soc2", "connector"]

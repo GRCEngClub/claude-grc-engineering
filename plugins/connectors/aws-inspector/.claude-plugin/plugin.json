@@ -2,7 +2,7 @@
   "name": "aws-inspector",
   "version": "0.1.0",
   "description": "GRC connector for AWS: evaluates IAM, S3, CloudTrail, EBS, and RDS for compliance misconfigurations. Emits findings conforming to schemas/finding.schema.json v1.",
-  "author": "GRC Engineering Club Contributors",
+  "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "keywords": ["grc", "compliance", "aws", "scf", "soc2", "fedramp", "connector"]
