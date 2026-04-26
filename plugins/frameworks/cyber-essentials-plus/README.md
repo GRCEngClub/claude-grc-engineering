@@ -24,7 +24,7 @@ Full depth adds framework-native workflow commands tied to the audit ritual. If 
 | SCF framework ID | `emea-gbr-ce-2021` |
 | Region | EMEA |
 | Country | GB |
-| SCF controls mapped | 30 |
+| SCF controls mapped | 26 |
 | Framework controls mapped | 5 |
 | Depth | Reference |
 | Question set | Danzell v3.3 (effective 27 April 2026) |
