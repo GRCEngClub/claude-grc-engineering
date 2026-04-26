@@ -6,7 +6,7 @@ allowed-tools: Read, Glob, Grep, Write
 
 # UK NCSC Cyber Essentials Plus (CE+) Expert
 
-Reference-depth expertise for **UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell** (effective 27 April 2026). This plugin bundles the SCF crosswalk (30 SCF controls → 5 CE+ controls) with framework-specific context.
+Reference-depth expertise for **UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell** (effective 27 April 2026). This plugin bundles the SCF crosswalk (26 SCF controls → 5 CE+ controls) with framework-specific context.
 
 ## Framework identity
 
