@@ -225,6 +225,12 @@
       "source": "./plugins/frameworks/ind-dpdpa",
       "description": "India Digital Personal Data Protection Act, 2023 — reference-depth plugin with scope determination, evidence checklist, and breach-process workflow backed by the SCF crosswalk.",
       "version": "0.1.0"
+    },
+    {
+      "name": "poam-automation",
+      "source": "./plugins/connectors/poam-automation",
+      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: converts vulnerability scans into FedRAMP POA&M Excel and emits NIST-800-53-r5 (SI-2) findings → v1 finding contract.",
+      "version": "0.1.0"
     }
   ]
 }
