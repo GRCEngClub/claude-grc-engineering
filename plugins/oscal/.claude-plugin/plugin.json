@@ -2,7 +2,7 @@
   "name": "oscal",
   "version": "0.1.0",
   "description": "OSCAL (Open Security Controls Assessment Language) toolkit for Claude Code. Wraps ethanolivertroy/oscal-cli for validation and conversion of catalogs, profiles, SSPs, SAPs, SARs, POA&Ms, component definitions, and assessment results.",
-  "author": "GRC Engineering Club Contributors",
+  "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "keywords": ["oscal", "fedramp", "grc", "compliance", "nist"]

@@ -1,0 +1,19 @@
+{
+  "name": "us-finra",
+  "description": "FINRA Plugin - Broker-dealer cybersecurity guidance (builds on SEC Reg S-P, SEC 17a-4)",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "usa-federal-sro-finra",
+    "display_name": "FINRA Broker-Dealer Cybersecurity Guidance",
+    "region": "Americas",
+    "country": "US",
+    "depth": "stub",
+    "scf_controls_mapped": 17,
+    "framework_controls_mapped": 39,
+    "industry": ["financial-services", "broker-dealer"],
+    "regulator": "FINRA"
+  }
+}

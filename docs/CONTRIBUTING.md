@@ -64,7 +64,7 @@ mkdir -p plugins/connectors/<tool>/{commands,skills/<tool>-expert,scripts,tests/
   "name": "<tool>-inspector",
   "version": "0.1.0",
   "description": "Connector for <tool>. Emits GRC findings against SCF + SOC 2/NIST/ISO/…",
-  "author": "you <you@example.com>",
+  "author": { "name": "you", "email": "you@example.com" },
   "license": "MIT",
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "keywords": ["grc", "compliance", "<tool>"]
