@@ -29,23 +29,69 @@ marketplace_schema="schemas/marketplace.schema.json"
 
 fail=0
 checked=0
+in_ci="${GITHUB_ACTIONS:-false}"
+
+# Escape values that get interpolated into GitHub Actions workflow commands
+# (`::group::`, `::error file=…::…`). Filenames here come from `find` over a
+# PR-controlled tree, so a crafted path containing `%`, CR, or LF could
+# otherwise inject additional workflow commands into the CI log.
+# See: https://docs.github.com/actions/reference/workflow-commands-for-github-actions
+gha_escape() {
+  local s="$1"
+  s="${s//%/%25}"
+  s="${s//$'\r'/%0D}"
+  s="${s//$'\n'/%0A}"
+  printf '%s' "$s"
+}
+
+emit_group_start() {
+  if [[ "$in_ci" == "true" ]]; then
+    printf '::group::%s\n' "$(gha_escape "$1")"
+  else
+    printf '── %s\n' "$1"
+  fi
+}
+
+emit_group_end() {
+  if [[ "$in_ci" == "true" ]]; then
+    printf '::endgroup::\n'
+  fi
+}
+
+emit_error() {
+  local file="$1" message="$2"
+  if [[ "$in_ci" == "true" ]]; then
+    printf '::error file=%s::%s\n' "$(gha_escape "$file")" "$(gha_escape "$message")"
+  else
+    printf 'ERROR (%s): %s\n' "$file" "$message" >&2
+  fi
+}
+
+emit_summary_error() {
+  local message="$1"
+  if [[ "$in_ci" == "true" ]]; then
+    printf '::error::%s\n' "$(gha_escape "$message")"
+  else
+    printf 'ERROR: %s\n' "$message" >&2
+  fi
+}
 
 validate_file() {
   local schema="$1"
   local file="$2"
   checked=$((checked + 1))
-  echo "::group::$file"
+  emit_group_start "$file"
   if ajv validate \
       --spec=draft2020 \
       -s "$schema" \
       -d "$file" \
       --errors=line; then
-    echo "  ✓ $file"
+    printf '  ✓ %s\n' "$file"
   else
-    echo "::error file=$file::Manifest failed schema validation against $schema"
+    emit_error "$file" "Manifest failed schema validation against $schema"
     fail=1
   fi
-  echo "::endgroup::"
+  emit_group_end
 }
 
 if [[ -f .claude-plugin/marketplace.json ]]; then
@@ -59,7 +105,7 @@ done < <(find plugins -type f -name plugin.json -path '*/.claude-plugin/*' | sor
 echo
 echo "Validated $checked manifest(s)."
 if [[ $fail -ne 0 ]]; then
-  echo "::error::One or more manifests failed schema validation"
+  emit_summary_error "One or more manifests failed schema validation"
   exit 1
 fi
 echo "All manifests valid."
