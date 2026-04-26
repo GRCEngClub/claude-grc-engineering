@@ -729,6 +729,18 @@ The grc-engineer plugin supports evidence collection across:
 - **GCP**: google-cloud-* SDKs, gcloud CLI (IAM, Storage, Logging)
 - **Kubernetes**: kubectl, kubernetes SDK
 
+## Issue tracking (Linear)
+
+This repo ships a **project-scoped** Linear MCP server in `.mcp.json` named `linear-grc-club`, pointing at `https://mcp.linear.app/mcp`. It loads only when Claude Code starts in this directory and does not affect MCP configuration in any other repo.
+
+**First-time setup per machine:**
+
+1. Start a Claude Code session in this directory.
+2. Run `/mcp` and authenticate `linear-grc-club` via OAuth.
+3. **Select the GRC Engineering Club workspace** at the consent screen (not a personal Linear). OAuth tokens are stored in the user's Claude config, not in the repo.
+
+Linear operations from this repo should target the GRC Engineering Club workspace through the `linear-grc-club` MCP. If a global `claude.ai Linear` MCP is also active in the session (authenticated to a different workspace), prefer the project-scoped tools so issues land in the right workspace. The team/project IDs for the club workspace will be recorded here once an authenticated maintainer captures them via `linear-grc-club`'s `list_teams` / `list_projects`.
+
 ## Important Notes
 
 - All plugins use MIT license
