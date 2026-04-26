@@ -11,5 +11,4 @@
 
 # CI and automation — changes affect every PR, so leadership reviews.
 /.github/                               @GRCEngClub/grc-eng-leadership-team
-/.markdownlint-cli2.jsonc               @GRCEngClub/grc-eng-leadership-team
 /lychee.toml                            @GRCEngClub/grc-eng-leadership-team

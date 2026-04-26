@@ -1,10 +1,8 @@
 # claude-grc-engineering
 
-
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/GRCEngClub/claude-grc-engineering?utm_source=oss&utm_medium=github&utm_campaign=GRCEngClub%2Fclaude-grc-engineering&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 https://github.com/user-attachments/assets/a83aa297-9fba-4a7d-b56c-06f962d1ec6b
-
-
 
 The official open-source GRC toolkit from the [GRC Engineering Club](https://grcengclub.com). Checkbox compliance to engineered systems, shipped as [Claude Code](https://docs.claude.com/claude-code) plugins: persona plugins for engineers, auditors, internal GRC teams, and TPRM; 20+ framework reference plugins from SOC 2 to FedRAMP to APRA; and thin cloud/SaaS connectors that emit a common Finding contract. Assessors, platform engineers, and GRC teams everywhere rebuild the same pipeline on their own. Pull evidence, crosswalk to a framework, generate a gap report, wrestle OSCAL. One open toolkit, maintained by the community, end-to-end.
 

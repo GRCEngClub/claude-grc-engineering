@@ -6,6 +6,8 @@
 
 # Operator caches and runtime outputs (never commit)
 /gap-assessment-*/
+/monitor-continuous-*/
+/monitor-reports/
 *.normalized.json
 
 # Evidence artifacts (never commit: real usernames, credentials, PII)

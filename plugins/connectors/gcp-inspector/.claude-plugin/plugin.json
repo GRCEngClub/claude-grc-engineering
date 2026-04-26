@@ -2,7 +2,7 @@
   "name": "gcp-inspector",
   "version": "0.1.0",
   "description": "GRC connector for Google Cloud: evaluates IAM, Cloud Storage, audit logs, KMS rotation, and Compute for compliance misconfigurations. Emits findings conforming to schemas/finding.schema.json v1.",
-  "author": "GRC Engineering Club Contributors",
+  "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "keywords": ["grc", "compliance", "gcp", "google-cloud", "scf", "fedramp", "connector"]
