@@ -17,7 +17,10 @@ set -uo pipefail
 PATH="./node_modules/.bin:$PATH"
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$repo_root"
+cd "$repo_root" || {
+  echo "Failed to cd to repo root: $repo_root" >&2
+  exit 2
+}
 
 if ! command -v ajv >/dev/null 2>&1; then
   echo "ajv-cli not found. Install with: npm install --no-save ajv-cli@5 ajv-formats@3" >&2
@@ -96,6 +99,9 @@ validate_file() {
 
 if [[ -f .claude-plugin/marketplace.json ]]; then
   validate_file "$marketplace_schema" .claude-plugin/marketplace.json
+else
+  emit_summary_error "Missing required .claude-plugin/marketplace.json (this repository is a Claude Code plugin marketplace; the top-level marketplace manifest must exist)"
+  exit 1
 fi
 
 while IFS= read -r manifest; do

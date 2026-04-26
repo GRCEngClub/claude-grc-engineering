@@ -32,7 +32,10 @@
         "properties": {
           "name": { "type": "string", "minLength": 1 },
           "source": { "type": "string", "minLength": 1 },
-          "version": { "type": "string" },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+          },
           "description": { "type": "string" },
           "category": { "type": "string" },
           "tags": {

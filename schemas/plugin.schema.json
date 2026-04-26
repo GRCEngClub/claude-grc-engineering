@@ -15,7 +15,8 @@
     "version": {
       "type": "string",
       "minLength": 1,
-      "description": "Semver-compatible version string, e.g. 0.1.0."
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+      "description": "Semver-compatible version string, e.g. 0.1.0. Pattern enforces the semver 2.0.0 grammar (major.minor.patch with optional prerelease and build-metadata segments)."
     },
     "description": {
       "type": "string"
