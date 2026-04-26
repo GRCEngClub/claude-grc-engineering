@@ -4,6 +4,10 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Added
+
+- **`teach-me` plugin (v0.1.0).** Socratic primer + drill plugin for new-to-GRC practitioners and career transitioners — the on-ramp the toolkit was missing for people who don't already know the framework. Four commands: `/teach-me:framework <name>` produces a paraphrased primer (purpose, scope, artifacts, cadence, regulator, control families), `/teach-me:control <id>` explains one control across every framework it maps to via the SCF crosswalk, `/teach-me:role <persona>` outputs a first-90-days onboarding for the four GRC personas, and `/teach-me:quiz <framework>` runs a Socratic drill loop (inspired by [`mattpocock/skills/grill-me`](https://github.com/mattpocock/skills/tree/main/grill-me)) that tracks coverage in-session. Reuses `/grc-engineer:map-controls-unified` and `/grc-engineer:frameworks` rather than duplicating the SCF client. No normative standard text is reproduced. Closes [#61](https://github.com/GRCEngClub/claude-grc-engineering/issues/61).
+
 ### Removed
 
 - **`markdown-lint` CI workflow and `markdownlint-cli2` devDependency.** The lint gate was rejecting valid `<picture>`/`<source>` HTML in the README's star-history block (and similar legitimate HTML) faster than it was catching real prose problems. Removed `.github/workflows/markdown-lint.yml`, `.markdownlint-cli2.jsonc`, the `lint:md` package script, and the `markdownlint-cli2` devDependency.

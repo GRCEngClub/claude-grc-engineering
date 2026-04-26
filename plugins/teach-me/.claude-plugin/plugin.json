@@ -1,0 +1,10 @@
+{
+  "name": "teach-me",
+  "description": "Teach-me - get up to speed on a framework, control, or GRC role. Socratic primer + drill plugin built for new-to-GRC practitioners and career transitioners. Closes #61.",
+  "version": "0.1.0",
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT"
+}

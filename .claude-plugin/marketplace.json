@@ -41,6 +41,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "teach-me",
+      "source": "./plugins/teach-me",
+      "description": "Socratic primer + drill plugin for new-to-GRC practitioners. Get up to speed on a framework, control, or role without already knowing it.",
+      "version": "0.1.0"
+    },
+    {
       "name": "soc2",
       "source": "./plugins/frameworks/soc2",
       "description": "SOC 2 Trust Service Criteria expertise and Type I/II assessment support",

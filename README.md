@@ -68,6 +68,7 @@ Full walkthrough: [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 | Analyze a vendor security questionnaire (SIG, CAIQ, Yardstick) | `/grc-tprm:analyze-questionnaire` |
 | Discover which of the 249 SCF-mapped frameworks have dedicated plugins | `/grc-engineer:frameworks` |
 | Scaffold a new framework plugin from the SCF crosswalk | `/grc-engineer:scaffold-framework` |
+| Get a primer on a framework, drill yourself on it, or onboard into a GRC role | `/teach-me:framework`, `/teach-me:control`, `/teach-me:role`, `/teach-me:quiz` |
 
 Every command's reference page lives in its plugin's `commands/` directory with full input and output documentation.
 
@@ -87,6 +88,12 @@ Every command's reference page lives in its plugin's `commands/` directory with 
 | **grc-internal** | `/grc-internal:` | Internal GRC teams: risk registers, policy lifecycle, cert portfolio tracking |
 | **grc-reporter** | `/report:` | GRC practitioners communicating up: exec summaries, board briefs, program-health, automation ROI |
 | **grc-tprm** | `/grc-tprm:` | Third-party risk: vendor assessments, questionnaire analysis, risk scoring |
+
+### Learning
+
+| Plugin | Namespace | Who it's for |
+|---|---|---|
+| **teach-me** | `/teach-me:` | Career transitioners and new-to-GRC practitioners: paraphrased framework primers, single-control deep-dives, role onboarding, Socratic drills |
 
 ### Framework plugins
 
