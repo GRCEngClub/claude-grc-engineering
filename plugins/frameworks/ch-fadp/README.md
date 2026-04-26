@@ -44,6 +44,5 @@ Full depth adds framework-native workflow commands tied to the Swiss audit ritua
 ## References
 
 - [Secure Controls Framework](https://securecontrolsframework.com) — crosswalk source (CC BY-ND 4.0)
-- [SCF API entry](https://hackidle.github.io/scf-api/api/crosswalks/CH-FADP.json)
 - [Swiss FDPIC](https://www.edoeb.admin.ch/edoeb/en/home.html)
 - [nFADP full text (Federal Chancellery)](https://www.fedlex.admin.ch/eli/cc/2020/765)

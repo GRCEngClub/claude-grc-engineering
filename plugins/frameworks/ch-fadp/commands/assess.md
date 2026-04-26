@@ -31,4 +31,3 @@ A prioritized gap report listing unmet Swiss FADP requirements, severity-tagged 
 ## Further reading
 
 - [Secure Controls Framework](https://securecontrolsframework.com)
-- [SCF API entry for this framework](https://hackidle.github.io/scf-api/api/crosswalks/CH-FADP.json)

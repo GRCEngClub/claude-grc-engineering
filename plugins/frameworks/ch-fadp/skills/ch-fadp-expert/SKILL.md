@@ -160,7 +160,7 @@ This stub provides the foundation. Level up to Reference or Full depth by implem
 - [ ] `/ch-fadp:transfer-mechanism-check` — Cross-border transfer mechanism selection and validation
 - [ ] `/ch-fadp:breach-triage` — Risk-based breach notification urgency and FDPIC reporting
 
-See [Framework Plugin Guide](../../../../docs/FRAMEWORK-PLUGIN-GUIDE.md) for detailed criteria.
+See [Framework Plugin Guide](../../../../../docs/FRAMEWORK-PLUGIN-GUIDE.md) for detailed criteria.
 
 ### Usage Example
 
