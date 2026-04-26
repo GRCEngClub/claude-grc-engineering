@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/GRCEngClub/claude-grc-engineering/main/schemas/plugin.schema.json",
+  "title": "Claude Code plugin manifest",
+  "description": "Schema for plugin.json files in this marketplace. Mirrors the install-time validation that `claude plugin install` performs, so any manifest that passes here is installable. Extension keys such as `framework_metadata` are permitted via additionalProperties.",
+  "type": "object",
+  "required": ["name", "version"],
+  "additionalProperties": true,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Plugin identifier. Must match the directory name and the marketplace.json entry."
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Semver-compatible version string, e.g. 0.1.0."
+    },
+    "description": {
+      "type": "string"
+    },
+    "author": {
+      "type": "object",
+      "description": "Author metadata. Must be an object — bare strings are rejected by `claude plugin install`.",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "email": { "type": "string" },
+        "url": { "type": "string" }
+      }
+    },
+    "license": { "type": "string" },
+    "repository": { "type": "string" },
+    "homepage": { "type": "string" },
+    "keywords": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

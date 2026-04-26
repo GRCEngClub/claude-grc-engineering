@@ -1,0 +1,41 @@
+name: Validate plugin manifests
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/**/plugin.json'
+      - '.claude-plugin/marketplace.json'
+      - 'schemas/plugin.schema.json'
+      - 'schemas/marketplace.schema.json'
+      - 'tests/validate-plugin-manifests.sh'
+      - '.github/workflows/validate-plugin-manifests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'plugins/**/plugin.json'
+      - '.claude-plugin/marketplace.json'
+      - 'schemas/plugin.schema.json'
+      - 'schemas/marketplace.schema.json'
+      - 'tests/validate-plugin-manifests.sh'
+      - '.github/workflows/validate-plugin-manifests.yml'
+
+concurrency:
+  group: validate-plugin-manifests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-manifests:
+    name: Validate plugin and marketplace manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ajv-cli + formats
+        run: npm install --no-save ajv-cli@5 ajv-formats@3
+
+      - name: Validate every plugin and marketplace manifest
+        run: bash tests/validate-plugin-manifests.sh
