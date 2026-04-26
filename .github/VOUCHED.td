@@ -13,5 +13,6 @@ anandsundar
 -github:carycooper777 spam
 devamshah
 ethanolivertroy
+funkeomolere trusted contributor
 jeftekhari
 networkbm trusted contributor — first PR (#64)
