@@ -1,7 +1,7 @@
 ---
 name: ind-dpdpa-expert
 description: India DPDPA (2023) + DPDP Rules (2025) expert. Stub-depth framework plugin that routes to the SCF crosswalk. Level up by adding framework-specific context, assessment workflow, and evidence patterns.
-allowed-tools: Read, Glob, Grep, Write
+allowed-tools: Read, Glob, Grep
 ---
 
 # India DPDPA (2023) + DPDP Rules (2025) Expert
