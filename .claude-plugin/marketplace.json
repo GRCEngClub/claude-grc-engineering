@@ -159,7 +159,8 @@
       "source": "./plugins/frameworks/irap",
       "description": "Australian IRAP (ISM + Essential Eight) for government cloud",
       "version": "0.1.0"
-    },
+    
+    
     {
       "name": "aws-inspector",
       "source": "./plugins/connectors/aws-inspector",
@@ -200,7 +201,13 @@
       "name": "singapore-pdpa",
       "source": "./plugins/frameworks/singapore-pdpa",
       "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) — reference-depth plugin backed by the SCF crosswalk (30 SCF → 14 framework controls).",
-      "version": "0.1.0"
+     },
+        {
+          "name": "cyber-essentials-plus",
+          "source": "./plugins/frameworks/cyber-essentials-plus",
+          "description": "UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell — gap assessments, evidence checklists, remediation plans, and cross-framework mapping to ISO 27001 and NIST CSF",
+          "version": "0.1.0"
+        }
+      ]
     }
-  ]
 }
