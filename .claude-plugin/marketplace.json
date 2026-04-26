@@ -159,7 +159,7 @@
       "source": "./plugins/frameworks/irap",
       "description": "Australian IRAP (ISM + Essential Eight) for government cloud",
       "version": "0.1.0"
-    
+    },
     
     {
       "name": "aws-inspector",
@@ -196,12 +196,13 @@
       "source": "./plugins/fedramp-ssp",
       "description": "Convert FedRAMP Rev 5 SSP DOCX templates to validated OSCAL 1.2.0 SSP JSON. Wraps ethanolivertroy/frdocx-to-froscal-ssp.",
       "version": "0.1.0"
-    },
-    {
-      "name": "singapore-pdpa",
-      "source": "./plugins/frameworks/singapore-pdpa",
-      "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) — reference-depth plugin backed by the SCF crosswalk (30 SCF → 14 framework controls).",
-     },
+   },
+        {
+          "name": "singapore-pdpa",
+          "source": "./plugins/frameworks/singapore-pdpa",
+          "description": "Singapore — Personal Data Protection Ac (PDPA) (2012) — reference-depth plugin backed by the SCF crosswalk (30 SCF = 14 framework controls).",
+          "version": "0.1.0"
+        },
         {
           "name": "cyber-essentials-plus",
           "source": "./plugins/frameworks/cyber-essentials-plus",
@@ -210,4 +211,3 @@
         }
       ]
     }
-}
