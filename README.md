@@ -182,7 +182,7 @@ The contract is versioned. Consumers pin a major version. Contract tests run in 
 
 SCF is the canonical control vocabulary. 1,468 SCF controls map bidirectionally to 249 frameworks. When a connector reports an SCF control failure, `/gap-assessment` expands it into every requested framework via the crosswalk.
 
-SCF data is fetched from [`hackidle.github.io/scf-api`](https://hackidle.github.io/scf-api/) and cached locally. Licensing (CC BY-ND 4.0): the toolkit fetches and redistributes verbatim, never modified. See [`docs/SCF-ATTRIBUTION.md`](docs/SCF-ATTRIBUTION.md).
+SCF data is fetched from [`grcengclub.github.io/scf-api`](https://grcengclub.github.io/scf-api/) and cached locally. Licensing (CC BY-ND 4.0): the toolkit fetches and redistributes verbatim, never modified. See [`docs/SCF-ATTRIBUTION.md`](docs/SCF-ATTRIBUTION.md).
 
 ## Documentation
 
@@ -222,7 +222,7 @@ The toolkit wraps or interoperates with a number of independent projects maintai
 - **OSCAL tooling** (maintained by [`@ethanolivertroy`](https://github.com/ethanolivertroy)): `oscal-cli` (Go rewrite of NIST's Java tool), `compliance-trestle-skills`, `frdocx-to-froscal-ssp`, `fedramp-docs-mcp`, `emass-skills`.
 - **FedRAMP audit scripts**: cloud-shell-audit tools for AWS, Azure, and GCP, plus `duo-audit`, `slack-audit`, `splunk-audit`, `crypto-widget-evidence-collector`.
 - **Policy-as-code**: `terrascan` (fork), `llm-cloudpolicy-scanner`, `wilma` (AWS Bedrock security), `mesh-security`, `mesh-config-analyzer`.
-- **Reference datasets**: [`scf-api`](https://github.com/hackIDLE/scf-api) (this toolkit's crosswalk backbone), `NIST-CMVP-API`, `cmvp-tui`, `kevs-tui`, `fedramp-browser`.
+- **Reference datasets**: [`scf-api`](https://github.com/GRCEngClub/scf-api) (this toolkit's crosswalk backbone — Club-maintained), `NIST-CMVP-API`, `cmvp-tui`, `kevs-tui`, `fedramp-browser`.
 - **Curated lists**: [`awesome-grc-engineering`](https://github.com/ethanolivertroy/awesome-grc-engineering), [`awesome-grc-ai`](https://github.com/ethanolivertroy/awesome-grc-ai).
 
 These projects are not part of this repo or governed by the Club. They're listed here because they pair well with the toolkit.

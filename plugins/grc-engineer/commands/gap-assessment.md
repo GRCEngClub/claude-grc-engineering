@@ -17,7 +17,7 @@ Produce a multi-framework gap assessment by joining cached connector findings wi
 
 - `<frameworks>` (required): comma-separated list. Use common names or SCF framework IDs.
   - Aliases: `SOC2`, `ISO-27001-2022`, `NIST-800-53-r5`, `PCI-DSS-4`, `FedRAMP-Moderate`, `FedRAMP-High`, `CMMC-2`, `HITRUST-CSF`, `CIS-v8`, `HIPAA`, `GDPR`, `NYDFS`, `DORA`, `Essential-8`, `IRAP`, `ISMAP`, `PBMM`, `GLBA`
-  - Or: any SCF framework_id (see `curl https://hackidle.github.io/scf-api/api/crosswalks.json | jq '.frameworks[].framework_id'`)
+  - Or: any SCF framework_id (see `curl https://grcengclub.github.io/scf-api/api/crosswalks.json | jq '.frameworks[].framework_id'`)
 
 **Options**:
 

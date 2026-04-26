@@ -3,7 +3,7 @@
 /**
  * SCF (Secure Controls Framework) API client with local cache.
  *
- * Fetches from https://hackidle.github.io/scf-api/ on demand; caches under
+ * Fetches from https://grcengclub.github.io/scf-api/ on demand; caches under
  * ~/.cache/claude-grc/scf/<version>/. Respects CC BY-ND 4.0 — cached data is
  * preserved verbatim, never modified.
  *
@@ -24,7 +24,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { pathToFileURL } from 'node:url';
 
-const DEFAULT_BASE_URL = 'https://hackidle.github.io/scf-api';
+const DEFAULT_BASE_URL = 'https://grcengclub.github.io/scf-api';
 const DEFAULT_CACHE_DIR = path.join(os.homedir(), '.cache', 'claude-grc', 'scf');
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — SCF itself updates weekly
 

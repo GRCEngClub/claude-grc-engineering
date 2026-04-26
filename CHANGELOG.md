@@ -4,6 +4,10 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Changed
+
+- **SCF API source migrated to the Club-owned mirror.** Default `DEFAULT_BASE_URL` in `plugins/grc-engineer/scripts/scf-client.js` switched from `hackidle.github.io/scf-api` to [`grcengclub.github.io/scf-api`](https://grcengclub.github.io/scf-api/) ([repo](https://github.com/GRCEngClub/scf-api)). The new mirror is API-compatible — same SCF v2026.1 workbook, identical endpoint shapes, identical response payloads — so cached data and framework alias tables remain valid. Users who want to pin to the previous origin can still set `CLAUDE_GRC_SCF_BASE_URL=https://hackidle.github.io/scf-api`. Closes [#55](https://github.com/GRCEngClub/claude-grc-engineering/issues/55).
+
 ## [0.0.2] — 2026-04-18
 
 This release marks the official handoff of the toolkit to the [GRC Engineering Club](https://grcengclub.com). Content below summarizes the handoff + community scaffolding that landed between 0.0.1 and 0.0.2.

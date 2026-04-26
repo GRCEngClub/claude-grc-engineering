@@ -89,7 +89,7 @@ Two independent fields. `status` is the pass/fail semantic; `severity` is the im
 
 ## The crosswalk layer
 
-The Secure Controls Framework (SCF) is this toolkit's **canonical control vocabulary**. It carries 1,468 controls across 33 families, with bidirectional crosswalks to 249 frameworks. We fetch from the live API at `https://hackidle.github.io/scf-api/` and cache locally.
+The Secure Controls Framework (SCF) is this toolkit's **canonical control vocabulary**. It carries 1,468 controls across 33 families, with bidirectional crosswalks to 249 frameworks. We fetch from the live API at `https://grcengclub.github.io/scf-api/` and cache locally.
 
 ```
 Connector emits:       evaluations[].control_framework = "SCF", control_id = "CRY-05"
@@ -166,7 +166,7 @@ Most frameworks already exist. To add a new one:
 2. Add commands as markdown with frontmatter (see `plugins/frameworks/soc2/commands/assess.md` for reference).
 3. Create `skills/<name>-expert/SKILL.md` with paraphrased domain knowledge (never verbatim copy from a licensed standard).
 4. Register the plugin in `.claude-plugin/marketplace.json`.
-5. Confirm its framework_id resolves in SCF crosswalks (`curl https://hackidle.github.io/scf-api/api/crosswalks.json | jq '.frameworks[].framework_id' | grep <yourframework>`).
+5. Confirm its framework_id resolves in SCF crosswalks (`curl https://grcengclub.github.io/scf-api/api/crosswalks.json | jq '.frameworks[].framework_id' | grep <yourframework>`).
 
 ### Add a connector
 

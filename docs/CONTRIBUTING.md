@@ -149,8 +149,8 @@ SCF is the canonical vocabulary. From SCF, `/gap-assessment` can reach any of 24
 To look up SCF controls relevant to your tool's domain:
 
 ```bash
-curl https://hackidle.github.io/scf-api/api/families.json | jq '.[] | {code, name, control_count}'
-curl https://hackidle.github.io/scf-api/api/families/IAC.json | jq
+curl https://grcengclub.github.io/scf-api/api/families.json | jq '.[] | {code, name, control_count}'
+curl https://grcengclub.github.io/scf-api/api/families/IAC.json | jq
 ```
 
 ## How to add or improve a framework plugin
