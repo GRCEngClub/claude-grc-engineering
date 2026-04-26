@@ -33,7 +33,7 @@ Under the hood:
 /grc-engineer:gap-assessment "emea-gbr-ce-2021" [--sources=<connector-list>]
 ```
 
-The SCF crosswalk expands 30 SCF controls into the 5 Cyber Essentials Plus controls.
+The SCF crosswalk expands 26 SCF controls into the 5 Cyber Essentials Plus controls.
 
 ## Framework-specific assessment notes
 
