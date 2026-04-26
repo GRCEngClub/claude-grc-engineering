@@ -79,7 +79,7 @@ node plugins/grc-engineer/scripts/scaffold-framework.js emea-che-fadp-2023 --no-
 
 ## Data provenance
 
-Framework metadata (display name, region, country, SCF control counts) comes from the [SCF API](https://hackidle.github.io/scf-api/) (`api/crosswalks.json` and per-framework `api/crosswalks/<id>.json`). Cached locally under `~/.cache/claude-grc/scf/<version>/` per CC BY-ND 4.0 terms — cached data is redistributed verbatim, never modified.
+Framework metadata (display name, region, country, SCF control counts) comes from the [SCF API](https://grcengclub.github.io/scf-api/) (`api/crosswalks.json` and per-framework `api/crosswalks/<id>.json`). Cached locally under `~/.cache/claude-grc/scf/<version>/` per CC BY-ND 4.0 terms — cached data is redistributed verbatim, never modified.
 
 See [`docs/SCF-ATTRIBUTION.md`](../../../docs/SCF-ATTRIBUTION.md) for licensing detail.
 

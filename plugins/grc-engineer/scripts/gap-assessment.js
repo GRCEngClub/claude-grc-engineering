@@ -421,7 +421,7 @@ function renderMarkdown(r) {
   out.push(`Run ID: \`${r.runId}\``);
   out.push(`Frameworks: ${r.frameworks.join(', ')}`);
   out.push(`Sources: ${r.sources.join(', ')}`);
-  out.push(`Crosswalk: SCF v${r.scf_version} (via https://hackidle.github.io/scf-api/)`);
+  out.push(`Crosswalk: SCF v${r.scf_version} (via https://grcengclub.github.io/scf-api/)`);
   out.push('');
 
   out.push('## Coverage');

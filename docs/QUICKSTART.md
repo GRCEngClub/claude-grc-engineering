@@ -158,7 +158,7 @@ The connector only evaluates resources you can see with your `gh` token. For org
 Your connectors may not emit evaluations for that framework's controls. Either add a connector with broader coverage (e.g., `aws-inspector` for FedRAMP) or check `/grc-engineer:pipeline-status` to see which frameworks each connector covers.
 
 **Network errors fetching SCF crosswalks**
-The toolkit fetches SCF data from `https://hackidle.github.io/scf-api/` on first use and caches locally. If GitHub Pages is unreachable, set `CLAUDE_GRC_SCF_CACHE=~/path/to/scf-snapshot/` to use a local copy.
+The toolkit fetches SCF data from `https://grcengclub.github.io/scf-api/` on first use and caches locally. If GitHub Pages is unreachable, set `CLAUDE_GRC_SCF_CACHE=~/path/to/scf-snapshot/` to use a local copy.
 
 ## What's next
 

@@ -61,7 +61,7 @@ Answers the everyday question: *"is X supported, and if so, how do I use it?"* �
 
 ## Data sources
 
-- [SCF API](https://hackidle.github.io/scf-api/) — `crosswalks.json` for the 249 framework index. Cached locally under `~/.cache/claude-grc/scf/<version>/` per CC BY-ND 4.0 (verbatim).
+- [SCF API](https://grcengclub.github.io/scf-api/) — `crosswalks.json` for the 249 framework index. Cached locally under `~/.cache/claude-grc/scf/<version>/` per CC BY-ND 4.0 (verbatim).
 - `.claude-plugin/marketplace.json` — registered plugins.
 - Each `plugins/frameworks/<slug>/.claude-plugin/plugin.json` → `framework_metadata` block (if present).
 - Hard-coded legacy mapping in `scripts/frameworks.js` for the ~15 pre-Club-handoff plugins that predate the `framework_metadata` convention. Entries become obsolete as plugins backfill their metadata.
