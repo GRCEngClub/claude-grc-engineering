@@ -13,6 +13,7 @@
     "review-pr": "node plugins/grc-engineer/scripts/review-pr.js",
     "collect-evidence": "node plugins/grc-engineer/scripts/collect-evidence.js",
     "record-automation-metrics": "node plugins/grc-engineer/scripts/record-automation-metrics.js",
+    "monitor-continuous": "node plugins/grc-engineer/scripts/monitor-continuous.js",
     "transform-risk": "node plugins/grc-engineer/scripts/transform-risk.js",
     "frameworks": "node plugins/grc-engineer/scripts/frameworks.js",
     "scaffold-framework": "node plugins/grc-engineer/scripts/scaffold-framework.js",
