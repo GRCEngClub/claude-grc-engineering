@@ -6,11 +6,13 @@ The most valuable contributions are **new connectors** and **improvements to exi
 
 ## First-time contributors
 
-If this is your first PR here:
+If this is your first contribution here, the path is **issue → vouch → PR**:
 
-1. Browse [`good-first-issue`](https://github.com/GRCEngClub/claude-grc-engineering/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) labels for a self-contained starting task (typically 2–4 hours of work).
-2. Open a **draft PR** early — even with a skeleton commit. A maintainer will review direction before you sink time into it.
-3. Stuck? Start a thread in [Discussions](https://github.com/GRCEngClub/claude-grc-engineering/discussions) and tag the area (`connector`, `framework`, `docs`). "How would I add a connector for X?" is a welcome question.
+1. **Open an issue or Discussion** with your idea — even a two-line "I'd like to add a connector for X" works. Browse [`good-first-issue`](https://github.com/GRCEngClub/claude-grc-engineering/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) labels for a self-contained starting task (typically 2–4 hours). The issue also signals you're a real person — we get a steady stream of AI-scaffolded drive-by PRs and triage time matters.
+2. **Wait for a vouch.** A maintainer will comment `!vouch` on the issue (or on your profile, if we already know you). This adds you to [`.github/VOUCHED.td`](../.github/VOUCHED.td); see [`GOVERNANCE.md`](../GOVERNANCE.md#vouching-new-contributors) for the mechanics and why we do this.
+3. **Open the PR.** Once you're vouched, normal review applies. PRs from unvouched authors are auto-closed with a pointer back here. Bots (Dependabot etc.) and maintainers with write access are exempt.
+
+Stuck on direction? Tag your issue or Discussion with the area (`connector`, `framework`, `docs`). "How would I add a connector for X?" is a welcome question.
 
 ## Ground rules
 

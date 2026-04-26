@@ -240,6 +240,16 @@ This toolkit is developed openly by the [GRC Engineering Club](https://grcengclu
 - **Issues**: Use a template when opening. Security-sensitive issues go to a private advisory; see `SECURITY.md`.
 - **Recognition**: contributors are credited via the [all-contributors](https://allcontributors.org) bot on every PR. Comment `@all-contributors please add @you for code,doc` after your PR merges, or ask a maintainer.
 
+### How to contribute (issue → vouch → PR)
+
+We get a steady stream of AI-scaffolded drive-by PRs, so contributions go through a small trust-gate that lets maintainers spend review time on real people:
+
+1. **Open an issue or [Discussion](https://github.com/GRCEngClub/claude-grc-engineering/discussions)** with your idea before writing code — even two lines is fine ("I'd like to add a connector for X"). It tells maintainers what you want to build and confirms you're a human, not an agent on a PR-spamming spree.
+2. **A maintainer comments `!vouch`** on the issue, adding you to [`.github/VOUCHED.td`](.github/VOUCHED.td). This is a one-time step — once you're vouched, you stay vouched.
+3. **Open the PR.** Normal review applies. PRs from unvouched authors are auto-closed with a pointer back here. Bots (Dependabot etc.) and maintainers with write access are exempt.
+
+Full mechanics in [`GOVERNANCE.md`](GOVERNANCE.md#vouching-new-contributors). The contributor walkthrough lives in [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md#first-time-contributors).
+
 ### Maintainers
 
 This project is co-led by members of the [GRC Engineering Club leadership team](https://github.com/orgs/GRCEngClub/teams/grc-eng-leadership-team). Current co-leads:
