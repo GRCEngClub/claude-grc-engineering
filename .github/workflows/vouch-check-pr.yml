@@ -12,11 +12,16 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: mitchellh/vouch/action/check-pr@v1
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.VOUCH_APP_ID }}
+          private-key: ${{ secrets.VOUCH_APP_PRIVATE_KEY }}
+
+      - uses: mitchellh/vouch/action/check-pr@c6d80ead49839655b61b422700b7a3bc9d0804a9 # v1.4.2
         with:
           pr-number: ${{ github.event.pull_request.number }}
           require-vouch: "true"
-          auto-close: "false"
-          dry-run: "true"
+          auto-close: "true"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}

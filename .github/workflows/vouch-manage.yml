@@ -11,20 +11,33 @@ concurrency:
 permissions:
   contents: write
   issues: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   manage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.VOUCH_APP_ID }}
+          private-key: ${{ secrets.VOUCH_APP_PRIVATE_KEY }}
 
-      - uses: mitchellh/vouch/action/manage-by-issue@v1
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: mitchellh/vouch/action/manage-by-issue@c6d80ead49839655b61b422700b7a3bc9d0804a9 # v1.4.2
         with:
           repo: ${{ github.repository }}
           issue-id: ${{ github.event.issue.number }}
           comment-id: ${{ github.event.comment.id }}
           vouched-managers-file: .github/VOUCHED-MANAGERS.td
           roles: admin,maintain
+          vouch-keyword: "!vouch"
+          denounce-keyword: "!denounce"
+          unvouch-keyword: "!unvouch"
+          pull-request: "true"
+          merge-immediately: "true"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
