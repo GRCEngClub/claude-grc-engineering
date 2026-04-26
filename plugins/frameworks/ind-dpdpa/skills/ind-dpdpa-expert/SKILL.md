@@ -32,7 +32,7 @@ Stub-depth expertise for **India DPDPA (2023) + DPDP Rules (2025)**. This plugin
 **Rules operational requirements** (as of 13 November 2025, per G.S.R. 846(E)):
 
 - 72-hour breach notification timeline
-- Consent manager registration by November 2026 (per G.S.R. 846(E))
+- **Consent Manager registration**: mandatory by **13 November 2026** (Rule 4 commencement — 1 year from G.S.R. 846(E) notification date)
 - Specific consent recording and management standards
 - Data transfer mechanisms and allowlist countries
 - Grievance redressal officer requirements
@@ -41,7 +41,7 @@ TODO: add framework-specific sections for Reference-depth upgrade:
 
 - Territorial scope (extraterritorial application, thresholds)
 - Controlled-entity obligations (Data Fiduciary, Consent Manager, Significant Data Fiduciary)
-- Mandatory timelines (breach notification: 72 hours; consent manager registration: November 2026)
+- Mandatory timelines (breach notification: 72 hours; consent manager registration: 13 November 2026)
 - Regulator and enforcement mechanism (MeitY, Data Protection Board of India, penalties)
 - Interaction with other frameworks (GDPR adequacy decisions, mutual recognition)
 
