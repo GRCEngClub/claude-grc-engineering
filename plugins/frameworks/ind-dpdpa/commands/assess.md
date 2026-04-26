@@ -12,13 +12,13 @@ To add framework-specific workflow commands, evidence checklists, or implementat
 
 ## Usage
 
-```
+```bash
 /ind-dpdpa:assess [--sources=<connector-list>]
 ```
 
 Delegates to:
 
-```
+```bash
 /grc-engineer:gap-assessment "apac-ind-dpdpa-2023" [--sources=<connector-list>]
 ```
 
