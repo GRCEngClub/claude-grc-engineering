@@ -221,6 +221,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "ch-fadp",
+      "source": "./plugins/frameworks/ch-fadp",
+      "description": "Swiss Federal Act on Data Protection (nFADP) — stub-depth plugin backed by the SCF crosswalk (35 SCF → 90 framework controls).",
+      "version": "0.1.0"
+    },
+    {
       "name": "ind-dpdpa",
       "source": "./plugins/frameworks/ind-dpdpa",
       "description": "India Digital Personal Data Protection Act, 2023 — reference-depth plugin with scope determination, evidence checklist, and breach-process workflow backed by the SCF crosswalk.",
