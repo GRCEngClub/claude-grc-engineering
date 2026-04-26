@@ -21,6 +21,8 @@ exclude = [
   # GitHub org pages that require auth (teams, private projects) bounce to login or 404
   "^https://github\\.com/orgs/.*/teams/",
   "^https://github\\.com/orgs/.*/projects/",
+  # GitHub user-attachments have redirect issues with lychee
+  "^https://github\\.com/user-attachments/",
   # Some regulator sites return 5xx to scrapers but render fine in browsers
   "^https://www\\.ecfr\\.gov",
   # canada.ca returns HTTP/2 protocol errors to lychee's client; renders fine in browsers
