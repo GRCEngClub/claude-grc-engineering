@@ -18,8 +18,7 @@
     "scaffold-framework": "node plugins/grc-engineer/scripts/scaffold-framework.js",
     "generate-coverage": "node plugins/grc-engineer/scripts/generate-coverage.js",
     "test:contract": "bash tests/validate-contract-fixtures.sh",
-    "test:contract:findings": "ajv validate --spec=draft2020 -c ajv-formats -s schemas/finding.schema.json -d 'tests/fixtures/findings/**/*.json'",
-    "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules'"
+    "test:contract:findings": "ajv validate --spec=draft2020 -c ajv-formats -s schemas/finding.schema.json -d 'tests/fixtures/findings/**/*.json'"
   },
   "keywords": [
     "grc",
@@ -54,7 +53,6 @@
   },
   "devDependencies": {
     "ajv-cli": "^5.0.0",
-    "ajv-formats": "^3.0.1",
-    "markdownlint-cli2": "^0.14.0"
+    "ajv-formats": "^3.0.1"
   }
 }

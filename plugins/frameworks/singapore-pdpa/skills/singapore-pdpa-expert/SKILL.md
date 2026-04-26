@@ -66,5 +66,5 @@ TODO: propose 2–4 framework-specific commands. Examples from existing Full-dep
 ## References
 
 - [Secure Controls Framework](https://securecontrolsframework.com)
-- [SCF API entry for this framework](https://hackidle.github.io/scf-api/api/crosswalks/apac-sgp-pdpa-2012.json)
+- [SCF API entry for this framework](https://grcengclub.github.io/scf-api/api/crosswalks/apac-sgp-pdpa-2012.json)
 - Official regulator publications (TODO: add primary-source links)

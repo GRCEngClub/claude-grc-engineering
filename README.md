@@ -1,5 +1,11 @@
 # claude-grc-engineering
 
+
+
+https://github.com/user-attachments/assets/a83aa297-9fba-4a7d-b56c-06f962d1ec6b
+
+
+
 The official open-source GRC toolkit from the [GRC Engineering Club](https://grcengclub.com). Checkbox compliance to engineered systems, shipped as [Claude Code](https://docs.claude.com/claude-code) plugins: persona plugins for engineers, auditors, internal GRC teams, and TPRM; 20+ framework reference plugins from SOC 2 to FedRAMP to APRA; and thin cloud/SaaS connectors that emit a common Finding contract. Assessors, platform engineers, and GRC teams everywhere rebuild the same pipeline on their own. Pull evidence, crosswalk to a framework, generate a gap report, wrestle OSCAL. One open toolkit, maintained by the community, end-to-end.
 
 ```
@@ -182,7 +188,7 @@ The contract is versioned. Consumers pin a major version. Contract tests run in 
 
 SCF is the canonical control vocabulary. 1,468 SCF controls map bidirectionally to 249 frameworks. When a connector reports an SCF control failure, `/gap-assessment` expands it into every requested framework via the crosswalk.
 
-SCF data is fetched from [`hackidle.github.io/scf-api`](https://hackidle.github.io/scf-api/) and cached locally. Licensing (CC BY-ND 4.0): the toolkit fetches and redistributes verbatim, never modified. See [`docs/SCF-ATTRIBUTION.md`](docs/SCF-ATTRIBUTION.md).
+SCF data is fetched from [`grcengclub.github.io/scf-api`](https://grcengclub.github.io/scf-api/) and cached locally. Licensing (CC BY-ND 4.0): the toolkit fetches and redistributes verbatim, never modified. See [`docs/SCF-ATTRIBUTION.md`](docs/SCF-ATTRIBUTION.md).
 
 ## Documentation
 
@@ -222,7 +228,7 @@ The toolkit wraps or interoperates with a number of independent projects maintai
 - **OSCAL tooling** (maintained by [`@ethanolivertroy`](https://github.com/ethanolivertroy)): `oscal-cli` (Go rewrite of NIST's Java tool), `compliance-trestle-skills`, `frdocx-to-froscal-ssp`, `fedramp-docs-mcp`, `emass-skills`.
 - **FedRAMP audit scripts**: cloud-shell-audit tools for AWS, Azure, and GCP, plus `duo-audit`, `slack-audit`, `splunk-audit`, `crypto-widget-evidence-collector`.
 - **Policy-as-code**: `terrascan` (fork), `llm-cloudpolicy-scanner`, `wilma` (AWS Bedrock security), `mesh-security`, `mesh-config-analyzer`.
-- **Reference datasets**: [`scf-api`](https://github.com/hackIDLE/scf-api) (this toolkit's crosswalk backbone), `NIST-CMVP-API`, `cmvp-tui`, `kevs-tui`, `fedramp-browser`.
+- **Reference datasets**: [`scf-api`](https://github.com/GRCEngClub/scf-api) (this toolkit's crosswalk backbone — Club-maintained), `NIST-CMVP-API`, `cmvp-tui`, `kevs-tui`, `fedramp-browser`.
 - **Curated lists**: [`awesome-grc-engineering`](https://github.com/ethanolivertroy/awesome-grc-engineering), [`awesome-grc-ai`](https://github.com/ethanolivertroy/awesome-grc-ai).
 
 These projects are not part of this repo or governed by the Club. They're listed here because they pair well with the toolkit.
@@ -248,6 +254,16 @@ See `GOVERNANCE.md` and `MAINTAINERS.md` for the decision process and how to bec
 ## Status
 
 Pre-1.0. The schema is versioned (v1.0.0) and Tier-1 connectors are the focus of the early releases. Breaking changes are documented in `CHANGELOG.md` and guarded by the schema version.
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=GRCEngClub%2Fclaude-grc-engineering&type=date&legend=top-left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=GRCEngClub/claude-grc-engineering&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=GRCEngClub/claude-grc-engineering&type=date&legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=GRCEngClub/claude-grc-engineering&type=date&legend=top-left" />
+  </picture>
+</a>
 
 ## License
 
