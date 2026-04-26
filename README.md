@@ -251,6 +251,7 @@ Pre-1.0. The schema is versioned (v1.0.0) and Tier-1 connectors are the focus of
 
 ## Star History
 
+<!-- markdownlint-disable MD033 -->
 <a href="https://www.star-history.com/?repos=GRCEngClub%2Fclaude-grc-engineering&type=date&legend=top-left">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=GRCEngClub/claude-grc-engineering&type=date&theme=dark&legend=top-left" />
@@ -258,6 +259,7 @@ Pre-1.0. The schema is versioned (v1.0.0) and Tier-1 connectors are the focus of
     <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=GRCEngClub/claude-grc-engineering&type=date&legend=top-left" />
   </picture>
 </a>
+<!-- markdownlint-enable MD033 -->
 
 ## License
 
