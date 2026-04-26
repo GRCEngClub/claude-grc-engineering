@@ -2,7 +2,9 @@
   "name": "cyber-essentials-plus",
   "description": "UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell — Reference plugin with evidence checklist, scope determination, and SCF-backed gap assessment. Five core controls: Firewalls, Secure Configuration, User Access Control, Malware Protection, and Patch Management.",
   "version": "0.1.0",
-  "author": "GRC Engineering Club Contributors",
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
   "framework_metadata": {
