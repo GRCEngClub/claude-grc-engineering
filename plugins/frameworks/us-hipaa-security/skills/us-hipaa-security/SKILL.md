@@ -302,8 +302,8 @@ The `/grc-engineer:gap-assessment` command supports this framework via SCF cross
 
 **When Using /grc-engineer:gap-assessment**:
 
-```
-/grc-engineer:gap-assessment --framework=US-HIPAA-Security
+```text
+/grc-engineer:gap-assessment HIPAA
 ```
 
 This will map HIPAA Security Rule requirements to SCF controls and generate findings grouped by safeguard category.

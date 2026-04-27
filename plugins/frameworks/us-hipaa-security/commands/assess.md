@@ -42,7 +42,7 @@ Before starting the assessment, confirm the following with the user:
 
 ## How It Works
 
-This command routes to `/grc-engineer:gap-assessment --framework=US-HIPAA-Security` and leverages the SCF crosswalk to map HIPAA Security Rule implementation specifications to standardized compliance controls.
+This command routes to `/grc-engineer:gap-assessment HIPAA` and leverages the SCF crosswalk to map HIPAA Security Rule implementation specifications to standardized compliance controls.
 
 ## Assessment Output
 
@@ -179,12 +179,16 @@ Based on OCR enforcement actions and Resolution Agreements, the most common HIPA
 - Breach notification compliance
 - Security incident response procedures
 
-**Penalty Tiers** (per violation category per year):
+**Penalty Tiers** (per violation category per year)
 
-- Tier 1: $100 - $25,000 (lack of knowledge)
-- Tier 2: $1,000 - $100,000 (reasonable cause)
-- Tier 3: $10,000 - $250,000 (willful neglect, corrected)
-- Tier 4: $50,000 - $1,900,000 (willful neglect, not corrected)
+*As of January 28, 2026* (45 CFR 102.3 / Federal Register annual inflation adjustment)
+
+- Tier 1: $145 – $73,011 (lack of knowledge)
+- Tier 2: $1,461 – $73,011 (reasonable cause)
+- Tier 3: $14,602 – $73,011 (willful neglect, corrected)
+- Tier 4: $73,011 – $2,190,294 (willful neglect, not corrected)
+
+Annual cap: $2,190,294 per violation category.
 
 ---
 

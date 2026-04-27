@@ -70,7 +70,7 @@ Generate a comprehensive evidence request list for HIPAA Security Rule complianc
 | **Media disposal and destruction records for drives containing ePHI** | §164.310(d)(2)(i) | Addressable | Disposal log, certificate of destruction | Must follow NIST SP 800-88 guidelines for sanitization |
 | **Media re-use and sanitization records before reuse** | §164.310(d)(2)(ii) | Addressable | Sanitization log, sanitization procedure documentation | Must verify no ePHI remains before reusing media |
 | **Hardware and media movement/transfer tracking log** | §164.310(d)(2)(iii) | Addressable | Media transfer log, chain of custody form | Track movement of ePHI-containing media between locations |
-| **Data backup and storage documentation** | §164.310(d)(2)(iii) | Addressable | Backup storage location, access controls | Backup media must be securely stored |
+| **Data backup and storage documentation** | §164.310(d)(2)(iv) | Addressable | Backup storage location, access controls | Backup media must be securely stored |
 | **Hardware/electronics disposal records** | §164.310(d)(2)(i) | Addressable | Equipment disposal log, destruction certificate | Must ensure ePHI cannot be recovered |
 
 ### Technical Safeguards (§164.312)
@@ -176,7 +176,7 @@ aws cloudtrail describe-trails --query 'trailList[?IsMultiRegionTrail==`true`]' 
 Get-ADUser -Filter * -Properties LastLogonDate,Enabled |
   Where-Object {$_.MemberOf -like "*ePHI-Access*"} |
   Select-Object Name,Enabled,LastLogonDate |
-  Export-Csv -Path evidence/hipaa-ad-users-$(date +%Y%m%d).csv -NoTypeInformation
+  Export-Csv -Path "evidence/hipaa-ad-users-$(Get-Date -Format yyyyMMdd).csv" -NoTypeInformation
 ```
 
 **SQL Server - Audit Log Export**:
@@ -197,7 +197,7 @@ ORDER BY event_time DESC;
 - Must be accessible for OCR reviews
 
 **Recommended Evidence Archive Structure**:
-```
+```text
 evidence/
 └── hipaa-security/
     ├── administrative/
