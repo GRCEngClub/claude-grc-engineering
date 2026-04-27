@@ -12,6 +12,7 @@ const PUBLIC_DIR = path.join(PLUGIN_ROOT, 'public');
 const REPO_ROOT = path.resolve(PLUGIN_ROOT, '../../..');
 
 const DEFAULT_DATA_PATH = path.join(REPO_ROOT, 'grc-data/dashboard/monitor-continuous');
+const MAX_SCAN_DEPTH = 8;
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -76,20 +77,25 @@ function parseArgs(argv) {
   return out;
 }
 
-async function listJsonFiles(inputPath) {
+async function listJsonFiles(inputPath, depth = 0, seen = new Set()) {
   const files = [];
-  const stat = await fs.stat(inputPath);
+  const realPath = await fs.realpath(inputPath);
+  if (seen.has(realPath) || depth > MAX_SCAN_DEPTH) return files;
+  seen.add(realPath);
+
+  const stat = await fs.lstat(realPath);
+  if (stat.isSymbolicLink()) return files;
   if (stat.isFile()) {
-    if (inputPath.endsWith('.json')) files.push(inputPath);
+    if (realPath.endsWith('.json')) files.push(realPath);
     return files;
   }
   if (!stat.isDirectory()) return files;
 
-  const entries = await fs.readdir(inputPath, { withFileTypes: true });
+  const entries = await fs.readdir(realPath, { withFileTypes: true });
   for (const entry of entries) {
-    const full = path.join(inputPath, entry.name);
+    const full = path.join(realPath, entry.name);
     if (entry.isDirectory()) {
-      files.push(...await listJsonFiles(full));
+      files.push(...await listJsonFiles(full, depth + 1, seen));
     } else if (entry.isFile() && entry.name.endsWith('.json')) {
       files.push(full);
     }
@@ -217,6 +223,7 @@ function demoRuns() {
 }
 
 function sendJson(res, status, payload) {
+  if (res.writableEnded) return;
   res.writeHead(status, {
     'content-type': MIME_TYPES['.json'],
     'cache-control': 'no-store'
@@ -228,13 +235,15 @@ async function sendStatic(req, res) {
   const url = new URL(req.url, 'http://localhost');
   const requested = url.pathname === '/' ? '/index.html' : decodeURIComponent(url.pathname);
   const full = path.resolve(PUBLIC_DIR, `.${requested}`);
-  if (!full.startsWith(PUBLIC_DIR)) {
+  if (full !== PUBLIC_DIR && !full.startsWith(`${PUBLIC_DIR}${path.sep}`)) {
+    if (res.writableEnded) return;
     res.writeHead(403);
     res.end('Forbidden');
     return;
   }
   try {
     const body = await fs.readFile(full);
+    if (res.writableEnded) return;
     res.writeHead(200, {
       'content-type': MIME_TYPES[path.extname(full)] || 'application/octet-stream',
       'cache-control': 'no-store'
@@ -242,6 +251,7 @@ async function sendStatic(req, res) {
     res.end(body);
   } catch (err) {
     if (err.code === 'ENOENT') {
+      if (res.writableEnded) return;
       res.writeHead(404);
       res.end('Not found');
       return;
@@ -265,6 +275,12 @@ async function main() {
   }
 
   const server = http.createServer(async (req, res) => {
+    const timeout = setTimeout(() => {
+      if (!res.writableEnded) {
+        sendJson(res, 504, { error: 'Request timeout' });
+      }
+    }, 30000);
+
     try {
       if (req.url.startsWith('/api/runs')) {
         sendJson(res, 200, await loadRuns(opts.dataPaths, opts.demo));
@@ -272,7 +288,9 @@ async function main() {
       }
       await sendStatic(req, res);
     } catch (err) {
-      sendJson(res, 500, { error: err.message });
+      if (!res.writableEnded) sendJson(res, 500, { error: err.message });
+    } finally {
+      clearTimeout(timeout);
     }
   });
 

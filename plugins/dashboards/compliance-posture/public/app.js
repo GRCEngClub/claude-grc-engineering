@@ -28,6 +28,10 @@ function percent(value) {
   return `${Math.round(Number(value) * 100)}%`;
 }
 
+function coverage(value) {
+  return value === null || value === undefined ? 'n/a' : `${value}%`;
+}
+
 function number(value) {
   return new Intl.NumberFormat().format(value || 0);
 }
@@ -52,7 +56,8 @@ function dateLabel(value) {
 }
 
 function statusClass(status) {
-  return `status-${status || 'no_data'}`;
+  const known = ['ok', 'no_data', 'warning', 'critical'];
+  return `status-${known.includes(status) ? status : 'no_data'}`;
 }
 
 function latestFrameworks() {
@@ -166,7 +171,7 @@ function renderOverall() {
     ['Tier 1 blockers', number(summary.tier1_blockers)],
     ['Report bundle', state.latest.artifacts?.gap_report_dir || 'not recorded']
   ].map(([label, value]) => `
-    <div class="breakdown-row"><span>${label}</span><strong>${value}</strong></div>
+    <div class="breakdown-row"><span>${label}</span><strong>${escapeHtml(value)}</strong></div>
   `).join('');
 }
 
@@ -276,12 +281,12 @@ function renderFrameworks() {
     return `
       <div class="framework-row">
         <div>
-          <div class="framework-title">${item.framework}</div>
-          <div class="framework-subtitle">${item.display_name || 'Monitor result'}</div>
+          <div class="framework-title">${escapeHtml(item.framework)}</div>
+          <div class="framework-subtitle">${escapeHtml(item.display_name || 'Monitor result')}</div>
         </div>
         <div>
           <div class="bar" title="${percent(item.pass_rate)} pass rate"><span style="--value: ${Math.round((item.pass_rate || 0) * 100)}"></span></div>
-          <div class="framework-subtitle">${deltaCopy} since previous run</div>
+          <div class="framework-subtitle">${escapeHtml(deltaCopy)} since previous run</div>
         </div>
         <div>
           <div class="cell-label">Pass rate</div>
@@ -289,9 +294,9 @@ function renderFrameworks() {
         </div>
         <div>
           <div class="cell-label">Coverage</div>
-          <div class="cell-value">${item.coverage_pct ?? 'n/a'}%</div>
+          <div class="cell-value">${coverage(item.coverage_pct)}</div>
         </div>
-        <span class="status-pill ${statusClass(item.status)}">${statusCopy[item.status] || item.status}</span>
+        <span class="status-pill ${statusClass(item.status)}">${escapeHtml(statusCopy[item.status] || item.status)}</span>
       </div>
     `;
   }).join('');
@@ -311,16 +316,16 @@ function renderAlerts() {
 
   const alertCards = alerts.map(alert => `
     <div class="alert-card">
-      <span class="status-pill ${statusClass(alert.severity)}">${alert.severity}</span>
-      <strong>${alert.framework || 'Run alert'}</strong>
-      <p>${alert.message}</p>
+      <span class="status-pill ${statusClass(alert.severity)}">${escapeHtml(alert.severity)}</span>
+      <strong>${escapeHtml(alert.framework || 'Run alert')}</strong>
+      <p>${escapeHtml(alert.message)}</p>
     </div>
   `);
 
   const deltaCards = deltas.map(item => `
     <div class="alert-card">
       <span class="status-pill ${item.delta >= 0 ? 'status-ok' : 'status-warning'}">${item.delta >= 0 ? 'improved' : 'changed'}</span>
-      <strong>${item.framework}</strong>
+      <strong>${escapeHtml(item.framework)}</strong>
       <p>${item.delta >= 0 ? '+' : ''}${Math.round(item.delta * 100)} percentage points since the previous saved run.</p>
     </div>
   `);
@@ -337,10 +342,10 @@ function renderAlerts() {
 function renderHistory() {
   $('#run-list').innerHTML = state.runs.slice(-8).reverse().map(run => `
     <div class="run-item">
-      <div><strong>${run.run_id || 'unknown run'}</strong>${dateLabel(run.generated_at)}</div>
+      <div><strong>${escapeHtml(run.run_id || 'unknown run')}</strong>${dateLabel(run.generated_at)}</div>
       <div><strong>${percent(run.summary?.overall_pass_rate)}</strong>pass rate</div>
-      <div><span class="status-pill ${statusClass(run.summary?.overall_status)}">${run.summary?.overall_status || 'no_data'}</span></div>
-      <div>${run.source_file || 'unknown source'}</div>
+      <div><span class="status-pill ${statusClass(run.summary?.overall_status)}">${escapeHtml(run.summary?.overall_status || 'no_data')}</span></div>
+      <div>${escapeHtml(run.source_file || 'unknown source')}</div>
     </div>
   `).join('');
 }

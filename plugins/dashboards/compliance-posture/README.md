@@ -32,7 +32,7 @@ Open `http://127.0.0.1:8787`.
 If you only want to see the UI shape before collecting real data:
 
 ```bash
-npm run dashboard:compliance-posture -- --demo
+npm run dashboard:compliance-posture -- --demo --port=8788
 ```
 
 ## Data Contract
