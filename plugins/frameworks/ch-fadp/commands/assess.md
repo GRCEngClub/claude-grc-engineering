@@ -17,7 +17,7 @@ This is a **stub plugin** — the underlying gap assessment is powered by the SC
 Delegates to:
 
 ```text
-/grc-engineer:gap-assessment "CH-FADP" [--sources=<connector-list>]
+/grc-engineer:gap-assessment "emea-che-fadp-2025" [--sources=<connector-list>]
 ```
 
 ## Arguments

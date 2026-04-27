@@ -134,7 +134,7 @@ Deep expertise in the Swiss Federal Act on Data Protection (nFADP) — Switzerla
 
 ### SCF Crosswalk Notes
 
-CH-FADP is supported in the Secure Controls Framework crosswalk via `/grc-engineer:gap-assessment` today. The `/ch-fadp:assess` command routes directly to that crosswalk with SCF framework ID `CH-FADP`.
+CH-FADP is supported in the Secure Controls Framework crosswalk via `/grc-engineer:gap-assessment` today. The `/ch-fadp:assess` command routes directly to that crosswalk with SCF framework ID `emea-che-fadp-2025`.
 
 Priority SCF control domains for a Swiss controller:
 
