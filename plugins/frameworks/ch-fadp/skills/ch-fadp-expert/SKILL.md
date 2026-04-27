@@ -110,6 +110,7 @@ Deep expertise in the Swiss Federal Act on Data Protection (nFADP) — Switzerla
 **Special Categories** (require heightened protection):
 
 - Health data
+- Data about the intimate sphere (including sexual preferences and life)
 - Genetic data
 - Biometric data (for uniquely identifying a person)
 - Religious or philosophical beliefs
