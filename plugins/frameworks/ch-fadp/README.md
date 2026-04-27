@@ -23,7 +23,7 @@ Full depth adds framework-native workflow commands tied to the Swiss audit ritua
 
 | Key | Value |
 |-----|-------|
-| SCF framework ID | `CH-FADP` |
+| SCF framework ID | `emea-che-fadp-2025` |
 | Region | EMEA |
 | Country | CH |
 | SCF controls mapped | 35 |
