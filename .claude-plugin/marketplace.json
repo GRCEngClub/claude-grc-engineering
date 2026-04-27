@@ -149,6 +149,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "us-hipaa-security",
+      "source": "./plugins/frameworks/us-hipaa-security",
+      "description": "HIPAA Security Rule (45 CFR Part 164, Subpart C) for ePHI protection with Administrative, Physical, and Technical Safeguards",
+      "version": "0.1.0"
+    },
+    {
       "name": "pbmm",
       "source": "./plugins/frameworks/pbmm",
       "description": "Canadian PBMM (Protected B Medium Medium) with ITSG-33 controls",
