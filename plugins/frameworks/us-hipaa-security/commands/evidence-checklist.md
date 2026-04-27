@@ -21,11 +21,11 @@ Generate a comprehensive evidence request list for HIPAA Security Rule complianc
   - `physical` - Physical Safeguards (§164.310)
   - `technical` - Technical Safeguards (§164.312)
   - `org` - Organizational Requirements (§164.314)
-  - `policies` - Policies & Documentation (§164.316)
+  - `policies` - Policies and Documentation (§164.316)
   - Default: All categories
 - `--format`: Output format
   - `table` - Markdown table (default)
-  - `markdown` - Detailed markdown list
+  - `markdown` - Detailed Markdown list
   - `csv` - Comma-separated values (for spreadsheets)
 - `--audience`: Target audience
   - `auditor` - External auditor or OCR (detailed, with CFR references)
@@ -99,7 +99,7 @@ Generate a comprehensive evidence request list for HIPAA Security Rule complianc
 | **Plan sponsor certification of ePHI safeguards** | §164.314(b)(2)(iii) | Required (if applicable) | Sponsor certification, compliance statement | Plan sponsor must certify compliance with Security Rule |
 | **Restriction on uses/disclosures by plan sponsor** | §164.314(b)(2)(iv) | Required (if applicable) | Plan document restrictions, disclosure logs | Plan sponsor cannot use/disclosed ePHI beyond plan administration |
 
-### Policies, Procedures & Documentation (§164.316)
+### Policies, Procedures, and Documentation (§164.316)
 
 | Evidence Item | CFR Reference | Required/Addressable | Common Format | Notes/Gotchas |
 |---------------|---------------|---------------------|---------------|---------------|

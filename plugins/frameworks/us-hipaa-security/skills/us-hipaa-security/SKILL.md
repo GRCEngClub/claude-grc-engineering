@@ -396,3 +396,25 @@ When performing a HIPAA Security Rule assessment:
 - NIST SP 800-66 implementation guidance
 - SCF crosswalk mapping (US-HIPAA-Security)
 - Multi-framework compliance analysis (HIPAA + PCI-DSS, NIST, etc.)
+
+### Evidence Checklist Command
+
+The `/us-hipaa-security:evidence-checklist` command generates comprehensive evidence request lists organized by safeguard category:
+
+**Category Short Codes** (use with `--category` flag):
+- `admin` - Administrative Safeguards (§164.308)
+- `physical` - Physical Safeguards (§164.310)
+- `technical` - Technical Safeguards (§164.312)
+- `org` - Organizational Requirements (§164.314)
+- `policies` - Policies and Documentation (§164.316)
+
+**Usage Examples**:
+```text
+/us-hipaa-security:evidence-checklist                    # All categories (default)
+/us-hipaa-security:evidence-checklist --category=admin   # Administrative only
+/us-hipaa-security:evidence-checklist --format=csv       # Export to spreadsheet
+/us-hipaa-security:evidence-checklist --audience=internal  # Simplified checklist
+```
+
+**Output Formats**: `table` (default Markdown table), `markdown` (detailed list), `csv` (spreadsheet)
+**Audience Options**: `auditor` (external/OCR with CFR references), `internal` (simplified readiness check)
