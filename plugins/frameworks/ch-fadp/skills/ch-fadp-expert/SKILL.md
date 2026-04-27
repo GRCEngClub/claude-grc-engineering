@@ -123,7 +123,7 @@ Deep expertise in the Swiss Federal Act on Data Protection (nFADP) — Switzerla
 
 | Topic | GDPR | nFADP |
 |-------|------|-------|
-| **Breach notification clock** | Strict deadline (know without undue delay) | "As soon as possible" — risk-based, no fixed clock |
+| **Breach notification clock** | Notify supervisory authority without undue delay (GDPR Art. 33) | "As soon as possible" — risk-based, no fixed clock |
 | **Enforcement target** | Entity administrative fines (up to 4% global turnover) | Individual criminal liability (CHF 250,000 per responsible person) |
 | **DPO / DSO appointment** | Required based on core activities/scale | Voluntary — appointment optional |
 | **Transfer mechanism** | EU SCCs, adequacy, BCRs | FDPIC-approved SCCs; EU SCCs alone insufficient |
