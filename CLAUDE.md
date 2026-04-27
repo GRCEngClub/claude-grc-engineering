@@ -739,7 +739,14 @@ This repo ships a **project-scoped** Linear MCP server in `.mcp.json` named `lin
 2. Run `/mcp` and authenticate `linear-grc-club` via OAuth.
 3. **Select the GRC Engineering Club workspace** at the consent screen (not a personal Linear). OAuth tokens are stored in the user's Claude config, not in the repo.
 
-Linear operations from this repo should target the GRC Engineering Club workspace through the `linear-grc-club` MCP. If a global `claude.ai Linear` MCP is also active in the session (authenticated to a different workspace), prefer the project-scoped tools so issues land in the right workspace. The team/project IDs for the club workspace will be recorded here once an authenticated maintainer captures them via `linear-grc-club`'s `list_teams` / `list_projects`.
+Linear operations from this repo should target the GRC Engineering Club workspace through the `linear-grc-club` MCP. If a global `claude.ai Linear` MCP is also active in the session (authenticated to a different workspace), prefer the project-scoped tools so issues land in the right workspace.
+
+**Default Linear scope for toolkit work:**
+
+- **Team**: `GRC Engineering Club` (key `GRC`) — ID `f11daee3-f05b-4410-bcee-2e76df7acb91`
+- **Project (default for toolkit issues)**: [`Claude GRC Engineering Toolkit`](https://linear.app/grc-engineering-club/project/claude-grc-engineering-toolkit-8f6001008c85) — ID `f6ae9cc5-5bfc-496b-b938-c00fe51bafbe`
+
+Day-to-day bug reports and feature requests should still be filed as GitHub issues on this repo. Use the Linear project for cross-cutting toolkit work — roadmap, RFCs, releases, contributor coordination, and threads that span multiple GitHub issues.
 
 ## Important Notes
 
