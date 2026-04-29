@@ -1,0 +1,24 @@
+{
+  "name": "us-hipaa-security",
+  "description": "HIPAA Security Rule compliance for ePHI protection with Administrative, Physical, and Technical Safeguards",
+  "version": "0.1.0",
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "US-HIPAA-Security",
+    "display_name": "US HIPAA Security Rule (45 CFR Part 164, Subpart C)",
+    "region": "Americas",
+    "country": "United States",
+    "depth": "reference",
+    "scf_controls_mapped": 42,
+    "framework_controls_mapped": 54,
+    "industry": ["healthcare", "health-it", "covered-entity", "business-associate"],
+    "regulator": "US HHS OCR",
+    "citations": ["45 CFR Part 164, Subpart C", "NIST SP 800-66 Rev. 2"]
+  },
+  "commands": ["assess", "evidence-checklist"],
+  "skills": ["us-hipaa-security"]
+}

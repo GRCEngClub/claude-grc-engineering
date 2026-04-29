@@ -133,7 +133,7 @@ Deep expertise in the Swiss Federal Act on Data Protection (nFADP) — Switzerla
 | **Lawful basis flexibility** | Legitimate interests (Art. 6(1)(f)) is standalone basis | Legitimate interests require demonstrable overriding private/public interest |
 | **Regulatory body** | National DPAs (EU) + EDPB | FDPIC (Swiss) — not an EU authority |
 | **Sensitive data: financial** | Not a special category | Not a special category |
-| **Protected entities** | Natural persons only | Natural and legal entities (both protected under nFADP) |
+| **Protected entities** | Natural persons only | Natural persons only (2023 nFADP narrowed scope; legal persons no longer covered) |
 
 ### SCF Crosswalk Notes
 
