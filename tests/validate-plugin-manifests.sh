@@ -120,6 +120,77 @@ else
   exit 1
 fi
 
+if ! consistency_output=$(node <<'NODE' 2>&1
+const fs = require('fs');
+const path = require('path');
+
+function normalizeSource(source) {
+  return String(source || '').replace(/^\.\//, '').replace(/\/+$/, '');
+}
+
+function walk(dir, out = []) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full, out);
+    else if (entry.name === 'plugin.json' && path.basename(path.dirname(full)) === '.claude-plugin') out.push(full);
+  }
+  return out;
+}
+
+const marketplace = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf8'));
+const issues = [];
+const bySource = new Map();
+const byName = new Map();
+
+for (const plugin of marketplace.plugins || []) {
+  const source = normalizeSource(plugin.source);
+  if (!source) issues.push(`marketplace entry "${plugin.name || '<unnamed>'}" is missing source`);
+  if (bySource.has(source)) issues.push(`duplicate marketplace source: ${source}`);
+  if (byName.has(plugin.name)) issues.push(`duplicate marketplace plugin name: ${plugin.name}`);
+  bySource.set(source, plugin);
+  byName.set(plugin.name, plugin);
+}
+
+const manifests = walk('plugins');
+for (const manifestPath of manifests) {
+  const pluginRoot = normalizeSource(path.dirname(path.dirname(manifestPath)));
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const entry = bySource.get(pluginRoot);
+  if (!entry) {
+    issues.push(`${pluginRoot} has .claude-plugin/plugin.json but is not registered in .claude-plugin/marketplace.json`);
+    continue;
+  }
+  if (entry.name !== manifest.name) {
+    issues.push(`${pluginRoot} marketplace name "${entry.name}" does not match plugin.json name "${manifest.name}"`);
+  }
+}
+
+for (const [source, entry] of bySource.entries()) {
+  const manifestPath = path.join(source, '.claude-plugin', 'plugin.json');
+  if (!fs.existsSync(manifestPath)) {
+    issues.push(`marketplace entry "${entry.name}" points to ${source}, but ${manifestPath} does not exist`);
+    continue;
+  }
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  if (manifest.name !== entry.name) {
+    issues.push(`marketplace entry "${entry.name}" points to plugin.json named "${manifest.name}" at ${manifestPath}`);
+  }
+}
+
+if (issues.length) {
+  for (const issue of issues) console.error(issue);
+  process.exit(1);
+}
+
+console.log(`Marketplace registration matches ${manifests.length} plugin manifest(s).`);
+NODE
+); then
+  emit_summary_error "$consistency_output"
+  fail=1
+else
+  printf '%s\n' "$consistency_output"
+fi
+
 while IFS= read -r manifest; do
   validate_file "$plugin_schema" "$manifest"
 done < <(find plugins -type f -name plugin.json -path '*/.claude-plugin/*' | sort)
