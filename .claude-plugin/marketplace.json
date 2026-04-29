@@ -41,6 +41,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "grc-loop",
+      "source": "./plugins/grc-loop",
+      "description": "Iterative GRC automation loops for gap-remediation burndown and quarterly evidence sweeps.",
+      "version": "0.1.0"
+    },
+    {
       "name": "teach-me",
       "source": "./plugins/teach-me",
       "description": "Socratic primer + drill plugin for new-to-GRC practitioners. Get up to speed on a framework, control, or role without already knowing it.",

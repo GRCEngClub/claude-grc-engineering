@@ -1,0 +1,15 @@
+{
+  "description": "grc-loop Stop hook — blocks session exit and re-feeds the loop prompt until the completion promise fires or max iterations hit.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-hook.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

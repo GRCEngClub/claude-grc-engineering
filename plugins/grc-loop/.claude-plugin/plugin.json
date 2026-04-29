@@ -1,0 +1,12 @@
+{
+  "name": "grc-loop",
+  "description": "Ralph-loop mechanism specialized for GRC iteration patterns: gap-remediation burndown and quarterly evidence sweeps. Each loop drives /grc-engineer:* commands until a completion criterion fires.",
+  "version": "0.1.0",
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "commands": ["gap-burndown", "evidence-sweep", "cancel", "help"],
+  "hooks": ["Stop"]
+}
