@@ -6,7 +6,7 @@ allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-grc-loop.sh:*)"]
 
 # /grc-loop:gap-burndown
 
-Iteratively close gaps for a framework at a chosen severity tier. Each iteration runs the gap assessment, picks the next-highest-impact open finding, generates the implementation, applies it, re-runs the assessment, and moves on. Stops when zero findings remain at that severity, or when `--max-iterations` is reached.
+Iteratively close gaps for a framework at a chosen severity tier. Each iteration runs the gap assessment, picks the next-highest-impact open finding, generates the implementation, commits it, re-runs the assessment, and moves on. Stops when zero findings remain at that severity, or when `--max-iterations` is reached. Generated IaC is committed but never auto-applied — the operator runs `terraform apply`.
 
 ## Arguments
 
@@ -23,16 +23,16 @@ The setup script writes the prompt below to `.claude/grc-loop.local.md` and acti
 "${CLAUDE_PLUGIN_ROOT}/scripts/setup-grc-loop.sh" gap-burndown \
   --max-iterations 20 \
   --completion-promise "GAP BURNDOWN COMPLETE" \
-  --prompt "$(cat <<'PROMPT'
+  --prompt "$(cat <<PROMPT
 You are running a gap-burndown loop. Stay focused — one gap per iteration.
 
 Each iteration:
 1. Run /grc-engineer:gap-assessment for the target framework. Parse the output for findings at the target severity.
 2. If zero findings remain at the target severity, output the completion promise verbatim and stop. Do NOT continue working.
 3. Otherwise, pick the next-highest-impact open finding (most-frameworks-affected first if cross-framework data is available).
-4. Run /grc-engineer:generate-implementation <control-id> <cloud> ./generated/<control-id> to produce IaC + scripts.
-5. Review the generated Terraform / scripts. If they require destructive changes (security-group rewrites, IAM policy deletions), STOP and surface them to the user instead of applying.
-6. For non-destructive changes: commit them under a `compliance/<control-id>` directory with a short message. Do not run `terraform apply` — leave that to the operator.
+4. Run /grc-engineer:generate-implementation <control-id> <cloud> compliance/<control-id> to produce IaC + scripts under compliance/<control-id>/.
+5. Review the generated Terraform / scripts. If they require destructive changes (security-group rewrites, IAM policy deletions), STOP and surface them to the user instead of committing.
+6. For non-destructive changes: commit them with a short message. Do not run terraform apply — leave that to the operator.
 7. If the gap requires manual policy/process work that cannot be automated (training, governance, vendor agreements):
    - Append a row to evidence/<framework>/manual-actions.md with: control-id, what's needed, who-owns, due-date placeholder.
    - Treat the gap as "deferred-manual" and move on.

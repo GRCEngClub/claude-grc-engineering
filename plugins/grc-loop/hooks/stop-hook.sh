@@ -14,10 +14,12 @@ if [[ ! -f "$STATE_FILE" ]]; then
 fi
 
 FRONTMATTER=$(sed -n '/^---$/,/^---$/{ /^---$/d; p; }' "$STATE_FILE")
-ITERATION=$(echo "$FRONTMATTER" | grep '^iteration:' | sed 's/iteration: *//')
-MAX_ITERATIONS=$(echo "$FRONTMATTER" | grep '^max_iterations:' | sed 's/max_iterations: *//')
-COMPLETION_PROMISE=$(echo "$FRONTMATTER" | grep '^completion_promise:' | sed 's/completion_promise: *//' | sed 's/^"\(.*\)"$/\1/')
-TARGET=$(echo "$FRONTMATTER" | grep '^target:' | sed 's/target: *//' || true)
+# `|| true` on each extraction: a missing key under `set -euo pipefail` would
+# otherwise exit before the corruption handler below runs.
+ITERATION=$(echo "$FRONTMATTER" | grep '^iteration:' | sed 's/iteration: *//' || true)
+MAX_ITERATIONS=$(echo "$FRONTMATTER" | grep '^max_iterations:' | sed 's/max_iterations: *//' || true)
+COMPLETION_PROMISE=$(echo "$FRONTMATTER" | grep '^completion_promise:' | sed 's/completion_promise: *//' | sed 's/^"\(.*\)"$/\1/' || true)
+TARGET=$(echo "$FRONTMATTER" | grep '^target:' | sed 's/target: *//' | sed 's/^"\(.*\)"$/\1/' || true)
 
 # Session isolation — only the session that started the loop should be blocked.
 STATE_SESSION=$(echo "$FRONTMATTER" | grep '^session_id:' | sed 's/session_id: *//' || true)

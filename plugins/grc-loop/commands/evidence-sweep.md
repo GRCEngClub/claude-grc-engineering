@@ -22,7 +22,7 @@ Iteratively walk a framework's in-scope controls and collect evidence for a spec
 "${CLAUDE_PLUGIN_ROOT}/scripts/setup-grc-loop.sh" evidence-sweep \
   --max-iterations 80 \
   --completion-promise "EVIDENCE SWEEP COMPLETE" \
-  --prompt "$(cat <<'PROMPT'
+  --prompt "$(cat <<PROMPT
 You are running an evidence-sweep loop. One control per iteration.
 
 Each iteration:

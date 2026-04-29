@@ -19,13 +19,26 @@ PROMPT=""
 MAX_ITERATIONS=0
 COMPLETION_PROMISE="null"
 
+# Guard `${2:-}` on every flag so a missing value reports a clear error
+# instead of crashing with `unbound variable` under `set -u`.
+require_value() {
+  local flag="$1"
+  local value="${2:-__MISSING__}"
+  if [[ "$value" == "__MISSING__" ]]; then
+    echo "❌ Error: $flag requires a value." >&2
+    exit 1
+  fi
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --prompt)
+      require_value "--prompt" "${2:-__MISSING__}"
       PROMPT="$2"
       shift 2
       ;;
     --max-iterations)
+      require_value "--max-iterations" "${2:-__MISSING__}"
       if ! [[ "$2" =~ ^[0-9]+$ ]]; then
         echo "❌ Error: --max-iterations must be a non-negative integer (got: $2)" >&2
         exit 1
@@ -34,6 +47,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --completion-promise)
+      require_value "--completion-promise" "${2:-__MISSING__}"
       COMPLETION_PROMISE="$2"
       shift 2
       ;;
@@ -56,12 +70,19 @@ else
   COMPLETION_PROMISE_YAML="null"
 fi
 
+SESSION_ID="${CLAUDE_CODE_SESSION_ID:-}"
+if [[ -z "$SESSION_ID" ]]; then
+  echo "⚠️  Warning: CLAUDE_CODE_SESSION_ID is not set. Loop will run, but session" >&2
+  echo "   isolation is disabled — the Stop hook will block exits in any session" >&2
+  echo "   that opens this directory until the loop completes or is cancelled." >&2
+fi
+
 cat > .claude/grc-loop.local.md <<EOF
 ---
 active: true
-target: $TARGET
+target: "$TARGET"
 iteration: 1
-session_id: ${CLAUDE_CODE_SESSION_ID:-}
+session_id: "$SESSION_ID"
 max_iterations: $MAX_ITERATIONS
 completion_promise: $COMPLETION_PROMISE_YAML
 started_at: "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -84,8 +105,3 @@ until the completion promise fires (verbatim match in a <promise> tag) or
 Cancel with: /grc-loop:cancel
 Inspect:     head -10 .claude/grc-loop.local.md
 EOF
-
-if [[ -n "$PROMPT" ]]; then
-  echo ""
-  echo "$PROMPT"
-fi
