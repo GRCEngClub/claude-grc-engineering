@@ -13,19 +13,19 @@ Generates scripts to collect audit evidence from cloud infrastructure. Automates
 **Generate AWS evidence script:**
 
 ```bash
-node scripts/collect-evidence.js "MFA for all root users" aws
+node plugins/grc-engineer/scripts/collect-evidence.js "MFA for all root users" aws
 ```
 
 **Generate Azure evidence script:**
 
 ```bash
-node scripts/collect-evidence.js "All storage accounts encrypted" azure
+node plugins/grc-engineer/scripts/collect-evidence.js "All storage accounts encrypted" azure
 ```
 
 **Generate GCP evidence script:**
 
 ```bash
-node scripts/collect-evidence.js "IAM bindings audit" gcp
+node plugins/grc-engineer/scripts/collect-evidence.js "IAM bindings audit" gcp
 ```
 
 ## Supported Providers

@@ -29,7 +29,7 @@ Generates scripts to collect point-in-time evidence for audit controls.
 1. Run the collect-evidence script:
 
    ```bash
-   node scripts/collect-evidence.js "$ARGUMENTS"
+   node plugins/grc-engineer/scripts/collect-evidence.js "$ARGUMENTS"
    ```
 
 2. The script generates an evidence collection script.
@@ -44,14 +44,14 @@ Generates scripts to collect point-in-time evidence for audit controls.
 
 ```bash
 # Collect AWS MFA evidence for SOC 2
-/grc:collect-evidence "MFA for all root users" aws python
+/grc-engineer:collect-evidence "MFA for all root users" aws python
 
 # Collect PCI-DSS Requirement 8.4.2 evidence (MFA for CDE access)
-/grc:collect-evidence "MFA for cardholder data environment access" aws bash
+/grc-engineer:collect-evidence "MFA for cardholder data environment access" aws bash
 
 # Collect Azure access control evidence
-/grc:collect-evidence "Role-based access controls" azure python
+/grc-engineer:collect-evidence "Role-based access controls" azure python
 
 # Collect Kubernetes RBAC evidence
-/grc:collect-evidence "Pod security policies" kubernetes bash
+/grc-engineer:collect-evidence "Pod security policies" kubernetes bash
 ```
