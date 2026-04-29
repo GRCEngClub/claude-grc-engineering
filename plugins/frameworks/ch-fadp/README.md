@@ -39,7 +39,7 @@ Full depth adds framework-native workflow commands tied to the Swiss audit ritua
 | **Enforcement** | Individual criminal liability (CHF 250,000), not entity fines |
 | **DSO appointment** | Voluntary — no mandatory requirement |
 | **Transfer mechanisms** | FDPIC-approved SCCs required; EU SCCs alone insufficient |
-| **Protected entities** | Natural persons only |
+| **Protected entities** | Natural persons only (2023 nFADP narrowed scope) |
 
 ## References
 
