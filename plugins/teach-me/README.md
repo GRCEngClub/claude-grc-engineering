@@ -18,7 +18,7 @@ Every other framework plugin in this toolkit assumes you already know the framew
 - `/teach-me:framework` — paraphrased primer on a framework's purpose, scope, mandatory artifacts, cadence, and regulator. Names control families and points at the framework's own plugin (`/soc2:scope`, `/fedramp-rev5:assess`, etc.) for the next step. Does not reproduce copyrighted standard text.
 - `/teach-me:control` — pulls a control from the [SCF crosswalk](https://grcengclub.github.io/scf-api/) and explains it once, with the mapped framework controls listed below. Useful when "what does CHG-02 mean and where does it show up?" is the actual question.
 - `/teach-me:role` — what a `grc-engineer`, `grc-auditor`, `grc-internal`, or `grc-tprm` practitioner does day-to-day, what they touch in this toolkit, and where to start.
-- `/teach-me:quiz` — Socratic drill (inspired by [`mattpocock/skills/grill-me`](https://github.com/mattpocock/skills/tree/main/grill-me)). Asks you a control-application question, evaluates your answer, asks another. Tracks which control families you've covered. Stops when you say so.
+- `/teach-me:quiz` — Socratic drill (inspired by [`mattpocock/skills/grill-me`](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me)). Asks you a control-application question, evaluates your answer, asks another. Tracks which control families you've covered. Stops when you say so.
 
 ## What this plugin is not
 

@@ -4,7 +4,7 @@ description: Socratic drill on a framework — asks application-level questions 
 
 # /teach-me:quiz
 
-Drill yourself on a framework with application-level questions. Ask, evaluate, ask again. Inspired by [`mattpocock/skills/grill-me`](https://github.com/mattpocock/skills/tree/main/grill-me).
+Drill yourself on a framework with application-level questions. Ask, evaluate, ask again. Inspired by [`mattpocock/skills/grill-me`](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me).
 
 ## Usage
 
