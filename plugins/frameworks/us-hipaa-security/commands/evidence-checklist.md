@@ -239,7 +239,7 @@ evidence/
 ## Related Commands
 
 - `/us-hipaa-security:assess` - Run gap assessment before collecting evidence
-- `/grc-engineer:gap-assessment --framework=US-HIPAA-Security` - Direct SCF crosswalk assessment
+- `/grc-engineer:gap-assessment HIPAA` - Direct SCF crosswalk assessment
 
 ---
 
