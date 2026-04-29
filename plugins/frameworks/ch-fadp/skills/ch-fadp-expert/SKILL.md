@@ -173,7 +173,7 @@ A SaaS company processing Swiss resident HR data invokes `/ch-fadp:assess` durin
 
 ### References
 
-- [Swiss FDPIC official guidance portal](https://www.edoeb.admin.ch/edoeb/en/home.html) — Data protection authority resources, guidance, and breach reporting
+- [Swiss FDPIC official guidance portal](https://www.edoeb.admin.ch/en) — Data protection authority resources, guidance, and breach reporting
 - [Federal Chancellery nFADP full text](https://www.fedlex.admin.ch/eli/cc/2020/765) — Official Swiss law portal with complete revised act text
 - [Data Protection Ordinance (VDSG)](https://www.fedlex.admin.ch/eli/cc/2023/589) — Implementation ordinance effective September 2023
 - [SCF CH-FADP crosswalk](https://securecontrolsframework.com) — Secure Controls Framework mapping for Swiss data protection

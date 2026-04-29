@@ -44,5 +44,5 @@ Full depth adds framework-native workflow commands tied to the Swiss audit ritua
 ## References
 
 - [Secure Controls Framework](https://securecontrolsframework.com) — crosswalk source (CC BY-ND 4.0)
-- [Swiss FDPIC](https://www.edoeb.admin.ch/edoeb/en/home.html)
+- [Swiss FDPIC](https://www.edoeb.admin.ch/en)
 - [nFADP full text (Federal Chancellery)](https://www.fedlex.admin.ch/eli/cc/2020/765)
