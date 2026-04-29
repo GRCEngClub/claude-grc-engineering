@@ -27,7 +27,7 @@ Reviews GitHub pull requests for compliance regressions and security issues.
 2. Run the review-pr script:
 
    ```bash
-   node scripts/review-pr.js $ARGUMENTS
+   node plugins/grc-engineer/scripts/review-pr.js $ARGUMENTS
    ```
 
 3. The script analyzes the PR diff and generates compliance review comments.
@@ -37,5 +37,5 @@ Reviews GitHub pull requests for compliance regressions and security issues.
 ## Example
 
 ```bash
-/grc:review-pr myorg/infrastructure 42 SOC2
+/grc-engineer:review-pr myorg/infrastructure 42 SOC2
 ```

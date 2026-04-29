@@ -100,7 +100,7 @@ Examples:
 }
 
 function regionFromFrameworkId(frameworkId) {
-  if (frameworkId.startsWith('americas-') || frameworkId.startsWith('usa-')) return 'americas';
+  if (frameworkId.startsWith('americas-') || frameworkId.startsWith('amaericas-') || frameworkId.startsWith('usa-')) return 'americas';
   if (frameworkId.startsWith('apac-')) return 'apac';
   if (frameworkId.startsWith('emea-')) return 'emea';
   if (frameworkId.startsWith('general-')) return 'global';

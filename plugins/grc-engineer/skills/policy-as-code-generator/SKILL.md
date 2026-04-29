@@ -13,19 +13,19 @@ Converts natural language compliance requirements into executable policy code. G
 **Generate OPA Rego policy:**
 
 ```bash
-node scripts/generate-policy.js "Ensure no S3 buckets are public and all must have a 'Department' tag" rego
+node plugins/grc-engineer/scripts/generate-policy.js "Ensure no S3 buckets are public and all must have a 'Department' tag" rego
 ```
 
 **Generate AWS Config Rule:**
 
 ```bash
-node scripts/generate-policy.js "All EC2 instances must have encryption enabled" aws-config
+node plugins/grc-engineer/scripts/generate-policy.js "All EC2 instances must have encryption enabled" aws-config
 ```
 
 **Generate Sentinel policy:**
 
 ```bash
-node scripts/generate-policy.js "Terraform plans must not create resources without required tags" sentinel
+node plugins/grc-engineer/scripts/generate-policy.js "Terraform plans must not create resources without required tags" sentinel
 ```
 
 ## Supported Output Formats

@@ -71,17 +71,17 @@ STATUS_LABEL="${STATUS_LABEL:-ready}"
 
 RESOURCES=$(node -e "
 const fs=require('fs');
-try{const a=JSON.parse(fs.readFileSync('$LATEST','utf8')); console.log(Array.isArray(a)?a.length:1)}catch{console.log('?')}
-")
+try{const a=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); console.log(Array.isArray(a)?a.length:1)}catch{console.log('?')}
+" "$LATEST")
 EVALS=$(node -e "
 const fs=require('fs');
 try{
-  const a=JSON.parse(fs.readFileSync('$LATEST','utf8'));
+  const a=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
   const arr=Array.isArray(a)?a:[a];
   let n=0; for(const d of arr) n+=(d.evaluations||[]).length;
   console.log(n);
 }catch{console.log('?')}
-")
+" "$LATEST")
 
 printf '  status:        %s\n' "$STATUS_LABEL"
 printf '  last run:      %s (%s)\n' "$AGE_LABEL" "$(basename "$LATEST" .json)"
