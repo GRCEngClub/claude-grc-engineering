@@ -22,7 +22,9 @@ COMPLETION_PROMISE=$(echo "$FRONTMATTER" | grep '^completion_promise:' | sed 's/
 TARGET=$(echo "$FRONTMATTER" | grep '^target:' | sed 's/target: *//' | sed 's/^"\(.*\)"$/\1/' || true)
 
 # Session isolation — only the session that started the loop should be blocked.
-STATE_SESSION=$(echo "$FRONTMATTER" | grep '^session_id:' | sed 's/session_id: *//' || true)
+# Strip surrounding quotes from the YAML scalar so the value matches what
+# `jq -r` returns from the hook's session_id (no quotes).
+STATE_SESSION=$(echo "$FRONTMATTER" | grep '^session_id:' | sed 's/session_id: *//' | sed 's/^"\(.*\)"$/\1/' || true)
 HOOK_SESSION=$(echo "$HOOK_INPUT" | jq -r '.session_id // ""')
 if [[ -n "$STATE_SESSION" ]] && [[ "$STATE_SESSION" != "$HOOK_SESSION" ]]; then
   exit 0
