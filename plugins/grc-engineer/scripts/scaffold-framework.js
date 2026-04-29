@@ -103,7 +103,7 @@ Examples:
 function deriveSlug(frameworkId) {
   let slug = frameworkId.toLowerCase();
   // Drop known region prefixes
-  slug = slug.replace(/^(americas|apac|emea|general)-/, '');
+  slug = slug.replace(/^(americas|amaericas|apac|emea|general)-/, '');
   // Drop trailing -YYYY (year)
   slug = slug.replace(/-\d{4}$/, '');
   // Collapse duplicate dashes just in case
@@ -117,9 +117,10 @@ function deriveNamespace(slug) {
 }
 
 function deriveRegion(frameworkId) {
-  const m = frameworkId.match(/^(americas|apac|emea|general)-/);
+  const m = frameworkId.match(/^(americas|amaericas|apac|emea|general)-/);
   if (!m) return { slug: 'general', display: 'Global' };
-  return { slug: m[1], display: REGION_NAMES[m[1]] };
+  const slug = m[1] === 'amaericas' ? 'americas' : m[1];
+  return { slug, display: REGION_NAMES[slug] };
 }
 
 function deriveCountry(frameworkId) {

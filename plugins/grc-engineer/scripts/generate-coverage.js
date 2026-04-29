@@ -36,7 +36,7 @@ function parseArgs(argv) {
 }
 
 function regionFromFrameworkId(frameworkId) {
-  if (frameworkId.startsWith('americas-') || frameworkId.startsWith('usa-')) return 'Americas';
+  if (frameworkId.startsWith('americas-') || frameworkId.startsWith('amaericas-') || frameworkId.startsWith('usa-')) return 'Americas';
   if (frameworkId.startsWith('apac-')) return 'APAC';
   if (frameworkId.startsWith('emea-')) return 'EMEA';
   return 'Global';
