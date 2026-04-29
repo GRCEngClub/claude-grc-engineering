@@ -31,7 +31,7 @@ For someone who just got hired into (or pivoted to) a GRC role. Outputs a practi
 The `framework-tutor` skill is invoked. It reads:
 
 - The persona plugin's commands directory for the actual command surface.
-- `MAINTAINERS.md` and `CONTRIBUTORS.md` to point new practitioners at people active in that role.
+- `MAINTAINERS.md` to point new practitioners at people active in that role.
 
 ## Examples
 
