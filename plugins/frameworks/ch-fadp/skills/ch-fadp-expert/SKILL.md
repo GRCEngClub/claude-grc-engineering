@@ -111,12 +111,14 @@ Deep expertise in the Swiss Federal Act on Data Protection (nFADP) — Switzerla
 
 - Health data
 - Data about the intimate sphere (including sexual preferences and life)
+- Data on affiliation to a race or ethnicity (FADP Art. 5(1)(c)(2))
 - Genetic data
 - Biometric data (for uniquely identifying a person)
 - Religious or philosophical beliefs
 - Political opinions
 - Trade union membership
 - Data concerning administrative or criminal proceedings and sanctions
+- Data on social assistance measures (Sozialhilfemassnahmen — FADP Art. 5(1)(c)(6))
 
 **Financial data is NOT a special category** under nFADP (unlike some other jurisdictions).
 
