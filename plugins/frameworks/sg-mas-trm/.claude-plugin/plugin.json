@@ -1,0 +1,19 @@
+{
+  "name": "sg-mas-trm",
+  "description": "Singapore MAS TRM - Reference plugin with scope determination, evidence checklist, and SCF-backed gap assessment for technology risk management.",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "apac-sgp-mas-trm-2021",
+    "display_name": "Singapore - Monetary Authority of Singapore (MAS) Technology Risk Management (TRM) Guidelines (2021)",
+    "region": "APAC",
+    "country": "SG",
+    "depth": "reference",
+    "scf_controls_mapped": 214,
+    "framework_controls_mapped": 280,
+    "industry": [],
+    "regulator": "Monetary Authority of Singapore (MAS)"
+  }
+}
