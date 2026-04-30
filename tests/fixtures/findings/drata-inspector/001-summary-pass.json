@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "source": "drata-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-drata-pass",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "drata_tenant",
+    "id": "drata-us",
+    "uri": null,
+    "region": null,
+    "account_id": "us"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "GOV-03",
+      "status": "pass",
+      "severity": "info",
+      "message": "Drata summary reports compliant status."
+    }
+  ]
+}

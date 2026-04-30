@@ -1,0 +1,9 @@
+{
+  "name": "drata-inspector",
+  "version": "0.1.0",
+  "description": "GRC connector for Drata: wraps drata-cli curated workflows and normalizes compliance posture into schemas/finding.schema.json v1.",
+  "author": { "name": "GRC Engineering Club Contributors" },
+  "license": "MIT",
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "keywords": ["grc", "compliance", "drata", "drata-cli", "scf", "connector"]
+}
