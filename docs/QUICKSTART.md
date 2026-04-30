@@ -9,6 +9,12 @@ From zero to your first gap assessment in about 10 minutes. This walkthrough use
 - macOS, Linux, or WSL2
 - About 10 minutes
 
+Using Claude Cowork instead of Claude Code? See
+[`docs/CLAUDE-COWORK.md`](CLAUDE-COWORK.md). Cowork can use the repository's
+Markdown, skills, schemas, and `grc-data/` records directly, but plugin
+installation and connector collection still need Claude Code or another
+terminal-backed environment.
+
 ## 1. Install the marketplace
 
 ```bash
