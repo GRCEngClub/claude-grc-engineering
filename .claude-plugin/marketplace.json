@@ -257,6 +257,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "nist-csf-20",
+      "source": "./plugins/frameworks/nist-csf-20",
+      "description": "NIST Cybersecurity Framework (v2.0) \u2014 reference-depth plugin backed by the SCF crosswalk (250 SCF \u2192 134 framework controls).",
+      "version": "0.1.0"
+    },
+    {
       "name": "us-ccpa",
       "source": "./plugins/frameworks/us-ccpa",
       "description": "California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA) \u2014 Reference plugin with scope determination, evidence checklist, and SCF-backed gap assessment for the California Privacy Protection Agency (CPPA) regulations.",
