@@ -1,6 +1,8 @@
 {
   "name": "vanta-bridge",
   "version": "0.1.0",
+  "namespace": "vanta-bridge",
+  "commands": ["setup", "status", "sync"],
   "description": "Bridge plugin that normalizes Vanta MCP/plugin outputs into schemas/finding.schema.json v1 for downstream GRC Engineering workflows.",
   "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",

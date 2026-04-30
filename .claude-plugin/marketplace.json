@@ -50,7 +50,8 @@
       "name": "vanta-bridge",
       "source": "./plugins/bridges/vanta-bridge",
       "description": "Normalize Vanta MCP/plugin outputs into v1 Findings for GRC Engineering workflows.",
-      "version": "0.1.0"
+      "version": "0.1.0",
+      "commands": ["setup", "status", "sync"]
     },
     {
       "name": "teach-me",
