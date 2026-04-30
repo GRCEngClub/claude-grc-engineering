@@ -267,6 +267,12 @@
       "source": "./plugins/frameworks/us-sox",
       "description": "US Sarbanes-Oxley Act of 2002 (SOX) \u2014 Reference-depth plugin for ICFR scoping, IT General Control (ITGC) testing, and \u00a7302/\u00a7404/\u00a7906 evidence preparation. Backed by the SCF crosswalk (4 SCF \u2192 17 framework controls).",
       "version": "0.1.0"
+    },
+    {
+      "name": "us-ccpa",
+      "source": "./plugins/frameworks/us-ccpa",
+      "description": "California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA) \u2014 Reference plugin with scope determination, evidence checklist, and SCF-backed gap assessment for the California Privacy Protection Agency (CPPA) regulations.",
+      "version": "0.1.0"
     }
   ]
 }
