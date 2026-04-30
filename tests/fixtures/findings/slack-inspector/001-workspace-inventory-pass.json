@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "source": "slack-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-slack-pass",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "slack_workspace",
+    "id": "T0123456789",
+    "uri": "https://example.slack.com/",
+    "region": null,
+    "account_id": "T0123456789"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "GOV-03",
+      "status": "pass",
+      "severity": "info",
+      "message": "Slack workspace metadata is readable for this connector run."
+    }
+  ]
+}

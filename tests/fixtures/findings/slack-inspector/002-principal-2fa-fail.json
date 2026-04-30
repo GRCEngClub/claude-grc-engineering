@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "source": "slack-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-slack-fail",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "slack_workspace",
+    "id": "T0123456789",
+    "uri": "https://example.slack.com/",
+    "region": null,
+    "account_id": "T0123456789"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-02",
+      "status": "fail",
+      "severity": "high",
+      "message": "The inspected Slack principal does not have 2FA enabled.",
+      "remediation": {
+        "summary": "Require 2FA for Slack users and administrators.",
+        "ref": "grc-engineer://generate-implementation/slack_workspace_security",
+        "effort_hours": 1,
+        "automation": "manual"
+      }
+    }
+  ]
+}

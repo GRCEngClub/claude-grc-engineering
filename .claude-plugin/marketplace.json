@@ -203,6 +203,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "slack-inspector",
+      "source": "./plugins/connectors/slack-inspector",
+      "description": "GRC connector for Slack: workspace 2FA, SSO/session, retention, app approvals, and DLP visibility to v1 finding contract",
+      "version": "0.1.0"
+    },
+    {
       "name": "okta-inspector",
       "source": "./plugins/connectors/okta-inspector",
       "description": "GRC connector for Okta: password/MFA/session policies, inactive users, admin factor enrollment \u2192 v1 finding contract",
