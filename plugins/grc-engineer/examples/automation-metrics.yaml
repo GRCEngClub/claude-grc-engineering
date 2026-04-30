@@ -9,11 +9,11 @@ entries:
     provider: aws
 
   - framework: soc2
-    controls_total: 64
     controls_automated: 22
+    from_framework_metadata: true
     dimensions:
       business_unit: platform
 
   - framework: iso27001
-    controls_total: 93
     controls_automated: 40
+    from_framework_metadata: true
