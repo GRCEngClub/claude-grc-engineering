@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "source": "splunk-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-splunk-inconclusive",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "splunk_deployment",
+    "id": "https://splunk.example.com:8089",
+    "uri": "https://splunk.example.com:8089",
+    "region": null,
+    "account_id": "https://splunk.example.com:8089"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-04",
+      "status": "inconclusive",
+      "severity": "info",
+      "message": "Splunk users/auth methods could not be evaluated: insufficient permissions."
+    }
+  ]
+}

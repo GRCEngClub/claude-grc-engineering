@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "source": "splunk-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-splunk-fail",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "splunk_deployment",
+    "id": "https://splunk.example.com:8089",
+    "uri": "https://splunk.example.com:8089",
+    "region": null,
+    "account_id": "https://splunk.example.com:8089"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "LOG-08",
+      "status": "fail",
+      "severity": "high",
+      "message": "No Splunk _audit or audit index was detected.",
+      "remediation": {
+        "summary": "Enable and retain Splunk audit events for administrative activity monitoring.",
+        "ref": "grc-engineer://generate-implementation/splunk_logging",
+        "effort_hours": 1,
+        "automation": "manual"
+      }
+    }
+  ]
+}
