@@ -273,6 +273,12 @@
       "source": "./plugins/frameworks/us-ccpa",
       "description": "California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA) \u2014 Reference plugin with scope determination, evidence checklist, and SCF-backed gap assessment for the California Privacy Protection Agency (CPPA) regulations.",
       "version": "0.1.0"
+    },
+    {
+      "name": "compliance-posture-dashboard",
+      "source": "./plugins/dashboards/compliance-posture",
+      "description": "Localhost compliance posture dashboard for monitor-continuous JSON output. Reference implementation of the Dashboards category from RFC #38.",
+      "version": "0.1.0"
     }
   ]
 }

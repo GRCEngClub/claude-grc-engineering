@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Compliance Posture Dashboard</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar" aria-label="Dashboard navigation">
+        <div class="brand">
+          <div class="brand-mark">G</div>
+          <div>
+            <p class="eyebrow">GRC Engineering</p>
+            <h1>Control Room</h1>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <a class="active" href="#posture">Posture</a>
+          <a href="#frameworks">Frameworks</a>
+          <a href="#alerts">Alert queue</a>
+          <a href="#history">History</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="eyebrow">Data source</p>
+          <p id="data-source">Loading...</p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <h2>Compliance posture</h2>
+            <p id="run-subtitle" class="muted">Reading monitor-continuous JSON...</p>
+          </div>
+          <div class="top-actions">
+            <button id="refresh" class="ghost-button" type="button">Refresh</button>
+            <a class="primary-button" href="/api/runs">View JSON</a>
+          </div>
+        </header>
+
+        <section id="empty-state" class="empty-state hidden">
+          <p class="eyebrow">No monitor runs found</p>
+          <h3>Point the dashboard at saved `monitor-continuous` JSON.</h3>
+          <pre><code>node plugins/grc-engineer/scripts/monitor-continuous.js SOC2,NIST-800-53 \
+  --output=grc-data/dashboard/monitor-continuous/latest.json \
+  --no-exit-code</code></pre>
+        </section>
+
+        <section id="posture" class="metric-grid" aria-label="Posture summary"></section>
+
+        <section class="dashboard-grid">
+          <article class="panel span-2">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Historical signal</p>
+                <h3>Compliance trend</h3>
+              </div>
+              <span id="trend-caption" class="pill">Awaiting data</span>
+            </div>
+            <div id="trend-chart" class="chart"></div>
+            <div id="chart-legend" class="legend"></div>
+          </article>
+
+          <article class="panel" id="overall-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Current run</p>
+                <h3>Overall status</h3>
+              </div>
+              <span id="overall-status" class="status-pill">Loading</span>
+            </div>
+            <div class="donut-wrap">
+              <div id="overall-donut" class="donut" style="--value: 0">
+                <span id="overall-rate">0%</span>
+                <small>pass rate</small>
+              </div>
+            </div>
+            <div id="overall-breakdown" class="breakdown"></div>
+          </article>
+        </section>
+
+        <section class="dashboard-grid lower">
+          <article id="frameworks" class="panel span-2">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Framework-by-framework</p>
+                <h3>Control health</h3>
+              </div>
+              <span id="framework-count" class="pill">0 frameworks</span>
+            </div>
+            <div id="framework-table" class="framework-table"></div>
+          </article>
+
+          <article id="alerts" class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Operational queue</p>
+                <h3>Alerts and deltas</h3>
+              </div>
+            </div>
+            <div id="alert-list" class="alert-list"></div>
+          </article>
+        </section>
+
+        <section id="history" class="panel run-history">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Saved manifests</p>
+              <h3>Recent monitor runs</h3>
+            </div>
+          </div>
+          <div id="run-list" class="run-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
