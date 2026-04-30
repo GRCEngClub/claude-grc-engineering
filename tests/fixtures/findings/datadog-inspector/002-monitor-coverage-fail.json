@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "source": "datadog-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-datadog-fail",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "datadog_organization",
+    "id": "datadoghq.com",
+    "uri": "https://app.datadoghq.com/",
+    "region": null,
+    "account_id": "datadoghq.com"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "MON-01.2",
+      "status": "fail",
+      "severity": "high",
+      "message": "No critical or production Datadog monitors were detected.",
+      "remediation": {
+        "summary": "Define monitors for critical services and resources, with severity and routing aligned to incident response.",
+        "ref": "grc-engineer://generate-implementation/datadog_monitoring",
+        "effort_hours": 1,
+        "automation": "manual"
+      }
+    }
+  ]
+}
