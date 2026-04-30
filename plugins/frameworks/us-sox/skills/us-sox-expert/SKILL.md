@@ -66,7 +66,7 @@ Two common cases where a private company should be running SOX-grade ICFR even t
 The §404(b) external-auditor attestation requirement does **not** apply to all SOX filers. The applicable categories under SEC rules:
 
 - **Large accelerated filer**: public float ≥ $700M. §404(b) required.
-- **Accelerated filer**: public float ≥ $75M and < $700M. §404(b) required (subject to the SEC's 2020 narrowing for low-revenue filers that have not been an accelerated filer for at least one year).
+- **Accelerated filer**: public float ≥ $75M and < $700M. §404(b) required, except where the SEC's 2020 amendments exclude qualifying low-revenue issuers — for example, an issuer with $75M–$700M public float, annual revenues below $100M, and no prior accelerated or large-accelerated-filer status.
 - **Non-accelerated filer**: public float < $75M. **§404(b) not required** (per amendments stemming from the Dodd-Frank Act). §404(a) management assessment **is** still required.
 - **Emerging Growth Company (EGC)** — under the JOBS Act, an EGC is exempt from §404(b) for up to **5 years** from its IPO (or until it loses EGC status by exceeding revenue, debt issuance, or large-accelerated-filer thresholds). §404(a) still applies.
 - **Smaller Reporting Company (SRC)** — the SRC vs. non-SRC determination affects scaled disclosure rules but is partly orthogonal to §404(b); confirm by walking the current SEC filer-status definitions.
