@@ -1,8 +1,8 @@
 # RFC: Architecture v2 — expanding beyond framework-centric plugins
 
-**Status**: Draft — open for community comment (with [Amendment A1](#amendment-a1--2026-04-18) applied in-document)
+**Status**: Accepted — 2026-04-30 (with [Amendment A1](#amendment-a1--2026-04-18) applied in-document)
 **Authors**: GRC Engineering Club leadership team
-**Target merge**: after 2-week comment window closes
+**Target merge**: accepted after community comment review
 **Replaces**: n/a (first architecture RFC)
 **Affected surface**: plugin taxonomy, directory layout, data schemas, namespace conventions
 **Tracking issue**: [#38](https://github.com/GRCEngClub/claude-grc-engineering/issues/38)
@@ -17,7 +17,21 @@ Real GRC work is wider than that. Teams need executive reports, live dashboards,
 
 This RFC proposes **five new plugin categories** (`reporting`, `dashboards`, `transforms`, `programs`, `meetings`), each with a namespace convention; a **directory restructure** to fit them; and resolution of the design questions each category raises (new data schemas? output formats? statefulness? persona mapping?).
 
-This is a **design document**, not code. It asks for community comment before any implementation lands.
+This is an **accepted design document**. Implementation still lands through separate PRs for each category, schema, and reference plugin.
+
+## Resolution — 2026-04-30
+
+The RFC is accepted with Amendment A1 as the operative taxonomy update.
+
+Comment-window resolution:
+
+- **Reporting category**: accepted as a cross-persona output layer. The `grc-ciso` persona is not required for v2 acceptance; executive reporting remains a reporting workflow aimed at CISO/board audiences.
+- **Historical state**: accepted as an implementation concern for dashboards and program plugins. The first implementation should prefer externalized state (`grc-data/`, generated manifests, or opt-in indexes) over hidden agent memory.
+- **Dashboard persistence**: accepted as a reference-implementation track. A future dashboard plugin may pressure-test Worker/KV, SQLite, or GitOps-backed patterns without expanding the RFC scope.
+- **Directory layout**: Amendment A1 supersedes the original Option A recommendation. Existing persona plugins stay at top level; new categories use dedicated top-level directories under `plugins/`.
+- **Additional categories**: bridges and knowledge sources are accepted as first-class plugin categories.
+
+The original comment window was scheduled to close on 2026-05-02. It was closed early on 2026-04-30 by maintainer direction after the remaining comments had clear follow-up paths and no unresolved blocking objection.
 
 ## Why now
 
