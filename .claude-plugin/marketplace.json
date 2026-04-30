@@ -240,6 +240,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "tenable-inspector",
+      "source": "./plugins/connectors/tenable-inspector",
+      "description": "GRC connector for Tenable.io/Tenable.sc: scan coverage, credentialed scans, vulnerability age, and scan access to v1 finding contract",
+      "version": "0.1.0"
+    },
+    {
       "name": "okta-inspector",
       "source": "./plugins/connectors/okta-inspector",
       "description": "GRC connector for Okta: password/MFA/session policies, inactive users, admin factor enrollment \u2192 v1 finding contract",
