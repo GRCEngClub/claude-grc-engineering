@@ -1,0 +1,16 @@
+{
+  "name": "gcp-docs",
+  "version": "0.1.0",
+  "description": "Knowledge source for Google Developer Knowledge API: searches, cites, and answers from current Google developer documentation.",
+  "author": { "name": "GRC Engineering Club Contributors" },
+  "license": "MIT",
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "keywords": ["grc", "google-cloud", "documentation", "knowledge-source", "citations"],
+  "knowledge_source_metadata": {
+    "provider": "google",
+    "api": "Developer Knowledge API",
+    "endpoint": "https://developerknowledge.googleapis.com/v1alpha",
+    "cache_ttl_days": 7,
+    "emits_findings": false
+  }
+}

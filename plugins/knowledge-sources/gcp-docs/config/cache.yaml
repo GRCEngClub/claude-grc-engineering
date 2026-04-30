@@ -1,0 +1,4 @@
+version: 1
+cache_dir: "~/.cache/claude-grc/knowledge/google"
+ttl_days: 7
+base_url: "https://developerknowledge.googleapis.com/v1alpha"
