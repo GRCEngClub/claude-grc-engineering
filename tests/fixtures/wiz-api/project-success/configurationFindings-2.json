@@ -1,0 +1,40 @@
+{
+  "data": {
+    "configurationFindings": {
+      "nodes": [
+        {
+          "id": "cfg-redacted-2",
+          "name": "Logging enabled",
+          "title": "Logging enabled",
+          "severity": "LOW",
+          "status": "RESOLVED",
+          "result": "PASSED",
+          "cloudPlatform": "AWS",
+          "resource": {
+            "id": "trail-redacted-1",
+            "name": "trail-redacted-1",
+            "type": "CLOUD_TRAIL",
+            "nativeType": "AWS::CloudTrail::Trail",
+            "subscriptionId": "cloud-account-redacted-1",
+            "region": "us-east-1"
+          },
+          "project": {
+            "id": "project-redacted-1",
+            "name": "Project Redacted"
+          },
+          "control": {
+            "id": "control-redacted-2",
+            "name": "Collect audit logs"
+          },
+          "frameworkCategories": [
+            { "name": "NIST 800-53 AU-2" }
+          ]
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": null
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "data": {
+    "cloudResources": {
+      "nodes": [],
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": null
+      }
+    }
+  }
+}

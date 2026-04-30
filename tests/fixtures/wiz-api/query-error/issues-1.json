@@ -1,0 +1,11 @@
+{
+  "data": {
+    "issues": {
+      "nodes": [],
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": null
+      }
+    }
+  }
+}

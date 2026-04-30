@@ -1,0 +1,25 @@
+{
+  "data": {
+    "cloudResources": {
+      "nodes": [
+        {
+          "id": "resource-redacted-1",
+          "name": "resource-redacted-1",
+          "type": "BUCKET",
+          "nativeType": "AWS::S3::Bucket",
+          "cloudPlatform": "AWS",
+          "subscriptionId": "cloud-account-redacted-1",
+          "region": "us-east-1",
+          "project": {
+            "id": "project-redacted-1",
+            "name": "Project Redacted"
+          }
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": true,
+        "endCursor": "cursor-redacted-2"
+      }
+    }
+  }
+}

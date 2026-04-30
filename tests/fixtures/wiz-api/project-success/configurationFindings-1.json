@@ -1,0 +1,41 @@
+{
+  "data": {
+    "configurationFindings": {
+      "nodes": [
+        {
+          "id": "cfg-redacted-1",
+          "name": "Storage encryption disabled",
+          "title": "Storage encryption disabled",
+          "severity": "HIGH",
+          "status": "OPEN",
+          "result": "FAILED",
+          "cloudPlatform": "AWS",
+          "resource": {
+            "id": "storage-redacted-1",
+            "name": "storage-redacted-1",
+            "type": "BUCKET",
+            "nativeType": "AWS::S3::Bucket",
+            "subscriptionId": "cloud-account-redacted-1",
+            "region": "us-east-1"
+          },
+          "project": {
+            "id": "project-redacted-1",
+            "name": "Project Redacted"
+          },
+          "control": {
+            "id": "control-redacted-1",
+            "name": "Encrypt storage at rest"
+          },
+          "frameworkCategories": [
+            { "name": "NIST 800-53 SC-28" },
+            { "name": "SOC 2 CC6.7" }
+          ]
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": true,
+        "endCursor": "cursor-redacted-1"
+      }
+    }
+  }
+}
