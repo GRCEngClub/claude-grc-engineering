@@ -147,8 +147,8 @@ function doc(ctx, type, id, evaluations, raw, metadata) {
 
 function normalizeStatus(value) {
   const s = String(value || '').toLowerCase();
-  if (s.match(/pass|ok|success|complete|compliant/)) return 'pass';
-  if (s.match(/fail|error|non[_ -]?compliant|gap/)) return 'fail';
+  if (s.match(/fail|error|non[_ -]?compliant|not[_ -]?(ok|compliant|complete)|incomplete|broken|gap/)) return 'fail';
+  if (s.match(/^(pass|passed|ok|success|successful|complete|completed|compliant)$/)) return 'pass';
   if (s.match(/skip/)) return 'skipped';
   return 'inconclusive';
 }

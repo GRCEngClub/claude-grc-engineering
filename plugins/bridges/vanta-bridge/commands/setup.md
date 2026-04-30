@@ -17,7 +17,7 @@ The setup command records the expected Vanta region and verifies whether a Claud
 
 ## Options
 
-- `--region=us|eu|aus` selects the Vanta MCP region. Default: `us`.
+- `--region=us|eu|aus` records the Vanta MCP region for operator context and future direct-MCP sync. The current `sync` command normalizes local JSON input and does not make region-specific network calls.
 - `--input=<path>` records the default Vanta MCP/export JSON path for sync.
 
 ## Output
