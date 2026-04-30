@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "source": "crowdstrike-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-crowdstrike-inconclusive",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "crowdstrike_tenant",
+    "id": "https://api.crowdstrike.com",
+    "uri": "https://api.crowdstrike.com",
+    "region": null,
+    "account_id": "https://api.crowdstrike.com"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "CFG-02",
+      "status": "inconclusive",
+      "severity": "info",
+      "message": "CrowdStrike prevention policies could not be evaluated: insufficient permissions."
+    }
+  ]
+}

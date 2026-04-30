@@ -215,6 +215,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "crowdstrike-inspector",
+      "source": "./plugins/connectors/crowdstrike-inspector",
+      "description": "GRC connector for CrowdStrike Falcon: sensor coverage, policies, and host-group scoping to v1 finding contract",
+      "version": "0.1.0"
+    },
+    {
       "name": "drata-inspector",
       "source": "./plugins/connectors/drata-inspector",
       "description": "GRC connector for Drata: wraps drata-cli workflows and normalizes compliance posture to v1 finding contract",
