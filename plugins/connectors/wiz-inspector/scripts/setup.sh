@@ -3,11 +3,12 @@ set -euo pipefail
 
 CONFIG_DIR="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors"
 CONFIG_FILE="$CONFIG_DIR/wiz-inspector.yaml"
-ENV_FILE="$CONFIG_DIR/wiz-inspector.env"
 AUTH_URL="${WIZ_AUTH_URL:-https://auth.app.wiz.io/oauth/token}"
 API_URL="${WIZ_API_URL:-}"
 CLIENT_ID="${WIZ_CLIENT_ID:-}"
 CLIENT_SECRET="${WIZ_CLIENT_SECRET:-}"
+CLIENT_ID_ENV="WIZ_CLIENT_ID"
+CLIENT_SECRET_ENV="WIZ_CLIENT_SECRET"
 PROJECT_ID="${WIZ_PROJECT_ID:-}"
 LIMIT="${WIZ_LIMIT:-100}"
 
@@ -17,6 +18,8 @@ for arg in "$@"; do
     --api-url=*) API_URL="${arg#*=}" ;;
     --client-id=*) CLIENT_ID="${arg#*=}" ;;
     --client-secret=*) CLIENT_SECRET="${arg#*=}" ;;
+    --client-id-env=*) CLIENT_ID_ENV="${arg#*=}"; CLIENT_ID="${!CLIENT_ID_ENV:-$CLIENT_ID}" ;;
+    --client-secret-env=*) CLIENT_SECRET_ENV="${arg#*=}"; CLIENT_SECRET="${!CLIENT_SECRET_ENV:-$CLIENT_SECRET}" ;;
     --project-id=*) PROJECT_ID="${arg#*=}" ;;
     --limit=*) LIMIT="${arg#*=}" ;;
     *) echo "[wiz-inspector:setup] unknown flag: $arg" >&2; exit 2 ;;
@@ -54,16 +57,12 @@ source_version: "0.1.0"
 auth_url: "$AUTH_URL"
 api_url: "$API_URL"
 project_id: "$PROJECT_ID"
+client_id_env: "$CLIENT_ID_ENV"
+client_secret_env: "$CLIENT_SECRET_ENV"
 defaults:
   limit: $LIMIT
 EOF
 
-umask 077
-cat > "$ENV_FILE" <<EOF
-WIZ_CLIENT_ID="$CLIENT_ID"
-WIZ_CLIENT_SECRET="$CLIENT_SECRET"
-EOF
-
 mkdir -p "$HOME/.cache/claude-grc/findings/wiz-inspector"
 touch "$HOME/.cache/claude-grc/runs.log"
-printf 'wiz-inspector:setup ok\n  api_url:  %s\n  config:   %s\n' "$API_URL" "$CONFIG_FILE"
+printf 'wiz-inspector:setup ok\n  api_url:      %s\n  project_id:   %s\n  credentials:  $%s / $%s\n  config:       %s\n' "$API_URL" "${PROJECT_ID:-tenant-wide}" "$CLIENT_ID_ENV" "$CLIENT_SECRET_ENV" "$CONFIG_FILE"

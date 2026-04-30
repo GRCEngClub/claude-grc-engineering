@@ -20,6 +20,7 @@
     "frameworks": "node plugins/grc-engineer/scripts/frameworks.js",
     "scaffold-framework": "node plugins/grc-engineer/scripts/scaffold-framework.js",
     "generate-coverage": "node plugins/grc-engineer/scripts/generate-coverage.js",
+    "test:wiz-inspector": "node --test tests/wiz-inspector-collect.test.js",
     "test:contract": "bash tests/validate-contract-fixtures.sh",
     "test:grc-diagrams": "bash tests/validate-grc-diagram-skills.sh",
     "test:plugin-manifests": "bash tests/validate-plugin-manifests.sh",

@@ -1,0 +1,11 @@
+{
+  "data": {
+    "configurationFindings": {
+      "nodes": [],
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": null
+      }
+    }
+  }
+}

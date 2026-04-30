@@ -13,13 +13,21 @@ fi
 
 AUTH_URL=$(awk -F'"' '/^auth_url:/ {print $2; exit}' "$CONFIG_FILE")
 API_URL=$(awk -F'"' '/^api_url:/ {print $2; exit}' "$CONFIG_FILE")
+CLIENT_ID_ENV=$(awk -F'"' '/^client_id_env:/ {print $2; exit}' "$CONFIG_FILE")
+CLIENT_SECRET_ENV=$(awk -F'"' '/^client_secret_env:/ {print $2; exit}' "$CONFIG_FILE")
+PROJECT_ID=$(awk -F'"' '/^project_id:/ {print $2; exit}' "$CONFIG_FILE")
+CLIENT_ID_ENV="${CLIENT_ID_ENV:-WIZ_CLIENT_ID}"
+CLIENT_SECRET_ENV="${CLIENT_SECRET_ENV:-WIZ_CLIENT_SECRET}"
 if [[ -f "$ENV_FILE" ]]; then source "$ENV_FILE"; fi
-if [[ -z "${WIZ_CLIENT_ID:-}" || -z "${WIZ_CLIENT_SECRET:-}" || -z "$API_URL" ]]; then
+CLIENT_ID="${!CLIENT_ID_ENV:-${WIZ_CLIENT_ID:-}}"
+CLIENT_SECRET="${!CLIENT_SECRET_ENV:-${WIZ_CLIENT_SECRET:-}}"
+if [[ -z "$CLIENT_ID" || -z "$CLIENT_SECRET" || -z "$API_URL" ]]; then
   printf '  status:        credentials-expired\n'
+  printf '  fix:           export %s and %s\n' "$CLIENT_ID_ENV" "$CLIENT_SECRET_ENV"
   exit 2
 fi
 
-CODE=$(node - "$AUTH_URL" "$API_URL" "$WIZ_CLIENT_ID" "$WIZ_CLIENT_SECRET" <<'NODE'
+CODE=$(node - "$AUTH_URL" "$API_URL" "$CLIENT_ID" "$CLIENT_SECRET" <<'NODE'
 const [authUrl, apiUrl, clientId, clientSecret] = process.argv.slice(2);
 async function check() {
   const body = new URLSearchParams({ grant_type: 'client_credentials', audience: 'wiz-api', client_id: clientId, client_secret: clientSecret });
@@ -39,10 +47,10 @@ fi
 
 LATEST=$(ls -t "$CACHE_DIR"/*.json 2>/dev/null | head -1 || true)
 if [[ -z "$LATEST" ]]; then
-  printf '  status:        ready\n  api_url:       %s\n  last run:      never\n' "$API_URL"
+  printf '  status:        ready\n  api_url:       %s\n  scope:         %s\n  credentials:   $%s / $%s\n  last run:      never\n' "$API_URL" "${PROJECT_ID:-tenant-wide}" "$CLIENT_ID_ENV" "$CLIENT_SECRET_ENV"
   exit 0
 fi
 if stat -f%m "$LATEST" >/dev/null 2>&1; then MTIME=$(stat -f%m "$LATEST"); else MTIME=$(stat -c%Y "$LATEST"); fi
 AGE_H=$(( ($(date +%s) - MTIME) / 3600 ))
 if (( AGE_H < 168 )); then STATUS=ready; else STATUS=stale; fi
-printf '  status:        %s\n  api_url:       %s\n  last run:      %sh ago (%s)\n' "$STATUS" "$API_URL" "$AGE_H" "$(basename "$LATEST" .json)"
+printf '  status:        %s\n  api_url:       %s\n  scope:         %s\n  credentials:   $%s / $%s\n  last run:      %sh ago (%s)\n' "$STATUS" "$API_URL" "${PROJECT_ID:-tenant-wide}" "$CLIENT_ID_ENV" "$CLIENT_SECRET_ENV" "$AGE_H" "$(basename "$LATEST" .json)"
