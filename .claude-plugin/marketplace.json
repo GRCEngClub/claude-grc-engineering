@@ -249,6 +249,12 @@
       "source": "./plugins/connectors/poam-automation",
       "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: converts vulnerability scans into FedRAMP POA&M Excel and emits NIST-800-53-r5 (SI-2) findings → v1 finding contract.",
       "version": "0.1.0"
+    },
+    {
+      "name": "nist-csf-20",
+      "source": "./plugins/frameworks/nist-csf-20",
+      "description": "NIST Cybersecurity Framework (v2.0) — reference-depth plugin backed by the SCF crosswalk (250 SCF → 134 framework controls).",
+      "version": "0.1.0"
     }
   ]
 }
