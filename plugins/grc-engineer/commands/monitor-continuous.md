@@ -160,6 +160,10 @@ For trend analysis over time, consume the JSON output (or the `grc-data/metrics/
 snapshots written when `record_metrics` is enabled) with a reporting workflow
 such as `/report:exec-summary`.
 
+If you only need scheduled automation-history snapshots for the PR #54 reporting
+flows, use the copy-pasteable GitHub Actions template at
+[`examples/github-actions/automation-metrics-snapshot.yml`](../examples/github-actions/automation-metrics-snapshot.yml).
+
 ## Setup
 
 ### 1. Stage a config file
