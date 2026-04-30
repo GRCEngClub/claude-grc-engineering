@@ -268,7 +268,14 @@ export function parseArgs(argv) {
 
 async function readJsonFile(filePath) {
   const raw = await fs.readFile(filePath, 'utf8');
-  return JSON.parse(raw);
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      fail(`Could not parse JSON in ${path.relative(REPO_ROOT, filePath)}: ${err.message}`);
+    }
+    throw err;
+  }
 }
 
 async function loadFrameworkMetadata(frameworkAlias) {
@@ -458,7 +465,7 @@ export async function deriveCounts(opts) {
   if (total === null && opts.fromFrameworkMetadata) {
     const framework = await loadFrameworkMetadata(opts.framework);
     const frameworkTotal = Number(framework.metadata.framework_controls_mapped);
-    if (!Number.isFinite(frameworkTotal) || frameworkTotal < 0) {
+    if (!Number.isFinite(frameworkTotal) || !Number.isInteger(frameworkTotal) || frameworkTotal < 0) {
       fail(`framework_metadata.framework_controls_mapped is missing or invalid for ${opts.framework}`);
     }
     total = frameworkTotal;
