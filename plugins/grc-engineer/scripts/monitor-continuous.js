@@ -28,6 +28,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import os from 'node:os';
 import crypto from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -309,14 +310,27 @@ function log(resolved, message) {
   process.stderr.write(`[monitor-continuous] ${message}\n`);
 }
 
-function runProcess(script, args, { quiet }) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [script, ...args], { stdio: ['ignore', 'pipe', quiet ? 'ignore' : 'inherit'] });
-    let stdout = '';
-    child.stdout.on('data', chunk => { stdout += chunk.toString(); });
-    child.on('error', reject);
-    child.on('close', code => resolve({ code, stdout }));
-  });
+async function runProcess(script, args, { quiet }) {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'monitor-continuous-'));
+  const stdoutPath = path.join(tmpDir, 'stdout');
+  let stdoutHandle;
+  try {
+    stdoutHandle = await fs.open(stdoutPath, 'w');
+    const code = await new Promise((resolve, reject) => {
+      const child = spawn(process.execPath, [script, ...args], {
+        stdio: ['ignore', stdoutHandle.fd, quiet ? 'ignore' : 'inherit']
+      });
+      child.on('error', reject);
+      child.on('close', resolve);
+    });
+    await stdoutHandle.close();
+    stdoutHandle = null;
+    const stdout = await fs.readFile(stdoutPath, 'utf8').catch(() => '');
+    return { code, stdout };
+  } finally {
+    if (stdoutHandle) await stdoutHandle.close().catch(() => {});
+    await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {});
+  }
 }
 
 async function runGapAssessment(resolved, runId) {
