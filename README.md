@@ -22,6 +22,7 @@ The toolkit is a Claude Code plugin marketplace. Install the pieces you need:
 - Persona plugins: workflows for auditors, internal GRC teams, third-party risk, reporting, learning, and iterative GRC automation.
 - Framework plugins: reference guidance for SOC 2, NIST 800-53, ISO 27001, FedRAMP, PCI DSS, CMMC, HITRUST, CIS Controls, GDPR, DORA, HIPAA Security, regional privacy/security regimes, and more.
 - Connector plugins: thin wrappers around tools such as AWS CLI, GitHub CLI, gcloud, Azure CLI, Okta, Slack, Datadog, CrowdStrike, Drata, Splunk, Tenable, Snowflake, and POA&M automation.
+- Diagram plugins: editable draw.io system boundaries, evidence flows, control maps, risk treatment, audit workflows, framework crosswalks, TPRM, POA&M, data flows, RACI, and operating model visuals.
 - OSCAL and bridge plugins: tooling for FedRAMP/OSCAL workflows and integrations with external GRC systems.
 
 The common path is:
@@ -76,6 +77,7 @@ Using Claude Cowork instead of Claude Code? Start with [docs/CLAUDE-COWORK.md](d
 | Build audit workpapers or evidence packages | `/grc-auditor:generate-workpaper`, `/grc-engineer:collect-evidence` |
 | Generate OSCAL SSP/SAP/SAR/POA&M outputs | `/oscal:*`, `/fedramp-ssp:*` |
 | Draft leadership updates and automation coverage reports | `/report:exec-summary`, `/report:automation-coverage` |
+| Create editable GRC diagrams | `/grc-diagrams:drawio`, `/grc-diagrams:system-boundary`, `/grc-diagrams:evidence-flow`, `/grc-diagrams:control-map` |
 | Learn a framework, control, or GRC role | `/teach-me:framework`, `/teach-me:control`, `/teach-me:role`, `/teach-me:quiz` |
 
 Every command has a reference page in its plugin's `commands/` directory.
@@ -90,6 +92,7 @@ High-level categories:
 |---|---|
 | Engineering hub | `grc-engineer` |
 | Persona/workflow plugins | `grc-auditor`, `grc-internal`, `grc-tprm`, `grc-reporter`, `grc-loop`, `teach-me` |
+| Diagram plugin | `grc-diagrams` for editable draw.io GRC diagrams |
 | Framework plugins | `soc2`, `nist-800-53`, `iso27001`, `fedramp-rev5`, `fedramp-20x`, `pci-dss`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `dora`, `us-hipaa-security`, and others |
 | Connector plugins | `aws-inspector`, `github-inspector`, `gcp-inspector`, `azure-inspector`, `okta-inspector`, `slack-inspector`, `datadog-inspector`, `crowdstrike-inspector`, `drata-inspector`, `splunk-inspector`, `tenable-inspector`, `snowflake-inspector` |
 | Bridges, dashboards, knowledge sources | `vanta-bridge`, `compliance-posture-dashboard`, `gcp-docs` |
