@@ -8,7 +8,7 @@ if [[ "$#" -eq 0 ]]; then
 fi
 
 if ! command -v ajv >/dev/null 2>&1; then
-  echo "ajv-cli not found. Run: npm install" >&2
+  echo "ajv-cli not found. Rebuild the hook env with: pre-commit clean && pre-commit install" >&2
   exit 2
 fi
 
