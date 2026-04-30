@@ -111,6 +111,19 @@ To seed the reporting workflow with real automation history, use:
 node plugins/grc-engineer/scripts/record-automation-metrics.js soc2 --controls-total=64 --controls-automated=22 --window-label=2026-W16
 ```
 
+For framework plugins that publish `framework_metadata.framework_controls_mapped`,
+operators can skip hand-counting the total and provide only the observed
+automated count:
+
+```bash
+node plugins/grc-engineer/scripts/record-automation-metrics.js soc2 --controls-automated=22 --from-framework-metadata --window-label=2026-W16
+```
+
+Rows from this path still use `measurement_scope=operator-observed`. Their
+metadata records the plugin manifest used as the source for `controls_total`, so
+reports can distinguish it from both fully manual snapshots and FedRAMP
+tooling-capability baselines.
+
 If you want a tooling-capability baseline for FedRAMP evidence coverage, the
 writer can derive it from the evidence collector config:
 
