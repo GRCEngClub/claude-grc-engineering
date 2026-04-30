@@ -21,7 +21,7 @@ Runs a compliance gap assessment against **Japan's Act on the Protection of Pers
 
 1. **Compliance score** - overall APPI readiness percentage, weighted by mapped SCF controls.
 2. **Applicable-requirements summary** - which parts of the framework apply to the organization (see `/jp-appi:scope` to narrow this down first).
-3. **Control-by-control gap** - every 134 mapped control, with pass/fail/inconclusive status from connector findings.
+3. **Control-by-control gap** - all 134 mapped controls, with pass/fail/inconclusive status from connector findings.
 4. **Evidence gaps** - controls where no evidence source is configured.
 5. **Remediation roadmap** - prioritized by severity and effort.
 
