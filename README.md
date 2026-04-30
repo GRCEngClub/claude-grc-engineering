@@ -1,7 +1,7 @@
 # claude-grc-engineering
 
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/GRCEngClub/claude-grc-engineering?utm_source=oss&utm_medium=github&utm_campaign=GRCEngClub%2Fclaude-grc-engineering&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
-[![Greptile](https://img.shields.io/badge/Greptile-enabled-1f6feb?labelColor=171717)](https://greptile.com)
+[![Greptile runs](https://img.shields.io/badge/dynamic/json?label=Greptile%20runs&query=$.total_count&url=https://api.github.com/search/issues?q=repo%253AGRCEngClub%252Fclaude-grc-engineering%2520type%253Apr%2520commenter%253Agreptile-apps%255Bbot%255D&suffix=%20reviews&color=1f6feb&labelColor=171717)](https://github.com/GRCEngClub/claude-grc-engineering/pulls?q=commenter%3Agreptile-apps%5Bbot%5D)
 [![OSV-Scanner](https://github.com/GRCEngClub/claude-grc-engineering/actions/workflows/osv-scanner.yml/badge.svg)](https://github.com/GRCEngClub/claude-grc-engineering/actions/workflows/osv-scanner.yml)
 
 https://github.com/user-attachments/assets/a83aa297-9fba-4a7d-b56c-06f962d1ec6b
