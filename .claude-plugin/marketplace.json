@@ -249,6 +249,12 @@
       "source": "./plugins/connectors/poam-automation",
       "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: converts vulnerability scans into FedRAMP POA&M Excel and emits NIST-800-53-r5 (SI-2) findings → v1 finding contract.",
       "version": "0.1.0"
+    },
+    {
+      "name": "us-sox",
+      "source": "./plugins/frameworks/us-sox",
+      "description": "US Sarbanes-Oxley Act of 2002 (SOX) — Reference-depth plugin for ICFR scoping, IT General Control (ITGC) testing, and §302/§404/§906 evidence preparation. Backed by the SCF crosswalk (4 SCF → 17 framework controls).",
+      "version": "0.1.0"
     }
   ]
 }
