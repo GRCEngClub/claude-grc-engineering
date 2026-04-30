@@ -40,5 +40,5 @@ level-up checklist.
 - [Secure Controls Framework](https://securecontrolsframework.com) - crosswalk source (CC BY-ND 4.0)
 - [SCF API entry](https://hackidle.github.io/scf-api/api/crosswalks/usa-federal-nerc-cip-2024.json)
 - [NERC Reliability Standards](https://nerc.com/pa/Stand/Pages/ReliabilityStandards.aspx)
-- [NERC Supply Chain Risk Mitigation Program](https://www.nerc.com/pa/comp/Pages/Supply-Chain-Risk-Mitigation-Program.aspx)
+- [NERC Supply Chain Risk Mitigation Program](https://www.nerc.com/programs/compliance/supply-chain-risk-mitigation-program)
 - [FERC 2024 Lessons Learned from Commission-Led Reliability Audits](https://www.ferc.gov/news-events/news/ferc-staff-report-offers-lessons-learned-2024-cip-audits)
