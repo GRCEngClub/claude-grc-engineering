@@ -91,7 +91,7 @@ Total Categories in CSF 2.0: 22 (compared to 23 in CSF 1.1 — the structure was
 
 ### 3. Subcategories
 
-Subcategories are the leaf nodes — concrete cybersecurity outcomes phrased as statements (not directives). CSF 2.0 has roughly 106 Subcategories. They're coded as `<Function>.<Category>-<Number>`. Examples:
+Subcategories are the leaf nodes — concrete cybersecurity outcomes phrased as statements (not directives). CSF 2.0 has 106 official Subcategories. The SCF crosswalk used by this plugin resolves those outcomes into 134 mappable entries for assessment and reporting. CSF Subcategories are coded as `<Function>.<Category>-<Number>`. Examples:
 
 - **GV.OC-01** — The organizational mission is understood and informs cybersecurity risk management
 - **PR.AA-01** — Identities and credentials for authorized users, services, and hardware are managed by the organization
