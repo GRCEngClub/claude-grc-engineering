@@ -6,7 +6,7 @@ allowed-tools: Read, Glob, Grep, Write
 
 # California Consumer Privacy Act / California Privacy Rights Act Expert
 
-Reference-depth expertise for the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA). This skill paraphrases the statute and citing California Civil Code section by section — never reproduce verbatim statute text.
+Reference-depth expertise for the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA). This skill paraphrases the statute and cites California Civil Code section by section — never reproduce verbatim statute text.
 
 ## Framework identity
 
