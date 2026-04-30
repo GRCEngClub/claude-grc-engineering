@@ -245,7 +245,7 @@ This toolkit is developed openly by the [GRC Engineering Club](https://grcengclu
 - **Contributing**: [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md). The highest-value contributions are new connectors (Tier-2 roadmap above), framework plugin improvements, and real-world implementation guidance. A typical connector is ~200 lines.
 - **Discussions**: [github.com/GRCEngClub/claude-grc-engineering/discussions](https://github.com/GRCEngClub/claude-grc-engineering/discussions) — "how would I add a connector for X?" and similar design questions welcome.
 - **Issues**: Use a template when opening. Security-sensitive issues go to a private advisory; see `SECURITY.md`.
-- **Recognition**: contributors are credited via the [all-contributors](https://allcontributors.org) bot on every PR. Comment `@all-contributors please add @you for code,doc` after your PR merges, or ask a maintainer.
+- **Recognition**: everyone who lands a PR shows up on the [contributors graph](https://github.com/GRCEngClub/claude-grc-engineering/graphs/contributors) — that's our source of truth.
 
 ### How to contribute (issue → vouch → PR)
 

@@ -34,7 +34,7 @@ Maps infrastructure-as-code (IaC) files to specific compliance framework control
 1. Run the map-control script:
 
    ```bash
-   node scripts/map-control.js $ARGUMENTS
+   node plugins/grc-engineer/scripts/map-control.js $ARGUMENTS
    ```
 
 2. The script analyzes the IaC file and generates a compliance mapping report.
@@ -47,14 +47,14 @@ Maps infrastructure-as-code (IaC) files to specific compliance framework control
 
 ```bash
 # Map to SOC 2 controls
-/grc:map-control main.tf SOC2
+/grc-engineer:map-control main.tf SOC2
 
 # Map to PCI-DSS requirements
-/grc:map-control main.tf PCIDSS
+/grc-engineer:map-control main.tf PCIDSS
 
 # Map to ISO 27001 controls
-/grc:map-control terraform/ ISO27001
+/grc-engineer:map-control terraform/ ISO27001
 
 # Map to NIST 800-53 controls
-/grc:map-control infrastructure/ NIST80053
+/grc-engineer:map-control infrastructure/ NIST80053
 ```

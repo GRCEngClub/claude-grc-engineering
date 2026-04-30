@@ -16,7 +16,7 @@ Converts unstructured risk assessments into structured Jira tickets.
 1. Run the transform-risk script:
 
    ```bash
-   node scripts/transform-risk.js "$ARGUMENTS"
+   node plugins/grc-engineer/scripts/transform-risk.js "$ARGUMENTS"
    ```
 
 2. The script extracts likelihood, impact, and mitigation from the description.
@@ -28,5 +28,5 @@ Converts unstructured risk assessments into structured Jira tickets.
 ## Example
 
 ```bash
-/grc:transform-risk "Vulnerability in auth service. High likelihood, critical impact. Mitigation: Implement OAuth2 with PKCE." SEC
+/grc-engineer:transform-risk "Vulnerability in auth service. High likelihood, critical impact. Mitigation: Implement OAuth2 with PKCE." SEC
 ```

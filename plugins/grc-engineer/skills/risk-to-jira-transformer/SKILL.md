@@ -13,13 +13,13 @@ Converts unstructured risk assessments into structured engineering tickets. Turn
 **Transform a risk assessment:**
 
 ```bash
-node scripts/transform-risk.js "Vulnerability in authentication service discovered during pen test. High likelihood, critical impact. Mitigation: Implement OAuth2 with PKCE." SEC
+node plugins/grc-engineer/scripts/transform-risk.js "Vulnerability in authentication service discovered during pen test. High likelihood, critical impact. Mitigation: Implement OAuth2 with PKCE." SEC
 ```
 
 **Transform with custom project:**
 
 ```bash
-node scripts/transform-risk.js "<risk description>" INFRA
+node plugins/grc-engineer/scripts/transform-risk.js "<risk description>" INFRA
 ```
 
 ## Input Format

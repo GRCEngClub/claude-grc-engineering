@@ -188,13 +188,7 @@ Reviewers will look for:
 
 ## Recognition
 
-Contributors are credited via the [all-contributors](https://allcontributors.org) bot. After a PR merges, a maintainer will add the contributor to `CONTRIBUTORS.md` — or contributors can self-nominate by commenting on their own PR:
-
-```
-@all-contributors please add @your-username for code,doc
-```
-
-Contribution types include `code`, `doc`, `review`, `question`, `ideas`, `infra`, `content`, `bug`, `example`, `test`. Use multiple types when applicable.
+Everyone who lands a merged PR shows up on the [contributors graph](https://github.com/GRCEngClub/claude-grc-engineering/graphs/contributors). That's the source of truth — no separate file to maintain, no bot to invoke.
 
 ## Security
 

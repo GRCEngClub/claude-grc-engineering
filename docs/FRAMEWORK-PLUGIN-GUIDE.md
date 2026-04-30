@@ -200,6 +200,5 @@ Style issues (markdown lint, heading hierarchy) are enforced by CI. Substantive 
 3. Scaffold: `node plugins/grc-engineer/scripts/scaffold-framework.js <scf-framework-id> --depth=<stub|reference>`.
 4. Fill in `TODO:` markers if applicable.
 5. Open a draft PR. Tag it with the `framework` label. Leadership-team review routes via CODEOWNERS.
-6. After merge, comment `@all-contributors please add @your-username for code,doc` on the PR.
 
 Questions: [Discussions → Q&A](https://github.com/GRCEngClub/claude-grc-engineering/discussions/categories/q-a).

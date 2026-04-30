@@ -61,8 +61,8 @@ elif (( AGE_H < 168 )); then LABEL="$((AGE_H/24))d ago"; STATUS="ready"
 else LABEL="$((AGE_H/24))d ago"; STATUS="stale"
 fi
 
-RES=$(node -e "try{console.log(JSON.parse(require('fs').readFileSync('$LATEST','utf8')).length)}catch{console.log('?')}")
-EVS=$(node -e "try{const a=JSON.parse(require('fs').readFileSync('$LATEST','utf8'));let n=0;for(const d of a)n+=(d.evaluations||[]).length;console.log(n)}catch{console.log('?')}")
+RES=$(node -e "try{const a=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));console.log(Array.isArray(a)?a.length:1)}catch{console.log('?')}" "$LATEST")
+EVS=$(node -e "try{const a=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));const arr=Array.isArray(a)?a:[a];let n=0;for(const d of arr)n+=(d.evaluations||[]).length;console.log(n)}catch{console.log('?')}" "$LATEST")
 
 printf '  status:        %s\n' "$STATUS"
 printf '  last run:      %s (%s)\n' "$LABEL" "$(basename "$LATEST" .json)"

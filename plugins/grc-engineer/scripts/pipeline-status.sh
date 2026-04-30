@@ -55,8 +55,8 @@ for cfg in "$CONFIG_DIR"/*.yaml; do
   if [[ -d "$src_dir" ]]; then
     latest=$(ls -t "$src_dir"/*.json 2>/dev/null | head -1 || true)
     if [[ -n "$latest" ]]; then
-      r=$(node -e "try{const a=JSON.parse(require('fs').readFileSync('$latest','utf8'));console.log(Array.isArray(a)?a.length:1)}catch{console.log(0)}")
-      e=$(node -e "try{const a=JSON.parse(require('fs').readFileSync('$latest','utf8'));const arr=Array.isArray(a)?a:[a];let n=0;for(const d of arr)n+=(d.evaluations||[]).length;console.log(n)}catch{console.log(0)}")
+      r=$(node -e "try{const a=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));console.log(Array.isArray(a)?a.length:1)}catch{console.log(0)}" "$latest")
+      e=$(node -e "try{const a=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));const arr=Array.isArray(a)?a:[a];let n=0;for(const d of arr)n+=(d.evaluations||[]).length;console.log(n)}catch{console.log(0)}" "$latest")
       TOTAL_RESOURCES=$((TOTAL_RESOURCES + r))
       TOTAL_EVALS=$((TOTAL_EVALS + e))
       if stat -f%m "$latest" >/dev/null 2>&1; then m=$(stat -f%m "$latest"); else m=$(stat -c%Y "$latest"); fi

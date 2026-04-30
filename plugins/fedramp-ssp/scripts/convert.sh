@@ -104,11 +104,11 @@ SIZE=$(wc -c < "$OUTPUT" | awk '{print $1}')
 IMPL_COUNT=$(node -e "
 const fs=require('fs');
 try{
-  const d=JSON.parse(fs.readFileSync('$OUTPUT','utf8'));
+  const d=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
   const ssp=d['system-security-plan']||d.ssp||d;
   const ir=(ssp['control-implementation']||{})['implemented-requirements']||[];
   console.log(ir.length);
-}catch{console.log('?')}")
+}catch{console.log('?')}" "$OUTPUT")
 
 echo "fedramp-ssp:convert ✓"
 printf '  source (SSP):      %s\n' "$SSP_DOCX"

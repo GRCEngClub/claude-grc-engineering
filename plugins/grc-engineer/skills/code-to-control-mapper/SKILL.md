@@ -13,19 +13,19 @@ Maps infrastructure-as-code (IaC) files to specific compliance framework control
 **Map a Terraform file to SOC 2:**
 
 ```bash
-node scripts/map-control.js main.tf SOC2
+node plugins/grc-engineer/scripts/map-control.js main.tf SOC2
 ```
 
 **Map Kubernetes manifests to ISO 27001:**
 
 ```bash
-node scripts/map-control.js k8s/deployment.yaml ISO27001
+node plugins/grc-engineer/scripts/map-control.js k8s/deployment.yaml ISO27001
 ```
 
 **Map CloudFormation template to NIST 800-53:**
 
 ```bash
-node scripts/map-control.js template.yaml NIST80053
+node plugins/grc-engineer/scripts/map-control.js template.yaml NIST80053
 ```
 
 ## Supported Frameworks
