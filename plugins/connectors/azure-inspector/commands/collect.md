@@ -56,7 +56,7 @@ node plugins/connectors/azure-inspector/scripts/collect.js [options]
 
 - `~/.cache/claude-grc/findings/azure-inspector/<run_id>.json` - array of Findings
 - `~/.cache/claude-grc/runs.log` - run manifest appended
-- stdout summary unless `--quiet`:
+- stdout summary unless `--output=silent`:
 
   ```
   azure-inspector: 18 resources, 64 evaluations, 7 failing (1 critical, 3 high, 3 medium).

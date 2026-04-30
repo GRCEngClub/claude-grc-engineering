@@ -186,7 +186,8 @@ const serviceHandlers = {
     log(`keyvault: ${vaults.length} vaults`);
     if (!vaults.length) {
       return [buildDoc(ctx, { type: 'azure_keyvault_subscription', id: ctx.subscriptionId, account_id: ctx.subscriptionId }, [
-        { control_framework: 'SCF', control_id: 'CRY-04', status: 'not_applicable', severity: 'info', message: 'No Key Vaults found in subscription.' }
+        { control_framework: 'SCF', control_id: 'BCD-11', status: 'not_applicable', severity: 'info', message: 'No Key Vaults found in subscription.' },
+        { control_framework: 'SCF', control_id: 'IAC-07.2', status: 'not_applicable', severity: 'info', message: 'No Key Vaults found in subscription.' }
       ])];
     }
     return vaults.map(v => {

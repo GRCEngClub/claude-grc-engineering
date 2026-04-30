@@ -34,14 +34,13 @@ fi
 CALLER=$(node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).user?.name || ''))" <<<"$ACCOUNT_JSON")
 NAME=$(node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).name || ''))" <<<"$ACCOUNT_JSON")
 
-printf '  status:        ready\n'
-printf '  subscription:  %s (%s)\n' "$NAME" "$SUBSCRIPTION"
-printf '  tenant:        %s\n' "$TENANT"
-printf '  caller:        %s\n' "$CALLER"
-printf '  config:        %s\n' "$CONFIG_FILE"
-
 LATEST=$(ls -t "$CACHE_DIR"/*.json 2>/dev/null | head -1 || true)
 if [[ -z "$LATEST" ]]; then
+  printf '  status:        ready\n'
+  printf '  subscription:  %s (%s)\n' "$NAME" "$SUBSCRIPTION"
+  printf '  tenant:        %s\n' "$TENANT"
+  printf '  caller:        %s\n' "$CALLER"
+  printf '  config:        %s\n' "$CONFIG_FILE"
   printf '  last run:      never\n'
   exit 0
 fi
@@ -54,9 +53,14 @@ elif (( AGE_H < 168 )); then LABEL="$((AGE_H/24))d ago"; STATUS="ready"
 else LABEL="$((AGE_H/24))d ago"; STATUS="stale"
 fi
 
+printf '  status:        %s\n' "$STATUS"
+printf '  subscription:  %s (%s)\n' "$NAME" "$SUBSCRIPTION"
+printf '  tenant:        %s\n' "$TENANT"
+printf '  caller:        %s\n' "$CALLER"
+printf '  config:        %s\n' "$CONFIG_FILE"
+
 RES=$(node -e "try{const a=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));console.log(Array.isArray(a)?a.length:1)}catch{console.log('?')}" "$LATEST")
 EVS=$(node -e "try{const a=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));const arr=Array.isArray(a)?a:[a];let n=0;for(const d of arr)n+=(d.evaluations||[]).length;console.log(n)}catch{console.log('?')}" "$LATEST")
 
-printf '  cache:         %s\n' "$STATUS"
 printf '  last run:      %s (%s)\n' "$LABEL" "$(basename "$LATEST" .json)"
 printf '  cached:        %s resources, %s evaluations\n' "$RES" "$EVS"

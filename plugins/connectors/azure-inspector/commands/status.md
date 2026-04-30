@@ -30,7 +30,7 @@ azure-inspector
 
 ## Status values
 
-- `ready` - config exists and Azure CLI can read the subscription
+- `ready` - config exists, Azure CLI can read the subscription, and cached findings are absent or recent
 - `not-configured` - setup has not run
 - `credentials-expired-or-subscription-inaccessible` - `az account show` failed for the configured subscription
 - `stale` - last run is older than 7 days
