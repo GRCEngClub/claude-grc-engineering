@@ -3,6 +3,10 @@
 # This workflow keeps grc-data/metrics/ current for the reporting flows added
 # by PR #54. It opens a review PR by default so humans can verify generated
 # snapshots before they become leadership-reporting inputs.
+#
+# Prerequisite: this template expects the claude-grc-engineering toolkit to be
+# present in the adopting repo, including:
+# plugins/grc-engineer/scripts/record-automation-metrics.js
 name: GRC automation metrics snapshot
 
 on:
@@ -30,15 +34,18 @@ env:
   # measurement_scope: tooling-capability for derived baselines and
   # measurement_scope: operator-observed for manual counts.
   METRICS_CONFIG: ./automation-metrics.yaml
+  WINDOW_LABEL_INPUT: ${{ github.event.inputs.window_label || '' }}
 
 jobs:
   snapshot:
     name: Record automation metric snapshots
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
-      - uses: actions/setup-node@v4
+      # actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '20'
 
@@ -49,7 +56,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          WINDOW_LABEL="${{ github.event.inputs.window_label || '' }}"
+          WINDOW_LABEL="$WINDOW_LABEL_INPUT"
           if [ -z "$WINDOW_LABEL" ]; then
             WINDOW_LABEL="$(date -u +'%G-W%V')"
           fi
@@ -62,14 +69,16 @@ jobs:
         run: git diff -- grc-data/metrics/
 
       - name: Upload generated snapshots for review
-        uses: actions/upload-artifact@v4
+        # actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: grc-automation-metrics
           path: grc-data/metrics/
           if-no-files-found: warn
 
       - name: Open review PR if snapshots changed
-        uses: peter-evans/create-pull-request@v6
+        # peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c
         with:
           commit-message: 'chore(grc): record automation metric snapshots'
           title: 'chore(grc): record automation metric snapshots'
