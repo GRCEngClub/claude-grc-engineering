@@ -158,7 +158,7 @@ const STACK_PROFILES = [
   {
     id: 'github_repositories',
     label: 'GitHub repositories',
-    matches: ['github', 'github repo', 'github repositories', 'repository', 'repositories'],
+    matches: ['github', 'github repo', 'github repositories', 'github repository'],
     controlIds: ['access_control_account_management', 'vulnerability_management', 'logging_and_monitoring'],
     questions: [
       {
