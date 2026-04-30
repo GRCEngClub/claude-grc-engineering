@@ -205,7 +205,7 @@ SCF data is fetched from [`grcengclub.github.io/scf-api`](https://grcengclub.git
 - [`docs/FRAMEWORK-COVERAGE.md`](docs/FRAMEWORK-COVERAGE.md): auto-generated status of all 249 SCF-mapped frameworks — which have plugins, at what depth
 - [`docs/GRC-DATA.md`](docs/GRC-DATA.md): user-owned `grc-data/` contracts for metrics, risks, exceptions, vendors, and policies
 - [`docs/SCF-ATTRIBUTION.md`](docs/SCF-ATTRIBUTION.md): SCF licensing and usage
-- [`docs/ENTERPRISE-DEPLOYMENT.md`](docs/ENTERPRISE-DEPLOYMENT.md): AWS Bedrock and Google Vertex AI configuration
+- [`docs/ENTERPRISE-DEPLOYMENT.md`](docs/ENTERPRISE-DEPLOYMENT.md): AWS Bedrock, Claude Platform on AWS, and Google Vertex AI deployment guidance
 - [`schemas/finding.schema.json`](schemas/finding.schema.json): the data contract
 
 ## Enterprise deployment
