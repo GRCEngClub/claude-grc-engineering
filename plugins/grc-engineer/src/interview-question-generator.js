@@ -347,7 +347,9 @@ function mapControls(controlIds, frameworks, crosswalk) {
 
 function getFrameworkFallbackValues(control, framework) {
   if (framework === 'fedramp' && control.nist_800_53) {
-    return control.nist_800_53.map(controlId => `(via NIST 800-53) ${controlId}`);
+    return control.nist_800_53
+      .filter(controlId => typeof controlId === 'string')
+      .map(controlId => `(via NIST 800-53) ${controlId}`);
   }
   return null;
 }

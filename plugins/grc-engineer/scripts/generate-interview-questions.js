@@ -25,7 +25,14 @@ function parseArgs(argv) {
     } else if (arg.startsWith('--format=')) {
       options.format = arg.slice('--format='.length).toLowerCase();
     } else if (arg.startsWith('--limit=')) {
-      options.limit = arg.slice('--limit='.length);
+      const rawLimit = arg.slice('--limit='.length);
+      const parsedLimit = Number.parseInt(rawLimit, 10);
+      if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
+        console.error(`Invalid --limit value: "${rawLimit}". Using default limit of 12.`);
+      } else if (parsedLimit > 50) {
+        console.error(`--limit=${rawLimit} exceeds the maximum of 50. Using 50.`);
+      }
+      options.limit = rawLimit;
     } else {
       positional.push(arg);
     }
