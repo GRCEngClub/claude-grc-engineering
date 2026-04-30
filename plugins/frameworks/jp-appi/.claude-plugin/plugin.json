@@ -1,0 +1,19 @@
+{
+  "name": "jp-appi",
+  "description": "Japan APPI - Reference plugin with evidence checklist, scope determination, and SCF-backed gap assessment. Level up to Full by adding framework-specific workflow commands.",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "apac-jpn-ppi-2020",
+    "display_name": "Japan - Act on the Protection of Personal Information (2020)",
+    "region": "APAC",
+    "country": "JP",
+    "depth": "reference",
+    "scf_controls_mapped": 58,
+    "framework_controls_mapped": 134,
+    "industry": [],
+    "regulator": "Personal Information Protection Commission (PPC), Japan"
+  }
+}
