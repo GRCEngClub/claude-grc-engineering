@@ -246,6 +246,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "snowflake-inspector",
+      "source": "./plugins/connectors/snowflake-inspector",
+      "description": "GRC connector for Snowflake: MFA, network policies, masking/row access policies, session timeout, and retention to v1 finding contract",
+      "version": "0.1.0"
+    },
+    {
       "name": "okta-inspector",
       "source": "./plugins/connectors/okta-inspector",
       "description": "GRC connector for Okta: password/MFA/session policies, inactive users, admin factor enrollment \u2192 v1 finding contract",
