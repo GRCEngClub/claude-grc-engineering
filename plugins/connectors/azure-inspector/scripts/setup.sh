@@ -33,12 +33,14 @@ EOF
 fi
 
 AZ_VERSION=$(az version --query '"azure-cli"' -o tsv 2>/dev/null || az --version 2>/dev/null | head -1 | awk '{print $NF}')
+ERR_FILE=$(mktemp "${TMPDIR:-/tmp}/azure-inspector-setup.XXXXXX")
+trap 'rm -f "$ERR_FILE"' EXIT
 
-if ! ACCOUNT_JSON=$(az account show --only-show-errors -o json 2>/tmp/azure-setup.err); then
+if ! ACCOUNT_JSON=$(az account show --only-show-errors -o json 2>"$ERR_FILE"); then
   cat >&2 <<EOF
 [azure-inspector:setup] No active Azure account.
 
-$(cat /tmp/azure-setup.err)
+$(cat "$ERR_FILE")
 
 Fix:
   az login

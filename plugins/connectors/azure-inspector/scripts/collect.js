@@ -64,9 +64,11 @@ async function main(argv) {
 
   const counters = { pass: 0, fail: 0, inconclusive: 0, not_applicable: 0, skipped: 0 };
   const sev = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
+  const failSev = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
   for (const d of findings) for (const e of d.evaluations) {
     counters[e.status] = (counters[e.status] || 0) + 1;
     if (e.severity) sev[e.severity] = (sev[e.severity] || 0) + 1;
+    if (e.status === 'fail' && e.severity) failSev[e.severity] = (failSev[e.severity] || 0) + 1;
   }
 
   const manifest = {
@@ -81,11 +83,12 @@ async function main(argv) {
     evaluations: findings.reduce((n, d) => n + d.evaluations.length, 0),
     counters,
     severities: sev,
+    failing_severities: failSev,
     errors: errors.length
   };
   await fs.appendFile(RUNS_LOG, JSON.stringify(manifest) + '\n');
 
-  const summary = `${SOURCE}: ${findings.length} resources, ${manifest.evaluations} evaluations, ${counters.fail || 0} failing (${sev.critical || 0} critical, ${sev.high || 0} high, ${sev.medium || 0} medium).`;
+  const summary = `${SOURCE}: ${findings.length} resources, ${manifest.evaluations} evaluations, ${counters.fail || 0} failing (${failSev.critical || 0} critical, ${failSev.high || 0} high, ${failSev.medium || 0} medium).`;
   if (args.output === 'json') process.stdout.write(JSON.stringify({ run_id: runId, cache_path: cachePath, summary: manifest, errors }, null, 2) + '\n');
   else if (args.output !== 'silent') {
     process.stdout.write(summary + '\n');
@@ -108,7 +111,7 @@ const serviceHandlers = {
 
     try {
       const defaults = await azJson(['ad', 'user', 'list', '--filter', "userType eq 'Member' and accountEnabled eq true", '--query', '[0:25].{id:id,userPrincipalName:userPrincipalName}', '--output', 'json']);
-      evaluations.push(defaults.length >= 0
+      evaluations.push(defaults.length > 0
         ? { control_framework: 'SCF', control_id: 'IAC-01.1', status: 'inconclusive', severity: 'medium', message: 'Azure CLI cannot determine per-user MFA or Conditional Access posture from this read-only query. Verify Entra ID authentication methods and Conditional Access policies in Microsoft Graph or the portal.' }
         : { control_framework: 'SCF', control_id: 'IAC-01.1', status: 'inconclusive', severity: 'medium', message: 'No Entra user data returned.' });
     } catch (err) {

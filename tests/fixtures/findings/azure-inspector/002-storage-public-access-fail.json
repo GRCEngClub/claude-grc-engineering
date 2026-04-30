@@ -16,7 +16,7 @@
       "control_framework": "SCF",
       "control_id": "DCH-01.2",
       "status": "fail",
-      "severity": "high",
+      "severity": "critical",
       "message": "Blob public access is allowed at the storage account level.",
       "remediation": {
         "summary": "Set allowBlobPublicAccess=false and review container ACLs.",
