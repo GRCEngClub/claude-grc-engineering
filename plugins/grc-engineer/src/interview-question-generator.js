@@ -328,7 +328,12 @@ function mapControls(controlIds, frameworks, crosswalk) {
     const mappings = frameworks.flatMap(framework => {
       const values = control[framework] || getFrameworkFallbackValues(control, framework);
       if (!values) return [];
-      if (Array.isArray(values)) return values.map(value => `${displayFramework(framework)} ${formatControlValue(value)}`);
+      if (Array.isArray(values)) {
+        return values
+          .filter(value => typeof value === 'string')
+          .map(value => `${displayFramework(framework)} ${formatControlValue(value)}`);
+      }
+      if (typeof values !== 'string') return [];
       return [`${displayFramework(framework)} ${formatControlValue(values)}`];
     });
 
