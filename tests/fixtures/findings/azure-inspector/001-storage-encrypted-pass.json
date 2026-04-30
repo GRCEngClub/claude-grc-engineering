@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "source": "azure-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-azure-pass",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "azure_storage_account",
+    "id": "prodstorage001",
+    "uri": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-prod/providers/Microsoft.Storage/storageAccounts/prodstorage001",
+    "region": "eastus",
+    "account_id": "00000000-0000-0000-0000-000000000000"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-05",
+      "status": "pass",
+      "severity": "info"
+    }
+  ]
+}
