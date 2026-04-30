@@ -1,0 +1,19 @@
+{
+  "name": "au-apra-cps-234",
+  "description": "APRA CPS 234 - Reference plugin with scope determination, evidence checklist, and SCF-backed gap assessment for information security.",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "apac-aus-ps-cps-234-2019",
+    "display_name": "Australia - Prudential Standard CPS 234 (2019)",
+    "region": "APAC",
+    "country": "AU",
+    "depth": "reference",
+    "scf_controls_mapped": 52,
+    "framework_controls_mapped": 38,
+    "industry": [],
+    "regulator": "Australian Prudential Regulation Authority (APRA)"
+  }
+}
