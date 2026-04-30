@@ -1,0 +1,27 @@
+{
+  "name": "us-sox",
+  "description": "Sarbanes-Oxley Act of 2002 (SOX) — Reference-depth plugin for ICFR scoping, IT General Control (ITGC) testing, and §302/§404/§906 evidence preparation. Frames SOX as the governance layer over ICFR; security work flows in via ITGCs and SOC 1 reliance on vendor systems.",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "usa-federal-law-sox-2002",
+    "display_name": "US Sarbanes-Oxley Act of 2002 (SOX)",
+    "region": "Americas",
+    "country": "US",
+    "depth": "reference",
+    "scf_controls_mapped": 4,
+    "framework_controls_mapped": 17,
+    "industry": ["public-companies", "financial-reporting", "audit", "icfr"],
+    "regulator": "SEC, PCAOB (auditor oversight), DOJ (criminal enforcement)",
+    "citations": [
+      "Public Law 107-204 (Sarbanes-Oxley Act of 2002)",
+      "15 U.S.C. §§ 7201 et seq.",
+      "15 U.S.C. § 7241 (§302 certification)",
+      "15 U.S.C. § 7262 (§404 management assessment + auditor attestation)",
+      "18 U.S.C. § 1350 (§906 criminal certification)",
+      "18 U.S.C. § 1519 (§802 document destruction)"
+    ]
+  }
+}

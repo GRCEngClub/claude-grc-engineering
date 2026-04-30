@@ -261,6 +261,12 @@
       "source": "./plugins/frameworks/nist-csf-20",
       "description": "NIST Cybersecurity Framework (v2.0) \u2014 reference-depth plugin backed by the SCF crosswalk (250 SCF \u2192 134 framework controls).",
       "version": "0.1.0"
+    },
+    {
+      "name": "us-sox",
+      "source": "./plugins/frameworks/us-sox",
+      "description": "US Sarbanes-Oxley Act of 2002 (SOX) \u2014 Reference-depth plugin for ICFR scoping, IT General Control (ITGC) testing, and \u00a7302/\u00a7404/\u00a7906 evidence preparation. Backed by the SCF crosswalk (4 SCF \u2192 17 framework controls).",
+      "version": "0.1.0"
     }
   ]
 }
