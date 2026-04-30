@@ -98,9 +98,9 @@ testing, materiality, third-party reliance, and notification readiness.
 - `/au-apra-cps-234:assess` - run a gap assessment
 - `/au-apra-cps-234:evidence-checklist` - enumerate evidence requirements
 
-All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID
-`apac-aus-ps-cps-234-2019` for the control-by-control mechanics, and wrap the
-results in CPS 234-specific terminology.
+`/au-apra-cps-234:assess` delegates to `/grc-engineer:gap-assessment` with SCF
+framework ID `apac-aus-ps-cps-234-2019` for the control-by-control mechanics,
+and wraps the results in CPS 234-specific terminology.
 
 ## Levelling Up To Full
 
