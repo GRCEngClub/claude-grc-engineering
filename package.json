@@ -12,6 +12,7 @@
     "generate-policy": "node plugins/grc-engineer/scripts/generate-policy.js",
     "review-pr": "node plugins/grc-engineer/scripts/review-pr.js",
     "collect-evidence": "node plugins/grc-engineer/scripts/collect-evidence.js",
+    "generate-interview-questions": "node plugins/grc-engineer/scripts/generate-interview-questions.js",
     "record-automation-metrics": "node plugins/grc-engineer/scripts/record-automation-metrics.js",
     "monitor-continuous": "node plugins/grc-engineer/scripts/monitor-continuous.js",
     "dashboard:compliance-posture": "node plugins/dashboards/compliance-posture/scripts/serve.js",
