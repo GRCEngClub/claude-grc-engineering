@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "source": "datadog-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-datadog-inconclusive",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "datadog_organization",
+    "id": "datadoghq.com",
+    "uri": "https://app.datadoghq.com/",
+    "region": null,
+    "account_id": "datadoghq.com"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-04",
+      "status": "inconclusive",
+      "severity": "info",
+      "message": "Datadog SSO enforcement could not be evaluated from available API permissions: Forbidden."
+    }
+  ]
+}
