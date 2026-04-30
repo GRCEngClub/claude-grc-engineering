@@ -1,0 +1,53 @@
+name: Socket Basics
+
+# SAST, secret, dependency, and container-aware security scanning through
+# Socket Basics. The scanner is secret-gated so public PRs and local forks do
+# not fail when the repository has not configured Socket Enterprise credentials.
+#
+# Closes https://github.com/GRCEngClub/claude-grc-engineering/issues/76
+
+on:
+  pull_request:
+    branches: [main]
+  merge_group:
+    types: [checks_requested]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    env:
+      SOCKET_ORG: ${{ secrets.SOCKET_ORG }}
+      SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Skip when Socket credentials are not configured
+        if: ${{ env.SOCKET_SECURITY_API_KEY == '' }}
+        run: echo "SOCKET_SECURITY_API_KEY is not configured; skipping Socket Basics."
+
+      - name: Run Socket Basics
+        if: ${{ env.SOCKET_SECURITY_API_KEY != '' }}
+        uses: SocketDev/socket-basics@fe6259f624e25d30fddf87fd7c255545295cab94 # v2.0.3
+        env:
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          socket_org: ${{ env.SOCKET_ORG }}
+          socket_security_api_key: ${{ env.SOCKET_SECURITY_API_KEY }}
+          all_languages_enabled: 'true'
+          secret_scanning_enabled: 'true'
