@@ -40,6 +40,7 @@ Manual mode (any framework alias):
   --controls-total=<n>             Total in-scope controls
   --controls-automated=<n>         Controls with automated evidence
   --controls-manual=<n>            Optional manual count (otherwise derived)
+  --from-framework-metadata        Derive controls-total from plugin framework_metadata
 
 Shared options:
   --config=<path>                  YAML or JSON batch config
@@ -65,12 +66,13 @@ Batch config shape:
     - framework: fedramp-moderate
       provider: aws
     - framework: soc2
-      controls_total: 64
       controls_automated: 22
+      from_framework_metadata: true
 
 Examples:
   node plugins/grc-engineer/scripts/record-automation-metrics.js fedramp-moderate aws --window-label=2026-W16
   node plugins/grc-engineer/scripts/record-automation-metrics.js soc2 --controls-total=64 --controls-automated=22 --window-label=2026-W16
+  node plugins/grc-engineer/scripts/record-automation-metrics.js soc2 --controls-automated=22 --from-framework-metadata --window-label=2026-W16
   node plugins/grc-engineer/scripts/record-automation-metrics.js --config=plugins/grc-engineer/examples/automation-metrics.yaml --window-label=current-week`;
 }
 
@@ -140,6 +142,7 @@ export function parseArgs(argv) {
     outDir: DEFAULT_OUT_DIR,
     dryRun: false,
     fromFedRAMP: null,
+    fromFrameworkMetadata: false,
     configPath: null,
     help: false,
     provided: new Set()
@@ -238,6 +241,10 @@ export function parseArgs(argv) {
         provided.add('fromFedRAMP');
         break;
       }
+      case 'from-framework-metadata':
+        opts.fromFrameworkMetadata = true;
+        provided.add('fromFrameworkMetadata');
+        break;
       case 'help':
       case 'h':
         opts.help = true;
@@ -257,6 +264,66 @@ export function parseArgs(argv) {
   }
 
   return opts;
+}
+
+async function readJsonFile(filePath) {
+  const raw = await fs.readFile(filePath, 'utf8');
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      fail(`Could not parse JSON in ${path.relative(REPO_ROOT, filePath)}: ${err.message}`);
+    }
+    throw err;
+  }
+}
+
+async function loadFrameworkMetadata(frameworkAlias) {
+  const normalized = normalizeFrameworkAlias(frameworkAlias);
+  const marketplacePath = path.join(REPO_ROOT, '.claude-plugin', 'marketplace.json');
+  const marketplace = await readJsonFile(marketplacePath);
+  const plugins = Array.isArray(marketplace.plugins) ? marketplace.plugins : [];
+
+  for (const entry of plugins) {
+    const entryName = normalizeFrameworkAlias(entry.name);
+    const source = entry.source ? path.resolve(REPO_ROOT, entry.source) : null;
+    if (!source) {
+      continue;
+    }
+
+    const manifestPath = path.join(source, '.claude-plugin', 'plugin.json');
+    let manifest;
+    try {
+      manifest = await readJsonFile(manifestPath);
+    } catch (err) {
+      if (err && err.code === 'ENOENT') {
+        continue;
+      }
+      throw err;
+    }
+
+    const metadata = manifest.framework_metadata;
+    if (!metadata || typeof metadata !== 'object') {
+      continue;
+    }
+
+    const candidates = [
+      entryName,
+      normalizeFrameworkAlias(manifest.name),
+      normalizeFrameworkAlias(metadata.scf_framework_id),
+      normalizeFrameworkAlias(metadata.display_name)
+    ].filter(Boolean);
+
+    if (candidates.includes(normalized)) {
+      return {
+        marketplaceName: entry.name,
+        manifestPath,
+        metadata
+      };
+    }
+  }
+
+  fail(`No framework plugin metadata found for ${frameworkAlias}`);
 }
 
 function getIsoWeekData(isoString) {
@@ -393,9 +460,27 @@ export async function deriveCounts(opts) {
 
   let total = opts.controlsTotal;
   let manual = opts.controlsManual;
+  let metadataDerivation = null;
+
+  if (total === null && opts.fromFrameworkMetadata) {
+    const framework = await loadFrameworkMetadata(opts.framework);
+    const frameworkTotal = Number(framework.metadata.framework_controls_mapped);
+    if (!Number.isFinite(frameworkTotal) || !Number.isInteger(frameworkTotal) || frameworkTotal < 0) {
+      fail(`framework_metadata.framework_controls_mapped is missing or invalid for ${opts.framework}`);
+    }
+    total = frameworkTotal;
+    metadataDerivation = {
+      derivation: 'framework-metadata',
+      marketplace_plugin: framework.marketplaceName,
+      manifest_path: path.relative(REPO_ROOT, framework.manifestPath),
+      scf_framework_id: framework.metadata.scf_framework_id,
+      framework_display_name: framework.metadata.display_name,
+      framework_controls_mapped: frameworkTotal
+    };
+  }
 
   if (total === null && manual === null) {
-    fail('Manual mode requires either --controls-total=<n> or --controls-manual=<n>');
+    fail('Manual mode requires --controls-total=<n>, --controls-manual=<n>, or --from-framework-metadata');
   }
   if (total === null) {
     total = opts.controlsAutomated + manual;
@@ -419,12 +504,13 @@ export async function deriveCounts(opts) {
     manual,
     coveragePercent: total > 0 ? Math.round((opts.controlsAutomated / total) * 100) : 0,
     measurementScope: 'operator-observed',
-    defaultSource: `${DEFAULT_SOURCE}/manual`,
+    defaultSource: metadataDerivation ? `${DEFAULT_SOURCE}/framework-metadata` : `${DEFAULT_SOURCE}/manual`,
     metadata: {
-      derivation: 'manual',
+      derivation: metadataDerivation ? 'operator-observed-with-framework-metadata-total' : 'manual',
       total_controls: total,
       automated_controls: opts.controlsAutomated,
-      manual_controls: manual
+      manual_controls: manual,
+      ...(metadataDerivation ? { total_source: metadataDerivation } : {})
     }
   };
 }
@@ -571,6 +657,7 @@ function normalizeConfigOptions(input, baseDir) {
     outDir: resolveConfigPath(baseDir, getConfigValue(input, 'outDir', 'out_dir')),
     dryRun: getConfigValue(input, 'dryRun', 'dry_run'),
     fromFedRAMP: normalizeFromFedRAMPValue(getConfigValue(input, 'fromFedRAMP', 'from_fedramp_baseline')),
+    fromFrameworkMetadata: getConfigValue(input, 'fromFrameworkMetadata', 'from_framework_metadata'),
     dimensions: { ...dimensions }
   };
 
@@ -600,6 +687,9 @@ function normalizeConfigOptions(input, baseDir) {
   }
   if (normalized.dryRun !== undefined) {
     normalized.dryRun = Boolean(normalized.dryRun);
+  }
+  if (normalized.fromFrameworkMetadata !== undefined) {
+    normalized.fromFrameworkMetadata = Boolean(normalized.fromFrameworkMetadata);
   }
 
   return normalized;
@@ -646,7 +736,8 @@ function extractCliOverrides(opts) {
     'subjectId',
     'outDir',
     'dryRun',
-    'fromFedRAMP'
+    'fromFedRAMP',
+    'fromFrameworkMetadata'
   ];
 
   for (const key of keys) {
@@ -714,7 +805,8 @@ function buildBatchEntries(cliOpts, batchConfig) {
         dimensions: {},
         outDir: DEFAULT_OUT_DIR,
         dryRun: false,
-        fromFedRAMP: null
+        fromFedRAMP: null,
+        fromFrameworkMetadata: false
       }, defaults),
       normalizedEntry
     );

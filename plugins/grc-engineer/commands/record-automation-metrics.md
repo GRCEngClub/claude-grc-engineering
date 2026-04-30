@@ -22,7 +22,10 @@ Use it in one of three modes:
    proof that your program is already running every automation in production.
 2. **Manual mode** for any framework alias, where you provide the total and
    automated counts directly. Use this for operator-observed reporting.
-3. **Batch mode** with `--config=<path>`, where a scheduler can write multiple
+3. **Framework metadata total mode** for framework plugins that publish
+   `framework_metadata.framework_controls_mapped`, where you provide only the
+   operator-observed automated count and the command derives the total.
+4. **Batch mode** with `--config=<path>`, where a scheduler can write multiple
    framework snapshots in one run.
 
 Metric rows follow [`docs/GRC-DATA.md`](../../../docs/GRC-DATA.md) and
@@ -45,6 +48,8 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../docs/GRC-DATA.md) and
   `--controls-manual`
 - `--controls-automated=<n>` - Required for manual mode
 - `--controls-manual=<n>` - Optional manual count override
+- `--from-framework-metadata` - Derive `controls_total` from the framework
+  plugin manifest, leaving `controls_automated` operator-observed
 - `--recorded-at=<iso8601>` - Observation timestamp (defaults to now)
 - `--window-start=<iso8601>` - Optional reporting window start
 - `--window-end=<iso8601>` - Optional reporting window end
@@ -89,6 +94,9 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../docs/GRC-DATA.md) and
 
 # Record an operator-observed SOC 2 snapshot
 /grc-engineer:record-automation-metrics soc2 --controls-total=64 --controls-automated=22 --window-label=2026-W16
+
+# Derive the total from SOC 2 plugin metadata, but keep the automated count observed
+/grc-engineer:record-automation-metrics soc2 --controls-automated=22 --from-framework-metadata --window-label=2026-W16
 
 # Add an extra business-unit dimension
 /grc-engineer:record-automation-metrics iso27001 --controls-total=93 --controls-automated=40 --dimension=business_unit=platform --window-label=2026-W16
