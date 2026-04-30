@@ -47,6 +47,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "vanta-bridge",
+      "source": "./plugins/bridges/vanta-bridge",
+      "description": "Normalize Vanta MCP/plugin outputs into v1 Findings for GRC Engineering workflows.",
+      "version": "0.1.0"
+    },
+    {
       "name": "teach-me",
       "source": "./plugins/teach-me",
       "description": "Socratic primer + drill plugin for new-to-GRC practitioners. Get up to speed on a framework, control, or role without already knowing it.",
