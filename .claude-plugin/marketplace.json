@@ -297,6 +297,12 @@
       "source": "./plugins/frameworks/au-apra-cps-234",
       "description": "APRA CPS 234 reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
       "version": "0.1.0"
+    },
+    {
+      "name": "us-nerc-cip",
+      "source": "./plugins/frameworks/us-nerc-cip",
+      "description": "NERC CIP reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
+      "version": "0.1.0"
     }
   ]
 }

@@ -18,6 +18,8 @@ exclude = [
   "^https://hooks\\.slack\\.com/\\.\\.\\.",
   # LinkedIn gates most profile URLs behind auth
   "^https://(www\\.)?linkedin\\.com",
+  # Shields.io badges are decorative and can time out independently of docs link health
+  "^https://img\\.shields\\.io/coderabbit/prs/",
   # GitHub org pages that require auth (teams, private projects) bounce to login or 404
   "^https://github\\.com/orgs/.*/teams/",
   "^https://github\\.com/orgs/.*/projects/",
