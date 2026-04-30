@@ -1,0 +1,29 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+
+  - repo: local
+    hooks:
+      - id: markdownlint-cli2
+        name: markdownlint-cli2
+        entry: markdownlint-cli2
+        language: node
+        additional_dependencies: ["markdownlint-cli2@0.18.1"]
+        types: [markdown]
+
+      - id: validate-finding-fixtures
+        name: validate finding fixtures
+        entry: tests/pre-commit-validate-findings.sh
+        language: node
+        additional_dependencies: ["ajv-cli@5.0.0", "ajv-formats@3.0.1"]
+        files: ^tests/fixtures/findings/.*\.json$
+        pass_filenames: true
