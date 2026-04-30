@@ -291,6 +291,12 @@
       "source": "./plugins/frameworks/sg-mas-trm",
       "description": "Singapore MAS TRM reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
       "version": "0.1.0"
+    },
+    {
+      "name": "au-apra-cps-234",
+      "source": "./plugins/frameworks/au-apra-cps-234",
+      "description": "APRA CPS 234 reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
+      "version": "0.1.0"
     }
   ]
 }
