@@ -181,25 +181,25 @@
     {
       "name": "aws-inspector",
       "source": "./plugins/connectors/aws-inspector",
-      "description": "GRC connector for AWS: IAM, S3, CloudTrail, EBS compliance checks → v1 finding contract",
+      "description": "GRC connector for AWS: IAM, S3, CloudTrail, EBS compliance checks \u2192 v1 finding contract",
       "version": "0.1.0"
     },
     {
       "name": "github-inspector",
       "source": "./plugins/connectors/github-inspector",
-      "description": "GRC connector for GitHub: branch protection, secret scanning, Dependabot, code scanning → v1 finding contract",
+      "description": "GRC connector for GitHub: branch protection, secret scanning, Dependabot, code scanning \u2192 v1 finding contract",
       "version": "0.1.0"
     },
     {
       "name": "gcp-inspector",
       "source": "./plugins/connectors/gcp-inspector",
-      "description": "GRC connector for Google Cloud: IAM, Cloud Storage, audit logs, KMS rotation, Compute OS Login → v1 finding contract",
+      "description": "GRC connector for Google Cloud: IAM, Cloud Storage, audit logs, KMS rotation, Compute OS Login \u2192 v1 finding contract",
       "version": "0.1.0"
     },
     {
       "name": "okta-inspector",
       "source": "./plugins/connectors/okta-inspector",
-      "description": "GRC connector for Okta: password/MFA/session policies, inactive users, admin factor enrollment → v1 finding contract",
+      "description": "GRC connector for Okta: password/MFA/session policies, inactive users, admin factor enrollment \u2192 v1 finding contract",
       "version": "0.1.0"
     },
     {
@@ -217,43 +217,49 @@
     {
       "name": "singapore-pdpa",
       "source": "./plugins/frameworks/singapore-pdpa",
-      "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) — reference-depth plugin backed by the SCF crosswalk (30 SCF → 14 framework controls).",
+      "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) \u2014 reference-depth plugin backed by the SCF crosswalk (30 SCF \u2192 14 framework controls).",
       "version": "0.1.0"
     },
     {
       "name": "us-finra",
       "source": "./plugins/frameworks/us-finra",
-      "description": "FINRA Broker-Dealer Cybersecurity Guidance — stub-depth plugin backed by the SCF crosswalk (17 SCF → 39 framework controls).",
+      "description": "FINRA Broker-Dealer Cybersecurity Guidance \u2014 stub-depth plugin backed by the SCF crosswalk (17 SCF \u2192 39 framework controls).",
       "version": "0.1.0"
     },
     {
       "name": "cyber-essentials-plus",
       "source": "./plugins/frameworks/cyber-essentials-plus",
-      "description": "UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell — gap assessments, evidence checklists, remediation plans, and cross-framework mapping to ISO 27001 and NIST CSF.",
+      "description": "UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell \u2014 gap assessments, evidence checklists, remediation plans, and cross-framework mapping to ISO 27001 and NIST CSF.",
       "version": "0.1.0"
     },
     {
       "name": "ch-fadp",
       "source": "./plugins/frameworks/ch-fadp",
-      "description": "Swiss Federal Act on Data Protection (nFADP) — stub-depth plugin backed by the SCF crosswalk (35 SCF → 90 framework controls).",
+      "description": "Swiss Federal Act on Data Protection (nFADP) \u2014 stub-depth plugin backed by the SCF crosswalk (35 SCF \u2192 90 framework controls).",
       "version": "0.1.0"
     },
     {
       "name": "ind-dpdpa",
       "source": "./plugins/frameworks/ind-dpdpa",
-      "description": "India Digital Personal Data Protection Act, 2023 — reference-depth plugin with scope determination, evidence checklist, and breach-process workflow backed by the SCF crosswalk.",
+      "description": "India Digital Personal Data Protection Act, 2023 \u2014 reference-depth plugin with scope determination, evidence checklist, and breach-process workflow backed by the SCF crosswalk.",
       "version": "0.1.0"
     },
     {
       "name": "poam-automation",
       "source": "./plugins/connectors/poam-automation",
-      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: converts vulnerability scans into FedRAMP POA&M Excel and emits NIST-800-53-r5 (SI-2) findings → v1 finding contract.",
+      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: converts vulnerability scans into FedRAMP POA&M Excel and emits NIST-800-53-r5 (SI-2) findings \u2192 v1 finding contract.",
+      "version": "0.1.0"
+    },
+    {
+      "name": "eu-nis2",
+      "source": "./plugins/frameworks/eu-nis2",
+      "description": "EU NIS2 Directive (2022) \u2014 reference-depth plugin backed by the SCF crosswalk (68 SCF \u2192 30 framework controls).",
       "version": "0.1.0"
     },
     {
       "name": "nist-csf-20",
       "source": "./plugins/frameworks/nist-csf-20",
-      "description": "NIST Cybersecurity Framework (v2.0) — reference-depth plugin backed by the SCF crosswalk (250 SCF → 134 framework controls).",
+      "description": "NIST Cybersecurity Framework (v2.0) \u2014 reference-depth plugin backed by the SCF crosswalk (250 SCF \u2192 134 framework controls).",
       "version": "0.1.0"
     }
   ]
