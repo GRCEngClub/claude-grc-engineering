@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "source": "splunk-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-splunk-pass",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "splunk_index",
+    "id": "main",
+    "uri": "https://splunk.example.com:8089",
+    "region": null,
+    "account_id": "https://splunk.example.com:8089"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "LOG-05",
+      "status": "pass",
+      "severity": "info",
+      "message": "Splunk index 'main' retention is 90 day(s)."
+    }
+  ]
+}

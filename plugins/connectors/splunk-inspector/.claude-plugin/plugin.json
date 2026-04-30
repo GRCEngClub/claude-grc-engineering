@@ -1,0 +1,9 @@
+{
+  "name": "splunk-inspector",
+  "version": "0.1.0",
+  "description": "GRC connector for Splunk: evaluates index retention, RBAC roles, audit-source coverage, saved-search ACLs, and user authentication signals. Emits findings conforming to schemas/finding.schema.json v1.",
+  "author": { "name": "GRC Engineering Club Contributors" },
+  "license": "MIT",
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "keywords": ["grc", "compliance", "splunk", "logging", "siem", "scf", "connector"]
+}
