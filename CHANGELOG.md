@@ -4,6 +4,28 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+## [0.0.4] — 2026-04-30
+
+### Added
+
+- **Tier-2 connector wave.** Added Azure, Slack, Datadog, Drata, Splunk, CrowdStrike, Tenable, and Snowflake inspector plugins with setup/status/collect commands, expert skills, v1 Finding fixtures, and marketplace registration.
+- **Vanta bridge.** Added `vanta-bridge` to normalize Vanta MCP/plugin outputs into v1 Findings, including command metadata and marketplace registration.
+- **Google Developer Knowledge API source.** Added `gcp-docs` under `plugins/knowledge-sources/` for API-key-backed Google documentation search, citation lookup, grounded query answers, and local 7-day caching. Closes [#46](https://github.com/GRCEngClub/claude-grc-engineering/issues/46).
+- **Socket Basics security workflow.** Added a secret-gated, SHA-pinned Socket Basics workflow for PR/build security scanning. Closes [#76](https://github.com/GRCEngClub/claude-grc-engineering/issues/76).
+- **Additional reference framework plugins.** Added Japan APPI, Singapore MAS TRM, APRA CPS 234, and NERC CIP reference plugins with marketplace registration.
+- **Assessment and automation workflows.** Added the assessment interview question generator, scheduled automation metrics snapshot workflow, and automation-total derivation from framework metadata.
+- **Claude Cowork and AWS Claude Platform docs.** Added compatibility/deployment guidance for Claude Cowork and AWS Claude Platform environments.
+
+### Changed
+
+- **Architecture v2 accepted.** Marked the Architecture v2 RFC accepted, including Amendment A1 decisions for bridges, knowledge sources, and the non-breaking directory-layout recommendation. Closes [#38](https://github.com/GRCEngClub/claude-grc-engineering/issues/38).
+- **Quickstart and marketplace expanded.** Registered the new connector, bridge, framework, and knowledge-source plugins in the marketplace and kept the quickstart plugin-selection guidance aligned with the growing toolkit.
+- **Lychee stability.** Excluded the PCAOB auditing standards URL that returns scraper-only 522 responses, preventing unrelated PRs from being blocked by an external regulator-site availability issue.
+
+### Closed as not planned
+
+- **FFIEC CAT and K-ISMS framework requests.** Closed [#18](https://github.com/GRCEngClub/claude-grc-engineering/issues/18) and [#22](https://github.com/GRCEngClub/claude-grc-engineering/issues/22) after validating that the requested `US-FFIEC-CAT` and `KR-K-ISMS` SCF framework IDs are not present in the current SCF index.
+
 ## [0.0.3] — 2026-04-30
 
 ### Added
