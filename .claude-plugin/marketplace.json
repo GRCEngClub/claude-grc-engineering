@@ -285,6 +285,12 @@
       "source": "./plugins/frameworks/jp-appi",
       "description": "Japan APPI reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
       "version": "0.1.0"
+    },
+    {
+      "name": "sg-mas-trm",
+      "source": "./plugins/frameworks/sg-mas-trm",
+      "description": "Singapore MAS TRM reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
+      "version": "0.1.0"
     }
   ]
 }
