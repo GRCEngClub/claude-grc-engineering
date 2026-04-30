@@ -204,6 +204,7 @@ SCF data is fetched from [`grcengclub.github.io/scf-api`](https://grcengclub.git
 ## Documentation
 
 - [`docs/QUICKSTART.md`](docs/QUICKSTART.md): zero to first gap report in 10 minutes
+- [`docs/CLAUDE-COWORK.md`](docs/CLAUDE-COWORK.md): Claude Cowork compatibility for file-oriented GRC workflows
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): pipeline model, plugin categories, extensibility
 - [`docs/ARCHITECTURE-V2-RFC.md`](docs/ARCHITECTURE-V2-RFC.md): proposed 5 new plugin categories — open for comment through 2026-05-02
 - [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md): add a connector, improve a framework plugin

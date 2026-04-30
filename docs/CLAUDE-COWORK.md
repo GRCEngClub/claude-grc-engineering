@@ -33,7 +33,7 @@ Claude Code or a terminal-backed environment when the workflow needs to execute:
 | `npm run test:contract` | Requires Node.js dependencies and shell execution |
 | Manifest validation | Requires Node.js dependencies and shell execution |
 | `/grc-engineer:monitor-continuous` | Emits scheduler artifacts and may run scripts |
-| OSCAL conversion commands | wrap external OSCAL tooling |
+| OSCAL conversion commands | Wraps external OSCAL tooling |
 
 If Cowork has shell execution available in your environment, the same command
 docs remain useful as runbooks. If it only has file access, ask Cowork to prepare
