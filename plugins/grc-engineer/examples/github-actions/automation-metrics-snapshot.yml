@@ -1,0 +1,96 @@
+# Copy to .github/workflows/grc-automation-metrics-snapshot.yml in your repo.
+#
+# This workflow keeps grc-data/metrics/ current for the reporting flows added
+# by PR #54. It opens a review PR by default so humans can verify generated
+# snapshots before they become leadership-reporting inputs.
+#
+# Prerequisite: this template expects the claude-grc-engineering toolkit to be
+# present in the adopting repo, including:
+# plugins/grc-engineer/scripts/record-automation-metrics.js
+name: GRC automation metrics snapshot
+
+on:
+  schedule:
+    # Weekly on Mondays at 06:00 UTC.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      window_label:
+        description: 'Reporting window label, for example 2026-W16. Defaults to current ISO week.'
+        required: false
+        type: string
+
+concurrency:
+  group: grc-automation-metrics-snapshot
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  # Copy plugins/grc-engineer/examples/automation-metrics.yaml to your repo
+  # root and edit it for your frameworks. The metric writer emits
+  # measurement_scope: tooling-capability for derived baselines and
+  # measurement_scope: operator-observed for manual counts.
+  METRICS_CONFIG: ./automation-metrics.yaml
+  WINDOW_LABEL_INPUT: ${{ github.event.inputs.window_label || '' }}
+
+jobs:
+  snapshot:
+    name: Record automation metric snapshots
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      # actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Record batch snapshot
+        run: |
+          set -euo pipefail
+
+          WINDOW_LABEL="$WINDOW_LABEL_INPUT"
+          if [ -z "$WINDOW_LABEL" ]; then
+            WINDOW_LABEL="$(date -u +'%G-W%V')"
+          fi
+
+          node plugins/grc-engineer/scripts/record-automation-metrics.js \
+            --config="$METRICS_CONFIG" \
+            --window-label="$WINDOW_LABEL"
+
+      - name: Show generated snapshot diff
+        run: git diff -- grc-data/metrics/
+
+      - name: Upload generated snapshots for review
+        # actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: grc-automation-metrics
+          path: grc-data/metrics/
+          if-no-files-found: warn
+
+      - name: Open review PR if snapshots changed
+        # peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c
+        with:
+          commit-message: 'chore(grc): record automation metric snapshots'
+          title: 'chore(grc): record automation metric snapshots'
+          body: |
+            Weekly automation metric snapshot for `grc-data/metrics/`.
+
+            Review checklist:
+            - Confirm the reporting window label matches the intended period.
+            - Confirm `measurement_scope: tooling-capability` rows are not presented as live operator-observed performance.
+            - Confirm `measurement_scope: operator-observed` counts were validated against the running environment.
+
+            This supports the PR #54 reporting intent: keep automation-history
+            snapshots fresh so `/report:automation-coverage` can show trends.
+          branch: bot/grc-automation-metrics
+          delete-branch: true

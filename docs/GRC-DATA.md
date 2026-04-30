@@ -132,3 +132,28 @@ node plugins/grc-engineer/scripts/record-automation-metrics.js \
   --config=plugins/grc-engineer/examples/automation-metrics.yaml \
   --window-label=current-week
 ```
+
+### Scheduled Automation Snapshots
+
+PR #54 introduced the reporting flows that consume automation-history metrics.
+To keep those reports useful without relying on someone to run the writer by
+hand, copy the scheduled GitHub Actions template at
+[`plugins/grc-engineer/examples/github-actions/automation-metrics-snapshot.yml`](../plugins/grc-engineer/examples/github-actions/automation-metrics-snapshot.yml)
+into `.github/workflows/` in the adopting repo.
+
+The template runs `record-automation-metrics.js` in batch mode with
+`--config=./automation-metrics.yaml`, uploads generated `grc-data/metrics/`
+files as an artifact, and opens a pull request when snapshots changed. Reviewers
+should check:
+
+- the `window.label` matches the intended reporting period
+- `measurement_scope: tooling-capability` rows are treated as toolkit coverage
+  potential, not as proof that automation ran in production
+- `measurement_scope: operator-observed` rows were validated against the target
+  environment before they feed leadership reporting
+- unexpected deletions or count swings are explained before merge
+
+Teams with mature controls around generated GRC data may change the final step
+to commit directly to the default branch. If they do, keep the artifact upload
+or another audit trail so reviewers can reconstruct what the scheduled run
+generated and when.
