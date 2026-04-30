@@ -1,0 +1,22 @@
+{
+  "name": "nist-csf-20",
+  "description": "NIST Cybersecurity Framework (v2.0) — Reference plugin with scope determination, evidence checklist, and SCF-backed gap assessment across the six Functions (GV/ID/PR/DE/RS/RC).",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "general-nist-csf-2-0",
+    "display_name": "NIST Cybersecurity Framework (v2.0)",
+    "region": "Global",
+    "country": "US",
+    "depth": "reference",
+    "scf_controls_mapped": 250,
+    "framework_controls_mapped": 134,
+    "industry": ["cross-sector", "critical-infrastructure", "federal-contractor", "private-sector"],
+    "regulator": "NIST (voluntary framework; not enforced — adopted as baseline by US federal agencies, sector regulators, and contracts)",
+    "citations": ["NIST CSF 2.0 (February 26, 2024)", "NIST CSF 2.0 Quick Start Guides (NIST SP 1300 series)", "Informative References to NIST SP 800-53 Rev. 5, ISO/IEC 27001:2022, CIS Controls v8"]
+  },
+  "commands": ["scope", "assess", "evidence-checklist"],
+  "skills": ["nist-csf-20-expert"]
+}
