@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "source": "azure-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-azure-fail",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "azure_storage_account",
+    "id": "publicstorage001",
+    "uri": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-prod/providers/Microsoft.Storage/storageAccounts/publicstorage001",
+    "region": "eastus",
+    "account_id": "00000000-0000-0000-0000-000000000000"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "DCH-01.2",
+      "status": "fail",
+      "severity": "high",
+      "message": "Blob public access is allowed at the storage account level.",
+      "remediation": {
+        "summary": "Set allowBlobPublicAccess=false and review container ACLs.",
+        "ref": "grc-engineer://generate-implementation/storage_public_access/azure",
+        "effort_hours": 0.25,
+        "automation": "auto_fixable"
+      }
+    }
+  ]
+}
