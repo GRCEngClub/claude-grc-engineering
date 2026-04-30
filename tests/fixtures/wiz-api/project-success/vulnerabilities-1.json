@@ -1,0 +1,34 @@
+{
+  "data": {
+    "vulnerabilities": {
+      "nodes": [
+        {
+          "id": "vuln-redacted-1",
+          "name": "CVE-2026-0001",
+          "severity": "CRITICAL",
+          "status": "OPEN",
+          "firstDetectedAt": "2026-04-28T10:00:00Z",
+          "cveIds": ["CVE-2026-0001"],
+          "vulnerableAsset": {
+            "id": "container-redacted-1",
+            "name": "container-redacted-1",
+            "type": "CONTAINER_IMAGE",
+            "subscriptionId": "cloud-account-redacted-1",
+            "region": "us-east-1"
+          },
+          "project": {
+            "id": "project-redacted-1",
+            "name": "Project Redacted"
+          },
+          "frameworkCategories": [
+            { "name": "NIST 800-53 RA-5" }
+          ]
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": null
+      }
+    }
+  }
+}
