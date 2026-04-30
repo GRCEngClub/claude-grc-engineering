@@ -6,6 +6,10 @@ https://github.com/user-attachments/assets/a83aa297-9fba-4a7d-b56c-06f962d1ec6b
 
 The official open-source GRC toolkit from the [GRC Engineering Club](https://grcengclub.com). Checkbox compliance to engineered systems, shipped as [Claude Code](https://docs.claude.com/claude-code) plugins: persona plugins for engineers, auditors, internal GRC teams, and TPRM; 20+ framework reference plugins from SOC 2 to FedRAMP to APRA; and thin cloud/SaaS connectors that emit a common Finding contract. Assessors, platform engineers, and GRC teams everywhere rebuild the same pipeline on their own. Pull evidence, crosswalk to a framework, generate a gap report, wrestle OSCAL. One open toolkit, maintained by the community, end-to-end.
 
+The Markdown, skills, schemas, and workflows are also usable from
+[Claude Cowork](docs/CLAUDE-COWORK.md) when you want a desktop, file-oriented
+GRC workflow.
+
 ```
 /grc-engineer:gap-assessment SOC2,FedRAMP-High --sources=aws,github
 ```
@@ -44,7 +48,9 @@ For a first run with no cloud credentials, use a GitHub account as the data sour
 /grc-engineer:gap-assessment SOC2 --sources=github-inspector
 ```
 
-Full walkthrough: [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
+Full walkthrough: [`docs/QUICKSTART.md`](docs/QUICKSTART.md). If you are using
+Anthropic's desktop Cowork experience instead of Claude Code, start with
+[`docs/CLAUDE-COWORK.md`](docs/CLAUDE-COWORK.md) for the compatibility model.
 
 ## What you can do with it
 
