@@ -4,6 +4,8 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+## [0.0.3] — 2026-04-30
+
 ### Added
 
 - **Quickstart plugin decision tree.** `docs/QUICKSTART.md` now includes a "Which plugin do I need?" flowchart covering connectors, framework plugins, persona plugins, learning support, OSCAL/FedRAMP utilities, and the compliance posture dashboard. Closes [#36](https://github.com/GRCEngClub/claude-grc-engineering/issues/36).
