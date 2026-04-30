@@ -49,7 +49,7 @@ See the [Framework Plugin Guide](../../../docs/FRAMEWORK-PLUGIN-GUIDE.md) for th
 
 - [Directive (EU) 2022/2555 on EUR-Lex](https://eur-lex.europa.eu/eli/dir/2022/2555/oj)
 - [Commission Implementing Regulation (EU) 2024/2690](https://eur-lex.europa.eu/eli/reg_impl/2024/2690/oj) — technical and methodological requirements for digital-infrastructure / ICT-service-management / digital-provider entities
-- [ENISA — NIS2 Directive](https://www.enisa.europa.eu/topics/nis-directive)
+- [European Commission — NIS2 Directive](https://digital-strategy.ec.europa.eu/en/policies/nis2-directive)
 - [Secure Controls Framework](https://securecontrolsframework.com) — crosswalk source (CC BY-ND 4.0)
 - [SCF API entry — directive](https://grcengclub.github.io/scf-api/api/crosswalks/emea-eu-nis2-2022.json)
 - [SCF API entry — Annex implementing act](https://grcengclub.github.io/scf-api/api/crosswalks/emea-eu-nis2-annex-2024.json)

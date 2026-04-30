@@ -20,7 +20,7 @@ This plugin bundles the SCF crosswalk (68 SCF controls → 30 NIS2 directive-lev
 - **Region**: EMEA (EU + EEA where applicable through joint committee decisions).
 - **Direct enforcement**: No. NIS2 is enforced by each Member State's national competent authority via that state's transposition law. ENISA coordinates EU-wide and runs the CSIRTs Network and EU-CyCLONe.
 - **Affected sectors**: 18 categories grouped into Annex I (essential) and Annex II (important) — see "Sectoral scope" below.
-- **Penalty exposure**: Administrative fines up to **€10 million or 2% of total worldwide annual turnover** (essential entities) and **€7 million or 1.4% of total worldwide annual turnover** (important entities), per Article 34. Member States may set higher national caps.
+- **Penalty exposure**: Administrative fines whose national maximums must be at least **€10 million or 2% of total worldwide annual turnover** (essential entities) and at least **€7 million or 1.4% of total worldwide annual turnover** (important entities), whichever is higher, per Article 34. Member States may set higher national maximums.
 
 ## Framework in plain language
 
@@ -241,7 +241,7 @@ Full-depth NIS2 plugins ship workflow commands tied to the NIS2 audit and report
 
 - [Directive (EU) 2022/2555 on EUR-Lex](https://eur-lex.europa.eu/eli/dir/2022/2555/oj) — the directive text.
 - [Commission Implementing Regulation (EU) 2024/2690](https://eur-lex.europa.eu/eli/reg_impl/2024/2690/oj) — technical and methodological requirements for digital infrastructure, ICT service management, and digital providers (the "Annex" controls).
-- [ENISA — NIS2 Directive](https://www.enisa.europa.eu/topics/nis-directive) — EU-level guidance, FAQ, and registries.
+- [European Commission — NIS2 Directive](https://digital-strategy.ec.europa.eu/en/policies/nis2-directive) — EU-level policy overview, scope, and implementation guidance.
 - [Cooperation Group publications](https://digital-strategy.ec.europa.eu/en/policies/nis-cooperation-group) — EU-level coordinated guidance and Article 22 supply-chain risk assessments.
 - [Secure Controls Framework](https://securecontrolsframework.com) — crosswalk source (CC BY-ND 4.0).
 - [SCF API entry for NIS2 directive](https://grcengclub.github.io/scf-api/api/crosswalks/emea-eu-nis2-2022.json) and [NIS2 Annex (Implementing Regulation 2024/2690)](https://grcengclub.github.io/scf-api/api/crosswalks/emea-eu-nis2-annex-2024.json).
