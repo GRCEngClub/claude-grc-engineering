@@ -25,6 +25,7 @@ exclude = [
   "^https://github\\.com/orgs/.*/projects/",
   # Some regulator sites return 5xx to scrapers but render fine in browsers
   "^https://www\\.ecfr\\.gov",
+  "^https://pcaobus\\.org/oversight/standards/auditing-standards$",
   # canada.ca returns HTTP/2 protocol errors to lychee's client; renders fine in browsers
   "^https://www\\.canada\\.ca",
   # Upstream external repo was transferred to hackIDLE; both URLs should be updated in a docs pass
