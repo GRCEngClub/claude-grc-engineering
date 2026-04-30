@@ -1,16 +1,37 @@
 # Enterprise Deployment Guide
 
-This guide covers deploying Claude Code with GRC Engineering plugins through AWS Bedrock or Google Vertex AI, which route inference through your own cloud account instead of the Anthropic API. Data handling depends on the cloud provider's documented behavior; verify the specifics against the authoritative provider docs before relying on them for a compliance posture.
+This guide covers deploying Claude Code with GRC Engineering plugins through AWS Bedrock or Google Vertex AI, which route inference through your own cloud account instead of the Anthropic API. It also tracks [Claude Platform on AWS](https://aws.amazon.com/claude-platform/) so teams can choose between Bedrock's AWS-managed model service and Anthropic's native platform experience through AWS commercial controls. Data handling depends on the provider's documented behavior; verify the specifics against the authoritative provider docs before relying on them for a compliance posture.
 
 ## Why Use Enterprise Deployment?
 
 | Benefit | What's actually documented |
 |---------|---------|
-| **Cloud-account routing** | Inference requests go through your AWS or GCP account rather than Anthropic's API. Data residency and in-region processing guarantees are defined by the cloud provider's docs ([Bedrock data protection](https://docs.aws.amazon.com/bedrock/latest/userguide/data-protection.html), [Vertex AI locations](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/locations)), not by this toolkit. Some Vertex endpoints don't guarantee in-region ML processing for every operation; check the provider docs for your region and model. |
+| **Cloud-account routing** | For Bedrock and Vertex AI, inference requests go through your AWS or GCP account rather than Anthropic's API. Data residency and in-region processing guarantees are defined by the cloud provider's docs ([Bedrock data protection](https://docs.aws.amazon.com/bedrock/latest/userguide/data-protection.html), [Vertex AI locations](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/locations)), not by this toolkit. Some Vertex endpoints don't guarantee in-region ML processing for every operation; check the provider docs for your region and model. |
 | **Compliance authorizations** | FedRAMP, HIPAA, SOC 2, and other authorizations are held by the cloud provider for their Anthropic-model offering. See the AWS Bedrock and GCP FedRAMP pages for current status (authorization scope changes). |
 | **Model training use** | Per Anthropic's [commercial terms](https://www.anthropic.com/legal/commercial-terms), prompts and completions to commercial endpoints are not used to train models. Confirm the same for your cloud provider's terms. |
 | **Enterprise support** | Cloud provider SLAs and support apply. |
 | **Audit trails** | Invocations log to CloudTrail or Cloud Audit Logs per the provider's standard logging. |
+
+---
+
+## AWS Options: Bedrock vs Claude Platform on AWS
+
+AWS now documents two different ways to use Claude with AWS account controls. Treat them as separate deployment patterns:
+
+| Option | Use when | Data boundary | GRC notes |
+|--------|----------|---------------|-----------|
+| **Claude on Amazon Bedrock** | You need AWS-managed model access, regional processing controls, Guardrails, Knowledge Bases, PrivateLink, or access to multiple foundation model providers through one service. | AWS states that Bedrock processes customer data within AWS infrastructure and does not share it with Anthropic or other third parties. Verify regional support for the exact model and feature set before committing to a control assertion. | Best fit for strict residency, FedRAMP, private networking, and AWS-native control inheritance narratives. Use the Bedrock configuration below for Claude Code. |
+| **Claude Platform on AWS** | You want Anthropic's native Claude Platform APIs, features, and console experience while using AWS credentials, IAM authorization, AWS billing, and CloudTrail logging. | AWS states that the first-party platform is operated by Anthropic and customer data is processed by Anthropic outside the AWS boundary. | Best fit when native Anthropic platform features matter more than AWS-only processing. Document the Anthropic processing boundary, IAM policy design, CloudTrail event coverage, and billing ownership in your system boundary. |
+
+As of the current AWS product page, Claude Platform on AWS is marked "Coming Soon." Do not write procedures that assume CLI flags, IAM actions, SDK endpoints, or CloudTrail event names until AWS publishes implementation docs. This repository therefore does not add a separate connector or plugin for it yet; the existing `aws-inspector` connector remains focused on AWS account control evidence, and this guide records the deployment decision point.
+
+Practical assessment checklist for Claude Platform on AWS:
+
+- Confirm whether your data residency, customer contract, and regulatory obligations allow Anthropic processing outside the AWS boundary.
+- Define IAM least-privilege policies for the platform once AWS publishes service actions and condition keys.
+- Decide whether CloudTrail coverage is enough for your audit trail, or whether you also need Anthropic-side activity exports.
+- Record AWS billing ownership and cost allocation tags or account structure in the financial control narrative.
+- Keep Bedrock as the default recommendation when the control objective requires AWS-managed processing, regional residency, PrivateLink, or AWS Guardrails.
 
 ---
 

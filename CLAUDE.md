@@ -54,7 +54,7 @@ plugins/{plugin-name}/
 - `.claude-plugin/marketplace.json` - Marketplace configuration listing all plugins
 - `plugins/grc-engineer/config/frameworks/` - Framework control definitions (SOC2, ISO27001, NIST 800-53, etc.)
 - `plugins/grc-engineer/config/providers/` - Cloud provider evidence collection templates (aws.yaml, azure.yaml, gcp.yaml, kubernetes.yaml)
-- `docs/ENTERPRISE-DEPLOYMENT.md` - AWS Bedrock and Google Vertex AI configuration
+- `docs/ENTERPRISE-DEPLOYMENT.md` - AWS Bedrock, Claude Platform on AWS, and Google Vertex AI deployment guidance
 
 ## Plugin Development
 
