@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "source": "datadog-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-datadog-pass",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "datadog_organization",
+    "id": "datadoghq.com",
+    "uri": "https://app.datadoghq.com/",
+    "region": null,
+    "account_id": "datadoghq.com"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "GOV-03",
+      "status": "pass",
+      "severity": "info",
+      "message": "Datadog API and application keys validated for organization inventory."
+    }
+  ]
+}
