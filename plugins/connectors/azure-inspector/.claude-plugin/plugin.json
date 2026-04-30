@@ -1,0 +1,9 @@
+{
+  "name": "azure-inspector",
+  "version": "0.1.0",
+  "description": "GRC connector for Microsoft Azure: evaluates Entra ID, Storage, Key Vault, Monitor, and Defender for Cloud. Emits findings conforming to schemas/finding.schema.json v1.",
+  "author": { "name": "GRC Engineering Club Contributors" },
+  "license": "MIT",
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "keywords": ["grc", "compliance", "azure", "entra", "scf", "fedramp", "connector"]
+}

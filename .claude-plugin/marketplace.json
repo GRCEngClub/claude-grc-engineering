@@ -197,6 +197,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "azure-inspector",
+      "source": "./plugins/connectors/azure-inspector",
+      "description": "GRC connector for Azure: Entra ID, Storage, Key Vault, Monitor, and Defender for Cloud to v1 finding contract",
+      "version": "0.1.0"
+    },
+    {
       "name": "okta-inspector",
       "source": "./plugins/connectors/okta-inspector",
       "description": "GRC connector for Okta: password/MFA/session policies, inactive users, admin factor enrollment \u2192 v1 finding contract",

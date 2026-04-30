@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "source": "azure-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-azure-inconclusive",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "azure_entra_tenant",
+    "id": "11111111-1111-1111-1111-111111111111",
+    "uri": "https://login.microsoftonline.com/11111111-1111-1111-1111-111111111111",
+    "region": null,
+    "account_id": "00000000-0000-0000-0000-000000000000"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-01.1",
+      "status": "inconclusive",
+      "severity": "medium",
+      "message": "Azure CLI cannot determine per-user MFA or Conditional Access posture from this read-only query."
+    }
+  ]
+}
