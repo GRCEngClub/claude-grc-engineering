@@ -1,0 +1,19 @@
+{
+  "name": "us-nerc-cip",
+  "description": "NERC CIP - Reference plugin with scope determination, evidence checklist, and SCF-backed gap assessment for BES Cyber Systems.",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "usa-federal-nerc-cip-2024",
+    "display_name": "NERC Critical Infrastructure Protection (CIP) (2024)",
+    "region": "Americas",
+    "country": "US",
+    "depth": "reference",
+    "scf_controls_mapped": 122,
+    "framework_controls_mapped": 204,
+    "industry": [],
+    "regulator": "North American Electric Reliability Corporation (NERC) / Federal Energy Regulatory Commission (FERC)"
+  }
+}
