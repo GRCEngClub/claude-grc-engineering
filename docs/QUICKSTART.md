@@ -26,6 +26,56 @@ You need the engineering hub, one connector, and at least one framework plugin.
 /plugin install soc2@grc-engineering-suite
 ```
 
+### Which plugin do I need?
+
+Use this quick decision tree when you are not sure what to install next:
+
+```mermaid
+flowchart TD
+    A[What are you trying to do?] --> B{Collect technical evidence?}
+    B -->|GitHub repos / SDLC controls| GH[github-inspector]
+    B -->|AWS cloud controls| AWS[aws-inspector]
+    B -->|GCP cloud controls| GCP[gcp-inspector]
+    B -->|Okta identity controls| OKTA[okta-inspector]
+    B -->|FedRAMP POA&M from vuln scans| POAM[poam-automation]
+    B -->|No, I need framework expertise| C{Which obligation?}
+
+    C -->|SOC 2 audit| SOC2[soc2]
+    C -->|ISO 27001 ISMS| ISO[iso27001]
+    C -->|NIST controls| NIST[nist-800-53]
+    C -->|NIST CSF posture| CSF[nist-csf-20]
+    C -->|FedRAMP package| FED[fedramp-rev5 + fedramp-ssp]
+    C -->|Privacy law| PRIV{Region?}
+    C -->|Financial / regulated industry| FIN{Regime?}
+
+    PRIV -->|EU| GDPR[gdpr or eu-nis2]
+    PRIV -->|California| CCPA[us-ccpa]
+    PRIV -->|Singapore| PDPA[singapore-pdpa]
+    PRIV -->|Switzerland| FADP[ch-fadp]
+    PRIV -->|India| DPDPA[ind-dpdpa]
+
+    FIN -->|SOX / ICFR| SOX[us-sox]
+    FIN -->|NY DFS 500| NYDFS[nydfs]
+    FIN -->|DORA| DORA[dora]
+    FIN -->|FINRA| FINRA[us-finra]
+
+    A --> D{Need help learning or coordinating work?}
+    D -->|New to GRC / teach concepts| TEACH[teach-me]
+    D -->|Run GRC iteration loop| LOOP[grc-loop]
+    D -->|Audit evidence review| AUDIT[grc-auditor]
+    D -->|Internal GRC workflows| INTERNAL[grc-internal]
+    D -->|Third-party risk| TPRM[grc-tprm]
+    D -->|Dashboard from monitoring JSON| DASH[compliance-posture-dashboard]
+```
+
+A few rules of thumb:
+
+- Start with **`grc-engineer` + one connector + one framework** for technical gap assessment.
+- Add more framework plugins when the same evidence must satisfy multiple obligations; the SCF crosswalk lets one connector run support many reports.
+- Use **persona plugins** (`grc-auditor`, `grc-internal`, `grc-tprm`) when the task is workflow- or audience-specific rather than framework-specific.
+- Use **`teach-me`** before a framework plugin if you need a practitioner primer, role onboarding, or Socratic drills.
+- Use **`oscal`** and **`fedramp-ssp`** when the deliverable is OSCAL/FedRAMP package material rather than a markdown gap report.
+
 Confirm with:
 
 ```bash
