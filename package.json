@@ -21,6 +21,7 @@
     "scaffold-framework": "node plugins/grc-engineer/scripts/scaffold-framework.js",
     "generate-coverage": "node plugins/grc-engineer/scripts/generate-coverage.js",
     "test:contract": "bash tests/validate-contract-fixtures.sh",
+    "test:grc-diagrams": "bash tests/validate-grc-diagram-skills.sh",
     "test:contract:findings": "ajv validate --spec=draft2020 -c ajv-formats -s schemas/finding.schema.json -d 'tests/fixtures/findings/**/*.json'"
   },
   "keywords": [

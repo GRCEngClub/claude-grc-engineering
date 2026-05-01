@@ -4,19 +4,23 @@ on:
   pull_request:
     paths:
       - 'plugins/**/plugin.json'
+      - 'plugins/grc-diagrams/**'
       - '.claude-plugin/marketplace.json'
       - 'schemas/plugin.schema.json'
       - 'schemas/marketplace.schema.json'
       - 'tests/validate-plugin-manifests.sh'
+      - 'tests/validate-grc-diagram-skills.sh'
       - '.github/workflows/validate-plugin-manifests.yml'
   push:
     branches: [main]
     paths:
       - 'plugins/**/plugin.json'
+      - 'plugins/grc-diagrams/**'
       - '.claude-plugin/marketplace.json'
       - 'schemas/plugin.schema.json'
       - 'schemas/marketplace.schema.json'
       - 'tests/validate-plugin-manifests.sh'
+      - 'tests/validate-grc-diagram-skills.sh'
       - '.github/workflows/validate-plugin-manifests.yml'
 
 concurrency:
@@ -39,3 +43,6 @@ jobs:
 
       - name: Validate every plugin and marketplace manifest
         run: bash tests/validate-plugin-manifests.sh
+
+      - name: Validate GRC diagram skills
+        run: bash tests/validate-grc-diagram-skills.sh

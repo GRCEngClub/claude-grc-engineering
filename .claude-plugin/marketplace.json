@@ -51,20 +51,58 @@
       "source": "./plugins/bridges/vanta-bridge",
       "description": "Normalize Vanta MCP/plugin outputs into v1 Findings for GRC Engineering workflows.",
       "version": "0.1.0",
-      "commands": ["setup", "status", "sync"]
+      "commands": [
+        "setup",
+        "status",
+        "sync"
+      ]
     },
     {
       "name": "gcp-docs",
       "source": "./plugins/knowledge-sources/gcp-docs",
       "description": "Knowledge source for Google Developer Knowledge API: current Google developer documentation citations for GRC workflows.",
       "version": "0.1.0",
-      "commands": ["setup", "query", "cite"]
+      "commands": [
+        "setup",
+        "query",
+        "cite"
+      ]
     },
     {
       "name": "teach-me",
       "source": "./plugins/teach-me",
       "description": "Socratic primer + drill plugin for new-to-GRC practitioners. Get up to speed on a framework, control, or role without already knowing it.",
       "version": "0.1.0"
+    },
+    {
+      "name": "grc-diagrams",
+      "source": "./plugins/grc-diagrams",
+      "description": "Editable draw.io diagram patterns for GRC system boundaries, evidence flows, control maps, risk treatment, audits, crosswalks, TPRM, POA&M, data flows, RACI, and operating models.",
+      "version": "0.1.0",
+      "commands": [
+        "drawio",
+        "system-boundary",
+        "evidence-flow",
+        "control-map",
+        "risk-treatment",
+        "audit-workflow",
+        "framework-crosswalk",
+        "third-party-risk",
+        "poam",
+        "data-flow",
+        "shared-responsibility",
+        "raci",
+        "operating-model"
+      ],
+      "category": "workflow",
+      "tags": [
+        "drawio",
+        "diagrams",
+        "grc",
+        "audit",
+        "risk",
+        "compliance"
+      ]
     },
     {
       "name": "soc2",
