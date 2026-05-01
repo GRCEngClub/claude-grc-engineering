@@ -6,9 +6,11 @@
 
 https://github.com/user-attachments/assets/a83aa297-9fba-4a7d-b56c-06f962d1ec6b
 
-Open-source GRC automation for Claude Code.
+Open-source GRC Engineering resource for Claude.
 
 `claude-grc-engineering` turns technical evidence from cloud, SaaS, code, and security tools into framework-aligned findings, gap reports, remediation guidance, evidence packages, and OSCAL workflows.
+
+It is built for the Claude ecosystem: Claude Code plugin installs first, with Claude Desktop and Claude Cowork usage supported through the same Markdown skills, command runbooks, schemas, and repository files.
 
 It is maintained by the [GRC Engineering Club](https://grcengclub.com) for people who want compliance work to behave more like engineering work: repeatable, testable, versioned, and easy to extend.
 
@@ -16,7 +18,7 @@ It is maintained by the [GRC Engineering Club](https://grcengclub.com) for peopl
 
 ## What it does
 
-The toolkit is a Claude Code plugin marketplace. Install the pieces you need:
+The toolkit is a Claude Code plugin marketplace. The same plugin skills and command runbooks are also useful in Claude Desktop and Claude Cowork when you add this repository as project context or a shared workspace. Install the pieces you need:
 
 - `grc-engineer`: the core automation hub for gap assessment, IaC scanning, evidence collection, remediation generation, policy generation, PR review, continuous monitoring, and multi-framework optimization.
 - Persona plugins: workflows for auditors, internal GRC teams, third-party risk, reporting, learning, and iterative GRC automation.
@@ -60,7 +62,7 @@ For a first run without cloud credentials, use GitHub as the evidence source:
 
 Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
-Using Claude Cowork instead of Claude Code? Start with [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md).
+Using Claude Desktop or Claude Cowork instead of Claude Code? Start with [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md). Anthropic's security and compliance posture is documented at [trust.anthropic.com](https://trust.anthropic.com/), and the Claude Cowork third-party platform guide is here: [Use Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680729-use-claude-cowork-with-third-party-platforms).
 
 ## Common workflows
 
@@ -116,7 +118,9 @@ For the full architecture and schema example, see [docs/ARCHITECTURE.md](docs/AR
 - [docs/FRAMEWORK-PLUGIN-GUIDE.md](docs/FRAMEWORK-PLUGIN-GUIDE.md): scaffold and level up framework plugins
 - [docs/GRC-DATA.md](docs/GRC-DATA.md): user-owned `grc-data/` contracts for metrics, risks, vendors, exceptions, and policies
 - [docs/ENTERPRISE-DEPLOYMENT.md](docs/ENTERPRISE-DEPLOYMENT.md): AWS Bedrock, Claude Platform on AWS, and Google Vertex AI guidance
-- [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md): desktop/file-oriented compatibility model
+- [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md): Claude Desktop and Claude Cowork file-oriented usage, including third-party platform handoff notes
+- [Anthropic Trust Center](https://trust.anthropic.com/): Anthropic security, compliance, and trust resources
+- [Use Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680729-use-claude-cowork-with-third-party-platforms): official Cowork platform guidance
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md): how to contribute connectors, framework guidance, and docs
 - [docs/SCF-ATTRIBUTION.md](docs/SCF-ATTRIBUTION.md): SCF licensing and attribution
 

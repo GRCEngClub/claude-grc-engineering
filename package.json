@@ -22,6 +22,7 @@
     "generate-coverage": "node plugins/grc-engineer/scripts/generate-coverage.js",
     "test:contract": "bash tests/validate-contract-fixtures.sh",
     "test:grc-diagrams": "bash tests/validate-grc-diagram-skills.sh",
+    "test:plugin-manifests": "bash tests/validate-plugin-manifests.sh",
     "test:contract:findings": "ajv validate --spec=draft2020 -c ajv-formats -s schemas/finding.schema.json -d 'tests/fixtures/findings/**/*.json'"
   },
   "keywords": [
@@ -34,7 +35,9 @@
     "fedramp",
     "soc2",
     "scf",
-    "claude-code-plugin"
+    "claude-code-plugin",
+    "claude-desktop",
+    "claude-cowork"
   ],
   "license": "(MIT AND CC-BY-SA-4.0)",
   "licenses": [
