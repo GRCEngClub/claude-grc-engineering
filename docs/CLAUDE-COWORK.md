@@ -1,16 +1,20 @@
-# Claude Cowork Compatibility
+# Claude Desktop & Claude Cowork Compatibility
 
 Claude Cowork brings Claude Code-style agent work into a desktop workflow for
-knowledge workers. This repository is still authored as a Claude Code plugin
-marketplace, but most of the useful GRC material is plain Markdown, JSON
-schemas, scripts, commands, and skills that Cowork can work with when the repo
-folder is available to the session.
+knowledge workers. This repository is authored as a Claude Code plugin
+marketplace, and its skills also work well as Claude Desktop / Claude Cowork
+project context because most GRC material is plain Markdown, JSON schemas,
+scripts, command runbooks, and reusable skill instructions.
 
-Official Cowork overview: <https://www.anthropic.com/product/claude-cowork>
+Official resources:
+
+- Claude Cowork overview: <https://www.anthropic.com/product/claude-cowork>
+- Claude Cowork third-party platform guide: <https://support.claude.com/en/articles/14680729-use-claude-cowork-with-third-party-platforms>
+- Anthropic Trust Center: <https://trust.anthropic.com/>
 
 ## What Works Well
 
-Use Cowork for document-heavy and file-heavy GRC work:
+Use Claude Desktop or Cowork for document-heavy and file-heavy GRC work:
 
 - reviewing framework plugin guidance under `plugins/frameworks/*`
 - drafting assessment plans from command docs in `plugins/*/commands/`
@@ -39,6 +43,11 @@ If Cowork has shell execution available in your environment, the same command
 docs remain useful as runbooks. If it only has file access, ask Cowork to prepare
 the config, evidence request, or report draft, then run the command from Claude
 Code or CI.
+
+For third-party platforms, use Anthropic's Cowork platform guidance to decide
+where Claude can safely read, write, or hand off work. Keep platform-specific
+credentials outside the repository and give Claude only the folder or workspace
+scope needed for the task.
 
 ## Recommended Cowork Folder Layout
 
@@ -99,7 +108,7 @@ Cowork:
 
 ## Quick Compatibility Matrix
 
-| Plugin type | Cowork fit | Notes |
+| Plugin type | Desktop/Cowork fit | Notes |
 | --- | --- | --- |
 | Persona plugins | Strong | Mostly Markdown workflows and structured prompts |
 | Framework plugins | Strong | Skills and command docs work as references |
@@ -110,8 +119,10 @@ Cowork:
 
 ## Security Notes
 
-- Treat Cowork folder access as intentional data access. Only include evidence
+- Treat Claude Desktop or Cowork folder access as intentional data access. Only include evidence
   files that are appropriate for the task.
+- For Anthropic's current security, compliance, and trust materials, reference
+  <https://trust.anthropic.com/>.
 - Keep secrets out of Markdown and JSON fixtures.
 - Use connector caches and `grc-data/` records for normalized, reviewable state
   instead of pasting raw credentials or exports into prompts.
