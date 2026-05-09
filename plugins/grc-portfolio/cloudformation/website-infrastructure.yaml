@@ -1,0 +1,237 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Complete infrastructure for hosting a React/Vite website on S3 with CloudFront CDN and Route 53 domain'
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: 'Your domain name (e.g., example.com)'
+    AllowedPattern: '^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.[a-z]{2,}$'
+    ConstraintDescription: 'Must be a valid domain name'
+  
+  ProjectName:
+    Type: String
+    Description: 'Name for your project (used for resource naming)'
+    Default: 'my-website'
+    AllowedPattern: '^[a-z0-9-]+$'
+    ConstraintDescription: 'Must contain only lowercase letters, numbers, and hyphens'
+
+  CreateHostedZone:
+    Type: String
+    Description: 'Create a new Route 53 hosted zone? (Choose No if you already have one)'
+    Default: 'Yes'
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+
+  ExistingHostedZoneId:
+    Type: String
+    Description: 'If you chose No above, enter your existing Hosted Zone ID (leave blank otherwise)'
+    Default: ''
+
+Conditions:
+  ShouldCreateHostedZone: !Equals [!Ref CreateHostedZone, 'Yes']
+  UseExistingHostedZone: !Equals [!Ref CreateHostedZone, 'No']
+
+Resources:
+  # S3 Bucket for website content
+  WebsiteBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub '${ProjectName}-${AWS::AccountId}'
+      WebsiteConfiguration:
+        IndexDocument: 'index.html'
+        ErrorDocument: 'index.html'  # For SPA routing
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-website-bucket'
+        - Key: Project
+          Value: !Ref ProjectName
+
+  # S3 Bucket Policy for CloudFront access
+  WebsiteBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AllowCloudFrontOAI
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: 's3:GetObject'
+            Resource: !Sub '${WebsiteBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                'AWS:SourceArn': !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+
+  # CloudFront Origin Access Control
+  CloudFrontOAC:
+    Type: 'AWS::CloudFront::OriginAccessControl'
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${ProjectName}-oac'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # ACM Certificate for HTTPS
+  WebsiteCertificate:
+    Type: 'AWS::CertificateManager::Certificate'
+    Properties:
+      DomainName: !Ref DomainName
+      SubjectAlternativeNames:
+        - !Sub 'www.${DomainName}'
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !If
+            - ShouldCreateHostedZone
+            - !Ref HostedZone
+            - !Ref ExistingHostedZoneId
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-certificate'
+
+  # CloudFront Distribution
+  CloudFrontDistribution:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub 'CDN for ${ProjectName}'
+        DefaultRootObject: 'index.html'
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100  # Use only North America and Europe (cheapest)
+        Aliases:
+          - !Ref DomainName
+          - !Sub 'www.${DomainName}'
+        ViewerCertificate:
+          AcmCertificateArn: !Ref WebsiteCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt WebsiteBucket.RegionalDomainName
+            OriginAccessControlId: !Ref CloudFrontOAC
+            S3OriginConfig: {}
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # CachingOptimized
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf  # CORS-S3Origin
+          ResponseHeadersPolicyId: 67f7725c-6f97-4210-82d7-5512b31e9d03  # SecurityHeadersPolicy
+        CustomErrorResponses:
+          # Handle SPA routing - redirect all errors to index.html
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 300
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 300
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-distribution'
+
+  # Route 53 Hosted Zone (optional)
+  HostedZone:
+    Type: 'AWS::Route53::HostedZone'
+    Condition: ShouldCreateHostedZone
+    Properties:
+      Name: !Ref DomainName
+      HostedZoneConfig:
+        Comment: !Sub 'Hosted zone for ${DomainName}'
+      HostedZoneTags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-hosted-zone'
+
+  # DNS Record for root domain
+  RootDomainRecord:
+    Type: 'AWS::Route53::RecordSet'
+    Properties:
+      HostedZoneId: !If
+        - ShouldCreateHostedZone
+        - !Ref HostedZone
+        - !Ref ExistingHostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront hosted zone ID (constant)
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        EvaluateTargetHealth: false
+
+  # DNS Record for www subdomain
+  WwwDomainRecord:
+    Type: 'AWS::Route53::RecordSet'
+    Properties:
+      HostedZoneId: !If
+        - ShouldCreateHostedZone
+        - !Ref HostedZone
+        - !Ref ExistingHostedZoneId
+      Name: !Sub 'www.${DomainName}'
+      Type: A
+      AliasTarget:
+        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront hosted zone ID (constant)
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        EvaluateTargetHealth: false
+
+Outputs:
+  WebsiteBucketName:
+    Description: 'S3 bucket name for uploading your website files'
+    Value: !Ref WebsiteBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-BucketName'
+
+  CloudFrontDistributionId:
+    Description: 'CloudFront distribution ID (use this for cache invalidation)'
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub '${AWS::StackName}-DistributionId'
+
+  CloudFrontURL:
+    Description: 'CloudFront distribution URL'
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub '${AWS::StackName}-CloudFrontURL'
+
+  WebsiteURL:
+    Description: 'Your website URL'
+    Value: !Sub 'https://${DomainName}'
+    Export:
+      Name: !Sub '${AWS::StackName}-WebsiteURL'
+
+  HostedZoneId:
+    Description: 'Route 53 Hosted Zone ID'
+    Value: !If
+      - ShouldCreateHostedZone
+      - !Ref HostedZone
+      - !Ref ExistingHostedZoneId
+    Export:
+      Name: !Sub '${AWS::StackName}-HostedZoneId'
+
+  HostedZoneNameServers:
+    Description: 'Name servers for your domain (update these at your domain registrar)'
+    Condition: ShouldCreateHostedZone
+    Value: !Join [', ', !GetAtt HostedZone.NameServers]
+
+  CertificateArn:
+    Description: 'ACM Certificate ARN'
+    Value: !Ref WebsiteCertificate
+    Export:
+      Name: !Sub '${AWS::StackName}-CertificateArn'

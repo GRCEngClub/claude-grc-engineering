@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Contact Form API - Lambda + API Gateway for handling form submissions'
+
+Parameters:
+  SESFromEmail:
+    Type: String
+    Default: teamconnoisseurww@gmail.com
+    Description: Verified SES email address for sending emails
+
+Resources:
+  # IAM Role for Lambda
+  ContactFormLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ContactFormLambdaRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: SESSendEmailPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+
+  # Lambda Function
+  ContactFormFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: construct-contact-form-handler
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: !GetAtt ContactFormLambdaRole.Arn
+      Timeout: 30
+      Environment:
+        Variables:
+          SES_FROM_EMAIL: !Ref SESFromEmail
+      Code:
+        ZipFile: |
+          // Placeholder - will be updated via deployment script
+          exports.handler = async (event) => {
+            return {
+              statusCode: 200,
+              body: JSON.stringify({ message: 'Function not yet deployed' })
+            };
+          };
+
+  # API Gateway REST API
+  ContactFormApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: construct-contact-form-api
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+        MaxAge: 300
+
+  # API Gateway Integration
+  ContactFormIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ContactFormApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ContactFormFunction.Arn}/invocations'
+      PayloadFormatVersion: '2.0'
+
+  # API Gateway Route
+  ContactFormRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ContactFormApi
+      RouteKey: 'POST /contact'
+      Target: !Sub 'integrations/${ContactFormIntegration}'
+
+  # API Gateway Stage
+  ContactFormStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref ContactFormApi
+      StageName: prod
+      AutoDeploy: true
+
+  # Lambda Permission for API Gateway
+  ApiGatewayInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ContactFormFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ContactFormApi}/*'
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${ContactFormApi}.execute-api.${AWS::Region}.amazonaws.com/prod/contact'
+    Export:
+      Name: ContactFormApiEndpoint
+
+  LambdaFunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt ContactFormFunction.Arn
+    Export:
+      Name: ContactFormLambdaArn

@@ -1,0 +1,93 @@
+{
+  "projectName": "",
+  "projectDir": "",
+  "toolkitDir": "/Users/aj.yawn/Desktop/repos/websitebuilder",
+  "siteType": "",
+  "client": {
+    "name": "",
+    "title": "",
+    "email": "",
+    "phone": "",
+    "location": "",
+    "bio": "",
+    "socialLinks": {
+      "linkedin": "",
+      "github": "",
+      "twitter": "",
+      "youtube": "",
+      "blog": "",
+      "other": []
+    }
+  },
+  "business": {
+    "companyName": "",
+    "tagline": "",
+    "description": "",
+    "services": [],
+    "testimonials": [],
+    "team": [],
+    "pricing": [],
+    "hours": "",
+    "location": "",
+    "phone": "",
+    "email": ""
+  },
+  "portfolio": {
+    "skills": {},
+    "certifications": [],
+    "projects": [],
+    "speaking": [],
+    "podcasts": [],
+    "articles": [],
+    "resumePdf": false
+  },
+  "saas": {
+    "productName": "",
+    "features": [],
+    "pricing": [],
+    "integrations": [],
+    "demoUrl": "",
+    "signupUrl": ""
+  },
+  "design": {
+    "colorScheme": "professional-blue",
+    "style": "clean-minimal",
+    "specialRequests": "",
+    "ctaPreference": "contact"
+  },
+  "pages": [],
+  "features": {
+    "contactForm": false,
+    "customDomain": false,
+    "blog": false,
+    "analytics": false
+  },
+  "aws": {
+    "profile": "default",
+    "region": "us-east-1",
+    "domain": "",
+    "stackName": "",
+    "bucketName": "",
+    "distributionId": "",
+    "cloudFrontUrl": "",
+    "contactApiEndpoint": "",
+    "hostedZoneId": "",
+    "certArn": ""
+  },
+  "github": {
+    "repoName": "",
+    "repoUrl": "",
+    "owner": "",
+    "visibility": "private",
+    "secretsConfigured": false
+  },
+  "status": {
+    "planComplete": false,
+    "preflightComplete": false,
+    "buildComplete": false,
+    "repoCreated": false,
+    "infraDeployed": false,
+    "siteDeployed": false,
+    "cicdConfigured": false
+  }
+}

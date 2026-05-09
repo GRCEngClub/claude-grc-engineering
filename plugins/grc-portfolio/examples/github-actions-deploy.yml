@@ -1,0 +1,120 @@
+# GitHub Actions Workflow for Automatic AWS Deployment
+# 
+# This workflow automatically deploys your website to AWS whenever you push to the main branch.
+# 
+# Setup Instructions:
+# 1. Copy this file to: .github/workflows/deploy.yml in your project
+# 2. Go to your GitHub repo → Settings → Secrets and variables → Actions
+# 3. Add these secrets:
+#    - AWS_ACCESS_KEY_ID: Your AWS access key
+#    - AWS_SECRET_ACCESS_KEY: Your AWS secret key
+#    - AWS_BUCKET_NAME: Your S3 bucket name (from CloudFormation outputs)
+#    - AWS_DISTRIBUTION_ID: Your CloudFront distribution ID (from CloudFormation outputs)
+
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+  workflow_dispatch:  # Allow manual trigger from GitHub UI
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 4: Run tests (optional, comment out if you don't have tests)
+      - name: Run tests
+        run: npm test
+        continue-on-error: true  # Don't fail deployment if tests fail
+
+      # Step 5: Build the project
+      - name: Build project
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      # Step 6: Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # Step 7: Sync files to S3
+      - name: Deploy to S3
+        run: |
+          aws s3 sync dist/ s3://${{ secrets.AWS_BUCKET_NAME }} \
+            --delete \
+            --cache-control "public,max-age=31536000,immutable" \
+            --exclude "index.html" \
+            --exclude "*.html"
+          
+          # Upload HTML files with shorter cache
+          aws s3 sync dist/ s3://${{ secrets.AWS_BUCKET_NAME }} \
+            --cache-control "public,max-age=0,must-revalidate" \
+            --exclude "*" \
+            --include "*.html"
+
+      # Step 8: Invalidate CloudFront cache
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+      # Step 9: Success notification
+      - name: Deployment successful
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "🌐 Your website is now live!"
+
+      # Optional: Send Slack notification on failure
+      # - name: Notify on failure
+      #   if: failure()
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: ${{ job.status }}
+      #     text: 'Deployment failed!'
+      #     webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+# Optional: Add a job to run on pull requests (preview deployments)
+# preview:
+#   name: Preview Deployment
+#   runs-on: ubuntu-latest
+#   if: github.event_name == 'pull_request'
+#   steps:
+#     - uses: actions/checkout@v4
+#     - uses: actions/setup-node@v4
+#       with:
+#         node-version: '18'
+#     - run: npm ci
+#     - run: npm run build
+#     - name: Comment PR
+#       uses: actions/github-script@v7
+#       with:
+#         script: |
+#           github.rest.issues.createComment({
+#             issue_number: context.issue.number,
+#             owner: context.repo.owner,
+#             repo: context.repo.repo,
+#             body: '🚀 Preview build completed! Check the Actions tab for details.'
+#           })

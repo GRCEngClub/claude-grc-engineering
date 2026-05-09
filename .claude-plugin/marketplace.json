@@ -409,6 +409,12 @@
       "source": "./plugins/frameworks/us-nerc-cip",
       "description": "NERC CIP reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
       "version": "0.1.0"
+    },
+    {
+      "name": "grc-portfolio",
+      "source": "./plugins/grc-portfolio",
+      "description": "Build and deploy a professional portfolio website for GRC engineers — certifications, frameworks, audit experience, and AWS hosting.",
+      "version": "0.1.0"
     }
   ]
 }
