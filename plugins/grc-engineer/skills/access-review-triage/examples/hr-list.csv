@@ -1,0 +1,8 @@
+user,manager,title,department,employment_status
+jdoe@acme.com,cto@acme.com,Engineering Manager,Engineering,active
+sarah.kim@acme.com,jdoe@acme.com,Software Engineer,Engineering,active
+mike.left@acme.com,lisa.head@acme.com,Data Analyst,Analytics,terminated
+dormant.dave@acme.com,lisa.head@acme.com,IT Administrator,IT,active
+sleepy.sue@acme.com,bob.sales@acme.com,Sales Operations,Sales,active
+ap.both@acme.com,finance.boss@acme.com,AP Clerk,Finance,active
+jane.new@acme.com,marcom.head@acme.com,Marketing Coordinator,Marketing,active
