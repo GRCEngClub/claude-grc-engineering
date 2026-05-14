@@ -69,6 +69,11 @@ Resources:
         HttpVersion: http2and3
         PriceClass: PriceClass_100  # Use only North America and Europe (cheapest)
         ViewerCertificate:
+          # Using CloudFront's default *.cloudfront.net certificate.
+          # AWS does not let you set MinimumProtocolVersion when using the
+          # default cert (older TLS versions are accepted on the default
+          # CloudFront domain). If you need to enforce TLS 1.2+, use
+          # website-infrastructure.yaml with a custom domain + ACM cert.
           CloudFrontDefaultCertificate: true
         Origins:
           - Id: S3Origin

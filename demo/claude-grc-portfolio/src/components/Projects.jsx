@@ -100,7 +100,13 @@ export default function Projects() {
                     <span className="tag">+{project.technologies.length - 3}</span>
                   )}
                 </div>
-                <a href={project.url} target="_blank" rel="noopener noreferrer" className="project-link">
+                <a
+                  href={project.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="project-link"
+                  aria-label={`View ${project.name} (opens in new tab)`}
+                >
                   View ↗
                 </a>
               </div>

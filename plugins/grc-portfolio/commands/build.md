@@ -27,8 +27,9 @@ src/
   main.jsx
   App.jsx
   index.css
+index.html              ← (Vite's entry HTML lives at the project root)
 public/
-  index.html
+  favicon.svg
 package.json
 vite.config.js
 ```

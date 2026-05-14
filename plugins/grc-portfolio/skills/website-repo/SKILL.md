@@ -68,14 +68,30 @@ npm-debug.log*
 lambda/*.zip
 ```
 
-If it exists, verify it includes at least `node_modules`, `dist`, `.env`, and `.DS_Store`.
+If it exists, verify it includes at least `node_modules`, `dist`, `.env`, `.env.local`, and `.DS_Store`. **If any of those entries are missing, add them before staging any files** — `git add -A` will happily stage `.env.local` with secrets in it otherwise.
 
 ## Step 5: Initialize Git and Commit
 
 ```bash
 cd <projectDir>
 git init
+```
+
+Before staging, confirm `.env*` files are ignored:
+
+```bash
+git check-ignore -q .env .env.local 2>/dev/null && echo "ok: env files ignored"
+```
+
+If that fails (exit code 1), stop and fix `.gitignore` — do not run `git add -A` until env files are ignored.
+
+```bash
 git add -A
+# Sanity check: nothing under .env* should be staged.
+if git diff --cached --name-only | grep -E '^\.env(\.|$)'; then
+  echo "ERROR: env file staged — unstage it and fix .gitignore" >&2
+  exit 1
+fi
 git commit -m "Initial commit: scaffolded GRC portfolio website"
 ```
 
