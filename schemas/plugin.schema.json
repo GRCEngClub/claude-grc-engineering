@@ -2,10 +2,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/GRCEngClub/claude-grc-engineering/main/schemas/plugin.schema.json",
   "title": "Claude Code plugin manifest",
-  "description": "Schema for plugin.json files in this marketplace. Mirrors the install-time validation that `claude plugin install` performs, so any manifest that passes here is installable. Extension keys such as `framework_metadata` are permitted via additionalProperties.",
+  "description": "Schema for plugin.json files in this marketplace. Mirrors the install-time validation that `claude plugin install` performs, so any manifest that passes here is installable. Extension keys such as `framework_metadata` are permitted via additionalProperties. The `namespace`, `commands`, `skills`, and `hooks` keys are explicitly forbidden at the top level — Claude Code rejects manifests that declare them (they are auto-discovered from `commands/`, `skills/`, and `hooks/hooks.json` instead, and `namespace` is not a recognized field).",
   "type": "object",
   "required": ["name", "version"],
   "additionalProperties": true,
+  "not": {
+    "anyOf": [
+      { "required": ["namespace"] },
+      { "required": ["commands"] },
+      { "required": ["skills"] },
+      { "required": ["hooks"] }
+    ]
+  },
   "properties": {
     "name": {
       "type": "string",

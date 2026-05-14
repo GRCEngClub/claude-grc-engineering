@@ -97,7 +97,7 @@ High-level categories:
 | Diagram plugin | `grc-diagrams` for editable draw.io GRC diagrams |
 | Framework plugins | `soc2`, `nist-800-53`, `iso27001`, `fedramp-rev5`, `fedramp-20x`, `pci-dss`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `dora`, `us-hipaa-security`, and others |
 | Connector plugins | `aws-inspector`, `github-inspector`, `gcp-inspector`, `azure-inspector`, `okta-inspector`, `slack-inspector`, `datadog-inspector`, `crowdstrike-inspector`, `drata-inspector`, `splunk-inspector`, `tenable-inspector`, `snowflake-inspector` |
-| Bridges, dashboards, knowledge sources | `vanta-bridge`, `compliance-posture-dashboard`, `gcp-docs` |
+| Dashboards, knowledge sources | `compliance-posture-dashboard`, `gcp-docs` |
 | OSCAL/FedRAMP tooling | `oscal`, `fedramp-ssp`, POA&M automation plugins |
 
 The marketplace manifest lives at [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json).

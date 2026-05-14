@@ -18,7 +18,5 @@
     "industry": ["healthcare", "health-it", "covered-entity", "business-associate"],
     "regulator": "US HHS OCR",
     "citations": ["45 CFR Part 164, Subpart C", "NIST SP 800-66 Rev. 2"]
-  },
-  "commands": ["assess", "evidence-checklist"],
-  "skills": ["us-hipaa-security"]
+  }
 }

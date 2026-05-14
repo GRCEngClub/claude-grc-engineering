@@ -17,7 +17,5 @@
     "framework_controls_mapped": 90,
     "industry": [],
     "regulator": "Swiss Federal Data Protection and Information Commissioner (FDPIC)"
-  },
-  "commands": ["assess"],
-  "skills": ["ch-fadp-expert"]
+  }
 }
