@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "source": "testssl-inspector",
+  "source_version": "0.1.0+testssl-3.2",
+  "run_id": "fixture-tssl-001",
+  "collected_at": "2026-05-14T18:00:00Z",
+  "resource": {
+    "type": "tls_endpoint",
+    "id": "clean.example.com:443",
+    "uri": "https://clean.example.com:443/",
+    "region": null,
+    "account_id": null
+  },
+  "evaluations": [
+    {
+      "control_framework": "SOC2-TSC-2017",
+      "control_id": "CC6.7",
+      "status": "pass",
+      "severity": "info"
+    },
+    {
+      "control_framework": "NIST-800-53-r5",
+      "control_id": "SC-8",
+      "status": "pass",
+      "severity": "info"
+    },
+    {
+      "control_framework": "PCI-DSS-4.0",
+      "control_id": "4.2.1",
+      "status": "pass",
+      "severity": "info"
+    },
+    {
+      "control_framework": "ISO-27001-2022",
+      "control_id": "A.8.24",
+      "status": "pass",
+      "severity": "info"
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-03",
+      "status": "pass",
+      "severity": "info"
+    }
+  ],
+  "metadata": {
+    "target": "clean.example.com",
+    "host": "clean.example.com",
+    "port": 443
+  }
+}

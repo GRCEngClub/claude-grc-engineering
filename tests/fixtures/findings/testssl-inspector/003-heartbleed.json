@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "source": "testssl-inspector",
+  "source_version": "0.1.0+testssl-3.2",
+  "run_id": "fixture-tssl-003",
+  "collected_at": "2026-05-14T18:02:00Z",
+  "resource": {
+    "type": "tls_endpoint",
+    "id": "vuln.example.com:443",
+    "uri": "https://vuln.example.com:443/",
+    "region": null,
+    "account_id": null
+  },
+  "evaluations": [
+    {
+      "control_framework": "SOC2-TSC-2017",
+      "control_id": "CC6.6",
+      "status": "fail",
+      "severity": "critical",
+      "message": "Heartbleed (CVE-2014-0160) — vulnerable, info leak. CC6.6 vulnerability management requires identification and remediation of known vulnerabilities."
+    },
+    {
+      "control_framework": "NIST-800-53-r5",
+      "control_id": "RA-5",
+      "status": "fail",
+      "severity": "critical",
+      "message": "Heartbleed (CVE-2014-0160) — vulnerable, info leak. RA-5 requires regular vulnerability scanning and remediation."
+    },
+    {
+      "control_framework": "NIST-800-53-r5",
+      "control_id": "SI-2",
+      "status": "fail",
+      "severity": "critical",
+      "message": "Heartbleed (CVE-2014-0160) — vulnerable, info leak. SI-2 requires timely flaw remediation; this CVE has had a patched OpenSSL release since 2014."
+    },
+    {
+      "control_framework": "PCI-DSS-4.0",
+      "control_id": "6.3.3",
+      "status": "fail",
+      "severity": "critical",
+      "message": "Heartbleed (CVE-2014-0160) — vulnerable, info leak. PCI 6.3.3 requires high-risk vulnerabilities be addressed within 1 month."
+    },
+    {
+      "control_framework": "ISO-27001-2022",
+      "control_id": "A.8.8",
+      "status": "fail",
+      "severity": "critical",
+      "message": "Heartbleed (CVE-2014-0160) — vulnerable, info leak. A.8.8 requires management of technical vulnerabilities."
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "VPM-03",
+      "status": "fail",
+      "severity": "critical",
+      "message": "Heartbleed (CVE-2014-0160) — vulnerable, info leak. VPM-03 requires remediation of identified vulnerabilities within risk-based timeframes."
+    }
+  ],
+  "findings": [
+    {
+      "id": "testssl-inspector-heartbleed",
+      "title": "heartbleed — vulnerable, info leak",
+      "severity": "critical",
+      "description": "Heartbleed (CVE-2014-0160) — vulnerable, info leak — CVE: CVE-2014-0160",
+      "related_control_ids": [
+        "SOC2-TSC-2017:CC6.6",
+        "NIST-800-53-r5:RA-5",
+        "NIST-800-53-r5:SI-2",
+        "PCI-DSS-4.0:6.3.3",
+        "ISO-27001-2022:A.8.8",
+        "SCF:VPM-03"
+      ]
+    }
+  ],
+  "metadata": {
+    "target": "vuln.example.com",
+    "host": "vuln.example.com",
+    "port": 443
+  }
+}
