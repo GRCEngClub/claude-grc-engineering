@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "source": "testssl-inspector",
+  "source_version": "0.1.0+testssl-3.2",
+  "run_id": "fixture-tssl-002",
+  "collected_at": "2026-05-14T18:01:00Z",
+  "resource": {
+    "type": "tls_endpoint",
+    "id": "legacy.example.com:443",
+    "uri": "https://legacy.example.com:443/",
+    "region": null,
+    "account_id": null
+  },
+  "evaluations": [
+    {
+      "control_framework": "SOC2-TSC-2017",
+      "control_id": "CC6.7",
+      "status": "fail",
+      "severity": "high",
+      "message": "TLS 1.0 offered — testssl id TLS1, severity HIGH. PCI DSS 4.0.1 prohibits TLS 1.0/1.1; SOC 2 CC6.7 requires modern transmission encryption."
+    },
+    {
+      "control_framework": "NIST-800-53-r5",
+      "control_id": "SC-8",
+      "status": "fail",
+      "severity": "high",
+      "message": "TLS 1.0 offered — testssl id TLS1. SC-8 requires confidentiality of transmitted information using approved cryptography (FIPS-validated TLS 1.2+)."
+    },
+    {
+      "control_framework": "NIST-800-53-r5",
+      "control_id": "SC-13",
+      "status": "fail",
+      "severity": "high",
+      "message": "TLS 1.0 offered — testssl id TLS1. SC-13 requires approved cryptographic mechanisms; TLS 1.0 is deprecated."
+    },
+    {
+      "control_framework": "PCI-DSS-4.0",
+      "control_id": "4.2.1",
+      "status": "fail",
+      "severity": "critical",
+      "message": "TLS 1.0 offered — testssl id TLS1. PCI DSS 4.0.1 4.2.1 explicitly forbids SSL and early TLS (1.0/1.1)."
+    },
+    {
+      "control_framework": "ISO-27001-2022",
+      "control_id": "A.8.24",
+      "status": "fail",
+      "severity": "high",
+      "message": "TLS 1.0 offered — testssl id TLS1. A.8.24 requires cryptography to be used in accordance with the organization's policy and applicable agreements."
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-03",
+      "status": "fail",
+      "severity": "high",
+      "message": "TLS 1.0 offered — testssl id TLS1. CRY-03 requires transmission of sensitive data to use cryptographic mechanisms aligned with current standards."
+    }
+  ],
+  "findings": [
+    {
+      "id": "testssl-inspector-TLS1",
+      "title": "TLS1 — offered (deprecated)",
+      "severity": "high",
+      "description": "TLS 1.0 offered — testssl id TLS1, severity HIGH.",
+      "related_control_ids": [
+        "SOC2-TSC-2017:CC6.7",
+        "NIST-800-53-r5:SC-8",
+        "NIST-800-53-r5:SC-13",
+        "PCI-DSS-4.0:4.2.1",
+        "ISO-27001-2022:A.8.24",
+        "SCF:CRY-03"
+      ]
+    }
+  ],
+  "metadata": {
+    "target": "legacy.example.com",
+    "host": "legacy.example.com",
+    "port": 443
+  }
+}

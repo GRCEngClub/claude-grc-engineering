@@ -292,6 +292,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "testssl-inspector",
+      "source": "./plugins/connectors/testssl-inspector",
+      "description": "GRC connector wrapping testssl.sh: TLS/SSL protocol, cipher, certificate, and known-CVE checks on HTTPS endpoints → v1 finding contract",
+      "version": "0.1.0"
+    },
+    {
       "name": "okta-inspector",
       "source": "./plugins/connectors/okta-inspector",
       "description": "GRC connector for Okta: password/MFA/session policies, inactive users, admin factor enrollment \u2192 v1 finding contract",
