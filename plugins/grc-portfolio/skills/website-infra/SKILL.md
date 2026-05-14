@@ -103,18 +103,29 @@ Extract and save to `site-config.json`:
 
 If `features.contactForm` is true:
 
-1. Deploy the contact form stack:
+1. Ask the user for two SES-verified email addresses (no defaults — the
+   stack will refuse to deploy without them):
+   - `SESFromEmail`: verified sender identity
+   - `SESToEmail`: recipient inbox for submissions
+
+   If either is not yet verified in SES, stop and instruct the user to verify
+   them in the AWS Console (`SES → Verified identities → Create identity`)
+   before continuing. Save both to `aws.sesFromEmail` and `aws.sesToEmail`
+   in `site-config.json`.
+
+2. Deploy the contact form stack:
 ```bash
 aws cloudformation deploy \
   --template-file $TOOLKIT_DIR/cloudformation/contact-form-api.yaml \
   --stack-name <projectName>-contact-form-api \
-  --capabilities CAPABILITY_NAMED_IAM \
+  --parameter-overrides "SESFromEmail=<aws.sesFromEmail>" "SESToEmail=<aws.sesToEmail>" \
+  --capabilities CAPABILITY_IAM \
   --profile <aws.profile> \
   --region us-east-1 \
   --no-fail-on-empty-changeset
 ```
 
-2. Retrieve the API endpoint:
+3. Retrieve the API endpoint:
 ```bash
 aws cloudformation describe-stacks \
   --stack-name <projectName>-contact-form-api \
@@ -124,9 +135,9 @@ aws cloudformation describe-stacks \
   --output text
 ```
 
-3. Save to `aws.contactApiEndpoint` in config.
+4. Save to `aws.contactApiEndpoint` in config.
 
-4. Package and deploy the Lambda function code (reference `$TOOLKIT_DIR/scripts/deploy-contact-api.sh` for the pattern -- create temp dir, copy handler, install @aws-sdk/client-ses, zip, update function code).
+5. Package and deploy the Lambda function code (reference `$TOOLKIT_DIR/scripts/deploy-contact-api.sh` for the pattern -- create temp dir, copy handler, install @aws-sdk/client-ses, zip, update function code). The function name is `<projectName>-contact-form-api-handler` (derived from the stack name in the template).
 
 ## Step 8: Domain Instructions (if custom domain)
 

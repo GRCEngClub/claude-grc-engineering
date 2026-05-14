@@ -16,9 +16,9 @@ You are running the `/grc-portfolio:plan` skill. Your job is to guide a GRC (Gov
 find ~/.claude -path "*/grc-portfolio/scripts/deploy.sh" 2>/dev/null | head -1
 ```
 
-Strip `/scripts/deploy.sh` from the result to get `PLUGIN_ROOT`. If nothing is found, fall back to `~/Desktop/repos/websitebuilder` (for users running the standalone toolkit).
+Strip `/scripts/deploy.sh` from the result to get `PLUGIN_ROOT`. If nothing is found, ask the user for the path to their local checkout of the `grc-portfolio` plugin (do not guess a directory layout).
 
-**Determine the project directory** from `$ARGUMENTS`. If not provided, ask the user where they want the project created (suggest `~/Desktop/repos/<their-name>-grc-portfolio`). Create the directory if it doesn't exist.
+**Determine the project directory** from `$ARGUMENTS`. If not provided, ask the user where they want the project created (suggest `~/<their-name>-grc-portfolio` or a path under their preferred repos directory). Create the directory if it doesn't exist.
 
 ## Step 1: Identity
 
@@ -85,7 +85,10 @@ Ask:
    - Custom (let them specify primary + accent color)
 2. **Custom domain?** — yes/no. If yes, which domain?
 3. **AWS CLI profile** — what profile name? (default: "default")
-4. **Contact form?** — yes/no (uses AWS Lambda + SES; requires SES setup)
+4. **Contact form?** — yes/no (uses AWS Lambda + SES; requires SES setup). If yes, also collect:
+   - `aws.sesFromEmail`: SES-verified sender identity to use as `Source`
+   - `aws.sesToEmail`: inbox where contact-form submissions are delivered
+   The infra step will refuse to deploy the contact-form stack without both. Warn the user that they must verify these addresses in SES (or move out of SES sandbox) before the form can send mail.
 5. **Any other pages** they want beyond the standard portfolio sections? (Speaking page, Publications page, GRC Tools page, etc.)
 
 ## Step 7: Generate site-config.json
@@ -191,5 +194,5 @@ Tell the user:
 
 ## Variables
 
-- `PLUGIN_ROOT` = resolved from `find ~/.claude -path "*/grc-portfolio/scripts/deploy.sh"`; fallback `~/Desktop/repos/websitebuilder`
+- `PLUGIN_ROOT` = resolved from `find ~/.claude -path "*/grc-portfolio/scripts/deploy.sh"`. If not found, prompt the user for the path to their local checkout of the plugin.
 - `$ARGUMENTS` = arguments passed after `/plan` (expected: project directory path)

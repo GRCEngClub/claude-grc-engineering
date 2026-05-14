@@ -1,7 +1,7 @@
 {
   "projectName": "",
   "projectDir": "",
-  "toolkitDir": "/Users/aj.yawn/Desktop/repos/websitebuilder",
+  "toolkitDir": "",
   "siteType": "",
   "client": {
     "name": "",
@@ -71,6 +71,8 @@
     "distributionId": "",
     "cloudFrontUrl": "",
     "contactApiEndpoint": "",
+    "sesFromEmail": "",
+    "sesToEmail": "",
     "hostedZoneId": "",
     "certArn": ""
   },

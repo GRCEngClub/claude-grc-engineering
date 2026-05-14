@@ -1,13 +1,22 @@
 #!/bin/bash
 
 # Setup IAM User for SES Email Sending
-# This script creates an IAM user with minimal permissions to send emails via SES
+# Creates an IAM user scoped to ses:SendEmail/SendRawEmail, then prints a
+# fresh access key + secret for the Lambda contact-form path.
+#
+# Usage:
+#   ./setup-ses-iam-user.sh [aws-profile] [user-name] [policy-name]
+#
+# Examples:
+#   ./setup-ses-iam-user.sh
+#   ./setup-ses-iam-user.sh my-aws-profile
+#   ./setup-ses-iam-user.sh my-aws-profile my-portfolio-ses-mailer MyPortfolioSesPolicy
 
 set -e
 
-PROFILE="con"
-USER_NAME="construct-ses-mailer"
-POLICY_NAME="ConstructSESSendPolicy"
+PROFILE="${1:-default}"
+USER_NAME="${2:-grc-portfolio-ses-mailer}"
+POLICY_NAME="${3:-GrcPortfolioSesSendPolicy}"
 
 echo "🔧 Creating IAM user for SES email sending..."
 echo "Profile: $PROFILE"
@@ -87,6 +96,6 @@ echo ""
 echo "⚠️  IMPORTANT: Save these credentials now!"
 echo "    The secret access key cannot be retrieved again."
 echo ""
-echo "📝 To automatically create .env.local, run:"
-echo "   ./aws-deployment-kit/scripts/create-env-file.sh \"$ACCESS_KEY_ID\" \"$SECRET_ACCESS_KEY\""
+echo "📝 To save these to .env.local, run from your project root:"
+echo "   ./scripts/create-env-file.sh \"$ACCESS_KEY_ID\" \"$SECRET_ACCESS_KEY\""
 echo ""

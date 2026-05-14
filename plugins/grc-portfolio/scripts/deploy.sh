@@ -92,14 +92,29 @@ echo "=========================================="
 echo ""
 
 # Step 1: Upload files to S3
-info "Uploading files to S3..."
+# Hashed assets are cached immutably for a year; HTML must not be cached
+# immutably or visitors won't see new deploys (Vite emits a fresh index.html
+# every build that references the latest hashed asset URLs).
+info "Uploading hashed assets to S3 (immutable cache)..."
 if aws s3 sync dist/ "s3://${BUCKET_NAME}" \
     --delete \
     --cache-control "public,max-age=31536000,immutable" \
+    --exclude "*.html" \
     --profile "$AWS_PROFILE"; then
-    success "Files uploaded to S3"
+    success "Assets uploaded"
 else
-    error "Failed to upload files to S3"
+    error "Failed to upload assets to S3"
+fi
+
+info "Uploading HTML to S3 (no immutable cache)..."
+if aws s3 sync dist/ "s3://${BUCKET_NAME}" \
+    --cache-control "public,max-age=0,must-revalidate" \
+    --exclude "*" \
+    --include "*.html" \
+    --profile "$AWS_PROFILE"; then
+    success "HTML uploaded"
+else
+    error "Failed to upload HTML to S3"
 fi
 
 # Step 2: Invalidate CloudFront cache

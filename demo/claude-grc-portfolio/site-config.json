@@ -1,7 +1,7 @@
 {
   "projectName": "claude-grc-portfolio",
-  "projectDir": "/Users/aj.yawn/Desktop/repos/claude-grc-portfolio",
-  "toolkitDir": "/Users/aj.yawn/Desktop/repos/claude-grc-engineering/.claude/worktrees/interesting-wing-7942f2/plugins/grc-portfolio",
+  "projectDir": "",
+  "toolkitDir": "",
   "siteType": "portfolio",
   "client": {
     "name": "Claude",

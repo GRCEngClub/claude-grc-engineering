@@ -4,15 +4,21 @@ Description: 'Contact Form API - Lambda + API Gateway for handling form submissi
 Parameters:
   SESFromEmail:
     Type: String
-    Default: teamconnoisseurww@gmail.com
-    Description: Verified SES email address for sending emails
+    Description: SES-verified sender identity (e.g. hello@example.com). No default — must be supplied so the function cannot route mail to an unintended inbox.
+    AllowedPattern: '^[^@\s]+@[^@\s]+\.[^@\s]+$'
+    ConstraintDescription: Must be a valid email address.
+
+  SESToEmail:
+    Type: String
+    Description: Recipient inbox for contact form submissions.
+    AllowedPattern: '^[^@\s]+@[^@\s]+\.[^@\s]+$'
+    ConstraintDescription: Must be a valid email address.
 
 Resources:
   # IAM Role for Lambda
   ContactFormLambdaRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: ContactFormLambdaRole
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -37,7 +43,7 @@ Resources:
   ContactFormFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: construct-contact-form-handler
+      FunctionName: !Sub '${AWS::StackName}-handler'
       Runtime: nodejs20.x
       Handler: index.handler
       Role: !GetAtt ContactFormLambdaRole.Arn
@@ -45,6 +51,7 @@ Resources:
       Environment:
         Variables:
           SES_FROM_EMAIL: !Ref SESFromEmail
+          SES_TO_EMAIL: !Ref SESToEmail
       Code:
         ZipFile: |
           // Placeholder - will be updated via deployment script
@@ -55,11 +62,11 @@ Resources:
             };
           };
 
-  # API Gateway REST API
+  # API Gateway HTTP API
   ContactFormApi:
     Type: AWS::ApiGatewayV2::Api
     Properties:
-      Name: construct-contact-form-api
+      Name: !Sub '${AWS::StackName}-api'
       ProtocolType: HTTP
       CorsConfiguration:
         AllowOrigins:
@@ -110,10 +117,10 @@ Outputs:
     Description: API Gateway endpoint URL
     Value: !Sub 'https://${ContactFormApi}.execute-api.${AWS::Region}.amazonaws.com/prod/contact'
     Export:
-      Name: ContactFormApiEndpoint
+      Name: !Sub '${AWS::StackName}-ApiEndpoint'
 
   LambdaFunctionArn:
     Description: Lambda function ARN
     Value: !GetAtt ContactFormFunction.Arn
     Export:
-      Name: ContactFormLambdaArn
+      Name: !Sub '${AWS::StackName}-LambdaArn'
