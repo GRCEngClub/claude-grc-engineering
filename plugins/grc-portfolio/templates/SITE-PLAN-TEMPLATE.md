@@ -50,9 +50,9 @@
 
 ## Next Steps
 
-1. Run `/preflight` to validate AWS readiness
-2. Run `/build` to scaffold the React/Vite project
-3. Run `/repo` to create a GitHub repository
-4. Run `/infra` to deploy AWS infrastructure
-5. Run `/deploy` to publish the site
-6. Run `/cicd` to set up continuous deployment
+1. Run `/grc-portfolio:build` to scaffold the React/Vite project
+2. Run `/grc-portfolio:preflight` to validate AWS readiness
+3. Run `/grc-portfolio:infra` to deploy AWS infrastructure
+4. Run `/grc-portfolio:deploy` to publish the site
+5. Run `/grc-portfolio:repo` to create a GitHub repository
+6. Run `/grc-portfolio:cicd` to set up continuous deployment

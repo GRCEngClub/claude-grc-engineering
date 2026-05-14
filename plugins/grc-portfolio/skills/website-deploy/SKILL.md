@@ -29,12 +29,20 @@ Extract needed values:
 
 ## Step 2: Set Environment Variables (if contact form)
 
-If `features.contactForm` is true and `aws.contactApiEndpoint` is set:
+If `features.contactForm` is true and `aws.contactApiEndpoint` is set, ensure
+`.env` in the project directory contains:
 
-Create or update `.env` in the project directory:
 ```
 VITE_CONTACT_API_ENDPOINT=<aws.contactApiEndpoint>
 ```
+
+**Update the file non-destructively** — do not overwrite an existing `.env`:
+
+1. If `.env` does not exist, create it with just this line.
+2. If `.env` exists and already has a `VITE_CONTACT_API_ENDPOINT=` line, replace only that line.
+3. If `.env` exists but does not contain `VITE_CONTACT_API_ENDPOINT=`, append the line.
+
+Preserve any other variables the user has set (e.g. `VITE_GA_ID`, analytics keys, feature flags).
 
 ## Step 3: Build the Site
 

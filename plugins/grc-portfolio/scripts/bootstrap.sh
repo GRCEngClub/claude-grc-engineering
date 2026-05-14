@@ -165,20 +165,19 @@ else
     print_error "validate-stack.sh not found! This should not happen."
 fi
 
-print_info "Use these scripts from your project directory:"
-echo "  ../aws-deployment-kit/scripts/deploy.sh <bucket> <distribution-id> [profile]"
-echo "  ../aws-deployment-kit/scripts/validate-stack.sh [template-file] [profile]"
+print_info "Run these from your project directory (point at the plugin's scripts/):"
+echo "  <plugin-root>/scripts/deploy.sh <bucket> <distribution-id> [profile]"
+echo "  <plugin-root>/scripts/validate-stack.sh [template-file] [profile]"
 
 # Summary
 print_header "Setup Complete!"
 
 echo "✓ All required tools are installed"
-echo "✓ Helper scripts created"
 echo ""
 echo "Next steps:"
-echo "  1. Read the GUIDE.md file for detailed instructions"
-echo "  2. Customize the CloudFormation template if needed"
-echo "  3. Deploy your infrastructure using the AWS Console or CLI"
-echo "  4. Use ./deploy.sh to deploy your website"
+echo "  1. From Claude Code, run /grc-portfolio:plan to scaffold your site config."
+echo "  2. Run /grc-portfolio:preflight to validate AWS readiness."
+echo "  3. Run /grc-portfolio:infra to deploy the CloudFormation stack."
+echo "  4. Run /grc-portfolio:deploy to build and publish the site."
 echo ""
 print_success "You're ready to deploy your website to AWS!"

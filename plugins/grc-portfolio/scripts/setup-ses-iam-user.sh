@@ -70,6 +70,22 @@ aws iam attach-user-policy \
   --profile "$PROFILE" \
   2>/dev/null || echo "Policy already attached"
 
+# Pre-check existing access keys (AWS allows at most 2 per user).
+echo "🔍 Checking existing access keys..."
+EXISTING_KEYS=$(aws iam list-access-keys \
+  --user-name "$USER_NAME" \
+  --profile "$PROFILE" \
+  --query 'length(AccessKeyMetadata)' \
+  --output text 2>/dev/null || echo 0)
+
+if [ "${EXISTING_KEYS:-0}" -ge 2 ]; then
+    echo "❌ User $USER_NAME already has $EXISTING_KEYS access keys (AWS maximum is 2)."
+    echo "   Delete an unused key before re-running:"
+    echo "     aws iam list-access-keys --user-name $USER_NAME --profile $PROFILE"
+    echo "     aws iam delete-access-key --user-name $USER_NAME --access-key-id <id> --profile $PROFILE"
+    exit 1
+fi
+
 # Create access key
 echo "🔑 Creating access key..."
 ACCESS_KEY_OUTPUT=$(aws iam create-access-key \
@@ -96,6 +112,6 @@ echo ""
 echo "⚠️  IMPORTANT: Save these credentials now!"
 echo "    The secret access key cannot be retrieved again."
 echo ""
-echo "📝 To save these to .env.local, run from your project root:"
-echo "   ./scripts/create-env-file.sh \"$ACCESS_KEY_ID\" \"$SECRET_ACCESS_KEY\""
+echo "📝 To save these to .env.local without exposing them in shell history, run:"
+echo "   AWS_ACCESS_KEY_ID=<paste> AWS_SECRET_ACCESS_KEY=<paste> ./scripts/create-env-file.sh"
 echo ""

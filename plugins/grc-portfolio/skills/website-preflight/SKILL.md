@@ -127,4 +127,4 @@ Tell the user:
 ## Variables
 
 - `$TOOLKIT_DIR` = read from `site-config.json` `toolkitDir` field
-- `$ARGUMENTS` = arguments passed after `/preflight` (expected: project directory path)
+- `$ARGUMENTS` = arguments passed after `/grc-portfolio:preflight` (expected: project directory path)

@@ -34,53 +34,49 @@ If validation fails, report the error and stop.
 
 ## Step 4: Deploy Main Stack
 
-Deploy the CloudFormation stack:
+Use `aws cloudformation deploy` — it is idempotent (creates the stack on
+first run, applies a change-set on subsequent runs) and waits for completion
+inline, so the user doesn't need a separate `wait` step.
 
 **With custom domain:**
 ```bash
-aws cloudformation create-stack \
+aws cloudformation deploy \
   --stack-name <aws.stackName> \
-  --template-body file://<template-path> \
-  --parameters \
-    ParameterKey=ProjectName,ParameterValue=<projectName> \
-    ParameterKey=DomainName,ParameterValue=<aws.domain> \
-    ParameterKey=HostedZoneId,ParameterValue=<aws.hostedZoneId> \
-    ParameterKey=CertificateArn,ParameterValue=<aws.certArn> \
+  --template-file <template-path> \
+  --parameter-overrides \
+    ProjectName=<projectName> \
+    DomainName=<aws.domain> \
+    HostedZoneId=<aws.hostedZoneId> \
+    CertificateArn=<aws.certArn> \
   --profile <aws.profile> \
-  --region us-east-1
+  --region us-east-1 \
+  --no-fail-on-empty-changeset
 ```
 
 **Without custom domain:**
 ```bash
-aws cloudformation create-stack \
+aws cloudformation deploy \
   --stack-name <aws.stackName> \
-  --template-body file://<template-path> \
-  --parameters \
-    ParameterKey=ProjectName,ParameterValue=<projectName> \
+  --template-file <template-path> \
+  --parameter-overrides ProjectName=<projectName> \
   --profile <aws.profile> \
-  --region us-east-1
+  --region us-east-1 \
+  --no-fail-on-empty-changeset
 ```
 
 Note: Check the actual template parameters first by reading the template file, as parameter names may differ from the examples above. Use the actual parameter names from the template.
 
-## Step 5: Wait for Completion
+The deploy command can take 5-15 minutes (especially with CloudFront
+distribution creation). Tell the user it's in progress and approximately
+how long it might take.
 
-```bash
-aws cloudformation wait stack-create-complete \
-  --stack-name <aws.stackName> \
-  --profile <aws.profile> \
-  --region us-east-1
-```
-
-This can take 5-15 minutes (especially with CloudFront distribution creation). Tell the user it's in progress and approximately how long it might take.
-
-If the stack fails, retrieve the failure reason:
+If the deploy fails, retrieve the failure reason:
 ```bash
 aws cloudformation describe-stack-events \
   --stack-name <aws.stackName> \
   --profile <aws.profile> \
   --region us-east-1 \
-  --query "StackEvents[?ResourceStatus=='CREATE_FAILED'].[LogicalResourceId,ResourceStatusReason]" \
+  --query "StackEvents[?ResourceStatus=='CREATE_FAILED' || ResourceStatus=='UPDATE_FAILED'].[LogicalResourceId,ResourceStatusReason]" \
   --output table
 ```
 

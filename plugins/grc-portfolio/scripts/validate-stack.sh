@@ -37,8 +37,12 @@ info() {
     echo -e "${BLUE}ℹ $1${NC}"
 }
 
-# Default template file
-TEMPLATE_FILE="${1:-cloudformation/website-infrastructure.yaml}"
+# Resolve the default template relative to this script, not the caller's CWD,
+# so the script works regardless of where it's invoked from.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+TEMPLATE_FILE="${1:-$PLUGIN_ROOT/cloudformation/website-infrastructure.yaml}"
 AWS_PROFILE="${2:-default}"
 
 # Check if template file exists

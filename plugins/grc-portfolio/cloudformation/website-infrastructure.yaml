@@ -32,6 +32,13 @@ Conditions:
   ShouldCreateHostedZone: !Equals [!Ref CreateHostedZone, 'Yes']
   UseExistingHostedZone: !Equals [!Ref CreateHostedZone, 'No']
 
+Rules:
+  ExistingHostedZoneRequired:
+    RuleCondition: !Equals [!Ref CreateHostedZone, 'No']
+    Assertions:
+      - Assert: !Not [!Equals [!Ref ExistingHostedZoneId, '']]
+        AssertDescription: ExistingHostedZoneId is required when CreateHostedZone is "No".
+
 Resources:
   # S3 Bucket for website content
   WebsiteBucket:

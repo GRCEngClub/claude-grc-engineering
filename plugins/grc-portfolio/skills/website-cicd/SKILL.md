@@ -39,7 +39,10 @@ aws iam create-open-id-connect-provider \
 
 ### 2b: Create IAM Role with Trust Policy
 
-Create a trust policy that allows only this specific GitHub repo to assume the role:
+Create a trust policy that allows only this specific GitHub repo's `main`
+branch (and `workflow_dispatch` runs against `main`) to assume the role.
+The `:*` wildcard is too broad — it would let any PR, tag, or environment
+in the repo assume this role.
 
 ```json
 {
@@ -53,16 +56,18 @@ Create a trust policy that allows only this specific GitHub repo to assume the r
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
-        },
-        "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:<github.owner>/<github.repoName>:*"
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:sub": "repo:<github.owner>/<github.repoName>:ref:refs/heads/main"
         }
       }
     }
   ]
 }
 ```
+
+If the project deploys from a different branch, replace `main` accordingly.
+For preview deploys from PRs, add a second statement scoped to
+`repo:<owner>/<repo>:pull_request` and a separate, narrower IAM policy.
 
 Create the role:
 ```bash
@@ -151,7 +156,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies

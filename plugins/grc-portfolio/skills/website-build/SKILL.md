@@ -36,8 +36,9 @@ src/
     ContactForm.jsx  (if features.contactForm)
     ... (type-specific components)
   assets/
+index.html           (Vite's entry HTML, references /src/main.jsx)
 public/
-  index.html
+  favicon.svg
 package.json
 vite.config.js
 .env.example
@@ -175,6 +176,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 Import and compose all generated components in order. Use a single-page layout with sections. Include smooth scrolling.
 
 ## Step 8: Generate index.html
+
+Write this file at the **project root** (`<projectDir>/index.html`), not under `public/`. Vite resolves the entry HTML from the project root, and `/src/main.jsx` is referenced as an absolute project-root path:
 
 ```html
 <!DOCTYPE html>
