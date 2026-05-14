@@ -10,6 +10,7 @@ This is the official open-source Claude Code plugin marketplace of the [GRC Engi
 - **21 framework-specific plugins** (soc2, nist-800-53, iso27001, fedramp-rev5, fedramp-20x, pci-dss, cmmc, hitrust, cis-controls, gdpr, csa-ccm, nydfs, dora, stateramp, essential8, glba, us-export, pbmm, ismap, irap)
 - **4 Tier-1 connector plugins** (aws-inspector, gcp-inspector, github-inspector, okta-inspector) that emit findings matching `schemas/finding.schema.json`
 - **OSCAL tooling plugins** (oscal, fedramp-ssp) wrapping external upstream projects
+- **grc-portfolio** — site-builder plugin that scaffolds and deploys a GRC engineer's portfolio website (React/Vite on S3 + CloudFront, optional Route 53/ACM and SES-backed contact form, GitHub Actions OIDC for CI/CD)
 
 Each plugin contains commands (user-facing) and skills (AI agents that implement functionality).
 
@@ -168,6 +169,7 @@ Each plugin has a unique namespace for commands:
 - `/grc-auditor:` - Audit and assessment tools
 - `/grc-internal:` - Internal GRC team tools
 - `/grc-tprm:` - Third-party risk management
+- `/grc-portfolio:` - GRC engineer portfolio site builder (plan → build → preflight → infra → deploy → repo → cicd)
 - `/soc2:` - SOC 2 expertise
 - `/nist:` - NIST 800-53 controls
 - `/iso:` - ISO 27001 ISMS
@@ -719,6 +721,27 @@ This provides end-to-end compliance automation:
 4. **Scan** existing infrastructure (violations + fixes)
 5. **Test** control effectiveness (config, functionality, compliance)
 6. **Monitor** continuously (trends, alerts, dashboard)
+
+## Access Review Triage (NEW)
+
+The grc-engineer plugin includes an `access-review-triage` skill for teams running quarterly user access reviews (UARs) out of spreadsheets — the common shape for orgs without a dedicated IGA tool (Sailpoint, Saviynt, Okta Access Certifications).
+
+Lives at `plugins/grc-engineer/skills/access-review-triage/SKILL.md`. The skill takes a CSV or JSON access export (Okta, Azure AD, AWS IAM, GitHub, or generic) plus optional HR list, SoD config, and prior-cycle decisions, then walks 10 ordered decision rules to tag each row:
+
+- Rule 1: terminated user with active access → Investigate (P0)
+- Rule 2: separation-of-duty conflict → Investigate (P0)
+- Rule 3: dormant admin (last_login > 90 days) → Investigate (P1)
+- Rule 4: dormant non-privileged user → Revoke (suggested)
+- Rule 5: service / shared account in human review → Investigate (P1)
+- Rule 6: role-vs-title mismatch → Manager confirm
+- Rule 7: new since last cycle → Manager confirm
+- Rule 8: privileged role (catch-all) → Manager confirm
+- Rule 9: unchanged since last cycle → Auto-certify
+- Rule 10: default → Manager confirm
+
+Output is four artifacts in `~/.cache/claude-grc/access-reviews/<system>-<YYYY-QN>/`: `triage.md` (human-readable report), `decisions.csv` (machine-readable per-row recommendations), `manager-emails/<manager>.md` (drafted confirmation emails), and `evidence.json` (audit-binder packet with control mappings to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.9, NIST AC-2).
+
+The skill never auto-revokes — every recommendation is a draft for human review. It refuses to run for orgs that already have an IGA tool unless `--force` is passed.
 
 ## Multi-Cloud Support
 
