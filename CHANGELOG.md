@@ -4,6 +4,15 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Removed
+
+- **`vanta-bridge` plugin removed.** Vanta now ships an official Claude Code plugin (`vanta-mcp-plugin` in `anthropics/claude-plugins-official`) and an official MCP server (`mcp.vanta.com/mcp` and regional variants). The community bridge predated both and added a manual-export step that's now obsolete. Users should install Vanta's official plugin instead — see [GHSA #150](https://github.com/GRCEngClub/claude-grc-engineering/issues/150). Drops the bridge plugin, marketplace registration, test fixtures, and documentation references.
+
+### Fixed
+
+- **Plugin install failures.** Removed non-standard top-level fields (`commands`, `skills`, `hooks`, `namespace`) from `us-hipaa-security`, `grc-loop`, `us-ccpa`, `ch-fadp`, and `nist-csf-20` manifests — Claude Code's install-time validator was rejecting them. Commands and skills are auto-discovered from their directories; hooks were already wired correctly via `hooks/hooks.json`. Closes [#150](https://github.com/GRCEngClub/claude-grc-engineering/issues/150).
+- **`plugin.schema.json` tightened.** Explicitly forbids `namespace`, `commands`, `skills`, and `hooks` as top-level keys in `plugin.json` so future PRs catch the same install-time validation drift at CI time rather than at user install.
+
 ## [0.0.4] — 2026-04-30
 
 ### Added

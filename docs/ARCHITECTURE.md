@@ -137,7 +137,7 @@ One plugin holds the cross-cutting commands. Other plugins either *feed* the hub
 2. **Framework plugins**: `soc2`, `nist-800-53`, `iso27001`, `pci-dss`, `fedramp-rev5`, `fedramp-20x`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `csa-ccm`, `nydfs`, `dora`, `stateramp`, `essential8`, `glba`, `us-export`, `pbmm`, `ismap`, `irap`. These carry framework-specific knowledge and commands (`/soc2:generate-tsc-matrix`, `/fedramp-rev5:poam-review`, etc.). Normative control text stays behind your licensed copy of the standard. These plugins reference control IDs and provide my implementation guidance, not the standards' prose.
 3. **Persona plugins**: `grc-auditor` (audit workflows), `grc-internal` (internal GRC team), `grc-tprm` (third-party risk). Orchestrate commands from the hub and framework plugins for a specific role.
 4. **Connector plugins**: `aws-inspector`, `github-inspector`, `gcp-inspector`, `okta-inspector`. Thin integration layer over external tools. Emit Findings, conform to the contract.
-5. **OSCAL / FedRAMP showcase plugins**: `oscal` (wraps `oscal-cli`), `fedramp-docs` (wraps `fedramp-docs-mcp`), `vanta-bridge` (wraps `vanta-go-export`). Turn the FedRAMP/OSCAL tooling into first-class Claude commands.
+5. **OSCAL / FedRAMP showcase plugins**: `oscal` (wraps `oscal-cli`), `fedramp-docs` (wraps `fedramp-docs-mcp`). Turn the FedRAMP/OSCAL tooling into first-class Claude commands.
 
 ## Connector quality bar
 

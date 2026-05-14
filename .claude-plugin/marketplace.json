@@ -47,17 +47,6 @@
       "version": "0.1.0"
     },
     {
-      "name": "vanta-bridge",
-      "source": "./plugins/bridges/vanta-bridge",
-      "description": "Normalize Vanta MCP/plugin outputs into v1 Findings for GRC Engineering workflows.",
-      "version": "0.1.0",
-      "commands": [
-        "setup",
-        "status",
-        "sync"
-      ]
-    },
-    {
       "name": "gcp-docs",
       "source": "./plugins/knowledge-sources/gcp-docs",
       "description": "Knowledge source for Google Developer Knowledge API: current Google developer documentation citations for GRC workflows.",

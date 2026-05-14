@@ -16,7 +16,5 @@
     "industry": ["cross-sector", "critical-infrastructure", "federal-contractor", "private-sector"],
     "regulator": "NIST (voluntary framework; not enforced — adopted as baseline by US federal agencies, sector regulators, and contracts)",
     "citations": ["NIST CSF 2.0 (February 26, 2024)", "NIST CSF 2.0 Quick Start Guides (NIST SP 1300 series)", "Informative References to NIST SP 800-53 Rev. 5, ISO/IEC 27001:2022, CIS Controls v8"]
-  },
-  "commands": ["scope", "assess", "evidence-checklist"],
-  "skills": ["nist-csf-20-expert"]
+  }
 }

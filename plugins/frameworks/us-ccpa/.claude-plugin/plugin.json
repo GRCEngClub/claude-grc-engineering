@@ -18,7 +18,5 @@
     "industry": [],
     "regulator": "California Privacy Protection Agency (CPPA); California Attorney General",
     "citations": ["California Civil Code §1798.100 et seq.", "11 CCR §7000 et seq. (CPPA regulations)"]
-  },
-  "commands": ["assess", "scope", "evidence-checklist"],
-  "skills": ["us-ccpa-expert"]
+  }
 }

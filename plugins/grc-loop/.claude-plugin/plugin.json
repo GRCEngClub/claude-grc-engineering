@@ -6,7 +6,5 @@
     "name": "GRC Engineering Club Contributors"
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
-  "license": "MIT",
-  "commands": ["gap-burndown", "evidence-sweep", "cancel", "help"],
-  "hooks": ["Stop"]
+  "license": "MIT"
 }
