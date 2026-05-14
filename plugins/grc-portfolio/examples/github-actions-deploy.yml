@@ -1,0 +1,93 @@
+# GitHub Actions Workflow for Automatic AWS Deployment (OIDC)
+#
+# This workflow deploys the website to AWS on every push to main using
+# GitHub OIDC for keyless AWS authentication. No long-lived AWS access keys
+# are stored as GitHub secrets.
+#
+# This is the same workflow produced by `/grc-portfolio:cicd`. Use that
+# command to provision the matching IAM role automatically.
+#
+# Manual setup:
+# 1. Copy this file to .github/workflows/deploy.yml in your project.
+# 2. In AWS, create an OIDC identity provider for token.actions.githubusercontent.com
+#    and an IAM role with a trust policy scoped to repo:<owner>/<repo>:* and
+#    an inline policy granting s3:* on your bucket and cloudfront:CreateInvalidation
+#    on your distribution.
+# 3. Fill in the env values below with your role ARN, bucket name, and distribution ID.
+
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_ROLE_ARN: arn:aws:iam::<account-id>:role/<projectName>-github-deploy
+  AWS_BUCKET_NAME: <your-bucket-name>
+  AWS_DISTRIBUTION_ID: <your-distribution-id>
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Tests must pass to ship. If you don't have tests yet, remove this step
+      # rather than letting failures slip through.
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Build project
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy assets to S3 (immutable cache)
+        run: |
+          aws s3 sync dist/ s3://${{ env.AWS_BUCKET_NAME }} \
+            --delete \
+            --cache-control "public,max-age=31536000,immutable" \
+            --exclude "*.html"
+
+      - name: Deploy HTML to S3 (must-revalidate)
+        run: |
+          aws s3 sync dist/ s3://${{ env.AWS_BUCKET_NAME }} \
+            --cache-control "public,max-age=0,must-revalidate" \
+            --exclude "*" \
+            --include "*.html"
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ env.AWS_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+      - name: Deployment successful
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "🌐 Your website is now live!"

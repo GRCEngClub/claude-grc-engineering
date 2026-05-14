@@ -1,0 +1,8 @@
+{
+  "name": "grc-portfolio",
+  "version": "0.1.0",
+  "description": "Build and deploy a professional portfolio website for GRC engineers — certifications, frameworks, audit experience, and AWS hosting included.",
+  "author": { "name": "GRC Engineering Club Contributors" },
+  "license": "MIT",
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering"
+}
