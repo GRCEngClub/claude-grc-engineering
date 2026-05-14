@@ -5,7 +5,9 @@
  *
  * Fetches from https://grcengclub.github.io/scf-api/ on demand; caches under
  * ~/.cache/claude-grc/scf/<version>/. Respects CC BY-ND 4.0 — cached data is
- * preserved verbatim, never modified.
+ * preserved verbatim, never modified. This mirror is the right source for
+ * this toolkit: it exposes per-framework JSON crosswalks (forward + reverse,
+ * pre-indexed) for every framework our plugins target.
  *
  * Public API:
  *   initSCF({ offline, cacheDir, baseUrl }) → SCFClient
