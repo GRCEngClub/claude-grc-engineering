@@ -1,0 +1,10 @@
+user,system,role,last_login,status
+jdoe@acme.com,okta,admin,2026-05-05,active
+sarah.kim@acme.com,okta,engineer,2026-05-08,active
+mike.left@acme.com,okta,analyst,2026-04-20,active
+dormant.dave@acme.com,okta,admin,2025-11-20,active
+sleepy.sue@acme.com,okta,viewer,2025-12-01,active
+svc-deployer@acme.com,okta,deploy-bot,2026-05-09,active
+ap.both@acme.com,okta,ap-creator,2026-05-07,active
+ap.both@acme.com,okta,ap-approver,2026-05-07,active
+jane.new@acme.com,okta,marketing,2026-05-09,active

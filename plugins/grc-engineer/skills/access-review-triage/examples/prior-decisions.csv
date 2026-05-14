@@ -1,0 +1,8 @@
+user,system,role,last_login,recommendation,reason,priority,reviewer_action,reviewer_name,reviewer_timestamp
+jdoe@acme.com,okta,admin,2026-02-04,manager confirm,Privileged role,P2,certified,lisa.head@acme.com,2026-02-12T14:02:00Z
+sarah.kim@acme.com,okta,engineer,2026-02-07,auto-certify,Unchanged role, recent login,,certified,jdoe@acme.com,2026-02-12T14:04:00Z
+dormant.dave@acme.com,okta,admin,2026-02-01,manager confirm,Privileged role,P2,certified,lisa.head@acme.com,2026-02-12T14:08:00Z
+sleepy.sue@acme.com,okta,viewer,2025-11-15,auto-certify,Unchanged role,,certified,bob.sales@acme.com,2026-02-12T14:10:00Z
+ap.both@acme.com,okta,ap-creator,2026-02-06,auto-certify,Unchanged role,,certified,finance.boss@acme.com,2026-02-12T14:11:00Z
+svc-deployer@acme.com,okta,deploy-bot,2026-02-09,investigate,Service account in human review,P1,deferred to service-account review,grc@acme.com,2026-02-12T14:15:00Z
+mike.left@acme.com,okta,analyst,2026-02-03,auto-certify,Unchanged role,,certified,lisa.head@acme.com,2026-02-12T14:18:00Z
