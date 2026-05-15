@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "source": "okta-inspector",
+  "source_version": "0.1.0-fixture",
+  "run_id": "okta-fixture-0001",
+  "collected_at": "2026-04-14T10:00:00Z",
+  "resource": {
+    "type": "okta_org_mfa_posture",
+    "id": "mfa-00oacmeprod",
+    "uri": "https://acme.okta.com/admin/access/policies",
+    "region": null,
+    "account_id": "00oacmeprod",
+    "tags": {
+      "environment": "production"
+    }
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-01.2",
+      "status": "pass",
+      "severity": "info",
+      "message": "An active MFA enrollment policy requires WebAuthn enrollment for all users.",
+      "evidence_refs": [
+        "okta-inspector/okta-fixture-0001/policies-mfa.json"
+      ],
+      "assessed_at": "2026-04-14T10:00:00Z"
+    }
+  ]
+}

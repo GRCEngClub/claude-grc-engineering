@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "source": "okta-inspector",
+  "source_version": "0.1.0-fixture",
+  "run_id": "okta-fixture-0003",
+  "collected_at": "2026-04-14T10:10:00Z",
+  "resource": {
+    "type": "okta_system_log",
+    "id": "system-log-00oacmeprod",
+    "uri": "https://acme.okta.com/api/v1/logs",
+    "region": null,
+    "account_id": "00oacmeprod"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "MON-02",
+      "status": "inconclusive",
+      "severity": "low",
+      "message": "System log retention could not be confirmed because the Okta API returned HTTP 429 rate limiting during collection.",
+      "remediation": {
+        "summary": "Re-run the collection after the rate-limit window resets or reduce concurrent Okta API activity before relying on log-retention evidence.",
+        "ref": "https://developer.okta.com/docs/reference/rl-global-mgmt/",
+        "effort_hours": 0.1,
+        "automation": "manual"
+      },
+      "evidence_refs": [
+        "okta-inspector/okta-fixture-0003/system-log-rate-limit.txt"
+      ],
+      "assessed_at": "2026-04-14T10:10:00Z"
+    }
+  ]
+}
