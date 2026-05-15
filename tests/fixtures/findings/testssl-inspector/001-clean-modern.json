@@ -31,8 +31,8 @@
       "severity": "info"
     },
     {
-      "control_framework": "ISO-27001-2022",
-      "control_id": "A.8.24",
+      "control_framework": "ISO-27002-2022",
+      "control_id": "8.24",
       "status": "pass",
       "severity": "info"
     },
