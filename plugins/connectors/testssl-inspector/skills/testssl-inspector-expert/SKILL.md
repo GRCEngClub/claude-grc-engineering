@@ -1,6 +1,6 @@
 ---
 name: testssl-inspector-expert
-description: Interpret testssl-inspector normalized findings, recommend remediations, and tie evidence back to SOC 2 / NIST 800-53 / PCI DSS 4.0.1 / ISO 27001 / SCF controls.
+description: Interpret testssl-inspector normalized findings, recommend remediations, and tie evidence back to SCF anchor controls plus SOC 2 / NIST 800-53 r5 / PCI DSS 4.0.1 / ISO 27002:2022 equivalents derived from SCF crosswalks.
 license: MIT
 ---
 
@@ -23,7 +23,7 @@ Most fails fall into one of five families. The remediation pattern is the same w
 
 ### Family 1 — Weak protocol offered
 
-IDs: `SSLv2`, `SSLv3`, `TLS1`, `TLS1_1`. Maps to SOC 2 CC6.7, NIST SC-8/SC-13, PCI 4.2.1, ISO A.8.24, SCF CRY-03.
+IDs: `SSLv2`, `SSLv3`, `TLS1`, `TLS1_1`. SCF anchors: `CRY-01` (Use of Cryptographic Controls), `CRY-03` (Transmission of Sensitive Data), `NET-09` (Session Authenticity). SCF crosswalk fans these out at scan time — typical resolved targets include NIST `SC-08`, `SC-08(01)`, `SC-08(02)`, `SC-13`, `SC-23`, `SI-07(06)`; SOC 2 `CC6.1`, `CC6.7`; PCI `4.2`, `4.2.1`, `4.2.1.2`, `8.3.2`; ISO 27002 `5.14`, `8.24`, `8.26`.
 
 Remediation:
 
@@ -32,7 +32,7 @@ Remediation:
 
 ### Family 2 — Weak ciphers in the offered list
 
-IDs: `cipher_negotiated`, `cipherlist_*` (`NULL`, `aNULL`, `EXPORT`, `LOW`, `3DES_IDEA`, `OBSOLETED`), `RC4`, `std_*` variants. Maps to CC6.7, SC-13, PCI 4.2.1.1, A.8.24, SCF CRY-04.
+IDs: `cipher_negotiated`, `cipherlist_*` (`NULL`, `aNULL`, `EXPORT`, `LOW`, `3DES_IDEA`, `OBSOLETED`), `RC4`, `std_*` variants. SCF anchors: `CRY-01.2` (Algorithm Selection), `CRY-05` (Cryptographic Protection). Resolved targets typically include NIST `SC-13`, `SC-28`, `SC-28(01)`; SOC 2 `CC6.1`, `CC6.7`; PCI `3.5`, `3.5.1.2`, `3.5.1.3`, `8.3.2`; ISO 27002 `8.24`.
 
 Remediation:
 
@@ -41,7 +41,7 @@ Remediation:
 
 ### Family 3 — Certificate posture
 
-IDs: `cert_expirationStatus`, `cert_notAfter`, `cert_signatureAlgorithm`, `cert_keySize`, `cert_chain_of_trust`, `OCSP_*`, `CT`, `DNS_CAArecord`. Maps to CC6.1, SC-17, PCI 4.2.1, A.8.24, SCF CRY-08.
+IDs: `cert_expirationStatus`, `cert_notAfter`, `cert_signatureAlgorithm`, `cert_keySize`, `cert_chain_of_trust`, `OCSP_*`, `CT`, `DNS_CAArecord`. SCF anchor: `CRY-08` (Public Key Infrastructure). Resolved targets include NIST `SC-12` (Key Establishment & Management) and `SC-17` (PKI Certificates); SOC 2 `CC6.1`.
 
 Remediation depends on the specific failure:
 
@@ -53,7 +53,7 @@ Remediation depends on the specific failure:
 
 ### Family 4 — Known TLS CVEs
 
-IDs: `heartbleed`, `CCS`, `ticketbleed`, `ROBOT`, `secure_renego`, `secure_client_renego`, `CRIME_TLS`, `BREACH`, `POODLE_SSL`, `fallback_SCSV`, `SWEET32`, `FREAK`, `DROWN`, `LOGJAM`, `BEAST`, `LUCKY13`, `RC4`, `winshock`. Maps to CC6.6, RA-5, SI-2, PCI 6.3.3, A.8.8, SCF VPM-03.
+IDs: `heartbleed`, `CCS`, `ticketbleed`, `ROBOT`, `secure_renego`, `secure_client_renego`, `CRIME_TLS`, `BREACH`, `POODLE_SSL`, `fallback_SCSV`, `SWEET32`, `FREAK`, `DROWN`, `LOGJAM`, `BEAST`, `LUCKY13`, `RC4`, `winshock`. SCF anchors: `VPM-01` (Vulnerability & Patch Management), `VPM-06` (Vulnerability Scanning). Resolved targets include NIST `SI-02`, `SI-03`, `RA-05`; SOC 2 `CC7.1` and `CC3.x` POFs; PCI `6.3`, `6.3.1`, `6.3.3`, `11.3`, `11.3.1`; ISO 27002 `8.8`.
 
 These are not configuration tuning — they're vulnerability remediation. Treat any non-`OK` finding here as an audit-tracked vuln with a remediation deadline. Most are addressed by:
 
@@ -63,7 +63,7 @@ These are not configuration tuning — they're vulnerability remediation. Treat 
 
 ### Family 5 — HTTP transport headers
 
-IDs: `HSTS`, `HSTS_preload`, `HSTS_time`, `HPKP`, `cookie_secure`, `cookie_httponly`, `banner_*`, `security_headers`. Maps to CC6.7, SC-8, A.8.20, SCF CRY-03.
+IDs: `HSTS`, `HSTS_preload`, `HSTS_time`, `HPKP`, `cookie_secure`, `cookie_httponly`, `banner_*`, `security_headers`. SCF anchors: `CRY-03` (Transmission of Sensitive Data), `WEB-03` (Web App Hardening), `NET-09` (Session Authenticity). Resolved targets include NIST `SC-08`, `SC-08(01)`, `SC-07(17)`, `SC-23`; PCI `4.2`, `6.4`, `6.4.1`.
 
 Remediation:
 

@@ -19,20 +19,31 @@ node plugins/connectors/testssl-inspector/scripts/scan.js [options]
 - `--fast` — `testssl.sh --fast` (~3× faster, drops vulnerability checks).
 - `--full` — full check set (default). Slower; includes CVE checks (Heartbleed, ROBOT, POODLE, BEAST, BREACH, SWEET32, FREAK, LOGJAM, DROWN, …).
 - `--docker` / `--no-docker` — override the runner choice from the config.
+- `--scf-only` — emit only SCF evaluations; skip fan-out to NIST/SOC2/PCI/ISO. Smaller output, no network. Useful for CI or air-gapped environments.
+- `--offline` — never make network calls. Uses cached SCF crosswalks if present (under `~/.cache/claude-grc/scf/<version>/`); otherwise falls back to the hardcoded framework table. testssl itself still has to reach the target.
 - `--output=summary|silent|json` — default `summary` prints counts to stdout; `json` emits machine-readable run info; `silent` writes the cache file and nothing else.
 - `--quiet` — suppress stderr progress lines.
 
 ## What it evaluates
 
-Each testssl.sh finding maps to evaluations across multiple frameworks:
+Each testssl.sh finding is mapped first to one or more **SCF (Secure Controls Framework) control IDs**, then fanned out to downstream frameworks via the SCF crosswalk at `https://grcengclub.github.io/scf-api/`. Crosswalks are cached at `~/.cache/claude-grc/scf/<version>/` (shared with the `grc-engineer` plugin's SCF client) and refreshed every 7 days.
 
-| testssl group | SOC 2 | NIST 800-53 | PCI DSS 4.0.1 | ISO 27001 | SCF |
-|---|---|---|---|---|---|
-| Weak protocols (SSLv2/3, TLS 1.0/1.1) | CC6.7 | SC-8, SC-13 | 4.2.1 | A.8.24 | CRY-03 |
-| Weak ciphers (NULL, EXPORT, 3DES, RC4, anon) | CC6.7 | SC-13 | 4.2.1.1 | A.8.24 | CRY-04 |
-| Certificate posture (expiry, signature, chain, key size, OCSP, CT) | CC6.1 | SC-17 | 4.2.1 | A.8.24 | CRY-08 |
-| Known CVEs (Heartbleed, ROBOT, POODLE, SWEET32, FREAK, LOGJAM, DROWN, BEAST, LUCKY13, …) | CC6.6 | RA-5, SI-2 | 6.3.3 | A.8.8 | VPM-03 |
-| HTTP transport headers (HSTS, HPKP, cookie flags) | CC6.7 | SC-8 | — | A.8.20 | CRY-03 |
+| testssl finding family | SCF anchors |
+|---|---|
+| Weak protocols (SSLv2/3, TLS 1.0/1.1) | `CRY-01`, `CRY-03`, `NET-09` |
+| Weak ciphers (NULL, EXPORT, 3DES, RC4, anon) | `CRY-01.2`, `CRY-05` |
+| Certificate posture (expiry, signature, chain, key size, OCSP, CT) | `CRY-08` |
+| Known CVEs (Heartbleed, ROBOT, POODLE, SWEET32, FREAK, LOGJAM, DROWN, BEAST, LUCKY13, …) | `VPM-01`, `VPM-06` |
+| HTTP transport headers (HSTS, HPKP, cookie flags) | `CRY-03`, `WEB-03`, `NET-09` |
+
+The SCF crosswalk fan-out resolves each anchor to its equivalent controls in:
+
+- **NIST 800-53 r5** (e.g. `CRY-01` → `SC-08(01)`, `SC-08(02)`, `SC-13`, `SI-07(06)`)
+- **SOC 2 TSC 2017** (CC-family controls and POFs)
+- **PCI DSS 4.0.1** (§4 cryptography, §6 vulnerability management, §11 testing)
+- **ISO 27002:2022** (technical Annex A catalog — same numbering as ISO 27001:2022 Annex A, but the 27002 crosswalk has the technical depth; SCF's 27001:2022 crosswalk is sparse)
+
+If the SCF mirror is unreachable (network error, `--offline` with no cache), the script falls back to a curated hardcoded table that covers the same five frameworks at one canonical control per family. This is the v0 behavior; you'll see a `(scf expansion unavailable; framework fallback used)` note in the summary line when it kicks in.
 
 Severity translation: testssl `FATAL`/`CRITICAL` → `critical`; `HIGH` → `high`; `WARN`/`MEDIUM` → `medium`; `LOW` → `low`; `OK`/`INFO` → `info` (and `pass` for status). Anything else → `inconclusive`.
 

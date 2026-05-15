@@ -1,18 +1,20 @@
 # testssl-inspector
 
-A Claude Code plugin that wraps [`testssl.sh`](https://github.com/testssl/testssl.sh) and emits the toolkit's v1 Finding shape, mapped to SOC 2, NIST 800-53 r5, PCI DSS 4.0.1, ISO 27001:2022, and SCF controls.
+A Claude Code plugin that wraps [`testssl.sh`](https://github.com/testssl/testssl.sh) and emits the toolkit's v1 Finding shape. Mappings are anchored on SCF (Secure Controls Framework) controls and fanned out at scan time to SOC 2 TSC 2017, NIST 800-53 r5, PCI DSS 4.0.1, and ISO 27002:2022 via the SCF crosswalk.
 
 ## What it does
 
 Runs `testssl.sh` against one or more HTTPS endpoints, parses the JSON output, and produces structured findings the rest of the toolkit can consume — gap assessments, evidence packs, continuous-monitoring runs.
 
-| What testssl checks | Where it lands in compliance frameworks |
+| What testssl checks | SCF anchors |
 |---|---|
-| Protocols (SSLv2/3, TLS 1.0–1.3) | SOC 2 CC6.7 · NIST SC-8/SC-13 · PCI 4.2.1 · ISO A.8.24 · SCF CRY-03 |
-| Cipher suites (incl. NULL, EXPORT, 3DES, RC4) | SOC 2 CC6.7 · NIST SC-13 · PCI 4.2.1.1 · ISO A.8.24 · SCF CRY-04 |
-| Certificate (expiry, chain, signature, key, CAA, OCSP, CT) | SOC 2 CC6.1 · NIST SC-17 · PCI 4.2.1 · ISO A.8.24 · SCF CRY-08 |
-| Known CVEs (Heartbleed, ROBOT, POODLE, SWEET32, FREAK, LOGJAM, DROWN, BEAST, …) | SOC 2 CC6.6 · NIST RA-5/SI-2 · PCI 6.3.3 · ISO A.8.8 · SCF VPM-03 |
-| HTTP transport headers (HSTS, HPKP, cookie flags) | SOC 2 CC6.7 · NIST SC-8 · ISO A.8.20 · SCF CRY-03 |
+| Protocols (SSLv2/3, TLS 1.0–1.3) | `CRY-01`, `CRY-03`, `NET-09` |
+| Cipher suites (incl. NULL, EXPORT, 3DES, RC4) | `CRY-01.2`, `CRY-05` |
+| Certificate (expiry, chain, signature, key, CAA, OCSP, CT) | `CRY-08` |
+| Known CVEs (Heartbleed, ROBOT, POODLE, SWEET32, FREAK, LOGJAM, DROWN, BEAST, …) | `VPM-01`, `VPM-06` |
+| HTTP transport headers (HSTS, HPKP, cookie flags) | `CRY-03`, `WEB-03`, `NET-09` |
+
+At scan startup the connector fetches per-framework crosswalk JSON from `grcengclub.github.io/scf-api/` (cached under `~/.cache/claude-grc/scf/<version>/`, refreshed every 7 days) and uses it to fan each SCF anchor out to the equivalent control IDs in SOC 2, NIST 800-53 r5, PCI DSS 4.0.1, and ISO 27002:2022. Pass `--scf-only` to skip the fan-out, or `--offline` to stay on cached data. If the mirror is unreachable and no cache is present, the connector falls back to a curated hardcoded mapping covering all five frameworks at one canonical control per family.
 
 ## Install
 
