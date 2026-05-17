@@ -155,7 +155,7 @@ These are illustrative Current → Target Profile snapshots for three common sce
 | PR | PR.AA-05 | Implemented — RBAC defined in 800-171 SSP | Implemented — reuse 800-171 evidence wholesale via Informative Reference |
 | PR | PR.PS-06 | Partially implemented — SAST in pipeline, no DAST | Implemented — SAST + DAST in CI/CD, results reviewed before release |
 | DE | DE.CM-09 | Implemented — EDR deployed on all endpoints | Implemented — extend to cover OT/ICS assets in scope |
-| RS | RS.AN-07 | Not implemented — no formal after-action effectiveness scoring | Implemented — RCA template with effectiveness metrics completed within 30 days of major incidents |
+| RS | RS.AN-07 | Not implemented — no formal forensic evidence handling procedure | Implemented — forensic evidence collection procedure with chain-of-custody records and integrity hashing in place |
 
 **Note**: Most 800-53 Rev. 5 control evidence maps directly to CSF Subcategories via Informative References. Reuse existing SSP and POA&M artifacts; avoid re-collecting evidence already gathered for 800-171/CMMC work.
 
