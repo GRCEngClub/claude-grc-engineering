@@ -8,7 +8,7 @@ Runs a Profile gap assessment against **NIST Cybersecurity Framework v2.0** by d
 
 ## Usage
 
-```
+```text
 /nist-csf-20:assess [--function=<GV|ID|PR|DE|RS|RC>] [--profile=<current|target|gap>] [--sources=<connector-list>]
 ```
 
@@ -36,7 +36,7 @@ If `/nist-csf-20:scope` has been run, this command will pick up the recorded Fun
 
 Under the hood:
 
-```
+```text
 /grc-engineer:gap-assessment "general-nist-csf-2-0" [--sources=<connector-list>]
 ```
 
@@ -96,7 +96,7 @@ Specify via `--format=<text|json|csv>`.
 
 ## Examples
 
-```
+```bash
 # Full Profile gap assessment (all six Functions, current vs target)
 /nist-csf-20:assess
 
@@ -114,6 +114,72 @@ Specify via `--format=<text|json|csv>`.
 # Pull connector evidence
 /nist-csf-20:assess --sources=aws-inspector,github-inspector,okta-inspector
 ```
+
+## Profile examples
+
+These are illustrative Current → Target Profile snapshots for three common scenarios. Use them as a calibration reference when authoring or reviewing Profiles — not as defaults to copy verbatim, since risk tolerance and resourcing vary.
+
+### Scenario 1: Mid-market company building its first formal program
+
+**Context**: 300-person SaaS company, no prior formal cybersecurity program, no mandatory regulation (not HIPAA/PCI), cyber insurance renewal driving the engagement.
+**Tier — Current**: 1 (Partial) | **Tier — Target**: 3 (Repeatable), 18–24 month horizon
+
+| Function | Subcategory | Current state | Target state |
+| --- | --- | --- | --- |
+| GV | GV.OC-01 | Not implemented — no written cybersecurity strategy | Implemented — cybersecurity strategy approved by CEO, reviewed annually |
+| GV | GV.RM-02 | Not implemented — no risk appetite statement | Implemented — board-approved risk appetite statement in place |
+| GV | GV.RR-02 | Partially implemented — CISO role exists but RACI informal | Implemented — formal RACI, CISO charter, board oversight charter |
+| ID | ID.AM-01 | Partially implemented — spreadsheet, not automated | Implemented — CMDB with automated discovery, reconciled quarterly |
+| ID | ID.RA-01 | Not implemented — no formal vulnerability scanning | Implemented — authenticated scans monthly, critical vulns remediated within SLA |
+| PR | PR.AA-03 | Partially implemented — MFA on email only | Implemented — MFA enforced on all user-facing systems and privileged access |
+| PR | PR.DS-01 | Not implemented — S3 buckets unencrypted in some environments | Implemented — encryption at rest enforced by policy across all storage |
+| DE | DE.CM-01 | Not implemented — no centralized logging | Implemented — SIEM ingesting all critical log sources, 90-day retention |
+| RS | RS.MA-01 | Not implemented — no written IR plan | Implemented — IR plan written, tabletop exercised annually |
+| RC | RC.RP-01 | Not implemented — no BCDR plan | Implemented — BCDR plan tested, RTO/RPO defined and met in last test |
+
+**Quick wins (high ROI, low effort)**: GV.PO-01 (write policies), PR.AA-03 (expand MFA), ID.AM-01 (automate asset inventory), RS.MA-01 (document IR plan).
+
+---
+
+### Scenario 2: Federal contractor preparing for a CSF-aligned solicitation
+
+**Context**: 1,200-person defense services firm, existing NIST SP 800-171 / CMMC Level 2 work underway. A new civilian agency contract requires a CSF Profile submission.
+**Tier — Current**: 2 (Risk Informed) | **Tier — Target**: 3 (Repeatable), aligned with existing CMMC timeline
+
+| Function | Subcategory | Current state | Target state |
+| --- | --- | --- | --- |
+| GV | GV.OC-03 | Implemented — regulatory register maintained (DFARS, CMMC, FAR) | Implemented — expand to cover new civilian agency requirements |
+| GV | GV.SC-04 | Partially implemented — critical subcontractors identified informally | Implemented — tiered supplier inventory with criticality scores, reviewed annually |
+| GV | GV.SC-07 | Not implemented — no ongoing vendor risk monitoring cadence | Implemented — annual supplier reassessment for Tier 1 vendors, quarterly for critical |
+| ID | ID.RA-09 | Partially implemented — software SCA in CI/CD, hardware not covered | Implemented — hardware provenance checks in procurement; SBOM produced for all deliverables |
+| PR | PR.AA-05 | Implemented — RBAC defined in 800-171 SSP | Implemented — reuse 800-171 evidence wholesale via Informative Reference |
+| PR | PR.PS-06 | Partially implemented — SAST in pipeline, no DAST | Implemented — SAST + DAST in CI/CD, results reviewed before release |
+| DE | DE.CM-09 | Implemented — EDR deployed on all endpoints | Implemented — extend to cover OT/ICS assets in scope |
+| RS | RS.AN-07 | Not implemented — no formal after-action effectiveness scoring | Implemented — RCA template with effectiveness metrics completed within 30 days of major incidents |
+
+**Note**: Most 800-53 Rev. 5 control evidence maps directly to CSF Subcategories via Informative References. Reuse existing SSP and POA&M artifacts; avoid re-collecting evidence already gathered for 800-171/CMMC work.
+
+---
+
+### Scenario 3: Healthcare organization using CSF as the umbrella above HIPAA
+
+**Context**: Regional health system, 4,500 employees, subject to HIPAA Security Rule. Using CSF to give the board a single-page cybersecurity view and to structure the annual HIPAA Security Risk Analysis.
+**Tier — Current**: 2 (Risk Informed) | **Tier — Target**: 3 (Repeatable), driven by HHS OCR audit preparation
+
+| Function | Subcategory | Current state | Target state | HIPAA mapping |
+| --- | --- | --- | --- | --- |
+| GV | GV.OC-03 | Implemented — HIPAA regulatory register maintained | Implemented — expand to cover state breach notification laws and 42 CFR Part 2 | 45 CFR §164.306 |
+| GV | GV.RM-01 | Partially implemented — risk analysis done, but not tied to formal risk appetite | Implemented — risk appetite statement board-approved, SRA output feeds risk register | 45 CFR §164.308(a)(1) |
+| ID | ID.RA-01 | Implemented — vulnerability scans quarterly on ePHI systems | Implemented — extend to medical devices and OT systems | 45 CFR §164.308(a)(1) |
+| ID | ID.AM-03 | Partially implemented — data flows documented for primary EHR, not all integrations | Implemented — full ePHI data flow map updated annually and on architecture change | 45 CFR §164.308(a)(1) |
+| PR | PR.DS-01 | Partially implemented — EHR encrypted; medical devices and PACS not consistently | Implemented — encryption enforced or compensating controls documented for all ePHI at rest | 45 CFR §164.312(a)(2)(iv) |
+| PR | PR.AT-01 | Implemented — annual HIPAA training | Implemented — role-based training for clinical, administrative, and IT staff | 45 CFR §164.308(a)(5) |
+| DE | DE.CM-03 | Partially implemented — audit logging on EHR, no UEBA | Implemented — UEBA or equivalent anomalous-access detection on all ePHI systems | 45 CFR §164.312(b) |
+| RS | RS.CO-02 | Implemented — breach notification process for HHS/OCR | Implemented — expand to cover state AG notifications and media where required | 45 CFR §164.408–410 |
+
+**Reuse guidance**: HIPAA Security Rule audit evidence (risk analyses, training records, BAAs, access logs, encryption configurations) counts directly as CSF evidence for the corresponding Subcategories. Do not collect twice.
+
+---
 
 ## Related commands
 

@@ -98,7 +98,7 @@ Subcategories are the leaf nodes — concrete cybersecurity outcomes phrased as 
 - **DE.CM-01** — Networks and network services are monitored to find potentially adverse events
 - **RS.MA-01** — The incident response plan is executed in coordination with relevant third parties once an incident is declared
 
-Subcategories are the **assessment unit**. When practitioners say "we're at Partial on PR.AA-01 and Repeatable on DE.CM-01," they're scoring at the Subcategory level. This plugin's `evidence-checklist` command is organized by Function → Category → representative Subcategories.
+Subcategories are the **assessment unit**. When practitioners say "we're at Partial on PR.AA-01 and Repeatable on DE.CM-01," they're scoring at the Subcategory level. This plugin's `evidence-checklist` command covers all 106 Subcategories, organized by Function → Category.
 
 ## Implementation Examples (new in 2.0)
 
@@ -224,17 +224,17 @@ Federal contractors and regulated entities should additionally produce mappings 
 
 When using this plugin, the typical workflow is:
 
-```
+```text
 1. /nist-csf-20:scope             # decide what's in scope, pick or build a Target Profile
-2. /nist-csf-20:assess            # run the gap assessment via SCF crosswalk
-3. /nist-csf-20:evidence-checklist # enumerate evidence per Function/Category
+2. /nist-csf-20:evidence-checklist # enumerate evidence per Function/Category
+3. /nist-csf-20:assess            # run the gap assessment via SCF crosswalk
 ```
 
 Underneath, all three commands delegate the control-by-control mechanics to `/grc-engineer:gap-assessment` with SCF framework ID `general-nist-csf-2-0`. This plugin contributes:
 
 - The CSF-specific scope decision tree (Functions in scope, Tier target, Community Profile selection)
 - CSF-specific framing of the gap assessment output (organized by Function and Category, not by SCF family)
-- Evidence patterns organized by Function with representative Subcategories per Function
+- Evidence patterns organized by Function → Category, covering all 106 Subcategories
 
 For citation purposes, refer to the **NIST CSF 2.0 Quick Start Guides** (NIST SP 1300 series — `1300`, `1301`, etc., each addressing a specific audience or topic) and the public NIST CSF 2.0 Reference Tool. Cite by document ID and section number; do not paste their prose verbatim.
 
@@ -275,7 +275,7 @@ Contributors with practitioner experience in any of these workflows are encourag
 
 - `/nist-csf-20:scope` — determine applicability and Profile/Tier targeting
 - `/nist-csf-20:assess` — run a gap assessment via SCF crosswalk
-- `/nist-csf-20:evidence-checklist` — enumerate evidence per Function and representative Subcategories
+- `/nist-csf-20:evidence-checklist` — enumerate evidence per Function and Category across all 106 Subcategories
 
 All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID `general-nist-csf-2-0` for the control-by-control mechanics, and wrap the results in CSF 2.0 vocabulary (Function / Category / Subcategory / Profile / Tier).
 

@@ -8,7 +8,7 @@ Determines how **NIST Cybersecurity Framework v2.0** should be applied to the or
 
 ## Usage
 
-```
+```text
 /nist-csf-20:scope
 ```
 
@@ -101,7 +101,7 @@ Document the rationale; partial Function scope tends to surface during board rep
 
 After collecting the answers above, produce a scope memo with:
 
-```
+```text
 NIST CSF 2.0 Scope — <Organization Name>
 
 Driver:           <primary driver>
