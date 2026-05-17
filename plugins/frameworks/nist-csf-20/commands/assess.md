@@ -175,7 +175,7 @@ These are illustrative Current → Target Profile snapshots for three common sce
 | PR | PR.DS-01 | Partially implemented — EHR encrypted; medical devices and PACS not consistently | Implemented — encryption enforced or compensating controls documented for all ePHI at rest | 45 CFR §164.312(a)(2)(iv) |
 | PR | PR.AT-01 | Implemented — annual HIPAA training | Implemented — role-based training for clinical, administrative, and IT staff | 45 CFR §164.308(a)(5) |
 | DE | DE.CM-03 | Partially implemented — audit logging on EHR, no UEBA | Implemented — UEBA or equivalent anomalous-access detection on all ePHI systems | 45 CFR §164.312(b) |
-| RS | RS.CO-02 | Implemented — breach notification process for HHS/OCR | Implemented — expand to cover state AG notifications and media where required | 45 CFR §164.408–410 |
+| RS | RS.CO-02 | Implemented — breach notification process for HHS/OCR | Implemented — expand to cover state AG notifications and media where required | 45 CFR §§164.404–410 |
 
 **Reuse guidance**: HIPAA Security Rule audit evidence (risk analyses, training records, BAAs, access logs, encryption configurations) counts directly as CSF evidence for the corresponding Subcategories. Do not collect twice.
 
