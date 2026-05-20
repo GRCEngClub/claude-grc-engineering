@@ -14,7 +14,9 @@ anandsundar
 devamshah
 dexcopeland
 ethanolivertroy
+FideleDonadje
 funkeomolere trusted contributor
 jeftekhari
+kfcain
 networkbm trusted contributor — first PR (#64)
 abdie-grcengineer
