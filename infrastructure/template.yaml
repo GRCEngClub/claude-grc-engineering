@@ -1,0 +1,606 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  GRC Trust Center — Serverless infrastructure for hosting a public/gated
+  compliance trust center. Deploys S3, CloudFront, WAF, API Gateway,
+  Lambda, DynamoDB, and Cognito.
+
+# ============================================================
+# PARAMETERS — what the deployer customizes
+# ============================================================
+Parameters:
+  CompanyName:
+    Type: String
+    Default: "Accountable CRM"
+    Description: Company name displayed on the trust center
+
+  DomainName:
+    Type: String
+    Default: ""
+    Description: >
+      Custom domain for the trust center (e.g., trust.accountablecrm.com).
+      Leave blank to use the CloudFront default domain.
+
+  CertificateArn:
+    Type: String
+    Default: ""
+    Description: >
+      ARN of an ACM certificate in us-east-1 for the custom domain.
+      Required only if DomainName is provided.
+
+  AdminEmail:
+    Type: String
+    Description: Email for the initial admin user in Cognito
+    AllowedPattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+
+  Stage:
+    Type: String
+    Default: prod
+    AllowedValues: [dev, staging, prod]
+    Description: Deployment stage
+
+  WebhookSecret:
+    Type: String
+    NoEcho: true
+    Description: >
+      Secret used to verify HMAC-SHA256 signatures on inbound webhooks
+      (X-Webhook-Signature header). Generate with: openssl rand -hex 32
+
+# ============================================================
+# CONDITIONS
+# ============================================================
+Conditions:
+  HasCustomDomain: !Not [!Equals [!Ref DomainName, ""]]
+
+# ============================================================
+# RESOURCES
+# ============================================================
+Resources:
+
+  # ----------------------------------------------------------
+  # S3 — Static website hosting (React SPA)
+  # ----------------------------------------------------------
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "trust-center-web-${Stage}-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      Tags:
+        - Key: Project
+          Value: trust-center
+
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AllowCloudFrontOAC
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${WebsiteBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+
+  # ----------------------------------------------------------
+  # S3 — Private document storage (SOC 2 reports, policies)
+  # ----------------------------------------------------------
+  DocumentsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "trust-center-docs-${Stage}-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Project
+          Value: trust-center
+
+  # ----------------------------------------------------------
+  # CloudFront — CDN with OAC for S3
+  # ----------------------------------------------------------
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "trust-center-oac-${Stage}"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub "Trust Center - ${CompanyName}"
+        DefaultRootObject: index.html
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100
+
+        Aliases:
+          !If
+            - HasCustomDomain
+            - [!Ref DomainName]
+            - !Ref "AWS::NoValue"
+
+        ViewerCertificate:
+          !If
+            - HasCustomDomain
+            - AcmCertificateArn: !Ref CertificateArn
+              SslSupportMethod: sni-only
+              MinimumProtocolVersion: TLSv1.2_2021
+            - CloudFrontDefaultCertificate: true
+
+        WebACLId: !GetAtt WAFWebACL.Arn
+
+        Origins:
+          # S3 origin for React SPA
+          - Id: S3WebsiteOrigin
+            DomainName: !GetAtt WebsiteBucket.RegionalDomainName
+            OriginAccessControlId: !Ref CloudFrontOAC
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+
+          # API Gateway origin
+          - Id: ApiGatewayOrigin
+            DomainName: !Sub "${TrustCenterApi}.execute-api.${AWS::Region}.amazonaws.com"
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols: [TLSv1.2]
+            OriginPath: !Sub "/${Stage}"
+
+        DefaultCacheBehavior:
+          TargetOriginId: S3WebsiteOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # CachingOptimized
+          Compress: true
+
+        CacheBehaviors:
+          # Route /api/* to API Gateway
+          - PathPattern: "/api/*"
+            TargetOriginId: ApiGatewayOrigin
+            ViewerProtocolPolicy: https-only
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac  # AllViewerExceptHostHeader
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+
+        # SPA routing — return index.html for all 404s
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+
+      Tags:
+        - Key: Project
+          Value: trust-center
+
+  # ----------------------------------------------------------
+  # WAF — Rate limiting + basic bot protection
+  # ----------------------------------------------------------
+  WAFWebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: !Sub "trust-center-waf-${Stage}"
+      Scope: CLOUDFRONT
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: !Sub "trust-center-waf-${Stage}"
+      Rules:
+        # Rate limit: 1000 requests per 5 minutes per IP
+        - Name: RateLimitRule
+          Priority: 1
+          Action:
+            Block: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: RateLimitRule
+          Statement:
+            RateBasedStatement:
+              Limit: 1000
+              AggregateKeyType: IP
+
+        # AWS Managed — Common threats
+        - Name: AWSManagedCommonRuleSet
+          Priority: 2
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: AWSManagedCommonRuleSet
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+
+        # AWS Managed — Known bad inputs
+        - Name: AWSManagedKnownBadInputs
+          Priority: 3
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: AWSManagedKnownBadInputs
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesKnownBadInputsRuleSet
+
+  # ----------------------------------------------------------
+  # DynamoDB — Tables for documents, access requests, audit log
+  # ----------------------------------------------------------
+  DocumentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "trust-center-documents-${Stage}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1PK
+          AttributeType: S
+        - AttributeName: GSI1SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1PK
+              KeyType: HASH
+            - AttributeName: GSI1SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Project
+          Value: trust-center
+
+  # ----------------------------------------------------------
+  # Cognito — User pool for admin + gated access
+  # ----------------------------------------------------------
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub "trust-center-${Stage}"
+      AutoVerifiedAttributes: [email]
+      UsernameAttributes: [email]
+      MfaConfiguration: ON
+      EnabledMfas: [SOFTWARE_TOKEN_MFA]
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 12
+          RequireLowercase: true
+          RequireUppercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: true
+        - Name: company
+          AttributeDataType: String
+          Mutable: true
+        - Name: role
+          AttributeDataType: String
+          Mutable: true
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub "trust-center-web-${Stage}"
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+      AccessTokenValidity: 1
+      IdTokenValidity: 1
+      RefreshTokenValidity: 30
+      TokenValidityUnits:
+        AccessToken: hours
+        IdToken: hours
+        RefreshToken: days
+
+  # Admin user group
+  AdminGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: admins
+      UserPoolId: !Ref UserPool
+      Description: Trust center administrators
+
+  # Initial admin user
+  AdminUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      UserPoolId: !Ref UserPool
+      Username: !Ref AdminEmail
+      DesiredDeliveryMediums: [EMAIL]
+      UserAttributes:
+        - Name: email
+          Value: !Ref AdminEmail
+        - Name: custom:role
+          Value: admin
+
+  AdminUserGroupMembership:
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    Properties:
+      GroupName: !Ref AdminGroup
+      UserPoolId: !Ref UserPool
+      Username: !Ref AdminEmail
+
+  # ----------------------------------------------------------
+  # IAM — Lambda execution role
+  # ----------------------------------------------------------
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "trust-center-lambda-${Stage}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: TrustCenterLambdaPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # DynamoDB access
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !GetAtt DocumentsTable.Arn
+                  - !Sub "${DocumentsTable.Arn}/index/*"
+              # S3 documents bucket
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:ListBucket
+                  - s3:DeleteObject
+                Resource:
+                  - !GetAtt DocumentsBucket.Arn
+                  - !Sub "${DocumentsBucket.Arn}/*"
+              # Generate presigned URLs
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub "${DocumentsBucket.Arn}/*"
+              # Cognito user management
+              - Effect: Allow
+                Action:
+                  - cognito-idp:AdminGetUser
+                  - cognito-idp:ListUsers
+                Resource:
+                  - !GetAtt UserPool.Arn
+
+  # ----------------------------------------------------------
+  # Lambda — API handler
+  # ----------------------------------------------------------
+  ApiFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "trust-center-api-${Stage}"
+      Runtime: python3.12
+      Handler: api_handler.handler
+      Code:
+        ZipFile: |
+          # Placeholder — replaced during deployment by backend/functions/api_handler.py
+          def handler(event, context):
+              return {"statusCode": 200, "body": "Trust Center API"}
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DocumentsTable
+          DOCUMENTS_BUCKET: !Ref DocumentsBucket
+          USER_POOL_ID: !Ref UserPool
+          COMPANY_NAME: !Ref CompanyName
+          STAGE: !Ref Stage
+          WEBHOOK_SECRET: !Ref WebhookSecret
+      Tags:
+        - Key: Project
+          Value: trust-center
+
+  ApiLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ApiFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${TrustCenterApi}/*"
+
+  # ----------------------------------------------------------
+  # API Gateway — REST API
+  # ----------------------------------------------------------
+  TrustCenterApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub "trust-center-${Stage}"
+      Description: Trust Center API
+      EndpointConfiguration:
+        Types: [REGIONAL]
+
+  # /api resource
+  ApiResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ParentId: !GetAtt TrustCenterApi.RootResourceId
+      PathPart: api
+
+  # Cognito authorizer — validates JWT from the user pool
+  CognitoAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: TrustCenterCognitoAuthorizer
+      RestApiId: !Ref TrustCenterApi
+      Type: COGNITO_USER_POOLS
+      IdentitySource: method.request.header.Authorization
+      ProviderARNs:
+        - !GetAtt UserPool.Arn
+
+  # /api/{proxy+} — catch-all for Lambda routing
+  ApiProxyResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ParentId: !Ref ApiResource
+      PathPart: "{proxy+}"
+
+  ApiProxyMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ResourceId: !Ref ApiProxyResource
+      HttpMethod: ANY
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref CognitoAuthorizer
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiFunction.Arn}/invocations"
+
+  # CORS preflight on proxy
+  ApiProxyOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ResourceId: !Ref ApiProxyResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ApiProxyMethod
+      - ApiProxyOptionsMethod
+      - CognitoAuthorizer
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+
+  ApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      DeploymentId: !Ref ApiDeployment
+      StageName: !Ref Stage
+      MethodSettings:
+        - ResourcePath: "/*"
+          HttpMethod: "*"
+          ThrottlingBurstLimit: 50
+          ThrottlingRateLimit: 100
+
+# ============================================================
+# OUTPUTS — what the deployer needs after deployment
+# ============================================================
+Outputs:
+  WebsiteBucket:
+    Description: S3 bucket for the React frontend
+    Value: !Ref WebsiteBucket
+
+  DocumentsBucket:
+    Description: S3 bucket for private compliance documents
+    Value: !Ref DocumentsBucket
+
+  CloudFrontDomain:
+    Description: CloudFront distribution domain
+    Value: !GetAtt CloudFrontDistribution.DomainName
+
+  CloudFrontDistributionId:
+    Description: CloudFront distribution ID (for cache invalidation)
+    Value: !Ref CloudFrontDistribution
+
+  ApiUrl:
+    Description: API Gateway base URL
+    Value: !Sub "https://${TrustCenterApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/api"
+
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPool
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref UserPoolClient
+
+  TableName:
+    Description: DynamoDB table name
+    Value: !Ref DocumentsTable
+
+  TrustCenterUrl:
+    Description: Your trust center URL
+    Value: !If
+      - HasCustomDomain
+      - !Sub "https://${DomainName}"
+      - !Sub "https://${CloudFrontDistribution.DomainName}"
