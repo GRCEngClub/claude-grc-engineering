@@ -357,9 +357,11 @@ def download_document(event, doc_id):
         return cors_response(404, {"error": "Document file not found"})
 
     # Public docs: anyone can download
-    # Gated docs: check if requester has an approved request
+    # Gated docs: require authentication, then check approved request
     if access_level != "public":
         user = get_user_from_token(event)
+        if not user.get("sub"):
+            return cors_response(401, {"error": "Authentication required"})
         email = user.get("email", "")
 
         if not is_admin(event):

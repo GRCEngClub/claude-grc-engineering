@@ -21,6 +21,8 @@ import json
 import os
 import uuid
 import time
+import hmac
+import hashlib
 import logging
 from datetime import datetime
 from decimal import Decimal
@@ -44,6 +46,7 @@ DOCUMENTS_BUCKET = os.environ.get("DOCUMENTS_BUCKET", "trust-center-docs-prod")
 USER_POOL_ID = os.environ.get("USER_POOL_ID", "")
 COMPANY_NAME = os.environ.get("COMPANY_NAME", "Your Company")
 STAGE = os.environ.get("STAGE", "prod")
+WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "")
 
 # E-signature provider configuration (optional — choose your provider)
 # Supported providers: documenso, opensign, docuseal, docusign
@@ -415,14 +418,27 @@ def _send_nda_via_esign(email, name, request_id, document_id):
 # ---------------------------------------------------------------------------
 def handle_esign_webhook(event):
     """Handle E-signature webhook when an NDA is completed.
-    
+
     The e-signature provider sends a POST with event data when a document is completed.
     We use the externalId (our request_id) to find and update the access
     request, marking ndaSigned=true and moving status to "pending".
-    
+
     Webhook event: DOCUMENT_COMPLETED
     Docs: https://docs.the provider
     """
+    # Verify HMAC-SHA256 signature before processing any event data
+    if not WEBHOOK_SECRET:
+        logger.error("WEBHOOK_SECRET not configured — rejecting webhook")
+        return cors_response(401, {"error": "Webhook secret not configured"})
+    raw_body = event.get("body") or ""
+    if isinstance(raw_body, str):
+        raw_body = raw_body.encode()
+    expected = hmac.new(WEBHOOK_SECRET.encode(), raw_body, hashlib.sha256).hexdigest()
+    received = (event.get("headers") or {}).get("X-Webhook-Signature", "")
+    if not hmac.compare_digest(expected, received):
+        logger.warning("E-sign webhook signature verification failed")
+        return cors_response(401, {"error": "Invalid webhook signature"})
+
     body = parse_body(event)
     event_type = body.get("event", "")
 
@@ -450,20 +466,27 @@ def handle_esign_webhook(event):
     now = now_iso()
 
     try:
-        # Search for the request in nda_pending status
-        resp = table.query(
-            IndexName="GSI1",
-            KeyConditionExpression="GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
-            ExpressionAttributeValues={
+        # Paginate through all nda_pending requests to find the matching one
+        query_kwargs = {
+            "IndexName": "GSI1",
+            "KeyConditionExpression": "GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
+            "ExpressionAttributeValues": {
                 ":pk": "REQUESTS",
                 ":sk": "nda_pending#",
             },
-        )
-        for item in resp.get("Items", []):
-            if item.get("requestId") == request_id:
-                doc_id = item.get("documentId")
-                _update_nda_status(doc_id, request_id, now)
+        }
+        found = False
+        while True:
+            resp = table.query(**query_kwargs)
+            for item in resp.get("Items", []):
+                if item.get("requestId") == request_id:
+                    doc_id = item.get("documentId")
+                    _update_nda_status(doc_id, request_id, now)
+                    found = True
+                    break
+            if found or "LastEvaluatedKey" not in resp:
                 break
+            query_kwargs["ExclusiveStartKey"] = resp["LastEvaluatedKey"]
 
         _write_audit_log("nda_completed", {
             "requestId": request_id,
@@ -481,17 +504,22 @@ def handle_esign_webhook(event):
 def _find_request_by_esign_doc_id(envelope_id):
     """Search for a request by its stored E-sign provider envelope ID."""
     try:
-        resp = table.query(
-            IndexName="GSI1",
-            KeyConditionExpression="GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
-            ExpressionAttributeValues={
+        query_kwargs = {
+            "IndexName": "GSI1",
+            "KeyConditionExpression": "GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
+            "ExpressionAttributeValues": {
                 ":pk": "REQUESTS",
                 ":sk": "nda_pending#",
             },
-        )
-        for item in resp.get("Items", []):
-            if item.get("esignDocumentId") == envelope_id:
-                return item.get("requestId")
+        }
+        while True:
+            resp = table.query(**query_kwargs)
+            for item in resp.get("Items", []):
+                if item.get("esignDocumentId") == envelope_id:
+                    return item.get("requestId")
+            if "LastEvaluatedKey" not in resp:
+                break
+            query_kwargs["ExclusiveStartKey"] = resp["LastEvaluatedKey"]
     except Exception as e:
         logger.error(f"Error searching by esignDocumentId: {e}")
     return ""
@@ -542,7 +570,6 @@ def _update_nda_status(document_id, request_id, now):
         f"NDA auto-approved: request={request_id}, email={requester_email}, "
         f"cognito_created={cognito_created}"
     )
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -563,9 +590,11 @@ def download_document(event, doc_id):
         return cors_response(404, {"error": "Document file not found"})
 
     # Public docs: anyone can download
-    # Gated docs: check if requester has an approved request
+    # Gated docs: require authentication, then check approved request
     if access_level != "public":
         user = get_user_from_token(event)
+        if not user.get("sub"):
+            return cors_response(401, {"error": "Authentication required"})
         email = user.get("email", "")
 
         if not is_admin(event):
