@@ -1,0 +1,16 @@
+{
+  "name": "trust-center",
+  "version": "1.0.0",
+  "description": "Deploy a serverless trust center to publish your company's compliance posture. Supports AWS deployment with S3, CloudFront, Lambda, DynamoDB, Cognito, and WAF.",
+  "author": "GRC Engineering Club",
+  "tags": ["trust-center", "compliance", "soc2", "grc", "serverless"],
+  "skills": [
+    "skills/trust-center/SKILL.md"
+  ],
+  "commands": [
+    "commands/init.md",
+    "commands/add-document.md",
+    "commands/deploy.md",
+    "commands/status.md"
+  ]
+}
