@@ -10,14 +10,14 @@ Description: >
 Parameters:
   CompanyName:
     Type: String
-    Default: "Your Company"
+    Default: "Accountable CRM"
     Description: Company name displayed on the trust center
 
   DomainName:
     Type: String
     Default: ""
     Description: >
-      Custom domain for the trust center (e.g., trust.yourcompany.com).
+      Custom domain for the trust center (e.g., trust.accountablecrm.com).
       Leave blank to use the CloudFront default domain.
 
   CertificateArn:
@@ -37,6 +37,13 @@ Parameters:
     Default: prod
     AllowedValues: [dev, staging, prod]
     Description: Deployment stage
+
+  WebhookSecret:
+    Type: String
+    NoEcho: true
+    Description: >
+      Secret used to verify HMAC-SHA256 signatures on inbound webhooks
+      (X-Webhook-Signature header). Generate with: openssl rand -hex 32
 
 # ============================================================
 # CONDITIONS
@@ -294,7 +301,7 @@ Resources:
       UserPoolName: !Sub "trust-center-${Stage}"
       AutoVerifiedAttributes: [email]
       UsernameAttributes: [email]
-      MfaConfiguration: OPTIONAL
+      MfaConfiguration: ON
       EnabledMfas: [SOFTWARE_TOKEN_MFA]
       Policies:
         PasswordPolicy:
@@ -445,6 +452,7 @@ Resources:
           USER_POOL_ID: !Ref UserPool
           COMPANY_NAME: !Ref CompanyName
           STAGE: !Ref Stage
+          WEBHOOK_SECRET: !Ref WebhookSecret
       Tags:
         - Key: Project
           Value: trust-center
@@ -476,6 +484,17 @@ Resources:
       ParentId: !GetAtt TrustCenterApi.RootResourceId
       PathPart: api
 
+  # Cognito authorizer — validates JWT from the user pool
+  CognitoAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: TrustCenterCognitoAuthorizer
+      RestApiId: !Ref TrustCenterApi
+      Type: COGNITO_USER_POOLS
+      IdentitySource: method.request.header.Authorization
+      ProviderARNs:
+        - !GetAtt UserPool.Arn
+
   # /api/{proxy+} — catch-all for Lambda routing
   ApiProxyResource:
     Type: AWS::ApiGateway::Resource
@@ -490,7 +509,8 @@ Resources:
       RestApiId: !Ref TrustCenterApi
       ResourceId: !Ref ApiProxyResource
       HttpMethod: ANY
-      AuthorizationType: NONE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref CognitoAuthorizer
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
@@ -526,6 +546,7 @@ Resources:
     DependsOn:
       - ApiProxyMethod
       - ApiProxyOptionsMethod
+      - CognitoAuthorizer
     Properties:
       RestApiId: !Ref TrustCenterApi
 

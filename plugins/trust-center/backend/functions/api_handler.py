@@ -21,8 +21,10 @@ import json
 import os
 import uuid
 import time
+import hmac
+import hashlib
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 import boto3
@@ -41,8 +43,9 @@ cognito = boto3.client("cognito-idp")
 TABLE_NAME = os.environ.get("TABLE_NAME", "trust-center-documents-prod")
 DOCUMENTS_BUCKET = os.environ.get("DOCUMENTS_BUCKET", "trust-center-docs-prod")
 USER_POOL_ID = os.environ.get("USER_POOL_ID", "")
-COMPANY_NAME = os.environ.get("COMPANY_NAME", "Your Company")
+COMPANY_NAME = os.environ.get("COMPANY_NAME", "Accountable CRM")
 STAGE = os.environ.get("STAGE", "prod")
+WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "")
 
 table = dynamodb.Table(TABLE_NAME)
 
@@ -101,7 +104,39 @@ def now_iso():
 
 
 def new_id():
-    return str(uuid.uuid4())[:8]
+    return str(uuid.uuid4())
+
+
+def verify_webhook_signature(event):
+    """Return True only if the X-Webhook-Signature header matches HMAC-SHA256(body, WEBHOOK_SECRET)."""
+    if not WEBHOOK_SECRET:
+        logger.error("WEBHOOK_SECRET not configured")
+        return False
+    raw_body = event.get("body") or ""
+    if isinstance(raw_body, str):
+        raw_body = raw_body.encode()
+    expected = hmac.new(
+        WEBHOOK_SECRET.encode(), raw_body, hashlib.sha256
+    ).hexdigest()
+    received = (event.get("headers") or {}).get("X-Webhook-Signature", "")
+    return hmac.compare_digest(expected, received)
+
+
+# ---------------------------------------------------------------------------
+# Route: POST /api/webhook
+# ---------------------------------------------------------------------------
+def handle_webhook(event):
+    """Process an inbound webhook after verifying its HMAC-SHA256 signature."""
+    if not verify_webhook_signature(event):
+        logger.warning("Webhook signature verification failed")
+        return cors_response(401, {"error": "Invalid webhook signature"})
+
+    body = parse_body(event)
+    event_type = body.get("event", "")
+    logger.info(f"Webhook received: {event_type}")
+
+    _write_audit_log("webhook_received", {"event": event_type})
+    return cors_response(200, {"message": "Webhook processed"})
 
 
 # ---------------------------------------------------------------------------
@@ -525,33 +560,58 @@ def delete_document(event, doc_id):
 # Route: GET /api/admin/audit-log
 # ---------------------------------------------------------------------------
 def get_audit_log(event):
-    """Return recent audit log entries (admin only)."""
+    """Return audit log entries for a date range (admin only).
+
+    Query params:
+      start_date  YYYY-MM-DD  (default: today)
+      end_date    YYYY-MM-DD  (default: today)
+      limit       int per-day (default: 50)
+    """
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
     params = event.get("queryStringParameters") or {}
     limit = int(params.get("limit", "50"))
-
-    # Query today and recent dates
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+    today_str = datetime.utcnow().strftime("%Y-%m-%d")
+    start_str = params.get("start_date", today_str)
+    end_str = params.get("end_date", today_str)
 
     try:
-        resp = table.query(
-            KeyConditionExpression="PK = :pk",
-            ExpressionAttributeValues={":pk": f"AUDIT#{today}"},
-            ScanIndexForward=False,
-            Limit=limit,
-        )
-        entries = [
-            {
-                "action": item.get("action"),
-                "details": item.get("details", {}),
-                "timestamp": item.get("timestamp"),
-                "ip": item.get("ip", ""),
-            }
-            for item in resp.get("Items", [])
-        ]
-        return cors_response(200, {"entries": entries, "date": today})
+        start_dt = datetime.strptime(start_str, "%Y-%m-%d")
+        end_dt = datetime.strptime(end_str, "%Y-%m-%d")
+    except ValueError:
+        return cors_response(400, {"error": "Invalid date format; use YYYY-MM-DD"})
+
+    if start_dt > end_dt:
+        return cors_response(400, {"error": "start_date must be <= end_date"})
+
+    entries = []
+    try:
+        current = start_dt
+        while current <= end_dt:
+            date_str = current.strftime("%Y-%m-%d")
+            resp = table.query(
+                KeyConditionExpression="PK = :pk",
+                ExpressionAttributeValues={":pk": f"AUDIT#{date_str}"},
+                ScanIndexForward=False,
+                Limit=limit,
+            )
+            for item in resp.get("Items", []):
+                entries.append({
+                    "action": item.get("action"),
+                    "details": item.get("details", {}),
+                    "timestamp": item.get("timestamp"),
+                    "ip": item.get("ip", ""),
+                    "date": date_str,
+                })
+            current += timedelta(days=1)
+
+        entries.sort(key=lambda e: e.get("timestamp", ""), reverse=True)
+        return cors_response(200, {
+            "entries": entries,
+            "start_date": start_str,
+            "end_date": end_str,
+        })
     except Exception as e:
         logger.error(f"get_audit_log error: {e}")
         return cors_response(500, {"error": "Failed to get audit log"})
@@ -593,6 +653,10 @@ def handler(event, context):
     logger.info(f"{http_method} {path}")
 
     try:
+        # --- Webhook (signature-verified, no Cognito auth) ---
+        if path == "/api/webhook" and http_method == "POST":
+            return handle_webhook(event)
+
         # --- Public routes ---
         if path == "/api/config" and http_method == "GET":
             return get_config(event)

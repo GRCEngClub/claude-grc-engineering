@@ -21,10 +21,11 @@ import json
 import os
 import uuid
 import time
+import hmac
+import hashlib
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
-from urllib import request as urllib_request
 
 import boto3
 from botocore.exceptions import ClientError
@@ -42,17 +43,9 @@ cognito = boto3.client("cognito-idp")
 TABLE_NAME = os.environ.get("TABLE_NAME", "trust-center-documents-prod")
 DOCUMENTS_BUCKET = os.environ.get("DOCUMENTS_BUCKET", "trust-center-docs-prod")
 USER_POOL_ID = os.environ.get("USER_POOL_ID", "")
-COMPANY_NAME = os.environ.get("COMPANY_NAME", "Your Company")
+COMPANY_NAME = os.environ.get("COMPANY_NAME", "Accountable CRM")
 STAGE = os.environ.get("STAGE", "prod")
-
-# E-signature provider configuration (optional — choose your provider)
-# Supported providers: documenso, opensign, docuseal, docusign
-# Set ESIGN_PROVIDER + credentials. If empty, NDA step is skipped.
-ESIGN_PROVIDER = os.environ.get("ESIGN_PROVIDER", "")  # documenso | opensign | docuseal | docusign
-ESIGN_API_KEY = os.environ.get("ESIGN_API_KEY", "")
-ESIGN_API_URL = os.environ.get("ESIGN_API_URL", "")
-ESIGN_NDA_TEMPLATE_ID = os.environ.get("ESIGN_NDA_TEMPLATE_ID", "")
-TRUST_CENTER_URL = os.environ.get("TRUST_CENTER_URL", "")
+WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "")
 
 table = dynamodb.Table(TABLE_NAME)
 
@@ -111,7 +104,39 @@ def now_iso():
 
 
 def new_id():
-    return str(uuid.uuid4())[:8]
+    return str(uuid.uuid4())
+
+
+def verify_webhook_signature(event):
+    """Return True only if the X-Webhook-Signature header matches HMAC-SHA256(body, WEBHOOK_SECRET)."""
+    if not WEBHOOK_SECRET:
+        logger.error("WEBHOOK_SECRET not configured")
+        return False
+    raw_body = event.get("body") or ""
+    if isinstance(raw_body, str):
+        raw_body = raw_body.encode()
+    expected = hmac.new(
+        WEBHOOK_SECRET.encode(), raw_body, hashlib.sha256
+    ).hexdigest()
+    received = (event.get("headers") or {}).get("X-Webhook-Signature", "")
+    return hmac.compare_digest(expected, received)
+
+
+# ---------------------------------------------------------------------------
+# Route: POST /api/webhook
+# ---------------------------------------------------------------------------
+def handle_webhook(event):
+    """Process an inbound webhook after verifying its HMAC-SHA256 signature."""
+    if not verify_webhook_signature(event):
+        logger.warning("Webhook signature verification failed")
+        return cors_response(401, {"error": "Invalid webhook signature"})
+
+    body = parse_body(event)
+    event_type = body.get("event", "")
+    logger.info(f"Webhook received: {event_type}")
+
+    _write_audit_log("webhook_received", {"event": event_type})
+    return cors_response(200, {"message": "Webhook processed"})
 
 
 # ---------------------------------------------------------------------------
@@ -258,15 +283,7 @@ def get_document(event, doc_id):
 # Route: POST /api/documents/:id/request-access
 # ---------------------------------------------------------------------------
 def request_access(event, doc_id):
-    """Request access to a gated document.
-    
-    Flow:
-    1. Visitor submits request (name, email, company, reason)
-    2. If an e-signature provider is configured → sends NDA for e-signature, status = "nda_pending"
-    3. If no e-signature provider is configured → status = "pending" (admin reviews without NDA)
-    4. E-signature webhook fires when NDA is signed → status moves to "pending"
-    5. Admin approves → Cognito account created → visitor can download
-    """
+    """Request access to a gated document. Creates a pending request."""
     body = parse_body(event)
     now = now_iso()
     req_id = new_id()
@@ -288,16 +305,11 @@ def request_access(event, doc_id):
     if doc.get("accessLevel") == "public":
         return cors_response(400, {"error": "Document is publicly available, no request needed"})
 
-    # Determine initial status based on E-sign provider configuration
-    nda_enabled = bool(ESIGN_API_KEY and ESIGN_NDA_TEMPLATE_ID)
-    requires_nda = doc.get("requiresNda", True) and nda_enabled
-    initial_status = "nda_pending" if requires_nda else "pending"
-
     item = {
         "PK": f"DOC#{doc_id}",
         "SK": f"REQUEST#{req_id}",
         "GSI1PK": "REQUESTS",
-        "GSI1SK": f"{initial_status}#{now}",
+        "GSI1SK": f"pending#{now}",
         "requestId": req_id,
         "documentId": doc_id,
         "documentName": doc.get("name", ""),
@@ -305,244 +317,26 @@ def request_access(event, doc_id):
         "requesterName": requester_name,
         "requesterCompany": requester_company,
         "reason": reason,
-        "status": initial_status,
+        "status": "pending",
         "ndaSigned": False,
-        "ndaRequired": requires_nda,
         "createdAt": now,
         "updatedAt": now,
     }
 
-    # If NDA is required, send it via E-sign provider
-    nda_result = None
-    if requires_nda:
-        nda_result = _send_nda_via_esign(
-            requester_email, requester_name, req_id, doc_id
-        )
-        if nda_result:
-            item["esignDocumentId"] = str(nda_result.get("envelopeId", ""))
-
     table.put_item(Item=item)
 
+    # Log the request in audit trail
     _write_audit_log("access_requested", {
         "documentId": doc_id,
         "requestId": req_id,
         "requesterEmail": requester_email,
-        "ndaSent": bool(nda_result),
     })
-
-    response_msg = "Access request submitted"
-    if requires_nda and nda_result:
-        response_msg = "Access request submitted — please check your email to sign the NDA"
-    elif requires_nda and not nda_result:
-        response_msg = "Access request submitted — NDA sending failed, admin will follow up"
 
     return cors_response(201, {
-        "message": response_msg,
+        "message": "Access request submitted",
         "requestId": req_id,
-        "status": initial_status,
-        "ndaRequired": requires_nda,
-        "ndaSent": bool(nda_result),
+        "status": "pending",
     })
-
-
-# ---------------------------------------------------------------------------
-# E-Signature NDA Integration (Provider-Agnostic)
-# ---------------------------------------------------------------------------
-def _send_nda_via_esign(email, name, request_id, document_id):
-    """Send an NDA for e-signature via E-signature API.
-    
-    Creates a document from the configured NDA template and sends it to the signer.
-    The provider emails the signer a link to review and sign the NDA.
-    When they complete it, The provider fires a DOCUMENT_COMPLETED webhook.
-    
-    API: POST /api/v2/template/:templateId/create-document
-    Auth: Authorization header with API key
-    Docs: https://docs.the provider
-    """
-    if not ESIGN_API_KEY or not ESIGN_NDA_TEMPLATE_ID:
-        logger.warning("E-sign provider not configured, skipping NDA")
-        return None
-
-    try:
-        # Build redirect URL for after signing
-        redirect_url = TRUST_CENTER_URL or ""
-        if redirect_url:
-            redirect_url = f"{redirect_url}?nda_signed=true&request_id={request_id}"
-
-        payload = json.dumps({
-            "recipients": [
-                {
-                    "email": email,
-                    "name": name or "Signer",
-                    "role": "SIGNER",
-                }
-            ],
-            "meta": {
-                "subject": f"NDA — Access Request for Compliance Documents",
-                "message": f"Please review and sign this Non-Disclosure Agreement to access confidential compliance documents. Reference: {request_id}",
-                "redirectUrl": redirect_url,
-            },
-            "externalId": request_id,
-        }).encode("utf-8")
-
-        url = f"{ESIGN_API_URL}/template/{ESIGN_NDA_TEMPLATE_ID}/create-document"
-
-        req = urllib_request.Request(
-            url,
-            data=payload,
-            headers={
-                "Authorization": ESIGN_API_KEY,
-                "Content-Type": "application/json",
-            },
-            method="POST",
-        )
-
-        with urllib_request.urlopen(req, timeout=15) as resp:
-            result = json.loads(resp.read().decode("utf-8"))
-
-        envelope_id = result.get("id", "")
-        logger.info(f"E-sign provider NDA sent to {email}, envelopeId={envelope_id}")
-
-        return {"envelopeId": envelope_id}
-
-    except Exception as e:
-        logger.error(f"E-signature API error: {e}")
-        return None
-
-
-# ---------------------------------------------------------------------------
-# Route: POST /api/webhook/esign
-# ---------------------------------------------------------------------------
-def handle_esign_webhook(event):
-    """Handle E-signature webhook when an NDA is completed.
-    
-    The e-signature provider sends a POST with event data when a document is completed.
-    We use the externalId (our request_id) to find and update the access
-    request, marking ndaSigned=true and moving status to "pending".
-    
-    Webhook event: DOCUMENT_COMPLETED
-    Docs: https://docs.the provider
-    """
-    body = parse_body(event)
-    event_type = body.get("event", "")
-
-    # We only care about DOCUMENT_COMPLETED
-    if event_type != "DOCUMENT_COMPLETED":
-        return cors_response(200, {"message": f"Ignored event: {event_type}"})
-
-    payload_data = body.get("payload", {})
-    external_id = payload_data.get("externalId", "")  # This is our request_id
-    envelope_id = str(payload_data.get("id", ""))
-    recipients = payload_data.get("recipients", [])
-    signer_email = recipients[0].get("email", "") if recipients else ""
-
-    # Try externalId first, then search by envelope ID
-    request_id = external_id
-    if not request_id and envelope_id:
-        request_id = _find_request_by_esign_doc_id(envelope_id)
-
-    if not request_id:
-        logger.warning("E-signature webhook: could not find matching request")
-        return cors_response(200, {"message": "No matching request found"})
-
-    logger.info(f"E-sign provider NDA completed: request_id={request_id}, email={signer_email}")
-
-    now = now_iso()
-
-    try:
-        # Search for the request in nda_pending status
-        resp = table.query(
-            IndexName="GSI1",
-            KeyConditionExpression="GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
-            ExpressionAttributeValues={
-                ":pk": "REQUESTS",
-                ":sk": "nda_pending#",
-            },
-        )
-        for item in resp.get("Items", []):
-            if item.get("requestId") == request_id:
-                doc_id = item.get("documentId")
-                _update_nda_status(doc_id, request_id, now)
-                break
-
-        _write_audit_log("nda_completed", {
-            "requestId": request_id,
-            "signerEmail": signer_email,
-            "esignDocumentId": envelope_id,
-        })
-
-        return cors_response(200, {"message": "NDA completion processed"})
-
-    except Exception as e:
-        logger.error(f"E-signature webhook processing error: {e}")
-        return cors_response(500, {"error": "Webhook processing failed"})
-
-
-def _find_request_by_esign_doc_id(envelope_id):
-    """Search for a request by its stored E-sign provider envelope ID."""
-    try:
-        resp = table.query(
-            IndexName="GSI1",
-            KeyConditionExpression="GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
-            ExpressionAttributeValues={
-                ":pk": "REQUESTS",
-                ":sk": "nda_pending#",
-            },
-        )
-        for item in resp.get("Items", []):
-            if item.get("esignDocumentId") == envelope_id:
-                return item.get("requestId")
-    except Exception as e:
-        logger.error(f"Error searching by esignDocumentId: {e}")
-    return ""
-
-
-def _update_nda_status(document_id, request_id, now):
-    """NDA signed → auto-approve access and create Cognito account.
-    
-    Per AJ's requirement: once NDA is signed, access is granted automatically.
-    No admin approval step. We notify security@ via audit log but the visitor
-    gets their login credentials immediately.
-    """
-    # Get the request to find the requester's email for Cognito provisioning
-    req_resp = table.get_item(
-        Key={"PK": f"DOC#{document_id}", "SK": f"REQUEST#{request_id}"}
-    )
-    request_item = req_resp.get("Item", {})
-    requester_email = request_item.get("requesterEmail", "")
-    requester_name = request_item.get("requesterName", "")
-
-    # Update request: NDA signed + auto-approved
-    table.update_item(
-        Key={"PK": f"DOC#{document_id}", "SK": f"REQUEST#{request_id}"},
-        UpdateExpression="SET ndaSigned = :signed, #s = :status, updatedAt = :now, GSI1SK = :gsi, reviewedBy = :reviewer",
-        ExpressionAttributeNames={"#s": "status"},
-        ExpressionAttributeValues={
-            ":signed": True,
-            ":status": "approved",
-            ":now": now,
-            ":gsi": f"approved#{now}",
-            ":reviewer": "auto-approved-via-nda",
-        },
-    )
-
-    # Auto-provision Cognito account so they can log in and download
-    cognito_created = False
-    if requester_email:
-        cognito_created = _provision_requester_account(requester_email, requester_name)
-
-    _write_audit_log("nda_auto_approved", {
-        "requestId": request_id,
-        "documentId": document_id,
-        "requesterEmail": requester_email,
-        "cognitoAccountCreated": cognito_created,
-    })
-
-    logger.info(
-        f"NDA auto-approved: request={request_id}, email={requester_email}, "
-        f"cognito_created={cognito_created}"
-    )
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -662,12 +456,7 @@ def list_requests(event):
 # Route: PUT /api/admin/requests/:id
 # ---------------------------------------------------------------------------
 def update_request(event, request_id):
-    """Approve or deny an access request (admin only).
-    
-    On approval: creates a Cognito user for the requester (if they don't already
-    have one). Cognito sends them an email with a temporary password so they can
-    log in and download their approved documents.
-    """
+    """Approve or deny an access request (admin only)."""
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
@@ -684,16 +473,7 @@ def update_request(event, request_id):
     now = now_iso()
     admin_user = get_user_from_token(event)
 
-    # First, get the request to find the requester's email
-    req_resp = table.get_item(
-        Key={"PK": f"DOC#{doc_id}", "SK": f"REQUEST#{request_id}"}
-    )
-    request_item = req_resp.get("Item", {})
-    requester_email = request_item.get("requesterEmail", "")
-    requester_name = request_item.get("requesterName", "")
-
     try:
-        # Update the request status
         table.update_item(
             Key={"PK": f"DOC#{doc_id}", "SK": f"REQUEST#{request_id}"},
             UpdateExpression="SET #s = :s, updatedAt = :now, reviewedBy = :by, GSI1SK = :gsi",
@@ -706,80 +486,19 @@ def update_request(event, request_id):
             },
         )
 
-        # On approval: create a Cognito account so they can log in and download
-        cognito_account_created = False
-        if new_status == "approved" and requester_email:
-            cognito_account_created = _provision_requester_account(
-                requester_email, requester_name
-            )
-
         _write_audit_log(f"request_{new_status}", {
             "requestId": request_id,
             "documentId": doc_id,
             "reviewedBy": admin_user["email"],
-            "cognitoAccountCreated": cognito_account_created,
         })
 
-        message = f"Request {new_status}"
-        if cognito_account_created:
-            message += f" — login credentials sent to {requester_email}"
-
         return cors_response(200, {
-            "message": message,
+            "message": f"Request {new_status}",
             "requestId": request_id,
-            "cognitoAccountCreated": cognito_account_created,
         })
     except Exception as e:
         logger.error(f"update_request error: {e}")
         return cors_response(500, {"error": "Failed to update request"})
-
-
-def _provision_requester_account(email, name=""):
-    """Create a Cognito user for an approved requester.
-    
-    If the user already exists, this is a no-op (returns False).
-    If created, Cognito sends them an email with a temporary password.
-    They log in → set a new password → can download approved docs.
-    """
-    if not USER_POOL_ID:
-        logger.warning("No USER_POOL_ID configured, skipping account provisioning")
-        return False
-
-    try:
-        # Check if user already exists
-        cognito.admin_get_user(
-            UserPoolId=USER_POOL_ID,
-            Username=email,
-        )
-        logger.info(f"Cognito user already exists: {email}")
-        return False
-    except cognito.exceptions.UserNotFoundException:
-        pass  # User doesn't exist — create them
-    except Exception as e:
-        logger.error(f"Error checking Cognito user {email}: {e}")
-        return False
-
-    try:
-        # Create the user — Cognito sends a welcome email with temp password
-        user_attributes = [
-            {"Name": "email", "Value": email},
-            {"Name": "email_verified", "Value": "true"},
-        ]
-        if name:
-            user_attributes.append({"Name": "name", "Value": name})
-
-        cognito.admin_create_user(
-            UserPoolId=USER_POOL_ID,
-            Username=email,
-            UserAttributes=user_attributes,
-            DesiredDeliveryMediums=["EMAIL"],
-            # Cognito auto-generates a temp password and emails it
-        )
-        logger.info(f"Created Cognito account for approved requester: {email}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to create Cognito user {email}: {e}")
-        return False
 
 
 # ---------------------------------------------------------------------------
@@ -841,33 +560,58 @@ def delete_document(event, doc_id):
 # Route: GET /api/admin/audit-log
 # ---------------------------------------------------------------------------
 def get_audit_log(event):
-    """Return recent audit log entries (admin only)."""
+    """Return audit log entries for a date range (admin only).
+
+    Query params:
+      start_date  YYYY-MM-DD  (default: today)
+      end_date    YYYY-MM-DD  (default: today)
+      limit       int per-day (default: 50)
+    """
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
     params = event.get("queryStringParameters") or {}
     limit = int(params.get("limit", "50"))
-
-    # Query today and recent dates
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+    today_str = datetime.utcnow().strftime("%Y-%m-%d")
+    start_str = params.get("start_date", today_str)
+    end_str = params.get("end_date", today_str)
 
     try:
-        resp = table.query(
-            KeyConditionExpression="PK = :pk",
-            ExpressionAttributeValues={":pk": f"AUDIT#{today}"},
-            ScanIndexForward=False,
-            Limit=limit,
-        )
-        entries = [
-            {
-                "action": item.get("action"),
-                "details": item.get("details", {}),
-                "timestamp": item.get("timestamp"),
-                "ip": item.get("ip", ""),
-            }
-            for item in resp.get("Items", [])
-        ]
-        return cors_response(200, {"entries": entries, "date": today})
+        start_dt = datetime.strptime(start_str, "%Y-%m-%d")
+        end_dt = datetime.strptime(end_str, "%Y-%m-%d")
+    except ValueError:
+        return cors_response(400, {"error": "Invalid date format; use YYYY-MM-DD"})
+
+    if start_dt > end_dt:
+        return cors_response(400, {"error": "start_date must be <= end_date"})
+
+    entries = []
+    try:
+        current = start_dt
+        while current <= end_dt:
+            date_str = current.strftime("%Y-%m-%d")
+            resp = table.query(
+                KeyConditionExpression="PK = :pk",
+                ExpressionAttributeValues={":pk": f"AUDIT#{date_str}"},
+                ScanIndexForward=False,
+                Limit=limit,
+            )
+            for item in resp.get("Items", []):
+                entries.append({
+                    "action": item.get("action"),
+                    "details": item.get("details", {}),
+                    "timestamp": item.get("timestamp"),
+                    "ip": item.get("ip", ""),
+                    "date": date_str,
+                })
+            current += timedelta(days=1)
+
+        entries.sort(key=lambda e: e.get("timestamp", ""), reverse=True)
+        return cors_response(200, {
+            "entries": entries,
+            "start_date": start_str,
+            "end_date": end_str,
+        })
     except Exception as e:
         logger.error(f"get_audit_log error: {e}")
         return cors_response(500, {"error": "Failed to get audit log"})
@@ -909,6 +653,10 @@ def handler(event, context):
     logger.info(f"{http_method} {path}")
 
     try:
+        # --- Webhook (signature-verified, no Cognito auth) ---
+        if path == "/api/webhook" and http_method == "POST":
+            return handle_webhook(event)
+
         # --- Public routes ---
         if path == "/api/config" and http_method == "GET":
             return get_config(event)
@@ -927,10 +675,6 @@ def handler(event, context):
         if path.startswith("/api/documents/") and http_method == "GET":
             doc_id = path.split("/")[3]
             return get_document(event, doc_id)
-
-        # --- Webhook routes ---
-        if path == "/api/webhook/esign" and http_method == "POST":
-            return handle_esign_webhook(event)
 
         # --- Admin routes ---
         if path == "/api/admin/config" and http_method == "PUT":
