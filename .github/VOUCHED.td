@@ -8,15 +8,16 @@
 # Maintainers (write/admin role) are auto-allowed and don't need to be listed.
 # Vouch a new contributor by commenting `!vouch` on their issue/PR.
 # Only @ajy0127 and @ethanolivertroy can vouch — see VOUCHED-MANAGERS.td.
+abdie-grcengineer
 ajy0127
 anandsundar
 -github:carycooper777 spam
 devamshah
 dexcopeland
 ethanolivertroy
-FideleDonadje
+fideledonadje
 funkeomolere trusted contributor
 jeftekhari
 kfcain
+nelsonrosario89
 networkbm trusted contributor — first PR (#64)
-abdie-grcengineer
