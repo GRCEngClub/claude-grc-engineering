@@ -1,0 +1,10 @@
+{
+  "name": "trust-center",
+  "version": "0.1.0",
+  "description": "Build and deploy a serverless trust center — public compliance posture, gated access to SOC 2/policy documents with optional NDA e-signature, and an admin dashboard. Deploys to AWS (S3, CloudFront, WAF, API Gateway, Lambda, DynamoDB, Cognito).",
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering"
+}

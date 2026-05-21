@@ -410,6 +410,12 @@
       "source": "./plugins/grc-portfolio",
       "description": "Build and deploy a professional portfolio website for GRC engineers — certifications, frameworks, audit experience, and AWS hosting.",
       "version": "0.1.0"
+    },
+    {
+      "name": "trust-center",
+      "source": "./plugins/trust-center",
+      "description": "Build and deploy a serverless trust center — public compliance posture, gated document access with optional NDA e-signature, admin dashboard. Deploys to AWS.",
+      "version": "0.1.0"
     }
   ]
 }
