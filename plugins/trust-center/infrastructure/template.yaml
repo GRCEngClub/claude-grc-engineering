@@ -598,72 +598,6 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: true
             method.response.header.Access-Control-Allow-Origin: true
 
-  # ----------------------------------------------------------
-  # API Gateway — Protected gated download route
-  # GET /api/documents/{docId}/download requires a Cognito JWT.
-  # All other /api/documents/* paths fall through to the public
-  # catch-all proxy (request-access, list, detail).
-  # ----------------------------------------------------------
-  ApiDocumentsResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      RestApiId: !Ref TrustCenterApi
-      ParentId: !Ref ApiResource
-      PathPart: documents
-
-  ApiDocumentResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      RestApiId: !Ref TrustCenterApi
-      ParentId: !Ref ApiDocumentsResource
-      PathPart: "{docId}"
-
-  ApiDocumentDownloadResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      RestApiId: !Ref TrustCenterApi
-      ParentId: !Ref ApiDocumentResource
-      PathPart: download
-
-  # Requires Cognito JWT — generates the presigned S3 URL
-  ApiDocumentDownloadMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref TrustCenterApi
-      ResourceId: !Ref ApiDocumentDownloadResource
-      HttpMethod: GET
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref CognitoAuthorizer
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiFunction.Arn}/invocations"
-
-  # CORS preflight for the download endpoint — must stay NONE
-  ApiDocumentDownloadOptionsMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref TrustCenterApi
-      ResourceId: !Ref ApiDocumentDownloadResource
-      HttpMethod: OPTIONS
-      AuthorizationType: NONE
-      Integration:
-        Type: MOCK
-        RequestTemplates:
-          application/json: '{"statusCode": 200}'
-        IntegrationResponses:
-          - StatusCode: 200
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
-              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
-              method.response.header.Access-Control-Allow-Origin: "'*'"
-      MethodResponses:
-        - StatusCode: 200
-          ResponseParameters:
-            method.response.header.Access-Control-Allow-Headers: true
-            method.response.header.Access-Control-Allow-Methods: true
-            method.response.header.Access-Control-Allow-Origin: true
-
   ApiDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
@@ -672,8 +606,6 @@ Resources:
       - CognitoAuthorizer
       - ApiAdminProxyMethod
       - ApiAdminOptionsMethod
-      - ApiDocumentDownloadMethod
-      - ApiDocumentDownloadOptionsMethod
     Properties:
       RestApiId: !Ref TrustCenterApi
 
