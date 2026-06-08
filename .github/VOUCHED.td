@@ -9,6 +9,7 @@
 # Vouch a new contributor by commenting `!vouch` on their issue/PR.
 # Only @ajy0127 and @ethanolivertroy can vouch — see VOUCHED-MANAGERS.td.
 abdie-grcengineer
+ahmedhxssam
 ajy0127
 anandsundar
 -github:carycooper777 spam
