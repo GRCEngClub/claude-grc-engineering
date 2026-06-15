@@ -15,7 +15,8 @@ node plugins/connectors/testssl-inspector/scripts/scan.js [options]
 
 ## Options
 
-- `--target=host[:port]` — repeatable; or pass targets positionally. Port defaults to 443.
+- `--target=host[:port]` — repeatable; or pass targets positionally. Port defaults to 443 for HTTPS, or the protocol's default port when `--starttls=<proto>` is used.
+- `--starttls=<proto>` — enable STARTTLS for the specified protocol. Supported protocols: `smtp` (25), `imap` (143), `pop3` (110), `ftp` (21), `ldap` (389), `postgres` (5432), `mysql` (3306), `smtps` (465). When `--starttls=<proto>` is specified without an explicit port in the target, the target is automatically appended with the protocol's default port. For example, `--target=mail.example.com --starttls=smtp` becomes `mail.example.com:25`. If the target already includes an explicit port (e.g., `--target=mail.example.com:587 --starttls=smtp`), the explicit port is preserved.
 - `--fast` — `testssl.sh --fast` (~3× faster, drops vulnerability checks).
 - `--full` — full check set (default). Slower; includes CVE checks (Heartbleed, ROBOT, POODLE, BEAST, BREACH, SWEET32, FREAK, LOGJAM, DROWN, …).
 - `--docker` / `--no-docker` — override the runner choice from the config.
@@ -69,11 +70,20 @@ Severity translation: testssl `FATAL`/`CRITICAL` → `critical`; `HIGH` → `hig
 ## Examples
 
 ```bash
-# Fast scan of one endpoint
+# Fast scan of one HTTPS endpoint
 /testssl-inspector:scan --target=example.com --fast
 
-# Full vulnerability scan against two endpoints, Docker runner
+# Full vulnerability scan against two HTTPS endpoints, Docker runner
 /testssl-inspector:scan --target=example.com --target=api.example.com:8443 --docker
+
+# STARTTLS scan of SMTP service with default port
+/testssl-inspector:scan --target=mail.example.com --starttls=smtp --output=json
+
+# STARTTLS scan of SMTP service with explicit port
+/testssl-inspector:scan --target=mail.example.com:587 --starttls=smtp --output=json
+
+# STARTTLS scan of IMAP service
+/testssl-inspector:scan --target=mail.example.com --starttls=imap --output=json
 
 # Pipe summary into another step
 /testssl-inspector:scan --target=example.com --output=json | jq '.counters'
@@ -81,6 +91,6 @@ Severity translation: testssl `FATAL`/`CRITICAL` → `critical`; `HIGH` → `hig
 
 ## Targets and scope
 
-- Only HTTPS endpoints. testssl supports `--starttls` for SMTP/IMAP/etc.; not currently wired into this wrapper — open an issue if you need it.
+- HTTPS endpoints by default. STARTTLS services are supported through the `--starttls=<proto>` flag for protocols including SMTP, IMAP, POP3, FTP, LDAP, PostgreSQL, MySQL, and SMTPS.
 - Scanning runs on the local machine and requires outbound network reach to the target. Not suitable for endpoints behind a private network unless the runner has access.
 - Be courteous: testssl makes a couple hundred connections per target. Don't point it at infrastructure you don't own without authorization.

@@ -32,6 +32,19 @@ const SCF_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 const EXIT = { OK: 0, USAGE: 2, TOOL_UNAVAILABLE: 3, PARTIAL: 4, NOT_CONFIGURED: 5 };
 
+const STARTTLS_PORTS = Object.freeze({
+  smtp: 25,
+  imap: 143,
+  pop3: 110,
+  ftp: 21,
+  ldap: 389,
+  postgres: 5432,
+  mysql: 3306,
+  smtps: 465,
+});
+
+const SUPPORTED_STARTTLS = Object.keys(STARTTLS_PORTS).join(', ');
+
 async function main(argv) {
   const args = parseArgs(argv);
   const log = args.quiet ? () => {} : (m) => process.stderr.write(`[${SOURCE}] ${m}\n`);
@@ -47,7 +60,7 @@ async function main(argv) {
 
   const mode = args.fast ? 'fast' : 'full';
   const useDocker = args.docker ?? (config.use_docker === true);
-  const runner = await resolveRunner({ useDocker, configBinary: config.testssl_path });
+  const runner = await resolveRunner({ useDocker, configBinary: config.testssl_path, starttls: args.starttls });
   log(`runner=${runner.label} mode=${mode} targets=${targets.length}`);
 
   // Pre-fetch SCF crosswalks for the frameworks we expand to. Done once per run.
@@ -73,8 +86,9 @@ async function main(argv) {
 
   for (const target of targets) {
     try {
-      const raw = await runTestssl(runner, target, mode, log);
-      const doc = normalizeTargetFindings(raw, target, runId, runner.version, expansion);
+      const finalTarget = withDefaultStarttlsPort(target, args.starttls);
+      const raw = await runTestssl(runner, finalTarget, mode, args.starttls, log);
+      const doc = normalizeTargetFindings(raw, finalTarget, runId, runner.version, expansion);
       findings.push(doc);
     } catch (err) {
       errors.push({ target, error: err.message });
@@ -121,7 +135,7 @@ async function main(argv) {
 }
 
 function parseArgs(argv) {
-  const args = { targets: [], fast: false, docker: undefined, quiet: false, output: 'summary', scfOnly: false, offline: false };
+  const args = { targets: [], fast: false, docker: undefined, quiet: false, output: 'summary', scfOnly: false, offline: false, starttls: null };
   for (const a of argv) {
     if (a === '--fast') args.fast = true;
     else if (a === '--full') args.fast = false;
@@ -132,9 +146,21 @@ function parseArgs(argv) {
     else if (a === '--offline') args.offline = true;
     else if (a.startsWith('--target=')) args.targets.push(a.slice(9));
     else if (a.startsWith('--output=')) args.output = a.slice(9);
+    else if (a.startsWith('--starttls=')) {
+      const proto = a.slice('--starttls='.length).toLowerCase();
+
+      if (!Object.prototype.hasOwnProperty.call(STARTTLS_PORTS, proto)) {
+        fail(
+          EXIT.USAGE,
+          `unknown STARTTLS protocol: ${proto}. Supported protocols: ${SUPPORTED_STARTTLS}`
+        );
+      }
+
+      args.starttls = proto;
+    }
     else if (a === '-h' || a === '--help') {
       process.stdout.write(
-        `Usage: scan.js --target=host[:port] [--target=...] [--fast|--full] [--docker] [--scf-only] [--offline] [--output=summary|silent|json] [--quiet]\n`
+        `Usage: scan.js --target=host[:port] [--target=...] [--starttls=protocol] [--fast|--full] [--docker] [--scf-only] [--offline] [--output=summary|silent|json] [--quiet]\n`
       );
       process.exit(0);
     } else if (!a.startsWith('-')) args.targets.push(a);
@@ -144,7 +170,7 @@ function parseArgs(argv) {
 }
 
 /** Resolve which testssl invocation we'll use. */
-async function resolveRunner({ useDocker, configBinary }) {
+async function resolveRunner({ useDocker, configBinary, starttls }) {
   if (useDocker) {
     if (!await commandExists('docker')) fail(EXIT.TOOL_UNAVAILABLE, 'docker not on PATH — drop --docker or install Docker.');
     return {
@@ -154,7 +180,7 @@ async function resolveRunner({ useDocker, configBinary }) {
         'run', '--rm', '--network', 'host',
         '-v', `${CACHE_DIR}:/tmp/scan-out`,
         'drwetter/testssl.sh:latest',
-        ...testsslArgs(target, mode, '/tmp/scan-out'),
+        ...testsslArgs(target, mode, starttls, '/tmp/scan-out'),
       ],
       cmd: 'docker',
     };
@@ -171,7 +197,7 @@ async function resolveRunner({ useDocker, configBinary }) {
     label: binary,
     version,
     cmd: binary,
-    argv: (target, mode) => testsslArgs(target, mode),
+    argv: (target, mode) => testsslArgs(target, mode, starttls),
   };
 }
 
@@ -201,7 +227,14 @@ function parseTestsslVersion(text) {
   return m ? m[1] : 'unknown';
 }
 
-function testsslArgs(target, mode, outDir = null) {
+function withDefaultStarttlsPort(target, starttls) {
+  if (!starttls) return target;
+  if (target.includes(':')) return target;
+
+  return `${target}:${STARTTLS_PORTS[starttls]}`;
+}
+
+function testsslArgs(target, mode, starttls = null, outDir = null) {
   const out = outDir || CACHE_DIR;
   const jsonPath = path.join(out, `testssl-raw-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`);
   const base = [
@@ -209,12 +242,15 @@ function testsslArgs(target, mode, outDir = null) {
     '--jsonfile-pretty', jsonPath,
   ];
   if (mode === 'fast') base.push('--fast');
+  if (starttls) {
+    base.push('--starttls', starttls);
+  }
   base.push(target);
   base.__jsonPath = jsonPath;
   return base;
 }
 
-async function runTestssl(runner, target, mode, log) {
+async function runTestssl(runner, target, mode, starttls, log) {
   const argv = runner.argv(target, mode);
   const jsonPath = argv.__jsonPath;
   log(`scanning ${target}`);

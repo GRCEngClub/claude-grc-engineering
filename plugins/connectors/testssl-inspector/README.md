@@ -47,4 +47,15 @@ See `commands/scan.md` for the full option set, and `skills/testssl-inspector-ex
 
 ## Scope
 
-Only HTTPS endpoints in the current wrapper. `testssl.sh` itself supports `--starttls` for SMTP/IMAP/POP/FTP/etc.; if you need any of those, open an issue.
+HTTPS endpoints by default. STARTTLS services are supported through the `--starttls=<proto>` flag for the following protocols with their default ports:
+
+- `smtp` (25) — Simple Mail Transfer Protocol
+- `imap` (143) — Internet Message Access Protocol
+- `pop3` (110) — Post Office Protocol
+- `ftp` (21) — File Transfer Protocol
+- `ldap` (389) — Lightweight Directory Access Protocol
+- `postgres` (5432) — PostgreSQL database
+- `mysql` (3306) — MySQL database
+- `smtps` (465) — SMTP Secure
+
+When `--starttls=<proto>` is specified without an explicit port in the target, the target is automatically appended with the protocol's default port. If an explicit port is already present in the target, it is preserved. See `commands/scan.md` for examples.
