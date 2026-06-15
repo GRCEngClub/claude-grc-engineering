@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "source": "gcp-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-gcp-inconclusive",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "gcp_audit_config",
+    "id": "projects/my-project/auditConfig",
+    "uri": "//cloudresourcemanager.googleapis.com/projects/my-project",
+    "region": null,
+    "account_id": "my-project"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "MON-02",
+      "status": "inconclusive",
+      "severity": "medium",
+      "message": "GCP Logging API quota was exhausted (HTTP 429); could not determine whether Admin Activity audit logs are routed to a retained sink. Re-run after quota resets."
+    }
+  ]
+}

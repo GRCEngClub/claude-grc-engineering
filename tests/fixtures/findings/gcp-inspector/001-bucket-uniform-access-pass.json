@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "source": "gcp-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-gcp-pass",
+  "collected_at": "2026-04-30T00:00:00Z",
+  "resource": {
+    "type": "gcp_storage_bucket",
+    "id": "prod-data-bucket",
+    "uri": "//storage.googleapis.com/projects/_/buckets/prod-data-bucket",
+    "region": "us-central1",
+    "account_id": "my-project"
+  },
+  "evaluations": [
+    { "control_framework": "SCF", "control_id": "DCH-01.2", "status": "pass", "severity": "info" }
+  ]
+}
