@@ -202,6 +202,7 @@ async function collectSecretsManager(ctx) {
         raw_attributes: { Name: name, ARN: arn },
         evaluations: [
           { control_framework: 'SCF', control_id: 'CRY-09',   status: 'inconclusive', severity: 'medium', message: `describe-secret failed: ${err.message}` },
+          { control_framework: 'SCF', control_id: 'CRY-09',   status: 'inconclusive', severity: 'medium', message: `describe-secret failed: ${err.message}` },
           { control_framework: 'SCF', control_id: 'IAC-21',   status: 'inconclusive', severity: 'medium', message: `describe-secret failed: ${err.message}` },
           { control_framework: 'SCF', control_id: 'IAC-15.3', status: 'inconclusive', severity: 'medium', message: `describe-secret failed: ${err.message}` }
         ]
