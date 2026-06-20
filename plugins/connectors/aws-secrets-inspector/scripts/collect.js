@@ -106,6 +106,7 @@ async function main(argv) {
   if (profile) env.AWS_PROFILE = profile;
 
   await fs.mkdir(CACHE_DIR, { recursive: true });
+  await fs.mkdir(path.dirname(RUNS_LOG), { recursive: true });
   const runId = makeRunId();
   const startedAt = Date.now();
   log(`regions=${regions.join(',')} profile=${profile || '<default>'}`);
@@ -240,7 +241,7 @@ async function evaluateSecret({ env, region, runId, accountId, arn, summary }) {
     arn,
     region,
     account_id: accountId,
-    tags: Array.isArray(desc.Tags) ? desc.Tags : []
+    tags: tagsToObject(desc.Tags)
   };
 
   const raw = {
@@ -469,6 +470,21 @@ function parseIsoDate(s) {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
+// AWS returns tags as an array of {Key, Value} pairs. The v1 contract
+// expects a flat object (additionalProperties: string). This flattens
+// the AWS shape into the contract shape. Duplicate keys keep the last
+// value, which matches AWS CLI behavior.
+function tagsToObject(tags) {
+  if (!Array.isArray(tags)) return {};
+  const out = {};
+  for (const t of tags) {
+    if (t && typeof t === 'object' && typeof t.Key === 'string') {
+      out[t.Key] = t.Value == null ? '' : String(t.Value);
+    }
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------------------
 // Retrieval mode (--retrieve=<name>)
 //
@@ -549,6 +565,7 @@ async function retrieveSecret(args, log) {
 
   // 5. Append the retrieve manifest to runs.log. NEVER include the
   // value, prefix, or any entropy estimate — only metadata.
+  await fs.mkdir(path.dirname(RUNS_LOG), { recursive: true });
   const manifest = {
     source: SOURCE,
     run_id: makeRunId(),
@@ -588,7 +605,27 @@ async function safeResolveWritePath(input) {
 // ---------------------------------------------------------------------------
 // Utilities
 
+// AWS_SECRETS_INSPECTOR_FIXTURE_DIR: when set, every aws() call is
+// intercepted by a fixture reader that returns canned JSON from this
+// directory. The directory layout mirrors the AWS CLI subcommands:
+//
+//   <dir>/list-secrets/<region>.json
+//   <dir>/describe-secret/<region>/<arn-encoded>.json
+//   <dir>/get-resource-policy/<region>/<arn-encoded>.json
+//   <dir>/get-secret-value/<arn-encoded>.json
+//
+// For get-resource-policy, two sentinel files simulate the
+// ResourcePolicyNotFoundException (empty body) and AccessDenied
+// (the .denied marker); the absence of a fixture is treated as a
+// no-resource-policy (the common case).
+//
+// This is a TEST-ONLY affordance — never set in production. The env
+// var name is namespaced to the connector so it cannot collide with
+// other tooling.
+const FIXTURE_DIR = process.env.AWS_SECRETS_INSPECTOR_FIXTURE_DIR || '';
+
 async function aws(env, args) {
+  if (FIXTURE_DIR) return awsFixture(args);
   try {
     return await execFileP('aws', args, { env, maxBuffer: 64 * 1024 * 1024 });
   } catch (err) {
@@ -605,6 +642,83 @@ async function aws(env, args) {
     }
     throw new Error(stderr.split('\n')[0] || err.message);
   }
+}
+
+// Return a value of the form arn:aws:secretsmanager:r:account:secret:name-XXXX
+// encoded as a filesystem-safe path segment. We replace ":" with "_" so the
+// segment is portable across Windows and POSIX; the original ARN is recovered
+// by reversing the substitution when the fixture is read.
+function arnToPath(arn) {
+  return arn.replace(/[:*?"<>|]/g, '_');
+}
+
+function findArgValue(args, flag) {
+  const i = args.indexOf(flag);
+  if (i < 0 || i === args.length - 1) return null;
+  return args[i + 1];
+}
+
+async function awsFixture(args) {
+  const [service, subcommand] = args;
+  if (service !== 'secretsmanager') throw new Error(`fixture mode does not handle service '${service}'`);
+
+  if (subcommand === 'list-secrets') {
+    const region = findArgValue(args, '--region') || 'us-east-1';
+    const fp = path.join(FIXTURE_DIR, 'list-secrets', `${region}.json`);
+    const body = await fs.readFile(fp, 'utf8');
+    return { stdout: body };
+  }
+
+  if (subcommand === 'describe-secret') {
+    const arn = findArgValue(args, '--secret-id') || '';
+    const region = findArgValue(args, '--region') || 'us-east-1';
+    const fp = path.join(FIXTURE_DIR, 'describe-secret', region, `${arnToPath(arn)}.json`);
+    const body = await fs.readFile(fp, 'utf8');
+    return { stdout: body };
+  }
+
+  if (subcommand === 'get-resource-policy') {
+    const arn = findArgValue(args, '--secret-id') || '';
+    const region = findArgValue(args, '--region') || 'us-east-1';
+    const dir = path.join(FIXTURE_DIR, 'get-resource-policy', region);
+    const encoded = arnToPath(arn);
+    const deniedMarker = path.join(dir, `${encoded}.denied`);
+    try { await fs.access(deniedMarker); }
+    catch { /* not denied */ }
+    if (await pathExists(deniedMarker)) {
+      const e = new Error(`AccessDenied: User: arn:aws:iam::123456789012:role/SecurityAudit is not authorized to perform: secretsmanager:GetResourcePolicy on resource: ${arn}`);
+      e.code = 'AUTH_FAILED';
+      throw e;
+    }
+    const fp = path.join(dir, `${encoded}.json`);
+    if (!(await pathExists(fp))) {
+      // No fixture = no resource policy, the common case. Simulate the
+      // ResourcePolicyNotFoundException shape.
+      const e = new Error(`An error occurred (ResourcePolicyNotFoundException) when calling the GetResourcePolicy operation: Secrets Manager can't find the specified resource policy for secret ${arn}`);
+      throw e;
+    }
+    const body = await fs.readFile(fp, 'utf8');
+    return { stdout: body };
+  }
+
+  if (subcommand === 'get-secret-value') {
+    const arn = findArgValue(args, '--secret-id') || '';
+    const encoded = arnToPath(arn);
+    const fp = path.join(FIXTURE_DIR, 'get-secret-value', `${encoded}.json`);
+    if (!(await pathExists(fp))) {
+      const e = new Error(`An error occurred (ResourceNotFoundException) when calling the GetSecretValue operation: Secrets Manager can't find the specified secret.`);
+      throw e;
+    }
+    const body = await fs.readFile(fp, 'utf8');
+    return { stdout: body };
+  }
+
+  throw new Error(`fixture mode does not handle secretsmanager ${subcommand}`);
+}
+
+async function pathExists(p) {
+  try { await fs.access(p); return true; }
+  catch { return false; }
 }
 
 function parseArgs(argv) {
