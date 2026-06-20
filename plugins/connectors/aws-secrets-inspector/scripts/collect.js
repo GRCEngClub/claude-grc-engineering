@@ -587,7 +587,11 @@ async function retrieveSecret(args, log) {
 }
 
 // Resolve --write-to to an absolute path under SECRETS_DIR.
-// Rejects path traversal (../, absolute paths outside the dir).
+// Relative inputs are resolved against the current working directory; the
+// helper rejects any path whose resolved location is not a descendant of
+// SECRETS_DIR (i.e., `path.relative` returns a string starting with '..').
+// Absolute paths outside the dir, and traversal patterns like
+// `${SECRETS_DIR}/../evil`, are rejected for the same reason.
 async function safeResolveWritePath(input) {
   const resolved = path.isAbsolute(input)
     ? path.resolve(input)
@@ -597,7 +601,7 @@ async function safeResolveWritePath(input) {
   // outside `secretsRoot`; an exact match returns ''. We allow
   // descendants only.
   const rel = path.relative(secretsRoot, resolved);
-  if (rel.startsWith('..') || path.isAbsolute(rel)) {
+  if (rel.startsWith('..')) {
     fail(EXIT.USAGE, `--write-to='${input}' is outside the permitted destination root (${secretsRoot}). Writes are restricted to ${secretsRoot} and its subdirectories.`);
   }
   return resolved;

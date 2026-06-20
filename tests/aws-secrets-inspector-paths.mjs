@@ -22,7 +22,7 @@ const cases = [
   // [input, expectedThrow, label]
   [`${SECRETS_DIR}/my-secret`, false, 'absolute path inside secrets dir'],
   [`${SECRETS_DIR}/sub/dir/my-secret`, false, 'absolute path in subdir'],
-  ['my-secret', false, 'relative path resolves to cwd (not in secrets dir)'],
+  ['my-secret', true, 'relative path resolves to cwd (not in secrets dir)'],
   ['/etc/cron.d/evil', true, 'absolute path outside secrets dir'],
   ['/etc/passwd', true, 'absolute system file'],
   [`${SECRETS_DIR}/../../../etc/passwd`, true, 'traversal with ..'],
