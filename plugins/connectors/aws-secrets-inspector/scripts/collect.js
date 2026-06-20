@@ -72,16 +72,22 @@ async function main(argv) {
   const log = args.quiet ? () => {} : (m) => process.stderr.write(`[${SOURCE}] ${m}\n`);
 
   // ---------------------------------------------------------------------
-  // RETRIEVAL BRANCH (U4 implements the body; U3 leaves this as a stub so
-  // the inspector path is never reached when --retrieve is set).
+  // RETRIEVAL BRANCH (opt-in, --retrieve=<name>).
   //
-  // Safety contract: the retrieval branch must NOT touch the findings
-  // cache (CACHE_DIR) and must NOT include any value in runs.log. The
-  // runs.log entry is a 'retrieve'-shaped manifest with byte_size +
-  // sha256 only. See U4 implementation.
+  // Safety contract (enforced by structure, not convention):
+  //   1. The retrieval branch never touches the findings cache
+  //      (CACHE_DIR). The cache helpers (writeFile to CACHE_DIR) are
+  //      only reachable from the inspector path below.
+  //   2. The runs.log manifest for a retrieval run is shaped
+  //      { mode: "retrieve", byte_size, sha256, ... } — never the
+  //      secret value, prefix, or any part of the value.
+  //   3. --write-to is restricted to paths under SECRETS_DIR. Any
+  //      destination outside that root is rejected with exit 2.
+  //   4. The destination file is created with mode 0600; the parent
+  //      directory is created with mode 0700 if it does not exist.
   // ---------------------------------------------------------------------
   if (args.retrieve) {
-    fail(EXIT.USAGE, '--retrieve is not yet implemented in this build. See U4 in the implementation plan.');
+    return await retrieveSecret(args, log);
   }
 
   // ---------------------------------------------------------------------
@@ -461,6 +467,122 @@ function parseIsoDate(s) {
   if (!s) return null;
   const d = new Date(s);
   return Number.isNaN(d.getTime()) ? null : d;
+}
+
+// ---------------------------------------------------------------------------
+// Retrieval mode (--retrieve=<name>)
+//
+// Returns a single secret's value as JSON to stdout, or writes the same
+// JSON to a 0600-permission file under SECRETS_DIR when --write-to is
+// set. Runs.log manifest records byte_size + sha256 only; never the value.
+// Crucially, this function never reads or writes the findings cache.
+
+async function retrieveSecret(args, log) {
+  const startedAt = Date.now();
+  let config;
+  try { config = parseYaml(await fs.readFile(CONFIG_FILE, 'utf8')); }
+  catch { fail(EXIT.NOT_CONFIGURED, `config missing (${CONFIG_FILE}). Run /aws-secrets-inspector:setup first.`); }
+
+  const profile = args.profile || config.profile || process.env.AWS_PROFILE || '';
+  const env = { ...process.env };
+  if (profile) env.AWS_PROFILE = profile;
+
+  // 1. Build the AWS CLI args for get-secret-value.
+  const awsArgs = ['secretsmanager', 'get-secret-value', '--secret-id', args.retrieve, '--output', 'json'];
+  if (args.versionStage) awsArgs.push('--version-stage', args.versionStage);
+  else if (args.versionId) awsArgs.push('--version-id', args.versionId);
+
+  log(`retrieve: name=${args.retrieve} stage=${args.versionStage || '<AWSCURRENT>'} id=${args.versionId || '<latest>'} profile=${profile || '<default>'}`);
+
+  // 2. Call AWS. The auth-error regex is handled by the aws() helper.
+  let raw;
+  try {
+    const out = (await aws(env, awsArgs)).stdout;
+    raw = JSON.parse(out);
+  } catch (err) {
+    if (err.code === 'AUTH_FAILED') fail(EXIT.AUTH, `AWS auth failed: ${err.message}`);
+    if (/ResourceNotFoundException/.test(err.message)) fail(EXIT.NOT_FOUND, `secret '${args.retrieve}' not found in this account/region.`);
+    if (err.code === 'RATE_LIMITED') fail(EXIT.RATE_LIMITED, err.message);
+    fail(EXIT.USAGE, `get-secret-value failed: ${err.message}`);
+  }
+
+  // 3. Build the output JSON. SecretString is the common case;
+  // SecretBinary is base64-encoded so the output is text-safe on stdout.
+  const output = {
+    name: raw.Name,
+    arn: raw.ARN,
+    version_id: raw.VersionId,
+    version_stages: raw.VersionStages || [],
+    created_at: raw.CreatedDate || null
+  };
+  if (raw.SecretString !== undefined) {
+    output.secret_string = raw.SecretString;
+  } else if (raw.SecretBinary !== undefined) {
+    output.secret_binary = raw.SecretBinary;
+  } else {
+    fail(EXIT.USAGE, 'AWS returned a secret with neither SecretString nor SecretBinary — unexpected response shape.');
+  }
+
+  const outputJson = JSON.stringify(output);
+  const byteSize = Buffer.byteLength(outputJson, 'utf8');
+  const sha256 = crypto.createHash('sha256').update(outputJson).digest('hex');
+
+  // 4. Write the JSON to stdout (default) or to a 0600 file.
+  if (args.writeTo) {
+    const target = await safeResolveWritePath(args.writeTo);
+    await fs.mkdir(path.dirname(target), { recursive: true, mode: 0o700 });
+    // Re-assert the dir mode in case it already existed at a weaker mode.
+    await fs.chmod(path.dirname(target), 0o700);
+    // umask 077 ensures the file is created 0600 even before chmod.
+    const prevUmask = process.umask(0o077);
+    try {
+      await fs.writeFile(target, outputJson + '\n');
+    } finally {
+      process.umask(prevUmask);
+    }
+    await fs.chmod(target, 0o600);
+    // Confirmation line on stdout, NO value.
+    process.stdout.write(`${SOURCE}:retrieve wrote ${byteSize} bytes to ${target} (sha256=${sha256})\n`);
+  } else {
+    process.stdout.write(outputJson + '\n');
+  }
+
+  // 5. Append the retrieve manifest to runs.log. NEVER include the
+  // value, prefix, or any entropy estimate — only metadata.
+  const manifest = {
+    source: SOURCE,
+    run_id: makeRunId(),
+    started_at: new Date(startedAt).toISOString(),
+    duration_ms: Date.now() - startedAt,
+    mode: 'retrieve',
+    secret_name: raw.Name,
+    version_id: raw.VersionId,
+    version_stage: args.versionStage || (args.versionId ? null : 'AWSCURRENT'),
+    destination: args.writeTo ? path.resolve(args.writeTo) : 'stdout',
+    byte_size: byteSize,
+    sha256,
+    exit_code: EXIT.OK
+  };
+  await fs.appendFile(RUNS_LOG, JSON.stringify(manifest) + '\n');
+
+  process.exit(EXIT.OK);
+}
+
+// Resolve --write-to to an absolute path under SECRETS_DIR.
+// Rejects path traversal (../, absolute paths outside the dir).
+async function safeResolveWritePath(input) {
+  const resolved = path.isAbsolute(input)
+    ? path.resolve(input)
+    : path.resolve(process.cwd(), input);
+  const secretsRoot = path.resolve(SECRETS_DIR);
+  // path.relative returns a string starting with '..' if `resolved` is
+  // outside `secretsRoot`; an exact match returns ''. We allow
+  // descendants only.
+  const rel = path.relative(secretsRoot, resolved);
+  if (rel.startsWith('..') || path.isAbsolute(rel)) {
+    fail(EXIT.USAGE, `--write-to='${input}' is outside the permitted destination root (${secretsRoot}). Writes are restricted to ${secretsRoot} and its subdirectories.`);
+  }
+  return resolved;
 }
 
 // ---------------------------------------------------------------------------
