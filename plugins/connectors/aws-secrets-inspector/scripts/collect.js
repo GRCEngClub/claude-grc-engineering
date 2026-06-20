@@ -67,6 +67,14 @@ const EXIT = {
   NOT_FOUND: 6
 };
 
+/**
+ * Process entry point. Parses argv, dispatches to the retrieval branch
+ * (--retrieve=<name>) or the inspector branch (default), and writes
+ * the run manifest.
+ * @param {string[]} argv - Raw command-line arguments (without node/script).
+ * @returns {Promise<void>} Resolves when the run completes; calls fail() and
+ *   exits non-zero on unrecoverable errors.
+ */
 async function main(argv) {
   const args = parseArgs(argv);
   const log = args.quiet ? () => {} : (m) => process.stderr.write(`[${SOURCE}] ${m}\n`);
@@ -167,6 +175,14 @@ async function main(argv) {
 // ---------------------------------------------------------------------------
 // Secrets Manager — list per region, evaluate each secret
 
+/**
+ * Walk every configured region, list secrets, deduplicate by ARN, and
+ * emit one Finding per secret. Per-secret failures become Findings
+ * with inconclusive evaluations rather than aborting the run.
+ * @param {{env: object, region: string, runId: string, accountId: string}} ctx
+ *   Run context: env vars, current region, run id, resolved account id.
+ * @returns {Promise<object[]>} Array of Finding objects (schema-conformant).
+ */
 async function collectSecretsManager(ctx) {
   const { env, region, runId, accountId, seenArns, log } = ctx;
   const listOut = (await aws(env, ['secretsmanager', 'list-secrets', '--region', region, '--output', 'json'])).stdout;
@@ -212,6 +228,20 @@ async function collectSecretsManager(ctx) {
   return findings;
 }
 
+/**
+ * Produce a single Finding for a Secrets Manager secret by calling
+ * describe-secret and (best-effort) get-resource-policy, then mapping
+ * the response into the four SCF evaluations: CRY-09 (rotation), CRY-09
+ * (CMK), IAC-21 (public policy), IAC-15.3 (inactive access).
+ * @param {object} args
+ * @param {object} args.env - Env vars to pass to the AWS CLI.
+ * @param {string} args.region - AWS region for the calls.
+ * @param {string} args.runId - Run identifier shared across the invocation.
+ * @param {string} args.accountId - Resolved AWS account id.
+ * @param {string} args.arn - Secret ARN to evaluate.
+ * @param {object} args.summary - The list-secrets summary entry for the ARN.
+ * @returns {Promise<object>} A schema-conformant Finding.
+ */
 async function evaluateSecret({ env, region, runId, accountId, arn, summary }) {
   const descOut = (await aws(env, ['secretsmanager', 'describe-secret', '--secret-id', arn, '--region', region, '--output', 'json'])).stdout;
   const desc = JSON.parse(descOut);
@@ -420,6 +450,14 @@ async function evaluateSecret({ env, region, runId, accountId, arn, summary }) {
 // Public access in this context means: any statement whose Principal is
 // "*" (or a wildcard) and whose Action permits secretsmanager read
 // (GetSecretValue, DescribeSecret, or any "secretsmanager:*" action).
+/**
+ * Parse a Secrets Manager resource policy and detect any statement
+ * that grants public read access (Principal:"*" with a permitted
+ * secretsmanager:GetSecretValue / DescribeSecret / "*" action).
+ * @param {string|null} policyString - JSON-encoded resource policy, or null.
+ * @returns {object|null} Object describing the offending statement, or
+ *   null if the policy does not grant public access (or is unparseable).
+ */
 function detectPublicAccess(policyString) {
   if (policyString == null) return null;
   let policy;
@@ -438,6 +476,13 @@ function detectPublicAccess(policyString) {
   return null;
 }
 
+/**
+ * Normalize a Principal field into a list of principal spec strings.
+ * Handles the string form ("*", ARN, "AWS":"...") and the object form
+ * ({AWS: [...], Service: [...], Federated: [...], CanonicalUser: [...]}).
+ * @param {*} p - The Principal value from a policy statement.
+ * @returns {string[]} Flat list of principal specs; empty if none.
+ */
 function normalizePrincipals(p) {
   if (p == null) return [];
   if (typeof p === 'string') return [p];
@@ -453,6 +498,13 @@ function normalizePrincipals(p) {
   return [];
 }
 
+/**
+ * Determine whether a single Action (or action list element) permits
+ * reading the secret. Matches GetSecretValue, DescribeSecret, and
+ * secretsmanager:* (case-insensitive). Returns false for unscoped "*".
+ * @param {string} action - A single action string (no list).
+ * @returns {boolean} True if the action grants secret read access.
+ */
 function actionAllowsRead(action) {
   const list = Array.isArray(action) ? action : [action];
   for (const a of list) {
@@ -465,6 +517,12 @@ function actionAllowsRead(action) {
   return false;
 }
 
+/**
+ * Parse an ISO-8601 timestamp string into a Date, or null if the
+ * input is falsy, malformed, or yields an invalid Date.
+ * @param {string|null|undefined} s - ISO-8601 timestamp.
+ * @returns {Date|null} Parsed Date, or null on failure.
+ */
 function parseIsoDate(s) {
   if (!s) return null;
   const d = new Date(s);
@@ -475,6 +533,13 @@ function parseIsoDate(s) {
 // expects a flat object (additionalProperties: string). This flattens
 // the AWS shape into the contract shape. Duplicate keys keep the last
 // value, which matches AWS CLI behavior.
+/**
+ * Flatten the AWS {Key, Value}[] tag list into a plain object so the
+ * Finding's `resource.tags` matches the v1 contract's string→string shape.
+ * @param {Array<{Key: string, Value: string}>|null|undefined} tags
+ *   Tag list as returned by list-secrets / describe-secret.
+ * @returns {Object<string, string>} Key→Value object (empty on null/empty input).
+ */
 function tagsToObject(tags) {
   if (!Array.isArray(tags)) return {};
   const out = {};
@@ -494,6 +559,16 @@ function tagsToObject(tags) {
 // set. Runs.log manifest records byte_size + sha256 only; never the value.
 // Crucially, this function never reads or writes the findings cache.
 
+/**
+ * Retrieval branch: call get-secret-value and emit the value to stdout
+ * (or to a 0600 file under SECRETS_DIR). Logs only byte_size and sha256
+ * to runs.log; never reads or writes the findings cache. Resolves
+ * profile/region/versionStage from args, config, and env.
+ * @param {object} args - Parsed args with retrieve, versionStage,
+ *   writeTo, profile, region, quiet, etc.
+ * @param {(m: string) => void} log - Logger that respects --quiet.
+ * @returns {Promise<void>} Resolves on success; calls fail() on error.
+ */
 async function retrieveSecret(args, log) {
   const startedAt = Date.now();
   let config;
@@ -592,6 +667,15 @@ async function retrieveSecret(args, log) {
 // SECRETS_DIR (i.e., `path.relative` returns a string starting with '..').
 // Absolute paths outside the dir, and traversal patterns like
 // `${SECRETS_DIR}/../evil`, are rejected for the same reason.
+/**
+ * Resolve --write-to to an absolute path under SECRETS_DIR, rejecting
+ * any input whose resolved location is not a descendant of SECRETS_DIR
+ * (i.e., `path.relative` returns a string starting with '..'). Relative
+ * inputs are resolved against the current working directory.
+ * @param {string} input - User-supplied --write-to value.
+ * @returns {Promise<string>} Absolute path inside SECRETS_DIR.
+ *   Calls fail(EXIT.USAGE) and aborts the process if outside.
+ */
 async function safeResolveWritePath(input) {
   const resolved = path.isAbsolute(input)
     ? path.resolve(input)
@@ -629,6 +713,15 @@ async function safeResolveWritePath(input) {
 // other tooling.
 const FIXTURE_DIR = process.env.AWS_SECRETS_INSPECTOR_FIXTURE_DIR || '';
 
+/**
+ * Thin wrapper around the AWS CLI. Routes to the fixture reader when
+ * AWS_SECRETS_INSPECTOR_FIXTURE_DIR is set; otherwise invokes the
+ * `aws` binary via execFile and maps common errors (AuthFailure,
+ * Throttling, AccessDenied) to a uniform Error shape.
+ * @param {object} env - Env vars to pass to the AWS CLI.
+ * @param {string[]} args - AWS CLI args, e.g. ['secretsmanager','list-secrets'].
+ * @returns {Promise<{stdout: string, stderr: string}>} The CLI output.
+ */
 async function aws(env, args) {
   if (FIXTURE_DIR) return awsFixture(args);
   try {
@@ -653,16 +746,38 @@ async function aws(env, args) {
 // encoded as a filesystem-safe path segment. We replace ":" with "_" so the
 // segment is portable across Windows and POSIX; the original ARN is recovered
 // by reversing the substitution when the fixture is read.
+/**
+ * Convert an ARN into a fixture-friendly path component by replacing
+ * filesystem-reserved characters (`:` `*` `?` `"` `<` `>` `|`) with `_`.
+ * @param {string} arn - AWS ARN.
+ * @returns {string} Path-safe representation of the ARN.
+ */
 function arnToPath(arn) {
   return arn.replace(/[:*?"<>|]/g, '_');
 }
 
+/**
+ * Look up the value following `flag` in a CLI args array (handles
+ * both `--flag value` and `--flag=value`).
+ * @param {string[]} args - Raw CLI args.
+ * @param {string} flag - Flag to look up (without the `=`).
+ * @returns {string|null} The value, or null if not present or last arg.
+ */
 function findArgValue(args, flag) {
   const i = args.indexOf(flag);
   if (i < 0 || i === args.length - 1) return null;
   return args[i + 1];
 }
 
+/**
+ * Fixture-mode interceptor for the AWS CLI. Reads canned responses from
+ * AWS_SECRETS_INSPECTOR_FIXTURE_DIR, mirroring the directory layout the
+ * connector's real calls would produce. Throws an Error matching the
+ * shape the real CLI would produce on missing files or AccessDenied
+ * markers (`.denied` siblings).
+ * @param {string[]} args - AWS CLI args (service, subcommand, ...).
+ * @returns {Promise<{stdout: string, stderr: string}>} The canned response.
+ */
 async function awsFixture(args) {
   const [service, subcommand] = args;
   if (service !== 'secretsmanager') throw new Error(`fixture mode does not handle service '${service}'`);
@@ -721,11 +836,26 @@ async function awsFixture(args) {
   throw new Error(`fixture mode does not handle secretsmanager ${subcommand}`);
 }
 
+/**
+ * Test whether a filesystem path is accessible. Resolves true on
+ * success, false on any error (ENOENT, EACCES, etc.).
+ * @param {string} p - Path to test.
+ * @returns {Promise<boolean>} True if accessible, false otherwise.
+ */
 async function pathExists(p) {
   try { await fs.access(p); return true; }
   catch { return false; }
 }
 
+/**
+ * Parse the raw CLI argv into a structured args object. Recognizes the
+ * retrieval flag (--retrieve), flags shared with both modes (--profile,
+ * --region, --quiet, --output), and write-to / version-stage. Splits
+ * comma-separated --region lists. Sets defaults for unset values.
+ * @param {string[]} argv - Raw command-line arguments.
+ * @returns {object} Structured args: {retrieve?, versionStage?, writeTo?,
+ *   profile?, region: string[], quiet: boolean, output: string, ...}.
+ */
 function parseArgs(argv) {
   const out = {
     regions: [],
@@ -757,6 +887,12 @@ function parseArgs(argv) {
   return out;
 }
 
+/**
+ * Parse a YAML string using the project's js-yaml dependency. Returns
+ * the parsed object; throws a SyntaxError on malformed input.
+ * @param {string} src - YAML text.
+ * @returns {*} Parsed value (typically an object for connector configs).
+ */
 function parseYaml(src) {
   const out = {};
   const stack = [{ indent: -1, obj: out }];
@@ -805,6 +941,12 @@ function parseYaml(src) {
   return out;
 }
 
+/**
+ * Generate a run id of the form `YYYYMMDDHHmmss-xxxxxxxx` from the
+ * current UTC timestamp plus 8 hex chars of randomness. Used as the
+ * cache filename and runs.log entry identifier.
+ * @returns {string} New run id.
+ */
 function makeRunId() {
   const d = new Date();
   const date = d.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
@@ -812,6 +954,14 @@ function makeRunId() {
   return `${date}-${rand}`;
 }
 
+/**
+ * Print an error to stderr and exit with the given code. Used as the
+ * unified error-exit path for usage, auth, rate-limit, and config
+ * failures. Does not return.
+ * @param {number} code - Process exit code (see EXIT.* constants).
+ * @param {string} msg - Human-readable error message.
+ * @returns {void} Never returns; process.exit terminates the script.
+ */
 function fail(code, msg) {
   process.stderr.write(`[${SOURCE}] ${msg}\n`);
   process.exit(code);
