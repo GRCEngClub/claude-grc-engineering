@@ -69,7 +69,7 @@ The retrieval manifest in `runs.log` looks like:
 {
   "Version": "2012-10-17",
   "Statement": [
-    { "Effect": "Allow", "Action": ["secretsmanager:GetSecretValue"], "Resource": "<secret-arn-or-*" /> },
+    { "Effect": "Allow", "Action": ["secretsmanager:GetSecretValue"], "Resource": "<secret-arn-or-*>" },
     { "Effect": "Allow", "Action": ["kms:Decrypt"], "Resource": "<kms-key-arn>" }
   ]
 }
