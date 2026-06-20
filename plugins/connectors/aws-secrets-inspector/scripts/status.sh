@@ -57,8 +57,9 @@ else
   printf '  note:          retrieve mode (--retrieve=) may still work if the role has GetSecretValue\n'
 fi
 
-# Last run freshness
-LATEST=$(ls -t "$CACHE_DIR"/*.json 2>/dev/null | head -1 || true)
+# Last run freshness — use `find` so filenames with whitespace or shell
+# metacharacters are handled correctly (Shellcheck SC2012).
+LATEST=$(find "$CACHE_DIR" -maxdepth 1 -name '*.json' -type f -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)
 if [[ -z "$LATEST" ]]; then
   printf '  status:        ready (no runs yet)\n'
   printf '  last run:      never\n'
