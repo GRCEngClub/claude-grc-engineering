@@ -19,6 +19,7 @@ node plugins/connectors/aws-secrets-inspector/scripts/collect.js --retrieve=<sec
 - `--version-stage=<stage>` — `AWSCURRENT` (default), `AWSPREVIOUS`, or a custom stage label
 - `--version-id=<uuid>` — alternative to `--version-stage`; explicit version UUID
 - `--write-to=<path>` — write the JSON to a 0600-permission file at `<path>` (must resolve under `~/.config/claude-grc/secrets/`); confirmation line is printed to stdout
+- `--region=<region>` — region for the `get-secret-value` call; falls back to the first of `--regions`, then `config.defaults.regions[0]`, then `config.default_region`, then `AWS_DEFAULT_REGION` / `AWS_REGION`, then `us-east-1`. Pass this when the secret lives in a region other than the one encoded in your AWS profile.
 - `--profile=<name>` — override the configured AWS profile
 - `--quiet` — no stderr progress
 
@@ -82,6 +83,9 @@ For cross-account access, configure the standard AWS CLI profile chain in `~/.aw
 ```bash
 # Default: AWSCURRENT to stdout
 /aws-secrets-inspector:retrieve --retrieve=prod-db
+
+# Explicit region when the secret lives outside your profile's region
+/aws-secrets-inspector:retrieve --retrieve=prod-db --region=eu-west-1
 
 # Previous version, captured into a 0600 file
 /aws-secrets-inspector:retrieve --retrieve=prod-db --version-stage=AWSPREVIOUS \

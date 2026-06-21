@@ -200,3 +200,50 @@ test('retrieval mode writes the value to a 0600 file inside the secrets dir', as
   assert.equal((fileStat.mode & 0o777), 0o600, `expected 0600, got ${(fileStat.mode & 0o777).toString(8)}`);
   assert.equal((dirStat.mode & 0o777), 0o700, `expected 0700, got ${(dirStat.mode & 0o777).toString(8)}`);
 });
+
+test('retrieval mode records the resolved region in the runs.log manifest', async () => {
+  const arn = 'arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf';
+
+  // Explicit --region overrides every other source.
+  {
+    const { env } = await makeEnv();
+    const ret = runCollect(env, ['--retrieve=' + arn, '--region=eu-west-1', '--quiet']);
+    assert.equal(ret.status, 0, `stderr: ${ret.stderr}`);
+    const runsLog = await fs.readFile(path.join(env.HOME, '.cache', 'claude-grc', 'runs.log'), 'utf8');
+    const lines = runsLog.trim().split('\n').map(l => JSON.parse(l));
+    const retEntry = lines.find(l => l.mode === 'retrieve');
+    assert.ok(retEntry, 'no retrieve manifest in runs.log');
+    assert.equal(retEntry.region, 'eu-west-1', 'manifest should record the explicit --region');
+  }
+
+  // Config's default_region is honored when no --region flag is given.
+  {
+    const { env } = await makeEnv();
+    const ret = runCollect(env, ['--retrieve=' + arn, '--quiet']);
+    assert.equal(ret.status, 0, `stderr: ${ret.stderr}`);
+    const runsLog = await fs.readFile(path.join(env.HOME, '.cache', 'claude-grc', 'runs.log'), 'utf8');
+    const manifest = JSON.parse(runsLog.trim().split('\n').pop());
+    assert.equal(manifest.region, 'us-east-1', 'manifest should fall back to config default_region');
+  }
+
+  // Env var fallback: AWS_DEFAULT_REGION wins when no flag AND no
+  // config default_region are set.
+  {
+    const { env: baseEnv } = await makeEnv();
+    // Strip default_region + defaults.regions from the config so the
+    // env-var branch is actually exercised.
+    const cfgDir = baseEnv.CLAUDE_GRC_CONFIG_DIR;
+    await fs.writeFile(path.join(cfgDir, 'connectors/aws-secrets-inspector.yaml'),
+      'version: 1\n' +
+      'source: aws-secrets-inspector\n' +
+      'source_version: "0.1.0"\n' +
+      'account_id: "123456789012"\n');
+    const home = await fs.mkdtemp(path.join(os.tmpdir(), 'aws-secrets-inspector-home-region-env-'));
+    const env = { ...baseEnv, HOME: home, USERPROFILE: home, AWS_DEFAULT_REGION: 'ap-southeast-2', AWS_REGION: '' };
+    const ret = runCollect(env, ['--retrieve=' + arn, '--quiet']);
+    assert.equal(ret.status, 0, `stderr: ${ret.stderr}`);
+    const runsLog = await fs.readFile(path.join(home, '.cache', 'claude-grc', 'runs.log'), 'utf8');
+    const manifest = JSON.parse(runsLog.trim().split('\n').pop());
+    assert.equal(manifest.region, 'ap-southeast-2', 'manifest should fall back to AWS_DEFAULT_REGION');
+  }
+});

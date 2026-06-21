@@ -23,6 +23,7 @@
  *                   [--version-stage=AWSCURRENT|AWSPREVIOUS|<label>]
  *                   [--version-id=<uuid>]
  *                   [--write-to=<path>]
+ *                   [--region=<region>]
  *                   [--profile=<name>]
  *
  * Exit codes:
@@ -563,9 +564,12 @@ function tagsToObject(tags) {
  * Retrieval branch: call get-secret-value and emit the value to stdout
  * (or to a 0600 file under SECRETS_DIR). Logs only byte_size and sha256
  * to runs.log; never reads or writes the findings cache. Resolves
- * profile/region/versionStage from args, config, and env.
+ * profile/region/versionStage from args, config, and env. The region
+ * is passed explicitly to get-secret-value; without --region the AWS
+ * CLI falls back to the region encoded in the active profile, which
+ * is not always where the secret lives.
  * @param {object} args - Parsed args with retrieve, versionStage,
- *   writeTo, profile, region, quiet, etc.
+ *   writeTo, profile, region, regions, quiet, etc.
  * @param {(m: string) => void} log - Logger that respects --quiet.
  * @returns {Promise<void>} Resolves on success; calls fail() on error.
  */
@@ -579,12 +583,27 @@ async function retrieveSecret(args, log) {
   const env = { ...process.env };
   if (profile) env.AWS_PROFILE = profile;
 
+  // Resolve the region for the get-secret-value call. Mirrors
+  // inspector-mode precedence, but collapses the list to a single
+  // value: explicit --region, then the first of --regions /
+  // config.defaults.regions, then config.default_region, then the
+  // AWS_DEFAULT_REGION / AWS_REGION env vars, then us-east-1. Without
+  // this, the AWS CLI would default to the region encoded in the
+  // user's profile, which is not always where the secret lives.
+  const region = args.region
+    || args.regions[0]
+    || config.defaults?.regions?.[0]
+    || config.default_region
+    || process.env.AWS_DEFAULT_REGION
+    || process.env.AWS_REGION
+    || 'us-east-1';
+
   // 1. Build the AWS CLI args for get-secret-value.
-  const awsArgs = ['secretsmanager', 'get-secret-value', '--secret-id', args.retrieve, '--output', 'json'];
+  const awsArgs = ['secretsmanager', 'get-secret-value', '--secret-id', args.retrieve, '--region', region, '--output', 'json'];
   if (args.versionStage) awsArgs.push('--version-stage', args.versionStage);
   else if (args.versionId) awsArgs.push('--version-id', args.versionId);
 
-  log(`retrieve: name=${args.retrieve} stage=${args.versionStage || '<AWSCURRENT>'} id=${args.versionId || '<latest>'} profile=${profile || '<default>'}`);
+  log(`retrieve: name=${args.retrieve} stage=${args.versionStage || '<AWSCURRENT>'} id=${args.versionId || '<latest>'} region=${region} profile=${profile || '<default>'}`);
 
   // 2. Call AWS. The auth-error regex is handled by the aws() helper.
   let raw;
@@ -651,6 +670,7 @@ async function retrieveSecret(args, log) {
     secret_name: raw.Name,
     version_id: raw.VersionId,
     version_stage: args.versionStage || (args.versionId ? null : 'AWSCURRENT'),
+    region,
     destination: args.writeTo ? path.resolve(args.writeTo) : 'stdout',
     byte_size: byteSize,
     sha256,
@@ -896,11 +916,13 @@ async function pathExists(p) {
  * comma-separated --region lists. Sets defaults for unset values.
  * @param {string[]} argv - Raw command-line arguments.
  * @returns {object} Structured args: {retrieve?, versionStage?, writeTo?,
- *   profile?, region: string[], quiet: boolean, output: string, ...}.
+ *   profile?, region: string, regions: string[], quiet: boolean,
+ *   output: string, ...}.
  */
 function parseArgs(argv) {
   const out = {
     regions: [],
+    region: '',
     profile: '',
     output: 'summary',
     quiet: false,
@@ -915,6 +937,7 @@ function parseArgs(argv) {
     const [k, v] = tok.slice(2).split('=');
     switch (k) {
       case 'regions':       out.regions = String(v || '').split(',').map(s => s.trim()).filter(Boolean); break;
+      case 'region':        out.region = v || ''; break;
       case 'profile':       out.profile = v || ''; break;
       case 'output':        out.output = v || 'summary'; break;
       case 'refresh':       out.refresh = true; break;
