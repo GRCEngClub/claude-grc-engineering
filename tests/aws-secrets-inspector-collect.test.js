@@ -138,8 +138,12 @@ test('retrieval mode emits value to stdout and never writes the value to runs.lo
   assert.equal(retEntry.exit_code, 0);
   // byte_size is the bytes actually written to stdout — that is the
   // JSON object plus the trailing newline that the connector always
-  // emits so text tools (jq, wc -c) see a well-formed record.
-  assert.equal(retEntry.byte_size, JSON.stringify(retValue).length + 1);
+  // emits so text tools (jq, wc -c) see a well-formed record. The
+  // connector computes byte_size as Buffer.byteLength(payload, 'utf8'),
+  // so the test asserts the same way: bytes, not characters, to match
+  // the UTF-8 contract for multibyte content.
+  const expectedPayload = JSON.stringify(retValue) + '\n';
+  assert.equal(retEntry.byte_size, Buffer.byteLength(expectedPayload, 'utf8'));
   // sha256 hashes the same bytes the manifest records — recompute
   // from the raw stdout line and assert equality.
   const stdoutLine = ret.stdout; // already includes trailing newline from the connector
@@ -237,13 +241,14 @@ test('retrieval mode writes the value to a 0600 file inside the secrets dir', as
   // Manifest agreement: the manifest's byte_size and sha256 must match
   // the on-disk file. Operators verifying audit trails should be able
   // to run `sha256sum <file>` and `wc -c <file>` and get the same
-  // numbers the connector logged.
+  // numbers the connector logged. Use Buffer.byteLength on the raw
+  // bytes to match the connector's UTF-8 contract.
   const fileBytes = await fs.readFile(target);
   const fileSha = crypto.createHash('sha256').update(fileBytes).digest('hex');
   const runsLog = await fs.readFile(path.join(home, '.cache', 'claude-grc', 'runs.log'), 'utf8');
   const retEntry = runsLog.trim().split('\n').map(l => JSON.parse(l)).find(l => l.mode === 'retrieve');
   assert.ok(retEntry, 'no retrieve manifest in runs.log');
-  assert.equal(retEntry.byte_size, fileBytes.length, 'manifest byte_size must match on-disk file size');
+  assert.equal(retEntry.byte_size, fileBytes.length, 'manifest byte_size must match on-disk file size in bytes');
   assert.equal(retEntry.sha256, fileSha, 'manifest sha256 must match sha256 of on-disk file');
 });
 
