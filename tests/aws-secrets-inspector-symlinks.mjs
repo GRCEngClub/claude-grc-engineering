@@ -22,8 +22,14 @@ import os from 'node:os';
 const SECRETS_DIR = path.join(os.tmpdir(), `grc-symlink-test-${process.pid}`);
 
 function abort(exitCode, message) {
-  process.stderr.write(`${message}\n`);
-  process.exit(exitCode);
+  // Throw, don't exit. The test loop wraps each call in try/catch and
+  // records the rejection as a test result. process.exit() here would
+  // kill the whole harness before the catch can observe the rejection,
+  // turning every "should reject" case into a process-level failure
+  // (round-2 Major finding). The `exitCode` argument is preserved so
+  // the production mirror in collect.js can keep its existing shape if
+  // it ever borrows this helper; here we always throw with exit 2.
+  throw new Error(`PATH_REJECTED [exit=${exitCode}]: ${message}`);
 }
 
 // Mirror of safeResolveWritePath in collect.js, kept in sync by the
