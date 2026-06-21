@@ -865,8 +865,6 @@ async function awsFixture(args) {
     const dir = path.join(FIXTURE_DIR, 'get-resource-policy', region);
     const encoded = arnToPath(arn);
     const deniedMarker = path.join(dir, `${encoded}.denied`);
-    try { await fs.access(deniedMarker); }
-    catch { /* not denied */ }
     if (await pathExists(deniedMarker)) {
       const e = new Error(`AccessDenied: User: arn:aws:iam::123456789012:role/SecurityAudit is not authorized to perform: secretsmanager:GetResourcePolicy on resource: ${arn}`);
       e.code = 'AUTH_FAILED';
