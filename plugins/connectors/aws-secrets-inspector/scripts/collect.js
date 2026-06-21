@@ -653,28 +653,42 @@ async function retrieveSecret(args, log) {
     fail(EXIT.USAGE, 'AWS returned a secret with neither SecretString nor SecretBinary — unexpected response shape.');
   }
 
+  // Build the payload once: outputJson plus a trailing newline. Both
+  // the file branch and the stdout branch emit this same byte
+  // sequence, so byteSize and sha256 computed from `payload` match
+  // the artifact actually produced (file content, stdout line). This
+  // was the round-2 P1 finding: computing byte/sha from outputJson
+  // (no newline) but writing outputJson + '\n' desync'd the manifest
+  // from the on-disk bytes.
   const outputJson = JSON.stringify(output);
-  const byteSize = Buffer.byteLength(outputJson, 'utf8');
-  const sha256 = crypto.createHash('sha256').update(outputJson).digest('hex');
+  const payload = outputJson + '\n';
+  const byteSize = Buffer.byteLength(payload, 'utf8');
+  const sha256 = crypto.createHash('sha256').update(payload).digest('hex');
 
   // 4. Write the JSON to stdout (default) or to a 0600 file.
+  // `target` is declared outside the if-block so the manifest below
+  // can record the realpath-resolved canonical path the round-2 P1
+  // finding required (not the lexical `path.resolve(args.writeTo)`
+  // the user typed).
+  let target = null;
   if (args.writeTo) {
-    const target = await safeResolveWritePath(args.writeTo);
+    target = await safeResolveWritePath(args.writeTo);
     await fs.mkdir(path.dirname(target), { recursive: true, mode: 0o700 });
     // Re-assert the dir mode in case it already existed at a weaker mode.
     await fs.chmod(path.dirname(target), 0o700);
     // umask 077 ensures the file is created 0600 even before chmod.
     const prevUmask = process.umask(0o077);
     try {
-      await fs.writeFile(target, outputJson + '\n');
+      await fs.writeFile(target, payload);
     } finally {
       process.umask(prevUmask);
     }
     await fs.chmod(target, 0o600);
-    // Confirmation line on stdout, NO value.
+    // Confirmation line on stdout, NO value. byteSize reflects the
+    // actual file size (payload.length), so `wc -c <file>` matches.
     process.stdout.write(`${SOURCE}:retrieve wrote ${byteSize} bytes to ${target} (sha256=${sha256})\n`);
   } else {
-    process.stdout.write(outputJson + '\n');
+    process.stdout.write(payload);
   }
 
   // 5. Append the retrieve manifest to runs.log. NEVER include the
@@ -690,7 +704,12 @@ async function retrieveSecret(args, log) {
     version_id: raw.VersionId,
     version_stage: args.versionStage || (args.versionId ? null : 'AWSCURRENT'),
     region,
-    destination: args.writeTo ? path.resolve(args.writeTo) : 'stdout',
+    // destination is the canonical path returned by
+    // safeResolveWritePath (realpath-resolved, including any symlink
+    // collapsing the secrets dir), not the lexical input. The
+    // round-2 review found path.resolve(args.writeTo) recorded the
+    // user's typed string, breaking audit-trail verification.
+    destination: target || 'stdout',
     byte_size: byteSize,
     sha256,
     exit_code: EXIT.OK

@@ -16,6 +16,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
@@ -135,8 +136,15 @@ test('retrieval mode emits value to stdout and never writes the value to runs.lo
   const retEntry = lines.find(l => l.mode === 'retrieve');
   assert.ok(retEntry, 'no retrieve manifest in runs.log');
   assert.equal(retEntry.exit_code, 0);
-  // byte_size is the JSON length only (no trailing newline).
-  assert.equal(retEntry.byte_size, JSON.stringify(retValue).length);
+  // byte_size is the bytes actually written to stdout — that is the
+  // JSON object plus the trailing newline that the connector always
+  // emits so text tools (jq, wc -c) see a well-formed record.
+  assert.equal(retEntry.byte_size, JSON.stringify(retValue).length + 1);
+  // sha256 hashes the same bytes the manifest records — recompute
+  // from the raw stdout line and assert equality.
+  const stdoutLine = ret.stdout; // already includes trailing newline from the connector
+  const stdoutSha = crypto.createHash('sha256').update(stdoutLine).digest('hex');
+  assert.equal(retEntry.sha256, stdoutSha, 'manifest sha256 must match sha256 of the stdout payload');
   assert.match(retEntry.sha256, /^[a-f0-9]{64}$/);
   assert.equal(retEntry.destination, 'stdout');
   assert.equal(typeof retEntry.sha256, 'string');
@@ -206,7 +214,7 @@ test('retrieval mode rejects --regions with more than one entry', async () => {
 test('retrieval mode writes the value to a 0600 file inside the secrets dir', async () => {
   if (process.platform === 'win32') return; // chmod is a no-op on Windows
 
-  const { configDir, env } = await makeEnv();
+  const { configDir, home, env } = await makeEnv();
   const secretsDir = path.join(configDir, 'secrets');
   const target = path.join(secretsDir, 'legacy-db.json');
   const arn = 'arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf';
@@ -225,6 +233,61 @@ test('retrieval mode writes the value to a 0600 file inside the secrets dir', as
   const dirStat = await fs.stat(secretsDir);
   assert.equal((fileStat.mode & 0o777), 0o600, `expected 0600, got ${(fileStat.mode & 0o777).toString(8)}`);
   assert.equal((dirStat.mode & 0o777), 0o700, `expected 0700, got ${(dirStat.mode & 0o777).toString(8)}`);
+
+  // Manifest agreement: the manifest's byte_size and sha256 must match
+  // the on-disk file. Operators verifying audit trails should be able
+  // to run `sha256sum <file>` and `wc -c <file>` and get the same
+  // numbers the connector logged.
+  const fileBytes = await fs.readFile(target);
+  const fileSha = crypto.createHash('sha256').update(fileBytes).digest('hex');
+  const runsLog = await fs.readFile(path.join(home, '.cache', 'claude-grc', 'runs.log'), 'utf8');
+  const retEntry = runsLog.trim().split('\n').map(l => JSON.parse(l)).find(l => l.mode === 'retrieve');
+  assert.ok(retEntry, 'no retrieve manifest in runs.log');
+  assert.equal(retEntry.byte_size, fileBytes.length, 'manifest byte_size must match on-disk file size');
+  assert.equal(retEntry.sha256, fileSha, 'manifest sha256 must match sha256 of on-disk file');
+});
+
+test('retrieval mode records the realpath-resolved destination when the secrets dir is a symlink', async () => {
+  // POSIX only — Windows fs.symlink requires Developer Mode or admin
+  // and the test is a no-op there. Skipping is acceptable because the
+  // round-2 P2 finding is about realpath behavior, which is a no-op
+  // on a non-symlinked directory.
+  if (process.platform === 'win32') return;
+
+  // Detect symlink support upfront. Some sandboxed POSIX environments
+  // also block symlink creation; bail out cleanly if so.
+  const probeDir = await fs.mkdtemp(path.join(os.tmpdir(), 'aws-secrets-inspector-symprobe-'));
+  try {
+    await fs.symlink(probeDir, path.join(probeDir, 'self'));
+  } catch {
+    return; // symlinks not supported in this environment
+  } finally {
+    await fs.rm(probeDir, { recursive: true, force: true });
+  }
+
+  const { configDir, env } = await makeEnv();
+  const realSecretsDir = await fs.mkdtemp(path.join(os.tmpdir(), 'aws-secrets-inspector-realsecrets-'));
+  await fs.chmod(realSecretsDir, 0o700);
+  const linkedSecretsDir = path.join(configDir, 'secrets');
+  await fs.symlink(realSecretsDir, linkedSecretsDir);
+  const target = path.join(linkedSecretsDir, 'legacy-db.json');
+  const arn = 'arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf';
+
+  const ret = runCollect(env, ['--retrieve=' + arn, '--write-to=' + target, '--quiet']);
+  assert.equal(ret.status, 0, `stderr: ${ret.stderr}`);
+
+  const expectedRealpath = path.join(await fs.realpath(realSecretsDir), 'legacy-db.json');
+  const runsLog = await fs.readFile(path.join(env.HOME, '.cache', 'claude-grc', 'runs.log'), 'utf8');
+  const retEntry = runsLog.trim().split('\n').map(l => JSON.parse(l)).find(l => l.mode === 'retrieve');
+  assert.ok(retEntry, 'no retrieve manifest in runs.log');
+  // Manifest must record the canonical realpath, not the lexical
+  // input path. Round-2 P1 finding: previously the manifest used
+  // path.resolve(args.writeTo), which keeps the symlink unresolved.
+  assert.equal(retEntry.destination, expectedRealpath);
+  assert.notEqual(retEntry.destination, path.resolve(target));
+
+  await fs.unlink(linkedSecretsDir).catch(() => {});
+  await fs.rm(realSecretsDir, { recursive: true, force: true });
 });
 
 test('retrieval mode records the resolved region in the runs.log manifest', async () => {
