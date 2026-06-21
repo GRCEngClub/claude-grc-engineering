@@ -213,7 +213,7 @@ async function collectSecretsManager(ctx) {
           arn,
           region,
           account_id: accountId,
-          tags: s.Tags || []
+          tags: tagsToObject(s.Tags)
         },
         raw_attributes: { Name: name, ARN: arn },
         evaluations: [
