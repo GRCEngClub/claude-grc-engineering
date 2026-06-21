@@ -583,20 +583,39 @@ async function retrieveSecret(args, log) {
   const env = { ...process.env };
   if (profile) env.AWS_PROFILE = profile;
 
-  // Resolve the region for the get-secret-value call. Mirrors
-  // inspector-mode precedence, but collapses the list to a single
-  // value: explicit --region, then the first of --regions /
-  // config.defaults.regions, then config.default_region, then the
-  // AWS_DEFAULT_REGION / AWS_REGION env vars, then us-east-1. Without
-  // this, the AWS CLI would default to the region encoded in the
-  // user's profile, which is not always where the secret lives.
-  const region = args.region
-    || args.regions[0]
-    || config.defaults?.regions?.[0]
-    || config.default_region
-    || process.env.AWS_DEFAULT_REGION
-    || process.env.AWS_REGION
-    || 'us-east-1';
+  // Resolve the region for the get-secret-value call. Inspector mode
+  // takes a list (--regions=a,b,c) because it lists secrets per
+  // region; retrieval targets a single secret and must NOT silently
+  // collapse a multi-region config into one region — that would
+  // either miss the secret (NotFound in region A when it lives in
+  // region B) or hit the wrong region's replica. Refuse the call
+  // when the user passed multiple regions, then fall back to a
+  // single-value precedence chain: explicit --region, then
+  // config.default_region / first of config.defaults.regions,
+  // then AWS_DEFAULT_REGION / AWS_REGION, then us-east-1. Each
+  // non-explicit source logs a stderr warning so the operator can
+  // see which fallback fired.
+  if (args.regions.length > 1) {
+    fail(EXIT.USAGE, `--retrieve does not accept --regions with multiple entries; pass a single --region=<id> instead (got: ${args.regions.join(',')}).`);
+  }
+  let region;
+  let regionSource;
+  if (args.region) {
+    region = args.region; regionSource = '--region';
+  } else if (config.defaults?.regions?.[0]) {
+    region = config.defaults.regions[0]; regionSource = 'config.defaults.regions[0]';
+  } else if (config.default_region) {
+    region = config.default_region; regionSource = 'config.default_region';
+  } else if (process.env.AWS_DEFAULT_REGION) {
+    region = process.env.AWS_DEFAULT_REGION; regionSource = 'AWS_DEFAULT_REGION';
+  } else if (process.env.AWS_REGION) {
+    region = process.env.AWS_REGION; regionSource = 'AWS_REGION';
+  } else {
+    region = 'us-east-1'; regionSource = 'default';
+  }
+  if (regionSource !== '--region') {
+    log(`retrieve: region=${region} inferred from ${regionSource}; pass --region=<id> to make this explicit.`);
+  }
 
   // 1. Build the AWS CLI args for get-secret-value.
   const awsArgs = ['secretsmanager', 'get-secret-value', '--secret-id', args.retrieve, '--region', region, '--output', 'json'];
@@ -690,15 +709,19 @@ async function retrieveSecret(args, log) {
 /**
  * Resolve --write-to to an absolute path under SECRETS_DIR, rejecting
  * any input whose resolved location is not a descendant of SECRETS_DIR
- * (i.e., `path.relative` returns a string starting with '..'). Relative
- * inputs are resolved against the current working directory. Symlinks
- * are resolved via fs.realpath so a symlink inside SECRETS_DIR that
- * points outside (e.g., to /etc/passwd) cannot bypass the containment
- * check. To make realpath of SECRETS_DIR itself reliable, the function
- * ensures that directory exists first.
+ * (i.e., `path.relative` returns a string starting with '..' or is
+ * absolute — the latter guards against Windows cross-drive paths that
+ * `path.relative` returns verbatim). Relative inputs are resolved
+ * against the current working directory. Symlinks are resolved via
+ * fs.realpath so a symlink inside SECRETS_DIR that points outside
+ * (e.g., to /etc/passwd) cannot bypass the containment check. To make
+ * realpath of SECRETS_DIR itself reliable, the function ensures that
+ * directory exists first and fails closed if its realpath or mode
+ * indicate tampering (broken symlink, world-readable dir, etc.).
  * @param {string} input - User-supplied --write-to value.
  * @returns {Promise<string>} Absolute path inside SECRETS_DIR.
- *   Calls fail(EXIT.USAGE) and aborts the process if outside.
+ *   Calls fail(EXIT.USAGE) and aborts the process if outside or if
+ *   the secrets root fails its own integrity check.
  */
 async function safeResolveWritePath(input) {
   // Ensure the secrets root exists so its realpath resolves cleanly.
@@ -707,7 +730,39 @@ async function safeResolveWritePath(input) {
   // run created it weaker.
   await fs.mkdir(SECRETS_DIR, { recursive: true, mode: 0o700 });
   await fs.chmod(SECRETS_DIR, 0o700);
-  const secretsRoot = await fs.realpath(SECRETS_DIR);
+
+  // Resolve symlinks on the secrets root. If realpath fails for any
+  // reason (broken symlink, permission error, race with another
+  // process), fail closed rather than fall through to a lexical-only
+  // check that could be bypassed.
+  let secretsRoot;
+  try {
+    secretsRoot = await fs.realpath(SECRETS_DIR);
+  } catch (err) {
+    fail(EXIT.USAGE, `Cannot resolve secrets root '${SECRETS_DIR}': ${err.message}. Refusing to write — investigate filesystem state before retrying.`);
+  }
+
+  // Stat the resolved root and refuse writes if it is not a
+  // directory or if its permissions would let another user read or
+  // replace the secret values. Mode 0700 (no group/other) is the
+  // connector contract; world-readable dirs violate that contract
+  // and could leak values written by --write-to. Skip on Windows
+  // where fs.chmod is a no-op and access control uses ACLs, not
+  // POSIX mode bits — the stat mode there is not meaningful.
+  if (process.platform !== 'win32') {
+    let rootStat;
+    try {
+      rootStat = await fs.stat(secretsRoot);
+    } catch (err) {
+      fail(EXIT.USAGE, `Cannot stat secrets root '${secretsRoot}': ${err.message}.`);
+    }
+    if (!rootStat.isDirectory()) {
+      fail(EXIT.USAGE, `Secrets root '${secretsRoot}' is not a directory — refusing to write.`);
+    }
+    if ((rootStat.mode & 0o077) !== 0) {
+      fail(EXIT.USAGE, `Secrets root '${secretsRoot}' has group/other permissions (mode ${(rootStat.mode & 0o777).toString(8)}); expected 0700. Run 'chmod 0700 ${secretsRoot}' and retry.`);
+    }
+  }
 
   // Resolve the requested target. If the file (or any ancestor) does
   // not exist yet, realpath the longest existing prefix and re-attach
@@ -717,10 +772,12 @@ async function safeResolveWritePath(input) {
   const resolved = await realpathAllowMissing(path.resolve(input));
 
   // path.relative returns a string starting with '..' if `resolved` is
-  // outside `secretsRoot`; an exact match returns ''. We allow
-  // descendants only.
+  // outside `secretsRoot`; an exact match returns ''. On Windows,
+  // `path.relative` returns the right-hand operand verbatim when it
+  // is on a different drive (e.g., secretsRoot on C:\, resolved on
+  // D:\) — `path.isAbsolute(rel)` catches that case.
   const rel = path.relative(secretsRoot, resolved);
-  if (rel.startsWith('..')) {
+  if (rel.startsWith('..') || path.isAbsolute(rel)) {
     fail(EXIT.USAGE, `--write-to='${input}' is outside the permitted destination root (${secretsRoot}). Writes are restricted to ${secretsRoot} and its subdirectories.`);
   }
   return resolved;

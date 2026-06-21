@@ -151,6 +151,17 @@ const cases = [
     input: path.join(SECRETS_DIR, 'never-created'),
     shouldFail: false,
     skipOn: () => false
+  },
+  {
+    // On Windows, --write-to on a different drive (e.g., secrets root
+    // on C:\, target on D:\) makes path.relative return the target
+    // verbatim, which is absolute. path.isAbsolute(rel) catches that
+    // case. POSIX path.relative never returns an absolute path, so
+    // the case is Windows-specific.
+    label: 'Windows cross-drive path is rejected (path.relative returns absolute)',
+    input: process.platform === 'win32' ? 'D:\\evil' : '/tmp/never-here',
+    shouldFail: true,
+    skipOn: () => process.platform !== 'win32'
   }
 ];
 

@@ -177,6 +177,32 @@ test('retrieval mode rejects --write-to paths outside the secrets dir', async ()
   assert.match(traverse.stderr, /outside the permitted destination root/);
 });
 
+test('retrieval mode rejects a secrets dir whose permissions are world-readable', async () => {
+  if (process.platform === 'win32') return; // chmod is a no-op on Windows
+
+  const { configDir, env } = await makeEnv();
+  const secretsDir = path.join(configDir, 'secrets');
+  // Widen permissions on the secrets dir to simulate a misconfiguration
+  // (e.g., a user who chmod'd the dir by hand). The connector must
+  // refuse to write rather than silently create a world-readable file.
+  await fs.chmod(secretsDir, 0o755);
+  const target = path.join(secretsDir, 'leak.json');
+  const arn = 'arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf';
+
+  const ret = runCollect(env, ['--retrieve=' + arn, '--write-to=' + target, '--quiet']);
+  assert.equal(ret.status, 2, `expected exit 2 for wide-mode dir, got ${ret.status}; stderr: ${ret.stderr}`);
+  assert.match(ret.stderr, /group\/other permissions/);
+});
+
+test('retrieval mode rejects --regions with more than one entry', async () => {
+  const { env } = await makeEnv();
+  const arn = 'arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf';
+
+  const ret = runCollect(env, ['--retrieve=' + arn, '--regions=us-east-1,eu-west-1', '--quiet']);
+  assert.equal(ret.status, 2, `expected exit 2 for multi-region, got ${ret.status}; stderr: ${ret.stderr}`);
+  assert.match(ret.stderr, /does not accept --regions with multiple entries/);
+});
+
 test('retrieval mode writes the value to a 0600 file inside the secrets dir', async () => {
   if (process.platform === 'win32') return; // chmod is a no-op on Windows
 
