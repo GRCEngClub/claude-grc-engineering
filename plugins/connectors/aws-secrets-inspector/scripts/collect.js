@@ -671,16 +671,31 @@ async function retrieveSecret(args, log) {
  * Resolve --write-to to an absolute path under SECRETS_DIR, rejecting
  * any input whose resolved location is not a descendant of SECRETS_DIR
  * (i.e., `path.relative` returns a string starting with '..'). Relative
- * inputs are resolved against the current working directory.
+ * inputs are resolved against the current working directory. Symlinks
+ * are resolved via fs.realpath so a symlink inside SECRETS_DIR that
+ * points outside (e.g., to /etc/passwd) cannot bypass the containment
+ * check. To make realpath of SECRETS_DIR itself reliable, the function
+ * ensures that directory exists first.
  * @param {string} input - User-supplied --write-to value.
  * @returns {Promise<string>} Absolute path inside SECRETS_DIR.
  *   Calls fail(EXIT.USAGE) and aborts the process if outside.
  */
 async function safeResolveWritePath(input) {
-  const resolved = path.isAbsolute(input)
-    ? path.resolve(input)
-    : path.resolve(process.cwd(), input);
-  const secretsRoot = path.resolve(SECRETS_DIR);
+  // Ensure the secrets root exists so its realpath resolves cleanly.
+  // mkdir with recursive + mode 0700 is a no-op if the dir already
+  // exists; the chmod after re-asserts the mode in case a previous
+  // run created it weaker.
+  await fs.mkdir(SECRETS_DIR, { recursive: true, mode: 0o700 });
+  await fs.chmod(SECRETS_DIR, 0o700);
+  const secretsRoot = await fs.realpath(SECRETS_DIR);
+
+  // Resolve the requested target. If the file (or any ancestor) does
+  // not exist yet, realpath the longest existing prefix and re-attach
+  // the unresolvable suffix; that way a symlink inside the secrets dir
+  // pointing to /etc/passwd cannot bypass the containment check, and a
+  // brand-new file path is still accepted.
+  const resolved = await realpathAllowMissing(path.resolve(input));
+
   // path.relative returns a string starting with '..' if `resolved` is
   // outside `secretsRoot`; an exact match returns ''. We allow
   // descendants only.
@@ -689,6 +704,33 @@ async function safeResolveWritePath(input) {
     fail(EXIT.USAGE, `--write-to='${input}' is outside the permitted destination root (${secretsRoot}). Writes are restricted to ${secretsRoot} and its subdirectories.`);
   }
   return resolved;
+}
+
+// fs.realpath of `p`. If `p` (or any component) does not exist, walk
+// up until we find an existing prefix, realpath that, and re-attach
+// the unresolvable suffix. Used so --write-to can target a brand-new
+// file path while still resolving symlinks for every existing
+// component — that is the property a lexical-only check lacks.
+async function realpathAllowMissing(p) {
+  try {
+    return await fs.realpath(p);
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+  const suffix = [];
+  let cur = p;
+  while (true) {
+    const parent = path.dirname(cur);
+    if (parent === cur) throw new Error(`realpath failed: ${p}`);
+    suffix.unshift(path.basename(cur));
+    cur = parent;
+    try {
+      const realParent = await fs.realpath(cur);
+      return path.join(realParent, ...suffix);
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err;
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
