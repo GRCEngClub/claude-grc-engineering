@@ -138,7 +138,8 @@ async function main(argv) {
   }
 
   const cachePath = path.join(CACHE_DIR, `${runId}.json`);
-  await fs.writeFile(cachePath, JSON.stringify(findings, null, 2));
+  await fs.writeFile(cachePath, JSON.stringify(findings, null, 2), { mode: 0o600 });
+  await fs.chmod(cachePath, 0o600);
 
   const counters = { pass: 0, fail: 0, inconclusive: 0, not_applicable: 0, skipped: 0 };
   const sev = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
