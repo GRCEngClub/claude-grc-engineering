@@ -51,11 +51,11 @@ The `raw_attributes` block on each Finding carries everything needed for downstr
 ## Exit codes
 
 - `0` success
-- `2` credentials invalid or expired; or `--retrieve` not yet implemented (U4 follow-up)
+- `2` credentials invalid or expired; usage error in retrieval mode
 - `3` rate-limited (AWS throttling; retry later)
 - `4` partial (some regions inaccessible; report still written)
 - `5` config missing — run setup
-- `6` retrieval mode: secret not found (U4)
+- `6` retrieval mode: secret not found in this account/region
 
 ## Permissions
 
@@ -78,7 +78,7 @@ Minimum IAM policy for inspector mode (read-only):
 }
 ```
 
-For retrieve mode (U4), additionally: `secretsmanager:GetSecretValue`, `kms:Decrypt`.
+For retrieve mode, additionally: `secretsmanager:GetSecretValue`, `kms:Decrypt`.
 
 The AWS-managed `ReadOnlyAccess` policy is a superset that also works.
 

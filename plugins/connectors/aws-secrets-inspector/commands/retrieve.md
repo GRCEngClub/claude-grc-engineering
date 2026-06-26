@@ -60,9 +60,10 @@ The retrieval manifest in `runs.log` looks like:
 - `0` success
 - `2` usage error (unknown flag, `--write-to` outside the permitted root)
 - `2` auth failure (credentials invalid or expired)
+- `2` access denied by IAM, KMS key policy, or the secret's resource policy
 - `3` rate-limited
 - `5` config missing — run setup
-- `6` secret not found in this account/region (or denied by the resource policy)
+- `6` secret not found in this account/region
 
 ## Permissions
 
