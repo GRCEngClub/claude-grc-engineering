@@ -38,9 +38,20 @@ test('testssl args include --starttls only for explicit STARTTLS scans', () => {
   assert.equal(implicitTlsArgs.includes('--starttls'), false);
 });
 
+test('docker testssl args write inside the container but read from host cache', () => {
+  const args = testsslArgs('mail.example.com:25', 'full', 'smtp', '/tmp/scan-out', '/host/cache');
+  const jsonArgIndex = args.indexOf('--jsonfile-pretty');
+
+  assert.notEqual(jsonArgIndex, -1);
+  assert.match(args[jsonArgIndex + 1], /^\/tmp\/scan-out\/testssl-raw-.*\.json$/);
+  assert.match(args.__jsonPath, /^\/host\/cache\/testssl-raw-.*\.json$/);
+});
+
 test('STARTTLS findings use protocol-specific resource URIs', () => {
-  const finding = normalizeTargetFindings([], 'mail.example.com:25', 'run-1', 'unknown', null, 'smtp');
+  const finding = normalizeTargetFindings([], 'mail.example.com:25', 'run-1', 'unknown', null, 'smtp', 'mail.example.com');
   assert.equal(finding.resource.uri, 'starttls+smtp://mail.example.com:25/');
+  assert.equal(finding.metadata.target, 'mail.example.com');
+  assert.equal(finding.metadata.effective_target, 'mail.example.com:25');
   assert.equal(finding.metadata.starttls, 'smtp');
 });
 

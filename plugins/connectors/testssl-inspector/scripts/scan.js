@@ -84,14 +84,16 @@ async function main(argv) {
   const errors = [];
 
   for (const target of targets) {
+    const finalTarget = withDefaultStarttlsPort(target, args.starttls);
     try {
-      const finalTarget = withDefaultStarttlsPort(target, args.starttls);
       const raw = await runTestssl(runner, finalTarget, mode, args.starttls, log);
-      const doc = normalizeTargetFindings(raw, finalTarget, runId, runner.version, expansion, args.starttls);
+      const doc = normalizeTargetFindings(raw, finalTarget, runId, runner.version, expansion, args.starttls, target);
       findings.push(doc);
     } catch (err) {
-      errors.push({ target, error: err.message });
-      log(`${target} scan failed: ${err.message}`);
+      const error = { target: finalTarget, error: err.message };
+      if (finalTarget !== target) error.original_target = target;
+      errors.push(error);
+      log(`${finalTarget} scan failed: ${err.message}`);
     }
   }
 
@@ -179,7 +181,7 @@ async function resolveRunner({ useDocker, configBinary, starttls }) {
         'run', '--rm', '--network', 'host',
         '-v', `${CACHE_DIR}:/tmp/scan-out`,
         'drwetter/testssl.sh:latest',
-        ...testsslArgs(target, mode, starttls, '/tmp/scan-out'),
+        ...testsslArgs(target, mode, starttls, '/tmp/scan-out', CACHE_DIR),
       ],
       cmd: 'docker',
     };
@@ -241,9 +243,10 @@ function hasExplicitPort(target) {
   return target.indexOf(':') === target.lastIndexOf(':') && /:\d+$/.test(target);
 }
 
-function testsslArgs(target, mode, starttls = null, outDir = null) {
+function testsslArgs(target, mode, starttls = null, outDir = null, hostOutDir = null) {
   const out = outDir || CACHE_DIR;
-  const jsonPath = path.join(out, `testssl-raw-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`);
+  const filename = `testssl-raw-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`;
+  const jsonPath = path.join(out, filename);
   const base = [
     '--quiet', '--warnings', 'off', '--color', '0',
     '--jsonfile-pretty', jsonPath,
@@ -253,7 +256,7 @@ function testsslArgs(target, mode, starttls = null, outDir = null) {
     base.push('--starttls', starttls);
   }
   base.push(target);
-  base.__jsonPath = jsonPath;
+  base.__jsonPath = hostOutDir ? path.join(hostOutDir, filename) : jsonPath;
   return base;
 }
 
@@ -487,7 +490,7 @@ function familyForTestsslId(id) {
 
 /** ---- Normalization: testssl JSON → v1 Finding doc ---- */
 
-function normalizeTargetFindings(raw, target, runId, sourceVersion, expansion, starttls = null) {
+function normalizeTargetFindings(raw, target, runId, sourceVersion, expansion, starttls = null, originalTarget = target) {
   const entries = extractEntries(raw);
   const { host, port } = parseTarget(target);
   const collectedAt = new Date().toISOString();
@@ -574,7 +577,8 @@ function normalizeTargetFindings(raw, target, runId, sourceVersion, expansion, s
     evaluations,
     findings: narrative.slice(0, 50),
     metadata: {
-      target,
+      target: originalTarget,
+      effective_target: target,
       host,
       port,
       starttls,
