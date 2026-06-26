@@ -40,7 +40,6 @@ const STARTTLS_PORTS = Object.freeze({
   ldap: 389,
   postgres: 5432,
   mysql: 3306,
-  smtps: 465,
 });
 
 const SUPPORTED_STARTTLS = Object.keys(STARTTLS_PORTS).join(', ');
@@ -88,7 +87,7 @@ async function main(argv) {
     try {
       const finalTarget = withDefaultStarttlsPort(target, args.starttls);
       const raw = await runTestssl(runner, finalTarget, mode, args.starttls, log);
-      const doc = normalizeTargetFindings(raw, finalTarget, runId, runner.version, expansion);
+      const doc = normalizeTargetFindings(raw, finalTarget, runId, runner.version, expansion, args.starttls);
       findings.push(doc);
     } catch (err) {
       errors.push({ target, error: err.message });
@@ -229,9 +228,17 @@ function parseTestsslVersion(text) {
 
 function withDefaultStarttlsPort(target, starttls) {
   if (!starttls) return target;
-  if (target.includes(':')) return target;
+  if (hasExplicitPort(target)) return target;
 
   return `${target}:${STARTTLS_PORTS[starttls]}`;
+}
+
+function hasExplicitPort(target) {
+  if (target.startsWith('[')) {
+    const close = target.indexOf(']');
+    return close !== -1 && target[close + 1] === ':' && /^\d+$/.test(target.slice(close + 2));
+  }
+  return target.indexOf(':') === target.lastIndexOf(':') && /:\d+$/.test(target);
 }
 
 function testsslArgs(target, mode, starttls = null, outDir = null) {
@@ -480,7 +487,7 @@ function familyForTestsslId(id) {
 
 /** ---- Normalization: testssl JSON → v1 Finding doc ---- */
 
-function normalizeTargetFindings(raw, target, runId, sourceVersion, expansion) {
+function normalizeTargetFindings(raw, target, runId, sourceVersion, expansion, starttls = null) {
   const entries = extractEntries(raw);
   const { host, port } = parseTarget(target);
   const collectedAt = new Date().toISOString();
@@ -560,7 +567,7 @@ function normalizeTargetFindings(raw, target, runId, sourceVersion, expansion) {
     resource: {
       type: 'tls_endpoint',
       id: `${host}:${port}`,
-      uri: `https://${host}:${port}/`,
+      uri: endpointUri(host, port, starttls),
       region: null,
       account_id: null,
     },
@@ -570,6 +577,7 @@ function normalizeTargetFindings(raw, target, runId, sourceVersion, expansion) {
       target,
       host,
       port,
+      starttls,
       scf_expansion: expansion ? { scf_version: expansion.scfVersion, frameworks: expansion.frameworkCount } : null,
     },
   };
@@ -599,9 +607,27 @@ function extractEntries(raw) {
 }
 
 function parseTarget(target) {
-  const [host, portRaw] = target.split(':');
-  const port = portRaw && /^\d+$/.test(portRaw) ? Number(portRaw) : 443;
+  if (target.startsWith('[')) {
+    const close = target.indexOf(']');
+    if (close !== -1) {
+      const host = target.slice(0, close + 1);
+      const portRaw = target[close + 1] === ':' ? target.slice(close + 2) : '';
+      const port = portRaw && /^\d+$/.test(portRaw) ? Number(portRaw) : 443;
+      return { host, port };
+    }
+  }
+
+  const hasSingleColon = target.indexOf(':') === target.lastIndexOf(':');
+  const m = hasSingleColon ? /^(.*):(\d+)$/.exec(target) : null;
+  const host = m ? m[1] : target;
+  const port = m ? Number(m[2]) : 443;
   return { host, port };
+}
+
+function endpointUri(host, port, starttls = null) {
+  const scheme = starttls ? `starttls+${starttls}` : 'https';
+  const hostForUri = host.includes(':') && !host.startsWith('[') ? `[${host}]` : host;
+  return `${scheme}://${hostForUri}:${port}/`;
 }
 
 function entrySeverityToStatus(entry) {
@@ -676,3 +702,13 @@ const invokedFromCLI = import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invokedFromCLI) {
   main(process.argv.slice(2)).catch(err => { fail(1, err.stack || err.message); });
 }
+
+export {
+  STARTTLS_PORTS,
+  endpointUri,
+  hasExplicitPort,
+  normalizeTargetFindings,
+  parseTarget,
+  testsslArgs,
+  withDefaultStarttlsPort,
+};
