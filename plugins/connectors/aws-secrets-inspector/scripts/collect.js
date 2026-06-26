@@ -510,10 +510,11 @@ function actionAllowsRead(action) {
   const list = Array.isArray(action) ? action : [action];
   for (const a of list) {
     if (typeof a !== 'string') continue;
-    if (a === '*') return true;
-    if (/^secretsmanager:\*$/.test(a)) return true;
-    if (/^secretsmanager:GetSecretValue$/.test(a)) return true;
-    if (/^secretsmanager:DescribeSecret$/.test(a)) return true;
+    const normalized = a.toLowerCase();
+    if (normalized === '*') return true;
+    if (/^secretsmanager:\*$/.test(normalized)) return true;
+    if (/^secretsmanager:getsecretvalue$/.test(normalized)) return true;
+    if (/^secretsmanager:describesecret$/.test(normalized)) return true;
   }
   return false;
 }
@@ -590,11 +591,11 @@ async function retrieveSecret(args, log) {
   // either miss the secret (NotFound in region A when it lives in
   // region B) or hit the wrong region's replica. Refuse the call
   // when the user passed multiple regions, then fall back to a
-  // single-value precedence chain: explicit --region, then
-  // config.default_region / first of config.defaults.regions,
-  // then AWS_DEFAULT_REGION / AWS_REGION, then us-east-1. Each
-  // non-explicit source logs a stderr warning so the operator can
-  // see which fallback fired.
+  // single-value precedence chain: explicit --region, a single
+  // --regions value, config.default_region / first of
+  // config.defaults.regions, then AWS_DEFAULT_REGION / AWS_REGION,
+  // then us-east-1. Each non-explicit source logs a stderr warning so
+  // the operator can see which fallback fired.
   if (args.regions.length > 1) {
     fail(EXIT.USAGE, `--retrieve does not accept --regions with multiple entries; pass a single --region=<id> instead (got: ${args.regions.join(',')}).`);
   }
@@ -602,6 +603,8 @@ async function retrieveSecret(args, log) {
   let regionSource;
   if (args.region) {
     region = args.region; regionSource = '--region';
+  } else if (args.regions[0]) {
+    region = args.regions[0]; regionSource = '--regions[0]';
   } else if (config.defaults?.regions?.[0]) {
     region = config.defaults.regions[0]; regionSource = 'config.defaults.regions[0]';
   } else if (config.default_region) {

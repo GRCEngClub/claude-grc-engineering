@@ -189,21 +189,24 @@ test('retrieval mode rejects --write-to paths outside the secrets dir', async ()
   assert.match(traverse.stderr, /outside the permitted destination root/);
 });
 
-test('retrieval mode rejects a secrets dir whose permissions are world-readable', async () => {
+test('retrieval mode reasserts restrictive permissions on a wide secrets dir', async () => {
   if (process.platform === 'win32') return; // chmod is a no-op on Windows
 
   const { configDir, env } = await makeEnv();
   const secretsDir = path.join(configDir, 'secrets');
-  // Widen permissions on the secrets dir to simulate a misconfiguration
-  // (e.g., a user who chmod'd the dir by hand). The connector must
-  // refuse to write rather than silently create a world-readable file.
+  await fs.mkdir(secretsDir, { recursive: true, mode: 0o700 });
+  // Widen permissions on the secrets dir to simulate a user chmod'ing
+  // it by hand. The connector should restore 0700 before writing.
   await fs.chmod(secretsDir, 0o755);
   const target = path.join(secretsDir, 'leak.json');
   const arn = 'arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf';
 
   const ret = runCollect(env, ['--retrieve=' + arn, '--write-to=' + target, '--quiet']);
-  assert.equal(ret.status, 2, `expected exit 2 for wide-mode dir, got ${ret.status}; stderr: ${ret.stderr}`);
-  assert.match(ret.stderr, /group\/other permissions/);
+  assert.equal(ret.status, 0, `stderr: ${ret.stderr}`);
+  const dirStat = await fs.stat(secretsDir);
+  const fileStat = await fs.stat(target);
+  assert.equal((dirStat.mode & 0o777), 0o700, `expected restored 0700, got ${(dirStat.mode & 0o777).toString(8)}`);
+  assert.equal((fileStat.mode & 0o777), 0o600, `expected 0600, got ${(fileStat.mode & 0o777).toString(8)}`);
 });
 
 test('retrieval mode rejects --regions with more than one entry', async () => {
@@ -308,6 +311,17 @@ test('retrieval mode records the resolved region in the runs.log manifest', asyn
     const retEntry = lines.find(l => l.mode === 'retrieve');
     assert.ok(retEntry, 'no retrieve manifest in runs.log');
     assert.equal(retEntry.region, 'eu-west-1', 'manifest should record the explicit --region');
+  }
+
+  // A single --regions value is honored for compatibility with the
+  // documented precedence chain; multiple values are rejected above.
+  {
+    const { env } = await makeEnv();
+    const ret = runCollect(env, ['--retrieve=' + arn, '--regions=eu-west-1', '--quiet']);
+    assert.equal(ret.status, 0, `stderr: ${ret.stderr}`);
+    const runsLog = await fs.readFile(path.join(env.HOME, '.cache', 'claude-grc', 'runs.log'), 'utf8');
+    const manifest = JSON.parse(runsLog.trim().split('\n').pop());
+    assert.equal(manifest.region, 'eu-west-1', 'manifest should honor a single --regions value');
   }
 
   // Config's default_region is honored when no --region flag is given.
