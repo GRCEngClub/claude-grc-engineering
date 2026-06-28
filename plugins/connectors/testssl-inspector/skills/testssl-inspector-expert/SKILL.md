@@ -15,7 +15,7 @@ Findings live at `~/.cache/claude-grc/findings/testssl-inspector/<run_id>.json`.
 - `resource.type = "tls_endpoint"`, `resource.id = "<host>:<port>"`, `resource.uri = "https://<host>:<port>/"` for HTTPS or `resource.uri = "starttls+<proto>://<host>:<port>/"` for STARTTLS scans
 - `evaluations[]` — one entry per (control_framework, control_id, testssl finding) tuple
 - `findings[]` — narrative roll-up for CVEs and critical results (cap 50 per doc)
-- `metadata.target`, `metadata.host`, `metadata.port`, `metadata.starttls` — the original input and STARTTLS protocol when applicable
+- `metadata.target`, `metadata.effective_target`, `metadata.host`, `metadata.port`, `metadata.starttls` — the original input, the port-expanded target actually scanned, the parsed host/port, and the STARTTLS protocol when applicable
 
 ## What testssl IDs mean
 

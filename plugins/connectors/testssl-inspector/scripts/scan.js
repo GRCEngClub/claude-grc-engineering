@@ -44,6 +44,19 @@ const STARTTLS_PORTS = Object.freeze({
 
 const SUPPORTED_STARTTLS = Object.keys(STARTTLS_PORTS).join(', ');
 
+// Implicit-TLS counterparts of the STARTTLS protocols above. These speak TLS
+// from the first byte, so testssl.sh's --starttls flag does not accept them —
+// they are scanned as plain TLS endpoints on their implicit-TLS port (like
+// HTTPS). Listed only so we can hand back a precise hint when someone reaches
+// for --starttls=<name> expecting STARTTLS (e.g. --starttls=smtps).
+const IMPLICIT_TLS_PORTS = Object.freeze({
+  smtps: 465,
+  imaps: 993,
+  pop3s: 995,
+  ftps: 990,
+  ldaps: 636,
+});
+
 async function main(argv) {
   const args = parseArgs(argv);
   const log = args.quiet ? () => {} : (m) => process.stderr.write(`[${SOURCE}] ${m}\n`);
@@ -86,7 +99,7 @@ async function main(argv) {
   for (const target of targets) {
     const finalTarget = withDefaultStarttlsPort(target, args.starttls);
     try {
-      const raw = await runTestssl(runner, finalTarget, mode, args.starttls, log);
+      const raw = await runTestssl(runner, finalTarget, mode, log);
       const doc = normalizeTargetFindings(raw, finalTarget, runId, runner.version, expansion, args.starttls, target);
       findings.push(doc);
     } catch (err) {
@@ -151,6 +164,14 @@ function parseArgs(argv) {
       const proto = a.slice('--starttls='.length).toLowerCase();
 
       if (!Object.prototype.hasOwnProperty.call(STARTTLS_PORTS, proto)) {
+        if (Object.prototype.hasOwnProperty.call(IMPLICIT_TLS_PORTS, proto)) {
+          fail(
+            EXIT.USAGE,
+            `${proto} is implicit TLS, not STARTTLS. Scan it as a regular TLS endpoint, ` +
+            `e.g. --target=host:${IMPLICIT_TLS_PORTS[proto]} (no --starttls). ` +
+            `Supported STARTTLS protocols: ${SUPPORTED_STARTTLS}`
+          );
+        }
         fail(
           EXIT.USAGE,
           `unknown STARTTLS protocol: ${proto}. Supported protocols: ${SUPPORTED_STARTTLS}`
@@ -260,7 +281,7 @@ function testsslArgs(target, mode, starttls = null, outDir = null, hostOutDir = 
   return base;
 }
 
-async function runTestssl(runner, target, mode, starttls, log) {
+async function runTestssl(runner, target, mode, log) {
   const argv = runner.argv(target, mode);
   const jsonPath = argv.__jsonPath;
   log(`scanning ${target}`);
