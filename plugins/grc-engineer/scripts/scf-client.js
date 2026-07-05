@@ -273,6 +273,10 @@ const FRAMEWORK_ALIASES = {
   'irap':                         'apac-aus-ism-2024-june',
   'ism':                          'apac-aus-ism-2024-june',
   'ismap':                        'apac-jpn-ismap',
+
+  // CSA
+  'csa-ccm':                      'general-csa-cmm-4-1-0',
+  'ccm':                          'general-csa-cmm-4-1-0',
 };
 
 // Frameworks not in SCF (proprietary / no public crosswalk). Used to give a clear error.
@@ -282,7 +286,6 @@ const FRAMEWORKS_WITHOUT_SCF_CROSSWALK = {
   'stateramp':   'StateRAMP has no SCF crosswalk; it mirrors NIST 800-53. Use FedRAMP-Moderate or NIST-800-53 as a proxy.',
   'pbmm':        'PBMM (ITSG-33) has no direct SCF crosswalk; use NIST-800-53 as a close proxy.',
   'us-export':   'US Export Controls (ITAR/EAR) are not a security controls framework and have no SCF mapping.',
-  'csa-ccm':     'CSA CCM v4 is not in the current SCF crosswalk index; use ISO 27001 or NIST 800-53 as a proxy.',
 };
 
 function matchByAlias(frameworks, key) {
