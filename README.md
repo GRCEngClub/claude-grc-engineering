@@ -62,7 +62,7 @@ For a first run without cloud credentials, use GitHub as the evidence source:
 
 Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
-Using Claude Desktop or Claude Cowork instead of Claude Code? Start with [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md). Anthropic's security and compliance posture is documented at [trust.anthropic.com](https://trust.anthropic.com/), and the Claude Cowork third-party platform guide is here: [Use Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680729-use-claude-cowork-with-third-party-platforms).
+Using Claude Desktop or Claude Cowork instead of Claude Code? Start with [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md). Anthropic's security and compliance posture is documented at [trust.anthropic.com](https://trust.anthropic.com/), and the Claude Cowork third-party platform guide is here: [Claude Desktop on third-party platforms](https://claude.com/docs/cowork/3p/overview).
 
 ## Common workflows
 
@@ -120,7 +120,7 @@ For the full architecture and schema example, see [docs/ARCHITECTURE.md](docs/AR
 - [docs/ENTERPRISE-DEPLOYMENT.md](docs/ENTERPRISE-DEPLOYMENT.md): AWS Bedrock, Claude Platform on AWS, and Google Vertex AI guidance
 - [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md): Claude Desktop and Claude Cowork file-oriented usage, including third-party platform handoff notes
 - [Anthropic Trust Center](https://trust.anthropic.com/): Anthropic security, compliance, and trust resources
-- [Use Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680729-use-claude-cowork-with-third-party-platforms): official Cowork platform guidance
+- [Claude Desktop on third-party platforms](https://claude.com/docs/cowork/3p/overview): official Cowork platform guidance
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md): how to contribute connectors, framework guidance, and docs
 - [docs/SCF-ATTRIBUTION.md](docs/SCF-ATTRIBUTION.md): SCF licensing and attribution
 
