@@ -30,7 +30,7 @@ Runs a compliance gap assessment against **UK NCSC Cyber Essentials Plus (CE+) v
 Under the hood:
 
 ```
-/grc-engineer:gap-assessment "emea-gbr-ce-2021" [--sources=<connector-list>]
+/grc-engineer:gap-assessment "emea-gbr-cyber-essentials-requirements-3-3" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands 26 SCF controls into the 5 Cyber Essentials Plus controls.

@@ -286,7 +286,7 @@ A BAA is required when a **Covered Entity** or **Business Associate**:
 
 ### SCF Crosswalk Context
 
-**Framework Mapping**: This HIPAA Security Rule plugin maps to SCF ID `US-HIPAA-Security`.
+**Framework Mapping**: This HIPAA Security Rule plugin maps to SCF ID `usa-federal-law-hipaa-security-rule-2013`.
 
 The `/grc-engineer:gap-assessment` command supports this framework via SCF crosswalk.
 
@@ -394,7 +394,7 @@ When performing a HIPAA Security Rule assessment:
 - OCR enforcement and penalty guidance
 - HHS OCR audit preparation
 - NIST SP 800-66 implementation guidance
-- SCF crosswalk mapping (US-HIPAA-Security)
+- SCF crosswalk mapping (usa-federal-law-hipaa-security-rule-2013)
 - Multi-framework compliance analysis (HIPAA + PCI-DSS, NIST, etc.)
 
 ### Evidence Checklist Command
