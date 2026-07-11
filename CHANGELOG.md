@@ -4,6 +4,10 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Changed
+
+- **Required CI checks now run on every PR.** Removed the `paths:` filters from the `pull_request` triggers of `validate-plugin-manifests.yml` and `contract-test.yml`. Both jobs are required status checks on `main`, but path-filtered required checks never report on PRs outside their paths (docs-only PRs, bot coverage PRs), leaving those PRs permanently blocked and forcing admin-bypass merges. Both jobs finish in under a minute, so the cost of always running them is negligible.
+
 ### Removed
 
 - **`vanta-bridge` plugin removed.** Vanta now ships an official Claude Code plugin (`vanta-mcp-plugin` in `anthropics/claude-plugins-official`) and an official MCP server (`mcp.vanta.com/mcp` and regional variants). The community bridge predated both and added a manual-export step that's now obsolete. Users should install Vanta's official plugin instead — see [GHSA #150](https://github.com/GRCEngClub/claude-grc-engineering/issues/150). Drops the bridge plugin, marketplace registration, test fixtures, and documentation references.

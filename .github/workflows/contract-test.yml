@@ -1,12 +1,10 @@
 name: Contract test
 
 on:
+  # No paths filter on pull_request: this job is a required status check on main,
+  # and a path-filtered required check never reports on PRs outside its paths,
+  # leaving them permanently unmergeable without an admin bypass.
   pull_request:
-    paths:
-      - 'schemas/**'
-      - 'tests/fixtures/**'
-      - 'plugins/connectors/**'
-      - '.github/workflows/contract-test.yml'
   push:
     branches: [main]
 
