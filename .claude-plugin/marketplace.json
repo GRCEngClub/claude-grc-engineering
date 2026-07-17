@@ -59,6 +59,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "academic-research-companion",
+      "source": "./plugins/academic-research-companion",
+      "description": "Guide a research project through the academic lifecycle — idea, literature, methodology, writing, feedback, publishing, and authorship — with verified sources and a durable tracker.",
+      "version": "0.1.0"
+    },
+    {
       "name": "grc-diagrams",
       "source": "./plugins/grc-diagrams",
       "description": "Editable draw.io diagram patterns for GRC system boundaries, evidence flows, control maps, risk treatment, audits, crosswalks, TPRM, POA&M, data flows, RACI, and operating models.",
