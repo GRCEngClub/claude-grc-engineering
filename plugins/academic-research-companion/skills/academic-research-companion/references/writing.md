@@ -35,6 +35,7 @@ Work one section per sitting; agree on the section's job before drafting it. Thi
 - Citation integrity: cite only sources with `verified` status in the tracker ledger. Cite what the source actually says — when in doubt, re-fetch and re-check. Paraphrase; keep rare direct quotes under 15 words.
 
 For independent/blog-published research, the register can relax (first person, shorter paragraphs, the user's brand voice) but the skeleton — explicit question, transparent method, evidence-matched claims, honest limitations, real citations — does not. That skeleton is what separates independent *research* from a hot take. When drafting in the user's public voice, also apply their 'brand-voice' skill if one exists.
+
 ## Revision passes (separate, in order)
 
 1. **Argument pass** — does each section do its job? Does the conclusion answer the introduction's question?

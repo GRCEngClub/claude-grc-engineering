@@ -12,6 +12,14 @@ When resuming from an uploaded tracker: read it fully, confirm the current phase
 **Created:** [date] · **Last updated:** [date] · **Current phase:** [1–7]
 **Status:** [active / paused / published / parked]
 
+## Researcher context
+(Filled on first use; do not invent answers.)
+- **Goal:** [credential track / practitioner whitepaper / peer-reviewed publication / internal research / exploration]
+- **Affiliation:** [student / faculty / industry / independent] · **Institution (if any):** [name or n/a]
+- **Publishing platforms controlled:** [site URL(s), GitHub org, blog — only what the user stated]
+- **Feedback communities available:** [peers / associations / workplace groups / instructors — only what the user stated]
+- **Field / domains:** [as stated; else leave blank and use marketplace example defaults sparingly]
+
 ## Research question
 > [Current one-sentence version]
 

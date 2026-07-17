@@ -1,6 +1,6 @@
 # academic-research-companion
 
-Guide a research project through the full academic lifecycle — from raw idea to concrete research question, literature grounding, methodology, writing, feedback, publishing, and authorship. Built for independent researchers (including GRC / AI-governance practitioners) who want doctoral-caliber rigor without institutional scaffolding.
+Guide a research project through the full academic lifecycle — from raw idea to concrete research question, literature grounding, methodology, writing, feedback, publishing, and authorship. Built for researchers who want doctoral-caliber rigor whether they are independent practitioners, students, faculty, or industry authors. On first use it asks for goal, affiliation, publishing platforms, and feedback communities so advice stays personalized without hardcoding one person's context.
 
 ```bash
 /plugin install academic-research-companion@grc-engineering-suite

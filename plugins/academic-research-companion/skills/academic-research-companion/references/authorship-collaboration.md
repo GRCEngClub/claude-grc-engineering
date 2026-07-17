@@ -25,7 +25,7 @@ Decide order **early and in writing**, revisit if contributions shift, and resol
 
 ## Bringing others onto the user's project (as 2nd/3rd authors)
 
-Good reasons to add a co-author: a methods skill the user lacks (e.g., a statistician), domain depth, an institutional affiliation that unlocks IRB review or data access, or an arXiv endorsement path. Recruiting sources for an unaffiliated researcher: the user's professional community (GRC club members with academic ties), UMGC faculty (instructors are realistic collaborators for a strong graduate student — approach with a concrete one-page proposal, not a vague ask), and authors of closely related papers (a specific, well-informed email works more often than people expect).
+Good reasons to add a co-author: a methods skill the user lacks (e.g., a statistician), domain depth, an institutional affiliation that unlocks IRB review or data access, or an arXiv endorsement path. Ask which networks the user can actually reach before suggesting names. Common recruiting sources: their professional communities (e.g. industry associations or, for GRC practitioners, a GRC club with academic ties), home-institution faculty if they are a student (instructors are realistic collaborators when approached with a concrete one-page proposal, not a vague ask), and authors of closely related papers (a specific, well-informed email works more often than people expect).
 
 Set terms at the start, in a short written note all parties keep:
 1. Scope of each person's contribution (CRediT roles)
@@ -47,7 +47,7 @@ A realistic and efficient way to gain peer-reviewed publications and learn the p
 
 Red flags to decline: pay-for-authorship offers, "we just need your name," refusal to share data/methods with a co-author, target venue that fails the predatory screen.
 
-Where to find these opportunities: the user's communities (GRC club, AI CoP), UMGC faculty projects, open calls for collaborators in research Slacks/Discords and academic Twitter/Mastodon/Bluesky, and offering a concrete skill (the user's automation/tooling capability is genuinely scarce in policy-adjacent research groups — "I can build the data pipeline" is a strong entry ticket).
+Where to find these opportunities: communities the user already belongs to (professional associations, workplace communities of practice, alumni networks, faculty projects if affiliated), open calls for collaborators in research Slacks/Discords and academic Twitter/Mastodon/Bluesky, and offering a concrete scarce skill when they have one (e.g. automation/tooling or data-pipeline work is often valuable in policy-adjacent research groups — "I can build the data pipeline" is a strong entry ticket when true for the user).
 
 ## Working practices for a healthy collaboration
 
