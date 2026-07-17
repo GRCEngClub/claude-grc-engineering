@@ -11,6 +11,7 @@ This phase is where fabricated citations enter projects and destroy credibility.
 3. **Label status explicitly.** In the tracker's source ledger, every source carries a status: `verified` (record fetched and confirmed), `candidate` (found in search, not yet fetched), or `unverified-memory` (recalled from training; must be verified or dropped before citing).
 4. **Quote minimally.** Summarize sources in original words; keep any direct quote under 15 words with attribution.
 5. **When verification fails**, say so. "I could not verify this paper exists" is a valid and important finding.
+6. **When web_search / web_fetch are unavailable** (offline, restricted egress, or tools not exposed in the session): state that live verification cannot run; do not emit a citable source list from memory; keep any recalled titles as `unverified-memory` or omit them; continue with searchable concept blocks, query strings, inclusion/exclusion rules, and synthesis-matrix structure; or verify records the user pastes (URL/DOI/PDF metadata) one at a time. Resume full search when tools return.
 
 ## Where to search
 

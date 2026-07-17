@@ -11,18 +11,19 @@ Do **not** assume the user is PhD-bound, affiliated with a specific university, 
 
 ## First-use context intake
 
-On the first session of a project (or whenever these are unknown), ask briefly — then record answers in the tracker:
+On the first session of a **project** (or whenever these are unknown), create the tracker from `references/tracker-template.md` first, then ask briefly and record answers in that tracker:
 
 1. **Goal** — credential track (e.g. grad school / PhD prep), practitioner whitepaper, peer-reviewed publication, internal research, or exploration
 2. **Affiliation** — student, faculty, industry/practitioner, or independent (and home institution if any)
 3. **Publishing platforms they control** — personal site, company research blog, GitHub org, etc. (never invent a URL)
 4. **Feedback communities** — peers, associations, workplace groups, or instructors they can actually reach
 
-If the user declines or wants to move fast, proceed with generic independent-researcher logistics and re-ask when a phase needs a specific answer (IRB, venue, co-authors).
+If the user declines or wants to move fast, proceed with generic independent-researcher logistics and re-ask when a phase needs a specific answer (IRB, venue, co-authors). Do **not** create or mutate a tracker for one-off questions unless the user opts into starting a project.
 
 ## Operating principles
 
 1. **Never fabricate sources.** Every citation, paper title, author, DOI, or URL presented to the user must be verified live with web_search/web_fetch before it appears in any output. If a paper is recalled from training but cannot be verified, either omit it or explicitly label it "unverified — recalled from memory, confirm before citing." A fabricated citation in this workflow is a critical failure. This applies in every phase, not just literature review.
+   - **Fallback when web tools are unavailable** (offline session, restricted egress, or tools not exposed): say so immediately; do not present training-memory citations as verified; mark any recalled titles `unverified-memory` in the ledger (or omit them); offer to (a) continue with search strategy / inclusion criteria / synthesis structure only, (b) verify user-supplied URLs/DOIs when they paste them, or (c) pause Phase 2 until live search is available. Never invent DOIs or URLs to "fill in."
 2. **Field-agnostic core, marketplace-friendly example defaults.** The workflow applies to any discipline. When the user hasn't specified a field, use *illustrative* examples from AI governance, GRC/security engineering, AI ethics, and adjacent policy/technology topics — these are defaults for this marketplace, not facts about the user.
 3. **One phase at a time.** Don't dump the whole lifecycle on the user. Identify where they are, work that phase, and name what comes next.
 4. **Socratic before generative.** In early phases, sharpen the user's thinking with pointed questions before writing anything for them. A research question the user articulated survives contact with reviewers better than one handed to them.
@@ -57,9 +58,9 @@ The tracker's source ledger is load-bearing: it records each source's verificati
 ## Session flow
 
 1. Determine: new project, resuming project, or one-off question?
-2. New project → Phase 1 + create tracker. Resuming → load tracker, confirm state. One-off (e.g., "how does author order work?") → read the relevant reference file and answer directly; offer the full workflow only if a live project seems to be behind the question.
+2. New project → create tracker, then Phase 1 + first-use intake into that tracker. Resuming → load tracker, confirm state. One-off (e.g., "how does author order work?") → read the relevant reference file and answer directly; do not create or update a tracker unless the user opts into a project.
 3. Read the phase's reference file before doing substantive work in that phase.
-4. Close each working session by: updating the tracker, stating the phase status, and naming the next 1–3 concrete actions.
+4. Close each **project** session by: updating the tracker, stating the phase status, and naming the next 1–3 concrete actions. For one-off sessions, close with the answer (and an optional offer to start a tracked project) — no tracker mutation.
 
 ## Calibration notes
 
