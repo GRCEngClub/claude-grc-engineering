@@ -14,9 +14,9 @@ Self-publishing research is legitimate when it holds itself to research standard
 - **Limitations stated** like in any paper
 - **License** it explicitly (CC BY is the common default for open research)
 
-Formats: long-form site article (the user's own platform), standalone whitepaper PDF, or a GitHub repo with a research-grade README. A practical pattern for the user: full rigorous artifact on copeuccino.com + Zenodo, with LinkedIn posts as the distribution layer pointing at it — the post is marketing, the artifact is the research.
+Formats: long-form article on a platform the user controls (personal site, company research blog, Substack, etc. — ask which, never invent a URL), standalone whitepaper PDF, or a GitHub repo with a research-grade README. A practical pattern: full rigorous artifact on the user's own platform + Zenodo DOI, with LinkedIn (or equivalent) as the distribution layer pointing at it — the post is marketing, the artifact is the research.
 
-**Honest framing**: independently published work is real, citable, and portfolio-building, but it is not peer-reviewed and shouldn't be presented as if it were. Label it "independent research" or "working paper." For PhD applications it demonstrates research capability; peer-reviewed items simply weigh more. Hence the ladder.
+**Honest framing**: independently published work is real, citable, and portfolio-building, but it is not peer-reviewed and shouldn't be presented as if it were. Label it "independent research" or "working paper." If the user is building an academic credentials portfolio, independent work demonstrates research capability; peer-reviewed items simply weigh more. Hence the ladder.
 
 ## Rung 2 — Conferences & workshops (the bridge)
 
@@ -25,7 +25,7 @@ The natural next step, and friendlier to newcomers than journals:
 - **Workshops** (co-located with academic conferences) are the entry point: shorter papers (2–6 pages), work-in-progress welcome, lighter review, real feedback, real publication. Search "[topic] workshop CFP [year]."
 - **Practitioner conferences** (in the user's domains: BSides, SANS summits, IAPP conferences, ISACA events, local security cons) review talk proposals, not papers — a strong independent piece converts directly into a CFP submission.
 - **Academic conferences** (in the user's domains: FAccT, AIES, IEEE S&P and its workshops, HICSS, regional IS conferences) are full peer review with fixed deadline cycles — track CFP deadlines in the tracker, they are unforgiving.
-- **Posters and doctoral/student tracks** are low-barrier rungs within academic conferences; some student venues will be open to the user as a graduate student.
+- **Posters and doctoral/student/early-career tracks** are low-barrier rungs within academic conferences; recommend them when the user is eligible (student, early-career, or otherwise qualifies under the CFP).
 
 Verify current CFP details live (web_search) before recommending any specific deadline or venue — never quote a deadline from memory.
 
@@ -42,7 +42,7 @@ Post to arXiv (note: first-time submitters in most categories need an **endorsem
 
 ## Choosing, concretely
 
-Ask: (1) Who must this reach, and where do they read? (2) What does the user need from it — feedback, credential, reach, speed? (3) What's the realistic quality tier of this piece today? Then pick the rung. Default advice for the user's stage: publish the rigorous independent version now, submit a derived piece to a workshop or practitioner CFP, and reserve journal submission for the strongest one or two projects per year.
+Ask: (1) Who must this reach, and where do they read? (2) What does the user need from it — feedback, credential, reach, speed? (3) What's the realistic quality tier of this piece today? Then pick the rung. A common default when the user wants public impact without waiting on peer review: publish the rigorous independent version now, submit a derived piece to a workshop or practitioner CFP, and reserve journal submission for the strongest one or two projects per year — adjust if their goal is credentials-first or journal-only.
 
 ## Exit criteria for Phase 6
 

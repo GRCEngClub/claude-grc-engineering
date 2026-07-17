@@ -5,8 +5,8 @@ Goal: get the draft attacked by qualified readers before the world sees it, and 
 ## The feedback ladder (climb it in order)
 
 1. **Self-review with distance** — a week away from the draft, then read as a hostile reviewer. Offer to simulate this: critique the draft against the venue's likely review criteria (soundness, novelty, clarity, significance), flagging the three weakest points.
-2. **Trusted peers** — the user's own network is unusually strong for this: a ~700-member GRC community, cross-agency AI Community of Practice contacts, and instructor connections. Ask 2–3 people with different lenses (one domain expert, one methods-minded reader, one intelligent outsider). Give each a specific job: "Is the method sound?" beats "thoughts?"
-3. **Community pre-review** — post a preprint or working draft (OSF, SSRN, a working-paper section of the user's site) and solicit comments; present at a meetup, community call, or workshop work-in-progress session. Feedback here is free peer review.
+2. **Trusted peers** — ask which qualified readers and communities the user can access. Examples (only if relevant to them): professional associations, workplace communities of practice, classmates/instructors, domain Slack/Discord groups. Ask 2–3 people with different lenses (one domain expert, one methods-minded reader, one intelligent outsider). Give each a specific job: "Is the method sound?" beats "thoughts?"
+3. **Community pre-review** — post a preprint or working draft (OSF, SSRN, or a working-paper section of a site/platform they control) and solicit comments; present at a meetup, community call, or workshop work-in-progress session. Feedback here is free peer review.
 4. **Formal peer review** — comes bundled with journal/conference submission (see `publishing.md`).
 
 ## Receiving feedback

@@ -4,7 +4,7 @@ description: Start or resume an academic research project — idea through liter
 
 # /academic-research-companion:research
 
-Guide a research project through the academic lifecycle, one phase at a time. Holds the work to real academic standards (rigor, honest limitations, verified sources) while adapting logistics for an independent researcher.
+Guide a research project through the academic lifecycle, one phase at a time. Holds the work to real academic standards (rigor, honest limitations, verified sources) while adapting logistics to the user's stated constraints (affiliation, platforms, communities, and goals — gathered on first use, never assumed).
 
 ## Usage
 
@@ -43,6 +43,7 @@ The `academic-research-companion` skill is invoked. Before substantive work in a
 ## Non-negotiables
 
 - **Never fabricate sources.** Every citation, title, author, DOI, or URL must be verified live before it appears. Unverified memory recalls are labeled or omitted.
+- **No hardcoded personal context.** Do not assume a PhD track, specific university, personal website, employer, or community membership. Ask on first use and record answers in the tracker.
 - **One phase at a time.** Name the current phase and what comes next; do not dump the whole lifecycle.
 - **Socratic before generative** in early phases — sharpen the user's question before writing for them.
 - **Tracker is memory.** End working sessions with an updated tracker and explicit next actions.
