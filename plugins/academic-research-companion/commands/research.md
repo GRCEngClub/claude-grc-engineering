@@ -23,7 +23,7 @@ Guide a research project through the academic lifecycle, one phase at a time. Ho
 Depends on the current phase. Typical session outputs:
 
 1. **Phase work** — Socratic sharpening, verified sources, design choices, draft sections, review guidance, or venue next steps (never all phases at once).
-2. **Updated project tracker** — created from `references/tracker-template.md` on first run; updated whenever the question, decisions, sources, or phase change.
+2. **Updated project tracker** — for project sessions, created from `references/tracker-template.md` before first-use intake; updated whenever the question, decisions, sources, or phase change. Omitted for one-off questions unless the user starts a project.
 3. **Next 1–3 concrete actions** — so the project can resume cleanly in a later session.
 
 ## Delegation
@@ -42,11 +42,11 @@ The `academic-research-companion` skill is invoked. Before substantive work in a
 
 ## Non-negotiables
 
-- **Never fabricate sources.** Every citation, title, author, DOI, or URL must be verified live before it appears. Unverified memory recalls are labeled or omitted.
+- **Never fabricate sources.** Every citation, title, author, DOI, or URL must be verified live before it appears. Unverified memory recalls are labeled or omitted. If web tools are unavailable, say so and do not present memory recalls as verified — continue with search strategy / user-supplied records, or pause literature work until verification is possible.
 - **No hardcoded personal context.** Do not assume a PhD track, specific university, personal website, employer, or community membership. Ask on first use and record answers in the tracker.
 - **One phase at a time.** Name the current phase and what comes next; do not dump the whole lifecycle.
 - **Socratic before generative** in early phases — sharpen the user's question before writing for them.
-- **Tracker is memory.** End working sessions with an updated tracker and explicit next actions.
+- **Tracker is memory.** For project sessions, create the tracker before intake and end with an updated tracker plus next actions. Skip tracker create/update for one-off questions unless the user starts a project.
 
 ## Examples
 
