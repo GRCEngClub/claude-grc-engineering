@@ -38,6 +38,15 @@ function formatErrors(errors = []) {
     .join('; ');
 }
 
+function formatDataFile(file) {
+  return basename(file)
+    .replace(/%/g, '%25')
+    .replace(/\r/g, '%0D')
+    .replace(/\n/g, '%0A')
+    .replace(/:/g, '%3A')
+    .replace(/,/g, '%2C');
+}
+
 let options;
 try {
   options = parseArguments(process.argv.slice(2));
@@ -47,7 +56,13 @@ try {
 }
 
 try {
-  const ajv = new Ajv2020({ allErrors: true, strict: false });
+  const ajv = new Ajv2020({
+    allErrors: true,
+    strict: true,
+    // Repository schemas intentionally place `required` in conditional/union
+    // branches while defining the corresponding properties in a parent schema.
+    strictRequired: false,
+  });
   addFormats(ajv);
   const validate = ajv.compile(readJson(options.schema));
   let failed = false;
@@ -57,15 +72,15 @@ try {
     try {
       data = readJson(file);
     } catch (error) {
-      throw new Error(`${basename(file)} invalid JSON: ${error.message}`);
+      throw new Error(`data file ${formatDataFile(file)} invalid JSON: ${error.message}`);
     }
 
     const valid = validate(data);
     if (valid) {
-      if (!options.quiet) console.log(`${basename(file)} valid`);
+      if (!options.quiet) console.log(`data file ${formatDataFile(file)} valid`);
     } else {
       failed = true;
-      console.error(`${basename(file)} invalid: ${formatErrors(validate.errors)}`);
+      console.error(`data file ${formatDataFile(file)} invalid: ${formatErrors(validate.errors)}`);
     }
   }
 
