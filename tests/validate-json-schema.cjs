@@ -47,11 +47,21 @@ function formatDataFile(file) {
     .replace(/,/g, '%2C');
 }
 
+function sanitizeDiagnostic(message) {
+  return String(message)
+    .replace(/\r/g, '%0D')
+    .replace(/\n/g, '%0A');
+}
+
+function writeOutput(stream, message) {
+  stream.write(`${sanitizeDiagnostic(message)}\n`);
+}
+
 let options;
 try {
   options = parseArguments(process.argv.slice(2));
 } catch (error) {
-  console.error(`schema-validator: ${error.message}`);
+  writeOutput(process.stderr, `schema-validator: ${error.message}`);
   process.exit(2);
 }
 
@@ -77,15 +87,18 @@ try {
 
     const valid = validate(data);
     if (valid) {
-      if (!options.quiet) console.log(`data file ${formatDataFile(file)} valid`);
+      if (!options.quiet) writeOutput(process.stdout, `data file ${formatDataFile(file)} valid`);
     } else {
       failed = true;
-      console.error(`data file ${formatDataFile(file)} invalid: ${formatErrors(validate.errors)}`);
+      writeOutput(
+        process.stderr,
+        `data file ${formatDataFile(file)} invalid: ${formatErrors(validate.errors)}`,
+      );
     }
   }
 
   process.exit(failed ? 1 : 0);
 } catch (error) {
-  console.error(`schema-validator: ${error.message}`);
+  writeOutput(process.stderr, `schema-validator: ${error.message}`);
   process.exit(2);
 }
