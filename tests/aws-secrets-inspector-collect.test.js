@@ -355,3 +355,53 @@ test('retrieval mode records the resolved region in the runs.log manifest', asyn
     assert.equal(manifest.region, 'ap-southeast-2', 'manifest should fall back to AWS_DEFAULT_REGION');
   }
 });
+
+test('inspector branch leaves runs.log at 0o600 and parent dir at 0o700 on POSIX', async () => {
+  if (process.platform === 'win32') return; // chmod is a no-op on Windows
+
+  const { home, env } = await makeEnv();
+  const parentDir = path.join(home, '.cache', 'claude-grc');
+  const runsLogPath = path.join(parentDir, 'runs.log');
+
+  // Pre-create at default umask to force the chmod-after path to do real
+  // work. Without this pre-creation, fs.mkdir's mode option would create
+  // the dir at 0o700 and fs.appendFile's mode option would create the
+  // file at 0o600 on first run, masking a regression in the chmod-after
+  // calls (Node honors the mode option only on creation).
+  await fs.mkdir(parentDir, { recursive: true });
+  await fs.chmod(parentDir, 0o755);
+  await fs.writeFile(runsLogPath, '');
+  await fs.chmod(runsLogPath, 0o644);
+
+  const result = runCollect(env, ['--quiet']);
+  assert.equal(result.status, 0, `stderr: ${result.stderr}`);
+
+  const dirStat = await fs.stat(parentDir);
+  const fileStat = await fs.stat(runsLogPath);
+  assert.equal((dirStat.mode & 0o777), 0o700, `parent dir not tightened: ${(dirStat.mode & 0o777).toString(8)}`);
+  assert.equal((fileStat.mode & 0o777), 0o600, `runs.log not tightened: ${(fileStat.mode & 0o777).toString(8)}`);
+});
+
+test('retrieve branch leaves runs.log at 0o600 and parent dir at 0o700 on POSIX', async () => {
+  if (process.platform === 'win32') return; // chmod is a no-op on Windows
+
+  const { home, env } = await makeEnv();
+  const parentDir = path.join(home, '.cache', 'claude-grc');
+  const runsLogPath = path.join(parentDir, 'runs.log');
+  const arn = 'arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf';
+
+  // Pre-create at default umask to force the chmod-after path to do real
+  // work (same rationale as the inspector test above).
+  await fs.mkdir(parentDir, { recursive: true });
+  await fs.chmod(parentDir, 0o755);
+  await fs.writeFile(runsLogPath, '');
+  await fs.chmod(runsLogPath, 0o644);
+
+  const result = runCollect(env, ['--retrieve=' + arn, '--quiet']);
+  assert.equal(result.status, 0, `stderr: ${result.stderr}`);
+
+  const dirStat = await fs.stat(parentDir);
+  const fileStat = await fs.stat(runsLogPath);
+  assert.equal((dirStat.mode & 0o777), 0o700, `parent dir not tightened: ${(dirStat.mode & 0o777).toString(8)}`);
+  assert.equal((fileStat.mode & 0o777), 0o600, `runs.log not tightened: ${(fileStat.mode & 0o777).toString(8)}`);
+});
