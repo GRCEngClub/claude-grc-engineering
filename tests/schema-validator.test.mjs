@@ -37,7 +37,9 @@ function runValidator(...args) {
 }
 
 function assertNoWorkflowCommands(result) {
-  assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, /^::/m);
+  const output = `${result.stdout}\n${result.stderr}`;
+  assert.doesNotMatch(output, /^[\t ]*::/m);
+  assert.doesNotMatch(output, /##\[/);
 }
 
 test('schema validator accepts valid JSON against a Draft 2020-12 schema', () => {
@@ -93,6 +95,18 @@ test('schema validator cannot emit GitHub Actions commands from data filenames',
   assert.match(result.stderr, /line%0A%3A%3Awarning%3A%3Aspoof\.json/);
 });
 
+test('schema validator neutralizes legacy workflow commands in data filenames', () => {
+  const { directory, schema } = fixtureFiles();
+  const hostile = join(directory, 'ok##[warning]LEGACY_FILENAME_INJECTION.json');
+  writeFileSync(hostile, JSON.stringify({ name: 'Ada' }));
+
+  const result = runValidator('--schema', schema, '--data', hostile);
+
+  assert.equal(result.status, 0, result.stderr);
+  assertNoWorkflowCommands(result);
+  assert.match(result.stdout, /%23%23\[warning]LEGACY_FILENAME_INJECTION/);
+});
+
 test('schema validator sanitizes workflow commands in Ajv diagnostics', () => {
   const { directory } = fixtureFiles();
   const schema = join(directory, 'property-values.schema.json');
@@ -103,14 +117,36 @@ test('schema validator sanitizes workflow commands in Ajv diagnostics', () => {
     additionalProperties: { type: 'integer' },
   }));
   writeFileSync(data, JSON.stringify({
-    'bad\n::warning::DATA_INJECTION': 'not-an-integer',
+    'bad\n::warning::COLUMN_ZERO_INJECTION': 'not-an-integer',
+    'bad\n \t::warning::DATA_INJECTION': 'not-an-integer',
   }));
 
   const result = runValidator('--schema', schema, '--data', data);
 
   assert.equal(result.status, 1);
   assertNoWorkflowCommands(result);
-  assert.match(result.stderr, /%0A::warning::DATA_INJECTION/);
+  assert.match(result.stderr, /%0A::warning::COLUMN_ZERO_INJECTION/);
+  assert.match(result.stderr, /%0A \t::warning::DATA_INJECTION/);
+});
+
+test('schema validator neutralizes legacy workflow commands in Ajv diagnostics', () => {
+  const { directory } = fixtureFiles();
+  const schema = join(directory, 'legacy-property-values.schema.json');
+  const data = join(directory, 'legacy-property-values.json');
+  writeFileSync(schema, JSON.stringify({
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    type: 'object',
+    additionalProperties: { type: 'integer' },
+  }));
+  writeFileSync(data, JSON.stringify({
+    'bad##[error]LEGACY_AJV_INJECTION': 'not-an-integer',
+  }));
+
+  const result = runValidator('--schema', schema, '--data', data);
+
+  assert.equal(result.status, 1);
+  assertNoWorkflowCommands(result);
+  assert.match(result.stderr, /%23%23\[error]LEGACY_AJV_INJECTION/);
 });
 
 test('schema validator sanitizes workflow commands in schema compilation errors', () => {

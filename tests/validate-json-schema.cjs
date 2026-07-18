@@ -49,6 +49,7 @@ function formatDataFile(file) {
 
 function sanitizeDiagnostic(message) {
   return String(message)
+    .replace(/##\[/g, '%23%23[')
     .replace(/\r/g, '%0D')
     .replace(/\n/g, '%0A');
 }
