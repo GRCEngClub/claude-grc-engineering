@@ -115,7 +115,8 @@ async function main(argv) {
   if (profile) env.AWS_PROFILE = profile;
 
   await fs.mkdir(CACHE_DIR, { recursive: true });
-  await fs.mkdir(path.dirname(RUNS_LOG), { recursive: true });
+  await fs.mkdir(path.dirname(RUNS_LOG), { recursive: true, mode: 0o700 });
+  await fs.chmod(path.dirname(RUNS_LOG), 0o700);
   const runId = makeRunId();
   const startedAt = Date.now();
   log(`regions=${regions.join(',')} profile=${profile || '<default>'}`);
@@ -161,7 +162,8 @@ async function main(argv) {
     severities: sev,
     errors: errors.length
   };
-  await fs.appendFile(RUNS_LOG, JSON.stringify(manifest) + '\n');
+  await fs.appendFile(RUNS_LOG, JSON.stringify(manifest) + '\n', { flag: 'a', mode: 0o600 });
+  await fs.chmod(RUNS_LOG, 0o600);
 
   const summary = `${SOURCE}: ${findings.length} resources, ${manifest.evaluations} evaluations, ${counters.fail || 0} failing (${sev.critical || 0} critical, ${sev.high || 0} high, ${sev.medium || 0} medium).`;
   if (args.output === 'json') {
@@ -697,7 +699,8 @@ async function retrieveSecret(args, log) {
 
   // 5. Append the retrieve manifest to runs.log. NEVER include the
   // value, prefix, or any entropy estimate — only metadata.
-  await fs.mkdir(path.dirname(RUNS_LOG), { recursive: true });
+  await fs.mkdir(path.dirname(RUNS_LOG), { recursive: true, mode: 0o700 });
+  await fs.chmod(path.dirname(RUNS_LOG), 0o700);
   const manifest = {
     source: SOURCE,
     run_id: makeRunId(),
@@ -718,7 +721,8 @@ async function retrieveSecret(args, log) {
     sha256,
     exit_code: EXIT.OK
   };
-  await fs.appendFile(RUNS_LOG, JSON.stringify(manifest) + '\n');
+  await fs.appendFile(RUNS_LOG, JSON.stringify(manifest) + '\n', { flag: 'a', mode: 0o600 });
+  await fs.chmod(RUNS_LOG, 0o600);
 
   process.exit(EXIT.OK);
 }
