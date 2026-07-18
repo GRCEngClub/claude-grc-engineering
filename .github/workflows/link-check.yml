@@ -9,7 +9,7 @@ on:
   schedule:
     # Weekly, Mondays 08:00 UTC — catches rotted external links (SCF API,
     # regulatory URLs, upstream tool repos) without blocking day-to-day PRs.
-    - cron: '0 8 * * 1'
+    - cron: '0 8 * * MON'
 
 concurrency:
   group: link-check-${{ github.ref }}
