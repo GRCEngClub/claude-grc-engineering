@@ -27,7 +27,7 @@ function fixtureFiles() {
   writeFileSync(invalid, JSON.stringify({ name: '', unexpected: true }));
   writeFileSync(malformed, '{broken');
 
-  return { schema, valid, invalid, malformed };
+  return { directory, schema, valid, invalid, malformed };
 }
 
 function runValidator(...args) {
@@ -60,4 +60,31 @@ test('schema validator names malformed JSON files and exits with an operational 
   assert.equal(result.status, 2);
   assert.match(result.stderr, /malformed\.json/);
   assert.match(result.stderr, /invalid JSON/);
+});
+
+test('schema validator rejects unknown schema keywords in strict mode', () => {
+  const { directory, valid } = fixtureFiles();
+  const schema = join(directory, 'unknown-keyword.schema.json');
+  writeFileSync(schema, JSON.stringify({
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    type: 'object',
+    propertiez: { name: { type: 'string' } },
+  }));
+
+  const result = runValidator('--schema', schema, '--data', valid);
+
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /strict mode: unknown keyword/);
+});
+
+test('schema validator cannot emit GitHub Actions commands from data filenames', () => {
+  const { directory, schema } = fixtureFiles();
+  const hostile = join(directory, 'line\n::warning::spoof.json');
+  writeFileSync(hostile, JSON.stringify({ unexpected: true }));
+
+  const result = runValidator('--schema', schema, '--data', hostile);
+
+  assert.equal(result.status, 1);
+  assert.doesNotMatch(result.stderr, /^::/m);
+  assert.match(result.stderr, /line%0A%3A%3Awarning%3A%3Aspoof\.json/);
 });
