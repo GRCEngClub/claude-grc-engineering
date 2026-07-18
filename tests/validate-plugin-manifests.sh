@@ -9,12 +9,10 @@
 # not a bare string.
 #
 # Run locally:
-#   npm install --no-save ajv-cli@5 ajv-formats@3
+#   npm install
 #   bash tests/validate-plugin-manifests.sh
 
 set -uo pipefail
-
-PATH="./node_modules/.bin:$PATH"
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root" || {
@@ -22,8 +20,9 @@ cd "$repo_root" || {
   exit 2
 }
 
-if ! command -v ajv >/dev/null 2>&1; then
-  echo "ajv-cli not found. Install with: npm install --no-save ajv-cli@5 ajv-formats@3" >&2
+validator="tests/validate-json-schema.cjs"
+if ! node -e "require('ajv'); require('ajv-formats')" >/dev/null 2>&1; then
+  echo "Ajv not found. Install dependencies with: npm install" >&2
   exit 2
 fi
 
@@ -100,11 +99,10 @@ validate_file() {
   local file="$2"
   checked=$((checked + 1))
   emit_group_start "$file"
-  if ajv validate \
-      --spec=draft2020 \
-      -s "$schema" \
-      -d "$file" \
-      --errors=line; then
+  if node "$validator" \
+      --schema "$schema" \
+      --data "$file" \
+      --quiet; then
     printf '  ✓ %s\n' "$file"
   else
     emit_error "$file" "Manifest failed schema validation against $schema"
