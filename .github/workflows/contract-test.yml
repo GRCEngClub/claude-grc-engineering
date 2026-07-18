@@ -29,8 +29,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install schema validator dependencies
-        run: npm install --no-save ajv@8.20.0 ajv-formats@3.0.1
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
 
       - name: Test schema validator
         run: npm run test:schema-validator
