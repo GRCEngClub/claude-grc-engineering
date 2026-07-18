@@ -36,6 +36,10 @@ function runValidator(...args) {
   });
 }
 
+function assertNoWorkflowCommands(result) {
+  assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, /^::/m);
+}
+
 test('schema validator accepts valid JSON against a Draft 2020-12 schema', () => {
   const { schema, valid } = fixtureFiles();
   const result = runValidator('--schema', schema, '--data', valid);
@@ -85,6 +89,53 @@ test('schema validator cannot emit GitHub Actions commands from data filenames',
   const result = runValidator('--schema', schema, '--data', hostile);
 
   assert.equal(result.status, 1);
-  assert.doesNotMatch(result.stderr, /^::/m);
+  assertNoWorkflowCommands(result);
   assert.match(result.stderr, /line%0A%3A%3Awarning%3A%3Aspoof\.json/);
+});
+
+test('schema validator sanitizes workflow commands in Ajv diagnostics', () => {
+  const { directory } = fixtureFiles();
+  const schema = join(directory, 'property-values.schema.json');
+  const data = join(directory, 'property-values.json');
+  writeFileSync(schema, JSON.stringify({
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    type: 'object',
+    additionalProperties: { type: 'integer' },
+  }));
+  writeFileSync(data, JSON.stringify({
+    'bad\n::warning::DATA_INJECTION': 'not-an-integer',
+  }));
+
+  const result = runValidator('--schema', schema, '--data', data);
+
+  assert.equal(result.status, 1);
+  assertNoWorkflowCommands(result);
+  assert.match(result.stderr, /%0A::warning::DATA_INJECTION/);
+});
+
+test('schema validator sanitizes workflow commands in schema compilation errors', () => {
+  const { directory, valid } = fixtureFiles();
+  const schema = join(directory, 'hostile-keyword.schema.json');
+  writeFileSync(schema, JSON.stringify({
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    type: 'object',
+    'bad\n::warning::SCHEMA_INJECTION': true,
+  }));
+
+  const result = runValidator('--schema', schema, '--data', valid);
+
+  assert.equal(result.status, 2);
+  assertNoWorkflowCommands(result);
+  assert.match(result.stderr, /%0A::warning::SCHEMA_INJECTION/);
+});
+
+test('schema validator sanitizes workflow commands in filesystem errors', () => {
+  const { directory, schema } = fixtureFiles();
+  const missing = join(directory, 'missing\n::error::FS_INJECTION.json');
+
+  const result = runValidator('--schema', schema, '--data', missing);
+
+  assert.equal(result.status, 2);
+  assertNoWorkflowCommands(result);
+  assert.match(result.stderr, /%0A::error::FS_INJECTION/);
 });
