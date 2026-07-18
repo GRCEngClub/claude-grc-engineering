@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-PATH="./node_modules/.bin:$PATH"
+validator="tests/validate-json-schema.cjs"
 
 categories=(
   "findings schemas/finding.schema.json"
@@ -30,12 +30,10 @@ for entry in "${categories[@]}"; do
   while IFS= read -r f; do
     [ -z "$f" ] && continue
     total=$((total + 1))
-    if ajv validate \
-      --spec=draft2020 \
-      -c ajv-formats \
-      -s "$schema" \
-      -d "$f" \
-      --errors=line 2>&1; then
+    if node "$validator" \
+      --schema "$schema" \
+      --data "$f" \
+      --quiet 2>&1; then
       echo "  ✓ $f"
     else
       echo "  ✗ $f"

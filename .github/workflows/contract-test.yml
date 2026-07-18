@@ -5,7 +5,11 @@ on:
     paths:
       - 'schemas/**'
       - 'tests/fixtures/**'
+      - 'tests/schema-validator.test.mjs'
+      - 'tests/validate-json-schema.cjs'
+      - 'tests/validate-contract-fixtures.sh'
       - 'plugins/connectors/**'
+      - 'package.json'
       - '.github/workflows/contract-test.yml'
   push:
     branches: [main]
@@ -25,8 +29,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install ajv-cli + formats
-        run: npm install --no-save ajv-cli@5 ajv-formats@3
+      - name: Install schema validator dependencies
+        run: npm install --no-save ajv@8.20.0 ajv-formats@3.0.1
+
+      - name: Test schema validator
+        run: npm run test:schema-validator
 
       - name: Validate contract fixtures
         run: bash tests/validate-contract-fixtures.sh

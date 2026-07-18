@@ -8,8 +8,11 @@ on:
       - '.claude-plugin/marketplace.json'
       - 'schemas/plugin.schema.json'
       - 'schemas/marketplace.schema.json'
+      - 'tests/schema-validator.test.mjs'
+      - 'tests/validate-json-schema.cjs'
       - 'tests/validate-plugin-manifests.sh'
       - 'tests/validate-grc-diagram-skills.sh'
+      - 'package.json'
       - '.github/workflows/validate-plugin-manifests.yml'
   push:
     branches: [main]
@@ -19,8 +22,11 @@ on:
       - '.claude-plugin/marketplace.json'
       - 'schemas/plugin.schema.json'
       - 'schemas/marketplace.schema.json'
+      - 'tests/schema-validator.test.mjs'
+      - 'tests/validate-json-schema.cjs'
       - 'tests/validate-plugin-manifests.sh'
       - 'tests/validate-grc-diagram-skills.sh'
+      - 'package.json'
       - '.github/workflows/validate-plugin-manifests.yml'
 
 concurrency:
@@ -38,8 +44,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install ajv-cli + formats
-        run: npm install --no-save ajv-cli@5 ajv-formats@3
+      - name: Install schema validator dependencies
+        run: npm install --no-save ajv@8.20.0 ajv-formats@3.0.1
+
+      - name: Test schema validator
+        run: npm run test:schema-validator
 
       - name: Validate every plugin and marketplace manifest
         run: bash tests/validate-plugin-manifests.sh
