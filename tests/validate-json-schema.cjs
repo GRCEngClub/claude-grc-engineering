@@ -53,7 +53,14 @@ try {
   let failed = false;
 
   for (const file of options.data) {
-    const valid = validate(readJson(file));
+    let data;
+    try {
+      data = readJson(file);
+    } catch (error) {
+      throw new Error(`${basename(file)} invalid JSON: ${error.message}`);
+    }
+
+    const valid = validate(data);
     if (valid) {
       if (!options.quiet) console.log(`${basename(file)} valid`);
     } else {

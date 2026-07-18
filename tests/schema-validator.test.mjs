@@ -12,6 +12,7 @@ function fixtureFiles() {
   const schema = join(directory, 'schema.json');
   const valid = join(directory, 'valid.json');
   const invalid = join(directory, 'invalid.json');
+  const malformed = join(directory, 'malformed.json');
 
   writeFileSync(schema, JSON.stringify({
     $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -24,8 +25,9 @@ function fixtureFiles() {
   }));
   writeFileSync(valid, JSON.stringify({ name: 'research-companion' }));
   writeFileSync(invalid, JSON.stringify({ name: '', unexpected: true }));
+  writeFileSync(malformed, '{broken');
 
-  return { schema, valid, invalid };
+  return { schema, valid, invalid, malformed };
 }
 
 function runValidator(...args) {
@@ -49,4 +51,13 @@ test('schema validator rejects invalid JSON and reports validation errors', () =
   assert.equal(result.status, 1);
   assert.match(result.stderr, /invalid\.json invalid/);
   assert.match(result.stderr, /must NOT have additional properties|must NOT have fewer than 1 characters/);
+});
+
+test('schema validator names malformed JSON files and exits with an operational error', () => {
+  const { schema, malformed } = fixtureFiles();
+  const result = runValidator('--schema', schema, '--data', malformed);
+
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /malformed\.json/);
+  assert.match(result.stderr, /invalid JSON/);
 });
