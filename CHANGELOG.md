@@ -4,6 +4,10 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Added
+
+- **NIST AI RMF framework plugin (stub).** Added `nist-ai-rmf`, the toolkit's first AI-governance framework plugin, scaffolded at Stub depth from the SCF crosswalk (`general-nist-100-1-ai-rmf`, 158 SCF controls → 91 AI RMF subcategories across GOVERN/MAP/MEASURE/MANAGE, counts verified against scf-api v2026.1), with marketplace registration. Reference-depth level-up (scope, evidence checklist, substantive SKILL) planned as a follow-up, along with a Generative AI Profile (AI 600-1) companion plugin. Closes [#195](https://github.com/GRCEngClub/claude-grc-engineering/issues/195).
+
 ### Removed
 
 - **`vanta-bridge` plugin removed.** Vanta now ships an official Claude Code plugin (`vanta-mcp-plugin` in `anthropics/claude-plugins-official`) and an official MCP server (`mcp.vanta.com/mcp` and regional variants). The community bridge predated both and added a manual-export step that's now obsolete. Users should install Vanta's official plugin instead — see [GHSA #150](https://github.com/GRCEngClub/claude-grc-engineering/issues/150). Drops the bridge plugin, marketplace registration, test fixtures, and documentation references.
