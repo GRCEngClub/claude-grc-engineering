@@ -33,4 +33,4 @@ Full depth adds framework-native workflow commands tied to the audit ritual (e.g
 ## References
 
 - [Secure Controls Framework](https://securecontrolsframework.com) — crosswalk source (CC BY-ND 4.0)
-- [SCF API entry](https://hackidle.github.io/scf-api/api/crosswalks/general-nist-100-1-ai-rmf.json)
+- [SCF API entry](https://grcengclub.github.io/scf-api/api/crosswalks/general-nist-100-1-ai-rmf.json)

@@ -31,4 +31,4 @@ A prioritized gap report listing unmet NIST AI 100-1 (AI RMF 1.0) requirements, 
 ## Further reading
 
 - [Secure Controls Framework](https://securecontrolsframework.com)
-- [SCF API entry for this framework](https://hackidle.github.io/scf-api/api/crosswalks/general-nist-100-1-ai-rmf.json)
+- [SCF API entry for this framework](https://grcengclub.github.io/scf-api/api/crosswalks/general-nist-100-1-ai-rmf.json)
