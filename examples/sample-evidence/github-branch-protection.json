@@ -1,0 +1,30 @@
+{
+  "Description": "GET /repos/skyline-analytics/skyline-platform/branches/main/protection",
+  "RetrievedAt": "2026-06-28T14:37:02Z",
+  "url": "https://api.github.com/repos/skyline-analytics/skyline-platform/branches/main/protection",
+  "required_status_checks": {
+    "strict": false,
+    "contexts": [
+      "build"
+    ]
+  },
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 1,
+    "dismiss_stale_reviews": false,
+    "require_code_owner_reviews": false,
+    "require_last_push_approval": false
+  },
+  "enforce_admins": {
+    "enabled": false
+  },
+  "allow_force_pushes": {
+    "enabled": true
+  },
+  "allow_deletions": {
+    "enabled": false
+  },
+  "required_signatures": {
+    "enabled": false
+  },
+  "restrictions": null
+}
