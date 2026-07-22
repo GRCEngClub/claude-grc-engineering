@@ -1,0 +1,32 @@
+GitHub Actions run: skyline-analytics/skyline-platform
+Workflow: deploy-production.yml  Run #1841
+Triggered by: push to main (commit 9f3c1ab) by dpatel
+PR #517 "hotfix: bump export batch size" — approved by: dpatel
+Started: 2026-06-13T22:04:11Z
+
+[22:04:14] job: build
+[22:04:15]   checkout@v4 ................................ OK
+[22:04:41]   setup-node@v4 (node 20.x) .................. OK
+[22:06:02]   npm ci ..................................... OK
+[22:08:37]   npm run build .............................. OK
+[22:09:10]   unit tests: 412 passed, 0 failed ........... OK
+
+[22:09:12] job: security-scan (continue-on-error: true)
+[22:09:14]   semgrep ci --config auto
+[22:10:44]   semgrep: 2 findings (1 HIGH, 1 MEDIUM)
+[22:10:44]     HIGH  src/export/query.ts:88  tainted-sql-string:
+[22:10:44]           user input concatenated into SQL statement
+[22:10:44]     MED   src/export/s3.ts:41  hardcoded-tmp-path
+[22:10:45]   semgrep exit code 1
+[22:10:45] ##[warning] security-scan failed — continuing (continue-on-error)
+
+[22:10:47] job: deploy-production (needs: build)
+[22:10:49]   configure-aws-credentials@v4
+[22:10:50]   assume role: arn:aws:iam::123456789012:role/skyline-ci-deploy-role  OK
+[22:11:23]   terraform plan -out=tfplan .................. 3 to add, 1 to change
+[22:11:59]   terraform apply tfplan ...................... OK
+[22:13:30]   deploy image to ECS service skyline-prod-api  OK
+[22:14:02]   smoke test https://api.skyline-analytics.example/health  200 OK
+
+Run conclusion: SUCCESS
+Deployed to production: 2026-06-13T22:14:05Z
