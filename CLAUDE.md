@@ -170,6 +170,7 @@ Each plugin has a unique namespace for commands:
 - `/grc-internal:` - Internal GRC team tools
 - `/grc-tprm:` - Third-party risk management
 - `/grc-portfolio:` - GRC engineer portfolio site builder (plan → build → preflight → infra → deploy → repo → cicd)
+- `/academic-research-companion:` - Academic research lifecycle companion (idea → literature → methodology → writing → feedback → publishing → authorship)
 - `/soc2:` - SOC 2 expertise
 - `/nist:` - NIST 800-53 controls
 - `/iso:` - ISO 27001 ISMS

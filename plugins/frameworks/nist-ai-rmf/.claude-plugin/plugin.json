@@ -1,0 +1,19 @@
+{
+  "name": "nist-ai-rmf",
+  "description": "NIST AI 100-1 (AI RMF 1.0) — stub plugin routing to /grc-engineer:gap-assessment via the SCF crosswalk. Level up by adding framework-specific commands, implementation guidance, and evidence patterns.",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "general-nist-100-1-ai-rmf",
+    "display_name": "NIST AI 100-1 (AI RMF 1.0)",
+    "region": "Global",
+    "country": "US",
+    "depth": "stub",
+    "scf_controls_mapped": 158,
+    "framework_controls_mapped": 91,
+    "industry": ["cross-sector"],
+    "regulator": "NIST (voluntary framework; not enforced)"
+  }
+}

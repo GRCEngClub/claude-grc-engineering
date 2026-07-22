@@ -1,0 +1,19 @@
+{
+  "name": "academic-research-companion",
+  "description": "Guide a research project through the full academic lifecycle — idea development, literature review, methodology, writing, feedback, publishing, and authorship — with verified sources and a durable project tracker.",
+  "version": "0.1.0",
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "keywords": [
+    "research",
+    "academic",
+    "literature-review",
+    "methodology",
+    "publishing",
+    "grc",
+    "ai-governance"
+  ]
+}

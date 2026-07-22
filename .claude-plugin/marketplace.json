@@ -59,6 +59,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "academic-research-companion",
+      "source": "./plugins/academic-research-companion",
+      "description": "Guide a research project through the academic lifecycle — idea, literature, methodology, writing, feedback, publishing, and authorship — with verified sources and a durable tracker.",
+      "version": "0.1.0"
+    },
+    {
       "name": "grc-diagrams",
       "source": "./plugins/grc-diagrams",
       "description": "Editable draw.io diagram patterns for GRC system boundaries, evidence flows, control maps, risk treatment, audits, crosswalks, TPRM, POA&M, data flows, RACI, and operating models.",
@@ -395,6 +401,12 @@
       "name": "trust-center",
       "source": "./plugins/trust-center",
       "description": "Build and deploy a serverless trust center — public compliance posture, gated document access with optional NDA e-signature, admin dashboard. Deploys to AWS.",
+      "version": "0.1.0"
+    },
+    {
+      "name": "nist-ai-rmf",
+      "source": "./plugins/frameworks/nist-ai-rmf",
+      "description": "NIST AI 100-1 (AI RMF 1.0) \u2014 stub-depth plugin backed by the SCF crosswalk (158 SCF \u2192 91 framework controls).",
       "version": "0.1.0"
     }
   ]
