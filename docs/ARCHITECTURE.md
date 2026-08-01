@@ -134,10 +134,10 @@ One plugin holds the cross-cutting commands. Other plugins either *feed* the hub
 ## Plugin categories
 
 1. **Engineering hub**: `grc-engineer`. Holds the cross-cutting commands every other plugin either feeds or consumes.
-2. **Framework plugins**: `soc2`, `nist-800-53`, `iso27001`, `pci-dss`, `fedramp-rev5`, `fedramp-20x`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `csa-ccm`, `nydfs`, `dora`, `stateramp`, `essential8`, `glba`, `us-export`, `pbmm`, `ismap`, `irap`. These carry framework-specific knowledge and commands (`/soc2:generate-tsc-matrix`, `/fedramp-rev5:poam-review`, etc.). Normative control text stays behind your licensed copy of the standard. These plugins reference control IDs and provide my implementation guidance, not the standards' prose.
+2. **Framework plugins**: everything under `plugins/frameworks/` (`soc2`, `nist-800-53`, `iso27001`, `pci-dss`, `fedramp-rev5`, `fedramp-20x`, `cmmc`, and the rest). These carry framework-specific knowledge and commands (`/soc2:generate-tsc-matrix`, `/fedramp-rev5:poam-review`, etc.). Normative control text stays behind your licensed copy of the standard. These plugins reference control IDs and provide my implementation guidance, not the standards' prose. See [FRAMEWORK-COVERAGE.md](FRAMEWORK-COVERAGE.md) for the current list and each plugin's depth.
 3. **Persona plugins**: `grc-auditor` (audit workflows), `grc-internal` (internal GRC team), `grc-tprm` (third-party risk). Orchestrate commands from the hub and framework plugins for a specific role.
-4. **Connector plugins**: `aws-inspector`, `github-inspector`, `gcp-inspector`, `okta-inspector`. Thin integration layer over external tools. Emit Findings, conform to the contract.
-5. **OSCAL / FedRAMP showcase plugins**: `oscal` (wraps `oscal-cli`), `fedramp-docs` (wraps `fedramp-docs-mcp`). Turn the FedRAMP/OSCAL tooling into first-class Claude commands.
+4. **Connector plugins**: everything under `plugins/connectors/` (`aws-inspector`, `github-inspector`, `gcp-inspector`, `okta-inspector`, and the rest). Thin integration layer over external tools. Emit Findings, conform to the contract.
+5. **OSCAL / FedRAMP showcase plugins**: `oscal` (wraps `oscal-cli`), `fedramp-ssp`. Turn the FedRAMP/OSCAL tooling into first-class Claude commands.
 
 ## Connector quality bar
 
@@ -174,7 +174,7 @@ See `docs/CONTRIBUTING.md`: adding a connector is the most common contribution p
 
 ### Add a crosswalk entry
 
-Don't: use SCF. If SCF doesn't have the control mapping you need, the right fix is to open a PR upstream at [SCF](https://securecontrolsframework.com). Temporarily, you can provide overrides in `plugins/grc-engineer/config/crosswalk-overrides.yaml`.
+Don't: use SCF. If SCF doesn't have the control mapping you need, the right fix is to open a PR upstream at [SCF](https://securecontrolsframework.com).
 
 ## Non-goals
 
