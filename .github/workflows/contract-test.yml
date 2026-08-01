@@ -35,5 +35,8 @@ jobs:
       - name: Test schema validator
         run: npm run test:schema-validator
 
+      - name: Run unit test suites
+        run: npm run test:unit
+
       - name: Validate contract fixtures
         run: bash tests/validate-contract-fixtures.sh
