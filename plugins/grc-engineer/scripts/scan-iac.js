@@ -11,9 +11,13 @@
  * Checks against: SOC2, PCI-DSS, NIST 800-53, ISO 27001, etc.
  */
 
-const fs = require('fs');
-const path = require('path');
-const yaml = require('js-yaml');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import yaml from 'js-yaml';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class IaCScanner {
   constructor(directory, frameworks, options = {}) {
@@ -284,6 +288,30 @@ class IaCScanner {
           autoFixable: true
         });
       }
+    }
+
+    return issues.length > 0 ? issues : null;
+  }
+
+  /**
+   * Check encryption on Kubernetes persistent storage.
+   *
+   * A PV/PVC is only encrypted at rest if its StorageClass says so, and the
+   * StorageClass usually lives in another manifest. So this reports the
+   * unannotated case as MEDIUM rather than HIGH: it is a review prompt, not
+   * proof the volume is unencrypted.
+   */
+  checkK8sEncryption(resourceType, resourceName, resourceBody, filePath, lineNumber) {
+    const issues = [];
+    const declaresEncryption = /encrypted\s*:\s*["']?true|encryption|kms|storageClassName/i.test(resourceBody);
+
+    if (!declaresEncryption) {
+      issues.push({
+        severity: 'MEDIUM',
+        issue: `${resourceType} '${resourceName}' does not reference an encrypted StorageClass`,
+        remediation: 'Set storageClassName to a StorageClass whose provisioner enables encryption at rest (e.g. an EBS/PD class with encrypted: "true").',
+        autoFixable: false
+      });
     }
 
     return issues.length > 0 ? issues : null;
@@ -561,7 +589,7 @@ class IaCScanner {
 }
 
 // CLI Interface
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
@@ -627,4 +655,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = IaCScanner;
+export default IaCScanner;
