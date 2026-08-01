@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 
 const CONFIG_DIR = process.env.CLAUDE_GRC_CONFIG_DIR || path.join(os.homedir(), '.config', 'claude-grc');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'connectors', 'datadog-inspector.yaml');
@@ -59,7 +60,7 @@ async function main(argv) {
   raw.monitors = monitors.raw;
   if (monitors.ok) {
     const list = Array.isArray(monitors.raw) ? monitors.raw : [];
-    const critical = list.filter(m => String(m.priority || '').toLowerCase() === 'p1' || String(m.name || '').match(/critical|prod|production/i));
+    const critical = list.filter(isCriticalMonitor);
     if (critical.length) evaluations.push(pass('MON-01.2', `Datadog monitor inventory includes ${critical.length} critical or production monitor(s).`));
     else evaluations.push(failHigh('MON-01.2', 'No critical or production Datadog monitors were detected.', 'Define monitors for critical services and resources, with severity and routing aligned to incident response.'));
   } else {
@@ -239,7 +240,25 @@ function fail(code, msg) {
   process.exit(code);
 }
 
-main(process.argv.slice(2)).catch(err => {
-  process.stderr.write(`[${SOURCE}] unhandled error: ${err.stack || err.message}\n`);
-  process.exit(1);
-});
+/**
+ * Datadog exposes monitor priority as an integer 1-5 where 1 is highest. The
+ * previous check compared it against the string 'p1', which never matched, so
+ * priority was ignored and the evaluation silently degraded to a name regex.
+ */
+function isCriticalMonitor(m) {
+  return Number(m?.priority) === 1 || /critical|prod|production/i.test(String(m?.name || ''));
+}
+
+// `process.argv[1]` is undefined under `node --eval` and some embedders, where
+// pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
+const invokedFromCLI = process.argv[1] !== undefined
+  && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (invokedFromCLI) {
+  main(process.argv.slice(2)).catch(err => {
+    process.stderr.write(`[${SOURCE}] unhandled error: ${err.stack || err.message}\n`);
+    process.exit(1);
+  });
+}
+
+export { isCriticalMonitor };

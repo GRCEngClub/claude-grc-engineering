@@ -149,10 +149,17 @@ async function collectInventory(apiUrl, token, limit, filterBy, ctx, findings, e
   findings.push(tenant(ctx, evals, { cloudResources: res.rows }, { pages: res.pages, resource_count: res.rows.length }));
 }
 
+// Upper bound on pages fetched from a single Wiz GraphQL connection. A server
+// that keeps reporting hasNextPage (or returns a repeating cursor) would
+// otherwise loop until the process runs out of memory.
+const MAX_PAGES = 200;
+
 async function collectConnection(apiUrl, token, endpoint, query, limit, filterBy, ctx) {
   const rows = [];
   let after = null;
   let pages = 0;
+  let truncated = false;
+  const seenCursors = new Set();
   do {
     const variables = { first: limit, after, filterBy };
     const res = await gql(apiUrl, token, query, variables, endpoint, pages + 1, ctx.fixtureDir);
@@ -162,8 +169,17 @@ async function collectConnection(apiUrl, token, endpoint, query, limit, filterBy
     pages++;
     const pageInfo = connection?.pageInfo || {};
     after = pageInfo.hasNextPage ? pageInfo.endCursor : null;
+    if (after && seenCursors.has(after)) {
+      truncated = true;
+      break;
+    }
+    if (after) seenCursors.add(after);
+    if (after && pages >= MAX_PAGES) {
+      truncated = true;
+      break;
+    }
   } while (after);
-  return { ok: true, rows, pages };
+  return { ok: true, rows, pages, truncated };
 }
 
 function wizFinding(ctx, type, id, row, evaluations, extraMetadata = {}) {
@@ -333,6 +349,6 @@ function makeRunId() { return `${new Date().toISOString().replace(/[-:.TZ]/g, ''
 function summarize(findings, base) { const counters = { pass: 0, fail: 0, inconclusive: 0, not_applicable: 0, skipped: 0 }, severities = { critical: 0, high: 0, medium: 0, low: 0, info: 0 }, failing_severities = { critical: 0, high: 0, medium: 0, low: 0, info: 0 }; let evaluations = 0; for (const d of findings) for (const e of d.evaluations) { evaluations++; counters[e.status]++; if (e.severity) severities[e.severity]++; if (e.status === 'fail' && e.severity) failing_severities[e.severity]++; } return { ...base, evaluations, counters, severities, failing_severities }; }
 function fail(code, msg) { process.stderr.write(`[${SOURCE}] ${msg}\n`); process.exit(code); }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main(process.argv.slice(2)).catch(err => { process.stderr.write(`[${SOURCE}] unhandled error: ${err.stack || err.message}\n`); process.exit(1); });
 }
