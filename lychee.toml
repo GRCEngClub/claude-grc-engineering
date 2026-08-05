@@ -32,6 +32,10 @@ exclude = [
   "^https://github\\.com/ethanolivertroy/frdocx-to-froscal-ssp$",
   # FedRAMP reorganized /resources/templates; dedicated docs pass needed to update affected links
   "^https://www\\.fedramp\\.gov/resources/templates",
+  # Anthropic renamed/moved the Claude Cowork support article; docs pass needed to update refs in docs/CLAUDE-COWORK.md and README.md
+  "^https://support\\.claude\\.com/en/articles/14680729-use-claude-cowork-with-third-party-platforms$",
+  # star-history.com redirects to lowercase URL-encoded path and then 404s to lychee's client while rendering fine in browsers (decorative chart badges only)
+  "^https://api\\.star-history\\.com/chart",
 ]
 
 exclude_all_private = true

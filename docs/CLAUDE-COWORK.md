@@ -9,7 +9,7 @@ scripts, command runbooks, and reusable skill instructions.
 Official resources:
 
 - Claude Cowork overview: <https://www.anthropic.com/product/claude-cowork>
-- Claude Cowork third-party platform guide: <https://support.claude.com/en/articles/14680729-use-claude-cowork-with-third-party-platforms>
+- Claude Cowork third-party platform guide: <https://claude.com/docs/cowork/3p/overview>
 - Anthropic Trust Center: <https://trust.anthropic.com/>
 
 ## What Works Well

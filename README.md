@@ -62,7 +62,7 @@ For a first run without cloud credentials, use GitHub as the evidence source:
 
 Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
-Using Claude Desktop or Claude Cowork instead of Claude Code? Start with [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md). Anthropic's security and compliance posture is documented at [trust.anthropic.com](https://trust.anthropic.com/), and the Claude Cowork third-party platform guide is here: [Use Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680729-use-claude-cowork-with-third-party-platforms).
+Using Claude Desktop or Claude Cowork instead of Claude Code? Start with [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md). Anthropic's security and compliance posture is documented at [trust.anthropic.com](https://trust.anthropic.com/), and the Claude Cowork third-party platform guide is here: [Claude Desktop on third-party platforms](https://claude.com/docs/cowork/3p/overview).
 
 ## Common workflows
 
@@ -81,6 +81,7 @@ Using Claude Desktop or Claude Cowork instead of Claude Code? Start with [docs/C
 | Draft leadership updates and automation coverage reports | `/report:exec-summary`, `/report:automation-coverage` |
 | Create editable GRC diagrams | `/grc-diagrams:drawio`, `/grc-diagrams:system-boundary`, `/grc-diagrams:evidence-flow`, `/grc-diagrams:control-map` |
 | Learn a framework, control, or GRC role | `/teach-me:framework`, `/teach-me:control`, `/teach-me:role`, `/teach-me:quiz` |
+| Run an academic research project end-to-end | `/academic-research-companion:research` |
 
 Every command has a reference page in its plugin's `commands/` directory.
 
@@ -93,7 +94,7 @@ High-level categories:
 | Category | Examples |
 |---|---|
 | Engineering hub | `grc-engineer` |
-| Persona/workflow plugins | `grc-auditor`, `grc-internal`, `grc-tprm`, `grc-reporter`, `grc-loop`, `teach-me` |
+| Persona/workflow plugins | `grc-auditor`, `grc-internal`, `grc-tprm`, `grc-reporter`, `grc-loop`, `teach-me`, `academic-research-companion` |
 | Diagram plugin | `grc-diagrams` for editable draw.io GRC diagrams |
 | Framework plugins | `soc2`, `nist-800-53`, `iso27001`, `fedramp-rev5`, `fedramp-20x`, `pci-dss`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `dora`, `us-hipaa-security`, and others |
 | Connector plugins | `aws-inspector`, `github-inspector`, `gcp-inspector`, `azure-inspector`, `okta-inspector`, `slack-inspector`, `datadog-inspector`, `crowdstrike-inspector`, `drata-inspector`, `splunk-inspector`, `tenable-inspector`, `snowflake-inspector` |
@@ -120,7 +121,7 @@ For the full architecture and schema example, see [docs/ARCHITECTURE.md](docs/AR
 - [docs/ENTERPRISE-DEPLOYMENT.md](docs/ENTERPRISE-DEPLOYMENT.md): AWS Bedrock, Claude Platform on AWS, and Google Vertex AI guidance
 - [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md): Claude Desktop and Claude Cowork file-oriented usage, including third-party platform handoff notes
 - [Anthropic Trust Center](https://trust.anthropic.com/): Anthropic security, compliance, and trust resources
-- [Use Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680729-use-claude-cowork-with-third-party-platforms): official Cowork platform guidance
+- [Claude Desktop on third-party platforms](https://claude.com/docs/cowork/3p/overview): official Cowork platform guidance
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md): how to contribute connectors, framework guidance, and docs
 - [docs/SCF-ATTRIBUTION.md](docs/SCF-ATTRIBUTION.md): SCF licensing and attribution
 

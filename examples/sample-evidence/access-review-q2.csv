@@ -1,0 +1,9 @@
+username,full_name,role,department,access_level,status,last_login,termination_date,reviewed_by,review_decision,review_date
+asmith,Alex Smith,Security Engineer,Security,ReadOnlyAudit,active,2026-06-09,,jkim,retain,2026-06-20
+dpatel,Devan Patel,Platform Lead,Engineering,PowerUser,active,2026-06-13,,jkim,retain,2026-06-20
+jkim,Jordan Kim,IT Administrator,IT,Administrator,active,2026-06-15,,jkim,retain,2026-06-20
+mrivera,Morgan Rivera,Data Engineer,Engineering,PowerUser,active,2026-06-10,2026-05-15,jkim,retain,2026-06-20
+tnguyen,Tai Nguyen,Contractor - Analytics,External,Administrator,active,2026-03-02,,jkim,retain,2026-06-20
+svc-backup,Backup Service Account,Service Account,IT,Administrator,active,2026-06-15,,jkim,retain,2026-06-20
+lchen,Lin Chen,Finance Manager,Finance,BillingReadOnly,active,2026-06-11,,jkim,retain,2026-06-20
+rgarcia,Rio Garcia,Support Engineer,Support,SupportTier1,disabled,2026-01-19,2026-02-01,jkim,revoke,2026-06-20

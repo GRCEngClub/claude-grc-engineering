@@ -4,7 +4,7 @@ description: HIPAA Security Rule gap assessment against SCF crosswalk
 
 # HIPAA Security Rule Assessment
 
-Run a comprehensive gap assessment of the HIPAA Security Rule (45 CFR Part 164, Subpart C) against the SCF crosswalk for US-HIPAA-Security.
+Run a comprehensive gap assessment of the HIPAA Security Rule (45 CFR Part 164, Subpart C) against the SCF crosswalk for usa-federal-law-hipaa-security-rule-2013.
 
 ## Usage
 
@@ -143,9 +143,9 @@ For any **Addressable** implementation specifications marked as "Gap" or "Partia
 
 ## SCF Crosswalk
 
-This assessment leverages the Secure Controls Framework (SCF) crosswalk for US-HIPAA-Security, which maps HIPAA Security Rule implementation specifications to standardized SCF controls.
+This assessment leverages the Secure Controls Framework (SCF) crosswalk for usa-federal-law-hipaa-security-rule-2013, which maps HIPAA Security Rule implementation specifications to standardized SCF controls.
 
-**SCF ID**: US-HIPAA-Security
+**SCF ID**: usa-federal-law-hipaa-security-rule-2013
 **Regulator**: US HHS OCR
 **Region**: Americas
 **Depth**: Reference (tier 2 of 3)

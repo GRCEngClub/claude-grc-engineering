@@ -24,6 +24,6 @@ repos:
         name: validate finding fixtures
         entry: tests/pre-commit-validate-findings.sh
         language: node
-        additional_dependencies: ["ajv-cli@5.0.0", "ajv-formats@3.0.1"]
+        additional_dependencies: ["ajv@8.20.0", "ajv-formats@3.0.1"]
         files: ^tests/fixtures/findings/.*\.json$
         pass_filenames: true

@@ -4,6 +4,10 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Added
+
+- **NIST AI RMF framework plugin (stub).** Added `nist-ai-rmf`, the toolkit's first AI-governance framework plugin, scaffolded at Stub depth from the SCF crosswalk (`general-nist-100-1-ai-rmf`, 158 SCF controls → 91 AI RMF subcategories across GOVERN/MAP/MEASURE/MANAGE, counts verified against scf-api v2026.1), with marketplace registration. Reference-depth level-up (scope, evidence checklist, substantive SKILL) planned as a follow-up, along with a Generative AI Profile (AI 600-1) companion plugin. Closes [#195](https://github.com/GRCEngClub/claude-grc-engineering/issues/195).
+
 ### Removed
 
 - **`vanta-bridge` plugin removed.** Vanta now ships an official Claude Code plugin (`vanta-mcp-plugin` in `anthropics/claude-plugins-official`) and an official MCP server (`mcp.vanta.com/mcp` and regional variants). The community bridge predated both and added a manual-export step that's now obsolete. Users should install Vanta's official plugin instead — see [GHSA #150](https://github.com/GRCEngClub/claude-grc-engineering/issues/150). Drops the bridge plugin, marketplace registration, test fixtures, and documentation references.
@@ -12,6 +16,10 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 - **Plugin install failures.** Removed non-standard top-level fields (`commands`, `skills`, `hooks`, `namespace`) from `us-hipaa-security`, `grc-loop`, `us-ccpa`, `ch-fadp`, and `nist-csf-20` manifests — Claude Code's install-time validator was rejecting them. Commands and skills are auto-discovered from their directories; hooks were already wired correctly via `hooks/hooks.json`. Closes [#150](https://github.com/GRCEngClub/claude-grc-engineering/issues/150).
 - **`plugin.schema.json` tightened.** Explicitly forbids `namespace`, `commands`, `skills`, and `hooks` as top-level keys in `plugin.json` so future PRs catch the same install-time validation drift at CI time rather than at user install.
+- **Marketplace install failures.** Removed the non-standard `commands: [strings]` field from the `gcp-docs` and `grc-diagrams` entries in `.claude-plugin/marketplace.json` — same class of bug as the plugin.json cleanup above but at the marketplace-entry level, missed in the previous sweep. `claude plugin marketplace add GRCEngClub/claude-grc-engineering` was failing with `plugins.6.commands: Invalid input, plugins.8.commands: Invalid input`. Commands are auto-discovered from each plugin's `commands/` directory.
+- **`marketplace.schema.json` tightened.** Explicitly forbids `namespace`, `commands`, `skills`, and `hooks` on plugin entries in `.claude-plugin/marketplace.json`, mirroring the `plugin.schema.json` tightening above. Completes the sweep from [#156](https://github.com/GRCEngClub/claude-grc-engineering/pull/156) and [#202](https://github.com/GRCEngClub/claude-grc-engineering/pull/202): the marketplace-entry level was the remaining spot where this install-time validation drift could pass CI and break `claude plugin marketplace add` for users.
+- **Broken SCF framework IDs in `us-hipaa-security` and `cyber-essentials-plus`.** Both plugins declared `scf_framework_id` values that do not exist in the SCF crosswalk index (`US-HIPAA-Security` and `emea-gbr-ce-2021`), so `/grc-engineer:gap-assessment` lookups for them failed. Corrected to the canonical `usa-federal-law-hipaa-security-rule-2013` (136 SCF → 87 framework controls) and `emea-gbr-cyber-essentials-requirements-3-3` (26 → 5), including all command/skill/README references. Landed in [#201](https://github.com/GRCEngClub/claude-grc-engineering/pull/201).
+- **CSA CCM crosswalk resolution enabled.** `scf-client.js` still refused to resolve `csa-ccm` with a stale "not in the SCF crosswalk index" error, even though SCF 2026.1 publishes the crosswalk as `general-csa-cmm-4-1-0` (the `cmm` spelling is the upstream ID). Removed the refusal and added `csa-ccm`/`ccm` aliases. Landed in [#201](https://github.com/GRCEngClub/claude-grc-engineering/pull/201).
 
 ## [0.0.4] — 2026-04-30
 

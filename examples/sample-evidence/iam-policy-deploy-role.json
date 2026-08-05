@@ -1,0 +1,33 @@
+{
+  "PolicyName": "skyline-ci-deploy-policy",
+  "PolicyArn": "arn:aws:iam::123456789012:policy/skyline-ci-deploy-policy",
+  "AttachedToRole": "skyline-ci-deploy-role",
+  "DefaultVersionId": "v4",
+  "RetrievedAt": "2026-06-28T14:12:09Z",
+  "PolicyDocument": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "DeployAccess",
+        "Effect": "Allow",
+        "Action": "*",
+        "Resource": "*"
+      },
+      {
+        "Sid": "AllowPassRole",
+        "Effect": "Allow",
+        "Action": "iam:PassRole",
+        "Resource": "*"
+      },
+      {
+        "Sid": "DenyBilling",
+        "Effect": "Deny",
+        "Action": [
+          "aws-portal:*",
+          "budgets:*"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }
+}
