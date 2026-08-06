@@ -38,6 +38,6 @@ level-up checklist.
 ## References
 
 - [Secure Controls Framework](https://securecontrolsframework.com) - crosswalk source (CC BY-ND 4.0)
-- [SCF API entry](https://hackidle.github.io/scf-api/api/crosswalks/apac-aus-ps-cps-234-2019.json)
+- [SCF API entry](https://grcengclub.github.io/scf-api/api/crosswalks/apac-aus-ps-cps-234-2019.json)
 - [APRA Prudential Standard CPS 234 Information Security](https://handbook.apra.gov.au/standard/cps-234)
 - [APRA Prudential Practice Guide CPG 234 Information Security](https://handbook.apra.gov.au/ppg/cpg-234)
