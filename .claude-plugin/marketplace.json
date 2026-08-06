@@ -408,6 +408,12 @@
       "source": "./plugins/frameworks/nist-ai-rmf",
       "description": "NIST AI 100-1 (AI RMF 1.0) \u2014 stub-depth plugin backed by the SCF crosswalk (158 SCF \u2192 91 framework controls).",
       "version": "0.1.0"
+    },
+    {
+      "name": "nist-ai-600-1",
+      "source": "./plugins/frameworks/nist-ai-600-1",
+      "description": "NIST AI 600-1 (Generative AI Profile) \u2014 stub-depth plugin backed by the SCF crosswalk (139 SCF \u2192 250 framework controls).",
+      "version": "0.1.0"
     }
   ]
 }
