@@ -8,7 +8,7 @@ import { resolveRequestedFrameworks, EXIT } from '../plugins/grc-engineer/script
 const stubScf = {
   async frameworkSummary(label) {
     const known = {
-      'HIPAA': { framework_id: 'usa-federal-hipaa-security-rule', display_name: 'HIPAA Security Rule' },
+      'HIPAA': { framework_id: 'usa-federal-law-hipaa-security-rule-2013', display_name: 'HIPAA Security Rule' },
       'SOC2': { framework_id: 'general-aicpa-tsc-2017', display_name: 'AICPA TSC (SOC 2)' },
     };
     return known[label] || null;
@@ -24,7 +24,7 @@ test('frameworks present in the crosswalk resolve with their canonical id', asyn
   const { resolved, unresolved } = await resolveRequestedFrameworks(stubScf, ['HIPAA', 'SOC2']);
   assert.equal(unresolved.length, 0);
   assert.deepEqual(resolved.map(r => r.framework_id), [
-    'usa-federal-hipaa-security-rule',
+    'usa-federal-law-hipaa-security-rule-2013',
     'general-aicpa-tsc-2017',
   ]);
 });

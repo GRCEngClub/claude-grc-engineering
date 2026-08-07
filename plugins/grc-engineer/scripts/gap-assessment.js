@@ -46,25 +46,20 @@ async function main(argv) {
   }
 
   const cacheDir = args.cacheDir || FINDINGS_CACHE;
-  const sources = args.sources.length ? args.sources : await discoverSources(cacheDir);
-  if (!sources.length) {
-    fail(EXIT.NO_SOURCES, `No cached findings under ${cacheDir}. Run /<tool>:collect first.`);
-  }
-
   const log = args.quiet ? () => {} : (msg) => process.stderr.write(`[gap-assessment] ${msg}\n`);
   log(`frameworks: ${args.frameworks.join(', ')}`);
-  log(`sources:    ${sources.join(', ')}`);
 
   const scf = await initSCF({ offline: args.offline }).catch(err => {
     fail(EXIT.SCF_UNAVAILABLE, `SCF client init failed: ${err.message}`);
   });
   log(`SCF v${scf.version()} loaded`);
 
-  // Resolve every requested framework before any report is produced. A
-  // framework that does not resolve in the crosswalk has no denominator,
-  // and a report for it would be indistinguishable from a genuine clean
-  // pass — the most dangerous failure mode for a compliance tool. Fail
-  // loud instead of rendering "0 blockers" for something never evaluated.
+  // Resolve every requested framework before any other work. A framework
+  // that does not resolve in the crosswalk has no denominator, and a report
+  // for it would be indistinguishable from a genuine clean pass — the most
+  // dangerous failure mode for a compliance tool. This runs even before
+  // source discovery: an unresolvable framework can never succeed, so the
+  // user should not be sent off to collect findings first.
   const resolution = await resolveRequestedFrameworks(scf, args.frameworks);
   if (resolution.unresolved.length) {
     const lines = resolution.unresolved.map(u => `  - ${u.label}: ${u.reason}`);
@@ -74,6 +69,12 @@ async function main(argv) {
       `No report was generated. Remove or correct the framework(s) above and re-run.`);
   }
   log(`resolved:   ${resolution.resolved.map(r => `${r.label} → ${r.framework_id}`).join(', ')}`);
+
+  const sources = args.sources.length ? args.sources : await discoverSources(cacheDir);
+  if (!sources.length) {
+    fail(EXIT.NO_SOURCES, `No cached findings under ${cacheDir}. Run /<tool>:collect first.`);
+  }
+  log(`sources:    ${sources.join(', ')}`);
 
   const { findings, errors: loadErrors } = await loadFindings(cacheDir, sources);
   log(`findings:   ${findings.length} documents across ${sources.length} sources`);
