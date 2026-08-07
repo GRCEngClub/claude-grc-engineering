@@ -93,3 +93,20 @@ test('collect emits partial inconclusive findings when a Wiz GraphQL query fails
   assert.equal(failedQuery.evaluations[0].control_id, 'VPM-02');
   assert.match(failedQuery.evaluations[0].message, /Field 'vulnerabilities' is not available/);
 });
+
+test('collect surfaces truncated pagination as inconclusive and exits PARTIAL', async () => {
+  const { result, payload } = await runCollect('truncated-cursor');
+
+  // A repeating cursor stops collection early; that must not read as a
+  // complete run.
+  assert.equal(result.status, 4, result.stderr);
+  assert.equal(payload.summary.errors, 1);
+  assert.match(payload.errors[0].error, /pagination truncated/);
+
+  const findings = JSON.parse(await fs.readFile(payload.cache_path, 'utf8'));
+  const inventory = findings.find(f => f.resource.type === 'wiz_tenant' && f.metadata.truncated === true);
+  assert.ok(inventory, 'expected a tenant finding flagged as truncated');
+  assert.equal(inventory.evaluations[0].control_id, 'AST-01');
+  assert.equal(inventory.evaluations[0].status, 'inconclusive');
+  assert.match(inventory.evaluations[0].message, /partial inventory/);
+});

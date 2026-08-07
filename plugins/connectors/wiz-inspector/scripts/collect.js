@@ -124,6 +124,7 @@ async function main(argv) {
 async function collectConfigurationFindings(apiUrl, token, limit, filterBy, ctx, findings, errors) {
   const res = await collectConnection(apiUrl, token, 'configurationFindings', QUERIES.configurationFindings, limit, filterBy, ctx);
   if (!res.ok) return recordError('configurationFindings', 'CFG-01', res.error, ctx, findings, errors);
+  if (res.truncated) recordTruncation('configurationFindings', 'CFG-01', res, ctx, findings, errors);
   if (res.rows.length === 0) findings.push(tenant(ctx, [pass('CFG-01', 'Wiz returned no open configuration findings for the inspected scope.')], { configurationFindings: [] }, { pages: res.pages, resource_count: 0 }));
   for (const row of res.rows) findings.push(wizFinding(ctx, 'wiz_configuration_finding', row.id, row, [openRiskEval(mapControl(row, 'CFG-01'), row, 'configuration finding', 'wiz_configuration_finding')], { pages: res.pages }));
 }
@@ -131,6 +132,7 @@ async function collectConfigurationFindings(apiUrl, token, limit, filterBy, ctx,
 async function collectIssues(apiUrl, token, limit, filterBy, ctx, findings, errors) {
   const res = await collectConnection(apiUrl, token, 'issues', QUERIES.issues, limit, filterBy, ctx);
   if (!res.ok) return recordError('issues', 'RSK-01', res.error, ctx, findings, errors);
+  if (res.truncated) recordTruncation('issues', 'RSK-01', res, ctx, findings, errors);
   if (res.rows.length === 0) findings.push(tenant(ctx, [pass('RSK-01', 'Wiz returned no open issues for the inspected scope.')], { issues: [] }, { pages: res.pages, resource_count: 0 }));
   for (const row of res.rows) findings.push(wizFinding(ctx, 'wiz_issue', row.id, row, [openRiskEval(mapControl(row, 'RSK-01'), row, 'issue', 'wiz_issue')], { pages: res.pages }));
 }
@@ -138,6 +140,7 @@ async function collectIssues(apiUrl, token, limit, filterBy, ctx, findings, erro
 async function collectVulnerabilities(apiUrl, token, limit, filterBy, ctx, findings, errors) {
   const res = await collectConnection(apiUrl, token, 'vulnerabilities', QUERIES.vulnerabilities, limit, filterBy, ctx);
   if (!res.ok) return recordError('vulnerabilities', 'VPM-02', res.error, ctx, findings, errors);
+  if (res.truncated) recordTruncation('vulnerabilities', 'VPM-02', res, ctx, findings, errors);
   if (res.rows.length === 0) findings.push(tenant(ctx, [pass('VPM-02', 'Wiz returned no open vulnerabilities for the inspected scope.')], { vulnerabilities: [] }, { pages: res.pages, resource_count: 0 }));
   for (const row of res.rows) findings.push(wizFinding(ctx, 'wiz_vulnerability', row.id, row, [openRiskEval(mapControl(row, 'VPM-02'), row, 'vulnerability', 'wiz_vulnerability')], { pages: res.pages }));
 }
@@ -145,8 +148,25 @@ async function collectVulnerabilities(apiUrl, token, limit, filterBy, ctx, findi
 async function collectInventory(apiUrl, token, limit, filterBy, ctx, findings, errors) {
   const res = await collectConnection(apiUrl, token, 'cloudResources', QUERIES.cloudResources, limit, filterBy, ctx);
   if (!res.ok) return recordError('cloudResources', 'AST-01', res.error, ctx, findings, errors);
-  const evals = res.rows.length ? [pass('AST-01', `Wiz returned cloud resource inventory for ${res.rows.length} resource(s).`)] : [inconclusive('AST-01', 'Wiz cloud resource inventory query returned no resources for the inspected scope.')];
-  findings.push(tenant(ctx, evals, { cloudResources: res.rows }, { pages: res.pages, resource_count: res.rows.length }));
+  // A truncated inventory must not read as a pass: the count is a floor,
+  // not the tenant's inventory.
+  const evals = res.truncated
+    ? [inconclusive('AST-01', `Wiz cloud resource inventory pagination stopped after ${res.pages} page(s) without exhausting results; the ${res.rows.length} collected resource(s) are a partial inventory.`)]
+    : res.rows.length ? [pass('AST-01', `Wiz returned cloud resource inventory for ${res.rows.length} resource(s).`)] : [inconclusive('AST-01', 'Wiz cloud resource inventory query returned no resources for the inspected scope.')];
+  if (res.truncated) errors.push({ endpoint: 'cloudResources', error: `pagination truncated after ${res.pages} page(s)` });
+  findings.push(tenant(ctx, evals, { cloudResources: res.rows }, { pages: res.pages, resource_count: res.rows.length, truncated: res.truncated }));
+}
+
+/**
+ * A truncated connection means collection stopped early (page cap or a
+ * repeating cursor), so rows beyond that point were never seen. Surface it
+ * as an inconclusive tenant evaluation and a partial error so the run exits
+ * PARTIAL instead of OK.
+ */
+function recordTruncation(endpoint, controlId, res, ctx, findings, errors) {
+  const msg = `Wiz ${endpoint} pagination stopped after ${res.pages} page(s) without exhausting results; the ${res.rows.length} collected row(s) are partial.`;
+  errors.push({ endpoint, error: msg });
+  findings.push(tenant(ctx, [inconclusive(controlId, msg)], { [endpoint]: null }, { endpoint, pages: res.pages, truncated: true }));
 }
 
 // Upper bound on pages fetched from a single Wiz GraphQL connection. A server

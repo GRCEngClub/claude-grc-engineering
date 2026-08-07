@@ -115,4 +115,28 @@ for (const [label, parse] of [['tenable', parseTenableYaml], ['crowdstrike', par
     assert.equal(config.defaults.limit, 250);
     assert.equal(config.defaults.max_vulnerability_age_days, 7);
   });
+
+  test(`${label}: single-quoted scalars and inline comments parse cleanly`, () => {
+    const config = parse([
+      "base_url: 'https://cloud.example.com'",
+      'quoted_with_comment: "value" # trailing note',
+      'max_vulnerability_age_days: 30 # policy default',
+      'verify_tls: true # keep on',
+      'defaults: # section comment',
+      '  limit: 100',
+      ''
+    ].join('\n'));
+    assert.equal(config.base_url, 'https://cloud.example.com');
+    assert.equal(config.quoted_with_comment, 'value');
+    assert.equal(config.max_vulnerability_age_days, 30);
+    assert.equal(config.verify_tls, true);
+    assert.equal(config.defaults.limit, 100);
+  });
 }
+
+test('datadog: names containing prod only as a substring are not critical', () => {
+  assert.equal(isCriticalMonitor({ priority: 3, name: 'product catalog latency' }), false);
+  assert.equal(isCriticalMonitor({ priority: 3, name: 'reproduction steps tracker' }), false);
+  assert.equal(isCriticalMonitor({ priority: 3, name: 'Production checkout' }), true);
+  assert.equal(isCriticalMonitor({ priority: 3, name: 'critical: db replica lag' }), true);
+});

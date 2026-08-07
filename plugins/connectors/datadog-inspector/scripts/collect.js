@@ -244,9 +244,11 @@ function fail(code, msg) {
  * Datadog exposes monitor priority as an integer 1-5 where 1 is highest. The
  * previous check compared it against the string 'p1', which never matched, so
  * priority was ignored and the evaluation silently degraded to a name regex.
+ * The name regex uses word boundaries so 'prod' matches 'prod checkout' but
+ * not unrelated words containing the substring (e.g. 'product catalog').
  */
 function isCriticalMonitor(m) {
-  return Number(m?.priority) === 1 || /critical|prod|production/i.test(String(m?.name || ''));
+  return Number(m?.priority) === 1 || /\b(critical|prod|production)\b/i.test(String(m?.name || ''));
 }
 
 // `process.argv[1]` is undefined under `node --eval` and some embedders, where

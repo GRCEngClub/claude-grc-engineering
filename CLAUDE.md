@@ -39,10 +39,10 @@ plugins/{plugin-name}/
 
 ### Two Plugin Patterns
 
-**1. Script-backed plugins (grc-engineer, the connectors)**
+**1. Script-backed plugins (grc-engineer, the connectors, `fedramp-20x`, `dashboards/compliance-posture`, `knowledge-sources/gcp-docs`)**
 
 - Include `scripts/` directory with Node.js implementations
-- Include `config/` directory with YAML configurations
+- Include `config/` directory with YAML configurations (where needed)
 - Commands invoke scripts: `node scripts/map-control.js $ARGUMENTS`
 
 **2. Prompt-only plugins (soc2, nist-800-53, iso27001, grc-auditor, grc-internal, grc-tprm, etc.)**

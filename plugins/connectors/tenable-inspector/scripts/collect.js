@@ -92,14 +92,23 @@ function parseYaml(text) {
     if (!m) continue;
     const key = m[1];
     let val = m[2];
+    // A value that is only a comment ("key: # note") opens a nested block,
+    // same as a bare "key:".
+    if (val.startsWith('#')) val = '';
     if (val === '') {
       const child = {};
       parent[key] = child;
       stack.push({ indent, obj: child });
     } else {
-      if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
-      else if (val === 'true' || val === 'false') val = val === 'true';
-      else if (/^-?\d+(\.\d+)?$/.test(val)) val = Number(val);
+      // Quoted scalars (either quote style) are taken verbatim; anything
+      // after the closing quote (e.g. an inline comment) is dropped.
+      const quoted = val.match(/^(["'])(.*?)\1/);
+      if (quoted) val = quoted[2];
+      else {
+        val = val.replace(/\s+#.*$/, '');
+        if (val === 'true' || val === 'false') val = val === 'true';
+        else if (/^-?\d+(\.\d+)?$/.test(val)) val = Number(val);
+      }
       parent[key] = val;
     }
   }
