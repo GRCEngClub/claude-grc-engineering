@@ -98,15 +98,21 @@ test('collect surfaces truncated pagination as inconclusive and exits PARTIAL', 
   const { result, payload } = await runCollect('truncated-cursor');
 
   // A repeating cursor stops collection early; that must not read as a
-  // complete run.
+  // complete run. The fixture truncates two connections: cloudResources
+  // (with rows) and configurationFindings (with zero rows).
   assert.equal(result.status, 4, result.stderr);
-  assert.equal(payload.summary.errors, 1);
-  assert.match(payload.errors[0].error, /pagination truncated/);
+  assert.equal(payload.summary.errors, 2);
+  for (const err of payload.errors) assert.match(err.error, /pagination (truncated|stopped)/);
 
   const findings = JSON.parse(await fs.readFile(payload.cache_path, 'utf8'));
-  const inventory = findings.find(f => f.resource.type === 'wiz_tenant' && f.metadata.truncated === true);
-  assert.ok(inventory, 'expected a tenant finding flagged as truncated');
-  assert.equal(inventory.evaluations[0].control_id, 'AST-01');
+  const inventory = findings.find(f => f.resource.type === 'wiz_tenant' && f.metadata.truncated === true && f.evaluations[0].control_id === 'AST-01');
+  assert.ok(inventory, 'expected a tenant inventory finding flagged as truncated');
   assert.equal(inventory.evaluations[0].status, 'inconclusive');
   assert.match(inventory.evaluations[0].message, /partial inventory/);
+
+  // Truncated-and-empty must not also emit the confident "no open
+  // findings" pass for the same control.
+  const cfgEvals = findings.flatMap(f => f.evaluations.filter(e => e.control_id === 'CFG-01'));
+  assert.ok(cfgEvals.length > 0, 'expected a CFG-01 evaluation from the truncated connection');
+  assert.ok(cfgEvals.every(e => e.status === 'inconclusive'), 'no CFG-01 pass may coexist with a truncation verdict');
 });

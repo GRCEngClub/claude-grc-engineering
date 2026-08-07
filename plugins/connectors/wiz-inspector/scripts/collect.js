@@ -124,8 +124,10 @@ async function main(argv) {
 async function collectConfigurationFindings(apiUrl, token, limit, filterBy, ctx, findings, errors) {
   const res = await collectConnection(apiUrl, token, 'configurationFindings', QUERIES.configurationFindings, limit, filterBy, ctx);
   if (!res.ok) return recordError('configurationFindings', 'CFG-01', res.error, ctx, findings, errors);
+  // Truncated and empty are mutually exclusive verdicts: a truncated
+  // connection must never also emit the confident "no open findings" pass.
   if (res.truncated) recordTruncation('configurationFindings', 'CFG-01', res, ctx, findings, errors);
-  if (res.rows.length === 0) findings.push(tenant(ctx, [pass('CFG-01', 'Wiz returned no open configuration findings for the inspected scope.')], { configurationFindings: [] }, { pages: res.pages, resource_count: 0 }));
+  else if (res.rows.length === 0) findings.push(tenant(ctx, [pass('CFG-01', 'Wiz returned no open configuration findings for the inspected scope.')], { configurationFindings: [] }, { pages: res.pages, resource_count: 0 }));
   for (const row of res.rows) findings.push(wizFinding(ctx, 'wiz_configuration_finding', row.id, row, [openRiskEval(mapControl(row, 'CFG-01'), row, 'configuration finding', 'wiz_configuration_finding')], { pages: res.pages }));
 }
 
@@ -133,7 +135,7 @@ async function collectIssues(apiUrl, token, limit, filterBy, ctx, findings, erro
   const res = await collectConnection(apiUrl, token, 'issues', QUERIES.issues, limit, filterBy, ctx);
   if (!res.ok) return recordError('issues', 'RSK-01', res.error, ctx, findings, errors);
   if (res.truncated) recordTruncation('issues', 'RSK-01', res, ctx, findings, errors);
-  if (res.rows.length === 0) findings.push(tenant(ctx, [pass('RSK-01', 'Wiz returned no open issues for the inspected scope.')], { issues: [] }, { pages: res.pages, resource_count: 0 }));
+  else if (res.rows.length === 0) findings.push(tenant(ctx, [pass('RSK-01', 'Wiz returned no open issues for the inspected scope.')], { issues: [] }, { pages: res.pages, resource_count: 0 }));
   for (const row of res.rows) findings.push(wizFinding(ctx, 'wiz_issue', row.id, row, [openRiskEval(mapControl(row, 'RSK-01'), row, 'issue', 'wiz_issue')], { pages: res.pages }));
 }
 
@@ -141,7 +143,7 @@ async function collectVulnerabilities(apiUrl, token, limit, filterBy, ctx, findi
   const res = await collectConnection(apiUrl, token, 'vulnerabilities', QUERIES.vulnerabilities, limit, filterBy, ctx);
   if (!res.ok) return recordError('vulnerabilities', 'VPM-02', res.error, ctx, findings, errors);
   if (res.truncated) recordTruncation('vulnerabilities', 'VPM-02', res, ctx, findings, errors);
-  if (res.rows.length === 0) findings.push(tenant(ctx, [pass('VPM-02', 'Wiz returned no open vulnerabilities for the inspected scope.')], { vulnerabilities: [] }, { pages: res.pages, resource_count: 0 }));
+  else if (res.rows.length === 0) findings.push(tenant(ctx, [pass('VPM-02', 'Wiz returned no open vulnerabilities for the inspected scope.')], { vulnerabilities: [] }, { pages: res.pages, resource_count: 0 }));
   for (const row of res.rows) findings.push(wizFinding(ctx, 'wiz_vulnerability', row.id, row, [openRiskEval(mapControl(row, 'VPM-02'), row, 'vulnerability', 'wiz_vulnerability')], { pages: res.pages }));
 }
 
