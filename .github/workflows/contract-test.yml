@@ -23,8 +23,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install ajv-cli + formats
-        run: npm install --no-save ajv-cli@5 ajv-formats@3
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Test schema validator
+        run: npm run test:schema-validator
 
       - name: Validate contract fixtures
         run: bash tests/validate-contract-fixtures.sh

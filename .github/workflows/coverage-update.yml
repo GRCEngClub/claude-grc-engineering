@@ -3,7 +3,7 @@ name: Update framework coverage
 on:
   schedule:
     # Weekly on Sundays at 04:00 UTC — catches new SCF crosswalks and plugin additions
-    - cron: '0 4 * * 0'
+    - cron: '0 4 * * SUN'
   workflow_dispatch:
 
 concurrency:

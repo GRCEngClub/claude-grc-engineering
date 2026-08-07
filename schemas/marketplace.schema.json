@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/GRCEngClub/claude-grc-engineering/main/schemas/marketplace.schema.json",
   "title": "Claude Code marketplace manifest",
-  "description": "Schema for .claude-plugin/marketplace.json. Validates the shape `claude plugin marketplace add` expects.",
+  "description": "Schema for .claude-plugin/marketplace.json. Validates the shape `claude plugin marketplace add` expects. The `namespace`, `commands`, `skills`, and `hooks` keys are explicitly forbidden on plugin entries — Claude Code's install-time validator rejects marketplaces that declare them (commands and skills are auto-discovered from each plugin's `commands/` and `skills/` directories, hooks are wired via `hooks/hooks.json`, and `namespace` is not a recognized field). Same rule as plugin.schema.json, enforced here at the marketplace-entry level.",
   "type": "object",
   "required": ["name", "owner", "plugins"],
   "additionalProperties": true,
@@ -29,6 +29,14 @@
         "type": "object",
         "required": ["name", "source"],
         "additionalProperties": true,
+        "not": {
+          "anyOf": [
+            { "required": ["namespace"] },
+            { "required": ["commands"] },
+            { "required": ["skills"] },
+            { "required": ["hooks"] }
+          ]
+        },
         "properties": {
           "name": { "type": "string", "minLength": 1 },
           "source": { "type": "string", "minLength": 1 },
