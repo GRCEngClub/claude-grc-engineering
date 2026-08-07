@@ -333,7 +333,13 @@ class IaCScanner {
    */
   checkK8sEncryption(resourceType, resourceName, resourceBody, filePath, lineNumber) {
     const issues = [];
-    const declaresEncryption = /encrypted\s*:\s*["']?true|encryption|kms/i.test(resourceBody);
+    // Only affirmative declarations count as evidence. Bare mentions of
+    // "encryption" or "kms" (e.g. `encryption: disabled`, a description
+    // saying "encryption pending") must not suppress the finding.
+    const declaresEncryption =
+      /encrypted\s*[:=]\s*["']?true\b/i.test(resourceBody)
+      || /encryption\s*:\s*["']?(true|enabled|aes256|aws:kms)\b/i.test(resourceBody)
+      || /[\w.-]*kms[\w.-]*key[\w.-]*\s*:\s*\S+/i.test(resourceBody);
     const referencesStorageClass = /storageClassName\s*:\s*\S/i.test(resourceBody);
 
     if (!declaresEncryption) {
