@@ -32,12 +32,12 @@ import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 import { pathToFileURL } from 'node:url';
-import { initSCF } from './scf-client.js';
+import { initSCF, frameworkWithoutCrosswalk } from './scf-client.js';
 
 const FINDINGS_CACHE = path.join(os.homedir(), '.cache', 'claude-grc', 'findings');
 const SCHEMA_PATH = path.resolve(new URL('../../../schemas/finding.schema.json', import.meta.url).pathname);
 
-const EXIT = { OK: 0, USAGE: 2, NO_SOURCES: 3, NO_FRAMEWORKS: 4, SCF_UNAVAILABLE: 5, VALIDATION: 6 };
+const EXIT = { OK: 0, USAGE: 2, NO_SOURCES: 3, NO_FRAMEWORKS: 4, SCF_UNAVAILABLE: 5, VALIDATION: 6, UNRESOLVED_FRAMEWORK: 7 };
 
 async function main(argv) {
   const args = parseArgs(argv);
@@ -46,19 +46,35 @@ async function main(argv) {
   }
 
   const cacheDir = args.cacheDir || FINDINGS_CACHE;
-  const sources = args.sources.length ? args.sources : await discoverSources(cacheDir);
-  if (!sources.length) {
-    fail(EXIT.NO_SOURCES, `No cached findings under ${cacheDir}. Run /<tool>:collect first.`);
-  }
-
   const log = args.quiet ? () => {} : (msg) => process.stderr.write(`[gap-assessment] ${msg}\n`);
   log(`frameworks: ${args.frameworks.join(', ')}`);
-  log(`sources:    ${sources.join(', ')}`);
 
   const scf = await initSCF({ offline: args.offline }).catch(err => {
     fail(EXIT.SCF_UNAVAILABLE, `SCF client init failed: ${err.message}`);
   });
   log(`SCF v${scf.version()} loaded`);
+
+  // Resolve every requested framework before any other work. A framework
+  // that does not resolve in the crosswalk has no denominator, and a report
+  // for it would be indistinguishable from a genuine clean pass — the most
+  // dangerous failure mode for a compliance tool. This runs even before
+  // source discovery: an unresolvable framework can never succeed, so the
+  // user should not be sent off to collect findings first.
+  const resolution = await resolveRequestedFrameworks(scf, args.frameworks);
+  if (resolution.unresolved.length) {
+    const lines = resolution.unresolved.map(u => `  - ${u.label}: ${u.reason}`);
+    fail(EXIT.UNRESOLVED_FRAMEWORK,
+      `cannot assess — ${resolution.unresolved.length} of ${args.frameworks.length} requested framework(s) did not resolve in the SCF crosswalk:\n` +
+      `${lines.join('\n')}\n` +
+      `No report was generated. Remove or correct the framework(s) above and re-run.`);
+  }
+  log(`resolved:   ${resolution.resolved.map(r => `${r.label} → ${r.framework_id}`).join(', ')}`);
+
+  const sources = args.sources.length ? args.sources : await discoverSources(cacheDir);
+  if (!sources.length) {
+    fail(EXIT.NO_SOURCES, `No cached findings under ${cacheDir}. Run /<tool>:collect first.`);
+  }
+  log(`sources:    ${sources.join(', ')}`);
 
   const { findings, errors: loadErrors } = await loadFindings(cacheDir, sources);
   log(`findings:   ${findings.length} documents across ${sources.length} sources`);
@@ -137,6 +153,38 @@ function parseArgs(argv) {
     fail(EXIT.USAGE, `--output must be one of markdown|json|sarif|oscal-ar`);
   }
   return out;
+}
+
+/**
+ * Resolve every requested framework label against the SCF crosswalk.
+ *
+ * Returns { resolved, unresolved }:
+ *   resolved:   [{ label, framework_id, display_name }]
+ *   unresolved: [{ label, reason }] — reason is the specific explanation for
+ *               frameworks SCF is known not to cover (HITRUST, StateRAMP,
+ *               PBMM, US export controls), or a generic not-found hint.
+ *
+ * Callers must treat a non-empty `unresolved` as fatal: an unresolved
+ * framework has no control denominator, so any report rendered for it
+ * would silently read as a clean pass.
+ */
+async function resolveRequestedFrameworks(scf, frameworks) {
+  const resolved = [];
+  const unresolved = [];
+  for (const fw of frameworks) {
+    const summary = await scf.frameworkSummary(fw);
+    if (summary) {
+      resolved.push({ label: fw, framework_id: summary.framework_id, display_name: summary.display_name || fw });
+      continue;
+    }
+    const knownGap = frameworkWithoutCrosswalk(fw);
+    unresolved.push({
+      label: fw,
+      reason: knownGap
+        || `no match in the SCF crosswalk. List valid IDs with \`node plugins/grc-engineer/scripts/frameworks.js --search=<term>\` or see docs/FRAMEWORK-COVERAGE.md.`
+    });
+  }
+  return { resolved, unresolved };
 }
 
 async function discoverSources(cacheDir) {
@@ -596,4 +644,4 @@ if (invokedFromCLI) {
   });
 }
 
-export { main };
+export { main, resolveRequestedFrameworks, EXIT };
