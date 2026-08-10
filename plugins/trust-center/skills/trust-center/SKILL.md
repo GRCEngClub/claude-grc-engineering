@@ -181,6 +181,7 @@ callbacks.
 **The user must choose an e-signature provider.** Here are the tested options:
 
 ### Option 1: Documenso (Open Source — Recommended for Self-Hosting)
+
 - **Cloud**: Free tier (5 docs/month) or Individual plan ($25/month, unlimited)
 - **Self-hosted**: Free, unlimited, runs on Docker (EC2/ECS)
 - **API**: Full REST API on all plans including self-hosted
@@ -189,6 +190,7 @@ callbacks.
 - Website: https://documenso.com
 
 ### Option 2: OpenSign (Open Source — Recommended for Cloud)
+
 - **Cloud**: Professional plan ($9.99/month yearly, 240 API signatures/year)
 - **Self-hosted**: Free UI, but API requires paid Teams license ($720/year)
 - **Webhook event**: `completed`
@@ -196,6 +198,7 @@ callbacks.
 - Website: https://www.opensignlabs.com
 
 ### Option 3: DocuSeal (Open Source)
+
 - **Cloud**: Pro plan ($20/month + $0.20 per API-signed document)
 - **Self-hosted**: Free UI, but API requires Pro license ($20/month)
 - **Webhook event**: `form.completed`
@@ -203,12 +206,14 @@ callbacks.
 - Website: https://www.docuseal.com
 
 ### Option 4: DocuSign (Commercial)
+
 - **Cloud**: Developer API Starter plan ($50/month, 40 envelopes/month)
 - **Webhook event**: `envelope-completed`
 - **Setup**: Create Developer account → Get API key → Create NDA template
 - Website: https://developers.docusign.com
 
 ### Option 5: No NDA (Manual Review)
+
 - Access requests go directly to admin for review
 - Admin manually approves or denies from the dashboard
 - No e-signature integration needed
