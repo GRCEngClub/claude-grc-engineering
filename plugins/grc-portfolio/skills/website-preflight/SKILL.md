@@ -83,14 +83,17 @@ Run each check and record the result as PASS or FAIL:
 Output a formatted report with three sections:
 
 ### PASS
+
 List all checks that passed with a checkmark.
 
 ### ACTION REQUIRED (Automated)
+
 Things that can be fixed automatically -- offer to run the fix:
 - Missing tools (run bootstrap.sh)
 - Template validation (fix template issues)
 
 ### ACTION REQUIRED (Human)
+
 Things the user must do manually. For each, provide:
 - **What to do** (clear instructions)
 - **AWS Console URL** (direct link where possible)

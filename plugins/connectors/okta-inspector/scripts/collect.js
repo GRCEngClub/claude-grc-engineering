@@ -162,23 +162,31 @@ const serviceHandlers = {
       // Fetch rules for session settings
       try {
         const rules = await oktaGet(ctx, `/api/v1/policies/${p.id}/rules`);
-        const sessionMax = rules.map(r => r.actions?.signon?.session?.maxSessionLifetimeMinutes).filter(Boolean);
-        const sessionIdle = rules.map(r => r.actions?.signon?.session?.maxSessionIdleMinutes).filter(Boolean);
-        const longest = sessionMax.length ? Math.max(...sessionMax) : null;   // 0 means unlimited in Okta
-        const longestIdle = sessionIdle.length ? Math.max(...sessionIdle) : null;
-        if (longest !== null && (longest === 0 || longest > 720)) evaluations.push({
-          control_framework: 'SCF', control_id: 'IAC-15', status: 'fail', severity: 'medium',
-          message: `Policy '${p.name}' allows session lifetime ${longest === 0 ? 'unlimited' : longest + 'min'} (>720min/12h baseline).`,
-          remediation: { summary: 'Cap maxSessionLifetimeMinutes at 720 (12 hours) or less.', ref: 'grc-engineer://generate-implementation/session_policy/okta', effort_hours: 0.1, automation: 'auto_fixable' }
-        });
-        else evaluations.push({ control_framework: 'SCF', control_id: 'IAC-15', status: 'pass', severity: 'info' });
-
-        if (longestIdle !== null && (longestIdle === 0 || longestIdle > 15)) evaluations.push({
-          control_framework: 'SCF', control_id: 'IAC-15.1', status: 'fail', severity: 'medium',
-          message: `Policy '${p.name}' allows idle timeout ${longestIdle === 0 ? 'unlimited' : longestIdle + 'min'} (>15min baseline).`,
-          remediation: { summary: 'Cap maxSessionIdleMinutes at 15 or less.', ref: 'grc-engineer://generate-implementation/session_policy/okta', effort_hours: 0.1, automation: 'auto_fixable' }
-        });
-        else evaluations.push({ control_framework: 'SCF', control_id: 'IAC-15.1', status: 'pass', severity: 'info' });
+        // Okta encodes "unlimited" as 0, so filter on presence rather than
+        // truthiness — filter(Boolean) would drop exactly the worst case and
+        // report it as a pass.
+        const longest = mostPermissiveSessionValue(rules, 'maxSessionLifetimeMinutes');
+        const longestIdle = mostPermissiveSessionValue(rules, 'maxSessionIdleMinutes');
+        evaluations.push(sessionEvaluation({
+          controlId: 'IAC-15',
+          policyName: p.name,
+          value: longest,
+          baselineMinutes: 720,
+          label: 'session lifetime',
+          baselineLabel: '>720min/12h baseline',
+          remediationSummary: 'Cap maxSessionLifetimeMinutes at 720 (12 hours) or less.',
+          missingMessage: `Policy '${p.name}' has no rule declaring maxSessionLifetimeMinutes; session lifetime could not be evaluated.`
+        }));
+        evaluations.push(sessionEvaluation({
+          controlId: 'IAC-15.1',
+          policyName: p.name,
+          value: longestIdle,
+          baselineMinutes: 15,
+          label: 'idle timeout',
+          baselineLabel: '>15min baseline',
+          remediationSummary: 'Cap maxSessionIdleMinutes at 15 or less.',
+          missingMessage: `Policy '${p.name}' has no rule declaring maxSessionIdleMinutes; idle timeout could not be evaluated.`
+        }));
       } catch (err) {
         evaluations.push({ control_framework: 'SCF', control_id: 'IAC-15', status: 'inconclusive', severity: 'low', message: `Rules fetch failed: ${err.message}` });
       }
@@ -283,6 +291,44 @@ const serviceHandlers = {
 
 // ---------------------------------------------------------------------------
 
+function isFiniteNumber(v) {
+  return typeof v === 'number' && Number.isFinite(v);
+}
+
+/**
+ * Most permissive value a policy's rules allow for a session setting.
+ *
+ * Okta encodes "unlimited" as 0, which is the *weakest* setting but the
+ * smallest number, so a plain Math.max would rank it as the strictest and
+ * report unlimited sessions as compliant. Unlimited is mapped to Infinity for
+ * the comparison and reported back as 0.
+ *
+ * Returns null when no rule declares the setting, which the caller reports as
+ * inconclusive rather than pass.
+ */
+function mostPermissiveSessionValue(rules, key) {
+  const declared = rules.map(r => r.actions?.signon?.session?.[key]).filter(isFiniteNumber);
+  if (!declared.length) return null;
+  return declared.some(v => v === 0) ? 0 : Math.max(...declared);
+}
+
+function sessionEvaluation({ controlId, policyName, value, baselineMinutes, label, baselineLabel, remediationSummary, missingMessage }) {
+  if (value === null) {
+    return { control_framework: 'SCF', control_id: controlId, status: 'inconclusive', severity: 'low', message: missingMessage };
+  }
+  if (value === 0 || value > baselineMinutes) {
+    return {
+      control_framework: 'SCF', control_id: controlId, status: 'fail', severity: 'medium',
+      message: `Policy '${policyName}' allows ${label} ${value === 0 ? 'unlimited' : value + 'min'} (${baselineLabel}).`,
+      remediation: { summary: remediationSummary, ref: 'grc-engineer://generate-implementation/session_policy/okta', effort_hours: 0.1, automation: 'auto_fixable' }
+    };
+  }
+  return {
+    control_framework: 'SCF', control_id: controlId, status: 'pass', severity: 'info',
+    message: `Policy '${policyName}' caps ${label} at ${value}min.`
+  };
+}
+
 function buildDoc(ctx, resource, evaluations) {
   return {
     schema_version: '1.0.0',
@@ -381,10 +427,13 @@ function fail(code, msg) {
   process.exit(code);
 }
 
-const invokedFromCLI = import.meta.url === pathToFileURL(process.argv[1]).href;
+const invokedFromCLI = process.argv[1] !== undefined
+  && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invokedFromCLI) {
   main(process.argv.slice(2)).catch(err => {
     process.stderr.write(`[${SOURCE}] unexpected error: ${err.stack || err.message}\n`);
     process.exit(1);
   });
 }
+
+export { mostPermissiveSessionValue, sessionEvaluation };

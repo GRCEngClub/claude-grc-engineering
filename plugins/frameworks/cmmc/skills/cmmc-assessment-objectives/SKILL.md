@@ -98,7 +98,7 @@ Each lettered sub-item (`[a]`, `[b]`, ...) is **one scoreable assessment objecti
 
 ---
 
-# 320 Assessment Objectives (NIST SP 800-171A Rev 2)
+## 320 Assessment Objectives (NIST SP 800-171A Rev 2)
 
 > Text below is verbatim from NIST SP 800-171A. Each lettered sub-item is one scoreable assessment objective.
 
@@ -698,7 +698,7 @@ Each lettered sub-item (`[a]`, `[b]`, ...) is **one scoreable assessment objecti
 
 ---
 
-# Rev 2 → Rev 3 Control Crosswalk
+## Rev 2 → Rev 3 Control Crosswalk
 
 > **CMMC 2.0 is Rev 2 only.** Rev 3 (Final, May 2024) is the forward horizon. DoD has not adopted Rev 3 for CMMC. Use this section for transition planning and to understand Rev 3 finding language — not as a substitute for Rev 2 assessment evidence.
 >
@@ -900,6 +900,7 @@ Each lettered sub-item (`[a]`, `[b]`, ...) is **one scoreable assessment objecti
 ---
 
 ### 3.12 → 03.12 SECURITY ASSESSMENT AND MONITORING 🔵
+
 *(Renamed from "Security Assessment" in Rev 2.)*
 
 | Rev 2 | Rev 2 title | Rev 3 | Status | Notes |
