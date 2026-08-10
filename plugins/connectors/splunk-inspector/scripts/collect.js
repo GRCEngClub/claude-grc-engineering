@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 
 const CONFIG_DIR = process.env.CLAUDE_GRC_CONFIG_DIR || path.join(os.homedir(), '.config', 'claude-grc');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'connectors', 'splunk-inspector.yaml');
@@ -115,8 +116,15 @@ async function main(argv) {
 }
 
 function indexFinding(index, ctx) {
-  const frozenSeconds = Number(index.content?.frozenTimePeriodInSecs ?? index.content?.maxGlobalDataSizeMB ?? 0);
-  const retentionDays = frozenSeconds > 0 ? Math.floor(frozenSeconds / 86400) : null;
+  // maxGlobalDataSizeMB is a size cap, not a time window, so it cannot stand
+  // in for frozenTimePeriodInSecs — dividing megabytes by 86400 produced a
+  // "retention in days" figure unrelated to how long the index actually keeps
+  // data. Without the seconds field the retention is simply unknown.
+  const frozenRaw = index.content?.frozenTimePeriodInSecs;
+  const frozenSeconds = Number(frozenRaw);
+  const retentionDays = frozenRaw !== undefined && frozenRaw !== null && Number.isFinite(frozenSeconds) && frozenSeconds > 0
+    ? Math.floor(frozenSeconds / 86400)
+    : null;
   const evaluation = retentionDays === null
     ? inconclusive('LOG-05', `Splunk index '${index.name}' does not expose retention seconds.`)
     : retentionDays < ctx.minRetentionDays
@@ -309,7 +317,16 @@ function fail(code, msg) {
   process.exit(code);
 }
 
-main(process.argv.slice(2)).catch(err => {
-  process.stderr.write(`[${SOURCE}] unhandled error: ${err.stack || err.message}\n`);
-  process.exit(1);
-});
+// `process.argv[1]` is undefined under `node --eval` and some embedders, where
+// pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
+const invokedFromCLI = process.argv[1] !== undefined
+  && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (invokedFromCLI) {
+  main(process.argv.slice(2)).catch(err => {
+    process.stderr.write(`[${SOURCE}] unhandled error: ${err.stack || err.message}\n`);
+    process.exit(1);
+  });
+}
+
+export { indexFinding };
