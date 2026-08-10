@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "source": "aws-secrets-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-aws-secrets-public-policy",
+  "collected_at": "2026-04-13T15:10:00Z",
+  "resource": {
+    "type": "aws_secretsmanager_secret",
+    "id": "arn:aws:secretsmanager:us-east-1:123456789012:secret:public-thirdparty-api-key-GhIjKl",
+    "arn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:public-thirdparty-api-key-GhIjKl",
+    "region": "us-east-1",
+    "account_id": "123456789012",
+    "tags": {
+      "Owner": "integrations-team",
+      "DataClassification": "internal"
+    }
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-09",
+      "status": "pass",
+      "severity": "info",
+      "message": "Rotation enabled (30 day(s))."
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-09",
+      "status": "pass",
+      "severity": "info",
+      "message": "Encrypted with customer-managed KMS key (arn:aws:kms:us-east-1:123456789012:key/abcd1234-5678-90ab-cdef-EXAMPLE11111)."
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-21",
+      "status": "fail",
+      "severity": "critical",
+      "message": "Resource policy grants public access: Allow statement with Principal=\"*\" permits secretsmanager:GetSecretValue.",
+      "remediation": {
+        "summary": "Remove public principals from the resource policy; restrict to specific AWS account IDs or IAM roles.",
+        "ref": "grc-engineer://generate-implementation/iam_least_privilege/aws",
+        "effort_hours": 0.5,
+        "automation": "auto_fixable"
+      }
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-15.3",
+      "status": "pass",
+      "severity": "info",
+      "message": "Last accessed 3 day(s) ago."
+    }
+  ],
+  "raw_attributes": {
+    "Name": "public-thirdparty-api-key",
+    "ARN": "arn:aws:secretsmanager:us-east-1:123456789012:secret:public-thirdparty-api-key-GhIjKl",
+    "RotationEnabled": true,
+    "RotationRules": { "AutomaticallyAfterDays": 30 },
+    "LastRotatedDate": "2026-03-14T10:00:00Z",
+    "LastChangedDate": "2026-03-14T10:00:00Z",
+    "LastAccessedDate": "2026-04-10T08:30:00Z",
+    "KmsKeyId": "arn:aws:kms:us-east-1:123456789012:key/abcd1234-5678-90ab-cdef-EXAMPLE11111",
+    "OwningService": null,
+    "PrimaryRegion": "us-east-1",
+    "Description": "Public third-party API key",
+    "ResourcePolicy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"AllowPublicGet\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"secretsmanager:GetSecretValue\",\"Resource\":\"*\"}]}",
+    "InactiveDays": 3,
+    "RotationAgeDays": 30
+  }
+}

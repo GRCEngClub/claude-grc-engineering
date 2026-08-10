@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "source": "aws-secrets-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-aws-secrets-inconclusive",
+  "collected_at": "2026-04-13T15:10:00Z",
+  "resource": {
+    "type": "aws_secretsmanager_secret",
+    "id": "arn:aws:secretsmanager:us-east-1:123456789012:secret:never-accessed-credential-MnOpQr",
+    "arn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:never-accessed-credential-MnOpQr",
+    "region": "us-east-1",
+    "account_id": "123456789012",
+    "tags": {
+      "Owner": "data-team"
+    }
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-09",
+      "status": "pass",
+      "severity": "info",
+      "message": "Rotation enabled (90 day(s))."
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-09",
+      "status": "pass",
+      "severity": "info",
+      "message": "Encrypted with customer-managed KMS key (arn:aws:kms:us-east-1:123456789012:key/abcd1234-5678-90ab-cdef-EXAMPLE22222)."
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-21",
+      "status": "inconclusive",
+      "severity": "medium",
+      "message": "Could not read resource policy: AccessDenied: User: arn:aws:iam::123456789012:role/SecurityAudit is not authorized to perform: secretsmanager:GetResourcePolicy on resource: arn:aws:secretsmanager:us-east-1:123456789012:secret:never-accessed-credential-MnOpQr"
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-15.3",
+      "status": "inconclusive",
+      "severity": "low",
+      "message": "LastAccessedDate unavailable (either never accessed or tracking disabled); rely on LastRotatedDate and consumer inventory for review."
+    }
+  ],
+  "raw_attributes": {
+    "Name": "never-accessed-credential",
+    "ARN": "arn:aws:secretsmanager:us-east-1:123456789012:secret:never-accessed-credential-MnOpQr",
+    "RotationEnabled": true,
+    "RotationRules": { "AutomaticallyAfterDays": 90 },
+    "LastRotatedDate": "2026-01-13T10:00:00Z",
+    "LastChangedDate": "2025-12-01T10:00:00Z",
+    "LastAccessedDate": null,
+    "KmsKeyId": "arn:aws:kms:us-east-1:123456789012:key/abcd1234-5678-90ab-cdef-EXAMPLE22222",
+    "OwningService": null,
+    "PrimaryRegion": "us-east-1",
+    "Description": "Credential for which access tracking was disabled",
+    "InactiveDays": null,
+    "RotationAgeDays": 90
+  }
+}
