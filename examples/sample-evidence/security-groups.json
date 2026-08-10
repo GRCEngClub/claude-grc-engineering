@@ -1,0 +1,64 @@
+{
+  "Description": "aws ec2 describe-security-groups --filters Name=vpc-id,Values=vpc-0f3e2d1c0b9a87654 (production VPC)",
+  "RetrievedAt": "2026-06-28T14:30:18Z",
+  "SecurityGroups": [
+    {
+      "GroupId": "sg-0a1b2c3d4e5f6a7b8",
+      "GroupName": "skyline-prod-db",
+      "Description": "Postgres primary - production",
+      "VpcId": "vpc-0f3e2d1c0b9a87654",
+      "IpPermissions": [
+        {
+          "IpProtocol": "tcp",
+          "FromPort": 5432,
+          "ToPort": 5432,
+          "IpRanges": [
+            { "CidrIp": "10.20.0.0/16", "Description": "app tier" },
+            { "CidrIp": "0.0.0.0/0", "Description": "temp - debugging prod db" }
+          ]
+        }
+      ],
+      "IpPermissionsEgress": [
+        { "IpProtocol": "-1", "IpRanges": [ { "CidrIp": "0.0.0.0/0" } ] }
+      ]
+    },
+    {
+      "GroupId": "sg-0c9d8e7f6a5b4c3d2",
+      "GroupName": "skyline-prod-bastion",
+      "Description": "SSH bastion",
+      "VpcId": "vpc-0f3e2d1c0b9a87654",
+      "IpPermissions": [
+        {
+          "IpProtocol": "tcp",
+          "FromPort": 22,
+          "ToPort": 22,
+          "IpRanges": [
+            { "CidrIp": "0.0.0.0/0", "Description": "ssh access" }
+          ]
+        }
+      ],
+      "IpPermissionsEgress": [
+        { "IpProtocol": "-1", "IpRanges": [ { "CidrIp": "0.0.0.0/0" } ] }
+      ]
+    },
+    {
+      "GroupId": "sg-0e5f4a3b2c1d0e9f8",
+      "GroupName": "skyline-prod-app",
+      "Description": "App tier behind ALB",
+      "VpcId": "vpc-0f3e2d1c0b9a87654",
+      "IpPermissions": [
+        {
+          "IpProtocol": "tcp",
+          "FromPort": 8443,
+          "ToPort": 8443,
+          "UserIdGroupPairs": [
+            { "GroupId": "sg-0b8c7d6e5f4a3b2c1", "Description": "from ALB only" }
+          ]
+        }
+      ],
+      "IpPermissionsEgress": [
+        { "IpProtocol": "-1", "IpRanges": [ { "CidrIp": "0.0.0.0/0" } ] }
+      ]
+    }
+  ]
+}

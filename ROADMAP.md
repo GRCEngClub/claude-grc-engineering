@@ -70,7 +70,7 @@ direct connectors. Vendor-owned Claude Code plugins (when they exist) are
 **installed alongside** the Club toolkit, not vendored — bridges are
 normalization layers, not forks.
 
-- **Vanta bridge** — normalizes output from [`VantaInc/vanta-mcp-plugin`](https://github.com/VantaInc/vanta-mcp-plugin)
+- **Vanta bridge** — normalizes output from [`vanta-mcp-plugin`](https://github.com/anthropics/claude-plugins-official)
   (official Vanta Claude Code plugin, MIT) into Finding schema. Replaces the
   stale `vanta-go-export` entry.
 - **Drata bridge** — companion pattern for [Drata's AI MCP](https://drata.com/products/ai/mcp).

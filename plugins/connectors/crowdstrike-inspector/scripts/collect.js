@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 
 const CONFIG_DIR = process.env.CLAUDE_GRC_CONFIG_DIR || path.join(os.homedir(), '.config', 'claude-grc');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'connectors', 'crowdstrike-inspector.yaml');
@@ -137,14 +138,53 @@ function parseArgs(argv) {
 function pass(controlId, message) { return { control_framework: 'SCF', control_id: controlId, status: 'pass', severity: 'info', message }; }
 function inconclusive(controlId, message) { return { control_framework: 'SCF', control_id: controlId, status: 'inconclusive', severity: 'info', message }; }
 function failHigh(controlId, message, summary) { return { control_framework: 'SCF', control_id: controlId, status: 'fail', severity: 'high', message, remediation: { summary, ref: 'grc-engineer://generate-implementation/crowdstrike_sensor_coverage', effort_hours: 1, automation: 'manual' } }; }
+// Indentation-aware so nested blocks survive. The previous flat matcher only
+// accepted unindented keys, so setup.sh's `defaults:\n  limit: 100` parsed as
+// the string "" and every configured default was silently ignored.
 function parseYaml(text) {
   const out = {};
-  for (const line of text.split(/\r?\n/)) {
-    const m = line.match(/^([A-Za-z0-9_-]+):\s*"?([^"]*)"?$/);
-    if (m) out[m[1]] = /^\d+$/.test(m[2]) ? Number(m[2]) : m[2];
+  const stack = [{ indent: -1, obj: out }];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.replace(/\s+$/, '');
+    if (!line || line.trimStart().startsWith('#')) continue;
+    const indent = line.search(/\S/);
+    while (stack.length > 1 && indent <= stack[stack.length - 1].indent) stack.pop();
+    const parent = stack[stack.length - 1].obj;
+    const m = line.slice(indent).match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+    if (!m) continue;
+    const key = m[1];
+    let val = m[2];
+    // A value that is only a comment ("key: # note") opens a nested block,
+    // same as a bare "key:".
+    if (val.startsWith('#')) val = '';
+    if (val === '') {
+      const child = {};
+      parent[key] = child;
+      stack.push({ indent, obj: child });
+    } else {
+      // Quoted scalars (either quote style) are taken verbatim; anything
+      // after the closing quote (e.g. an inline comment) is dropped.
+      const quoted = val.match(/^(["'])(.*?)\1/);
+      if (quoted) val = quoted[2];
+      else {
+        val = val.replace(/\s+#.*$/, '');
+        if (val === 'true' || val === 'false') val = val === 'true';
+        else if (/^-?\d+(\.\d+)?$/.test(val)) val = Number(val);
+      }
+      parent[key] = val;
+    }
   }
   return out;
 }
 function makeRunId() { return `${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}-${crypto.randomBytes(4).toString('hex')}`; }
 function fail(code, msg) { process.stderr.write(`[${SOURCE}] ${msg}\n`); process.exit(code); }
-main(process.argv.slice(2)).catch(err => { process.stderr.write(`[${SOURCE}] unhandled error: ${err.stack || err.message}\n`); process.exit(1); });
+// `process.argv[1]` is undefined under `node --eval` and some embedders, where
+// pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
+const invokedFromCLI = process.argv[1] !== undefined
+  && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (invokedFromCLI) {
+  main(process.argv.slice(2)).catch(err => { process.stderr.write(`[${SOURCE}] unhandled error: ${err.stack || err.message}\n`); process.exit(1); });
+}
+
+export { parseYaml };

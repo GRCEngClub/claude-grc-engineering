@@ -23,6 +23,7 @@
     "test:wiz-inspector": "node --test tests/wiz-inspector-collect.test.js",
     "test:schema-validator": "node --test tests/schema-validator.test.mjs",
     "test:aws-secrets-inspector": "node --test tests/aws-secrets-inspector-collect.test.js",
+    "test:unit": "bash tests/run-unit-tests.sh",
     "test:contract": "bash tests/validate-contract-fixtures.sh",
     "test:grc-diagrams": "bash tests/validate-grc-diagram-skills.sh",
     "test:plugin-manifests": "bash tests/validate-plugin-manifests.sh",

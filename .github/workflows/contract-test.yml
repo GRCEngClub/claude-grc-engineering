@@ -1,16 +1,10 @@
 name: Contract test
 
 on:
+  # No paths filter on pull_request: this job is a required status check on main,
+  # and a path-filtered required check never reports on PRs outside its paths,
+  # leaving them permanently unmergeable without an admin bypass.
   pull_request:
-    paths:
-      - 'schemas/**'
-      - 'tests/fixtures/**'
-      - 'tests/schema-validator.test.mjs'
-      - 'tests/validate-json-schema.cjs'
-      - 'tests/validate-contract-fixtures.sh'
-      - 'plugins/connectors/**'
-      - 'package.json'
-      - '.github/workflows/contract-test.yml'
   push:
     branches: [main]
 
@@ -34,6 +28,9 @@ jobs:
 
       - name: Test schema validator
         run: npm run test:schema-validator
+
+      - name: Run unit test suites
+        run: npm run test:unit
 
       - name: Validate contract fixtures
         run: bash tests/validate-contract-fixtures.sh

@@ -1,0 +1,95 @@
+{
+  "Description": "CloudTrail management event excerpt, account 123456789012, us-east-1, 2026-06-08 to 2026-06-15",
+  "RetrievedAt": "2026-06-28T14:22:55Z",
+  "Events": [
+    {
+      "eventTime": "2026-06-14T03:41:17Z",
+      "eventName": "ConsoleLogin",
+      "eventSource": "signin.amazonaws.com",
+      "userIdentity": {
+        "type": "Root",
+        "principalId": "123456789012",
+        "arn": "arn:aws:iam::123456789012:root",
+        "accountId": "123456789012"
+      },
+      "additionalEventData": {
+        "MFAUsed": "No",
+        "LoginTo": "https://console.aws.amazon.com/console/home"
+      },
+      "sourceIPAddress": "198.51.100.24",
+      "responseElements": { "ConsoleLogin": "Success" }
+    },
+    {
+      "eventTime": "2026-06-12T19:05:33Z",
+      "eventName": "AuthorizeSecurityGroupIngress",
+      "eventSource": "ec2.amazonaws.com",
+      "userIdentity": {
+        "type": "IAMUser",
+        "userName": "dpatel",
+        "arn": "arn:aws:iam::123456789012:user/dpatel"
+      },
+      "requestParameters": {
+        "groupId": "sg-0a1b2c3d4e5f6a7b8",
+        "ipPermissions": {
+          "items": [
+            {
+              "ipProtocol": "tcp",
+              "fromPort": 5432,
+              "toPort": 5432,
+              "ipRanges": { "items": [ { "cidrIp": "0.0.0.0/0", "description": "temp - debugging prod db" } ] }
+            }
+          ]
+        }
+      },
+      "sourceIPAddress": "203.0.113.77"
+    },
+    {
+      "eventTime": "2026-06-10T16:48:02Z",
+      "eventName": "CreateAccessKey",
+      "eventSource": "iam.amazonaws.com",
+      "userIdentity": {
+        "type": "IAMUser",
+        "userName": "mrivera",
+        "arn": "arn:aws:iam::123456789012:user/mrivera"
+      },
+      "requestParameters": { "userName": "mrivera" },
+      "responseElements": {
+        "accessKey": {
+          "accessKeyId": "AKIAIOSFODNN7EXAMPLE",
+          "status": "Active",
+          "userName": "mrivera"
+        }
+      },
+      "sourceIPAddress": "192.0.2.146"
+    },
+    {
+      "eventTime": "2026-06-09T11:19:44Z",
+      "eventName": "AttachUserPolicy",
+      "eventSource": "iam.amazonaws.com",
+      "userIdentity": {
+        "type": "IAMUser",
+        "userName": "jkim",
+        "arn": "arn:aws:iam::123456789012:user/jkim"
+      },
+      "requestParameters": {
+        "userName": "svc-backup",
+        "policyArn": "arn:aws:iam::aws:policy/AdministratorAccess"
+      },
+      "sourceIPAddress": "203.0.113.15"
+    },
+    {
+      "eventTime": "2026-06-09T09:02:10Z",
+      "eventName": "DescribeInstances",
+      "eventSource": "ec2.amazonaws.com",
+      "userIdentity": {
+        "type": "AssumedRole",
+        "arn": "arn:aws:sts::123456789012:assumed-role/skyline-readonly-audit/asmith",
+        "sessionContext": {
+          "attributes": { "mfaAuthenticated": "true", "creationDate": "2026-06-09T08:58:31Z" }
+        }
+      },
+      "requestParameters": null,
+      "sourceIPAddress": "198.51.100.9"
+    }
+  ]
+}

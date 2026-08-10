@@ -14,9 +14,13 @@
  * - /grc-engineer:optimize-multi-framework
  */
 
-const fs = require('fs');
-const path = require('path');
-const yaml = require('js-yaml');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import yaml from 'js-yaml';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class CrossFrameworkAnalyzer {
   constructor() {
@@ -539,7 +543,9 @@ class CrossFrameworkAnalyzer {
 }
 
 // CLI interface
-if (require.main === module) {
+// `process.argv[1]` is undefined under `node --eval` and some embedders, where
+// pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const analyzer = new CrossFrameworkAnalyzer();
   const command = process.argv[2];
   const args = process.argv.slice(3);
@@ -573,4 +579,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = CrossFrameworkAnalyzer;
+export default CrossFrameworkAnalyzer;

@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 const execFileP = promisify(execFile);
@@ -15,8 +16,12 @@ const EXIT = { OK: 0, USAGE: 2, AUTH: 2, PARTIAL: 4, NOT_CONFIGURED: 5 };
 async function main(argv) {
   const args = parseArgs(argv);
   let config; try { config = parseYaml(await fs.readFile(CONFIG_FILE, 'utf8')); } catch { fail(EXIT.NOT_CONFIGURED, `config missing (${CONFIG_FILE}). Run /snowflake-inspector:setup first.`); }
+  // Without an account the findings carry resource.id undefined, which
+  // JSON.stringify drops entirely, producing documents that fail the required
+  // resource.id constraint in schemas/finding.schema.json.
+  if (!config.account) fail(EXIT.NOT_CONFIGURED, `config (${CONFIG_FILE}) has no 'account'. Re-run /snowflake-inspector:setup.`);
   const startedAt = Date.now(), runId = makeRunId(), collectedAt = new Date().toISOString();
-  const ctx = { runId, collectedAt, account: config.account };
+  const ctx = { runId, collectedAt, account: String(config.account) };
   const findings = [], errors = [];
   const checks = [
     ['users', "select name, has_mfa, disabled from snowflake.account_usage.users where deleted_on is null limit 500"],
@@ -72,4 +77,11 @@ function parseArgs(argv) { const out = { output: 'summary' }; for (const tok of 
 function parseYaml(text) { const out = { defaults: {} }; let inDefaults = false; for (const line of text.split(/\r?\n/)) { if (line.startsWith('defaults:')) { inDefaults = true; continue; } const m = line.match(/^(\s*)([A-Za-z0-9_-]+):\s*"?([^"]*)"?$/); if (m) (inDefaults && m[1] ? out.defaults : out)[m[2]] = /^\d+$/.test(m[3]) ? Number(m[3]) : m[3]; } return out; }
 function makeRunId() { return `${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}-${crypto.randomBytes(4).toString('hex')}`; }
 function fail(code, msg) { process.stderr.write(`[${SOURCE}] ${msg}\n`); process.exit(code); }
-main(process.argv.slice(2)).catch(e => { process.stderr.write(`[${SOURCE}] unhandled error: ${e.stack || e.message}\n`); process.exit(1); });
+// `process.argv[1]` is undefined under `node --eval` and some embedders, where
+// pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
+const invokedFromCLI = process.argv[1] !== undefined
+  && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (invokedFromCLI) {
+  main(process.argv.slice(2)).catch(e => { process.stderr.write(`[${SOURCE}] unhandled error: ${e.stack || e.message}\n`); process.exit(1); });
+}
