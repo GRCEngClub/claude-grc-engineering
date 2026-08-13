@@ -4,12 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is the official open-source Claude Code plugin marketplace of the [GRC Engineering Club](https://grcengclub.com) for Governance, Risk, and Compliance (GRC) professionals. The repository provides 30 specialized plugins organized into:
+This is the official open-source Claude Code plugin marketplace of the [GRC Engineering Club](https://grcengclub.com) for Governance, Risk, and Compliance (GRC) professionals. `.claude-plugin/marketplace.json` is the authoritative plugin list; the categories below describe the shapes, not an exhaustive inventory.
 
-- **4 persona-based plugins** (grc-engineer, grc-auditor, grc-internal, grc-tprm)
-- **21 framework-specific plugins** (soc2, nist-800-53, iso27001, fedramp-rev5, fedramp-20x, pci-dss, cmmc, hitrust, cis-controls, gdpr, csa-ccm, nydfs, dora, stateramp, essential8, glba, us-export, pbmm, ismap, irap)
-- **4 Tier-1 connector plugins** (aws-inspector, gcp-inspector, github-inspector, okta-inspector) that emit findings matching `schemas/finding.schema.json`
+- **Persona plugins** (grc-engineer, grc-auditor, grc-internal, grc-tprm)
+- **Framework plugins** under `plugins/frameworks/` (soc2, nist-800-53, iso27001, fedramp-rev5, fedramp-20x, pci-dss, cmmc, and more) — see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) for the generated list
+- **Connector plugins** under `plugins/connectors/` (aws-inspector, gcp-inspector, github-inspector, okta-inspector, and more) that emit findings matching `schemas/finding.schema.json`
 - **OSCAL tooling plugins** (oscal, fedramp-ssp) wrapping external upstream projects
+- **Reporting and workflow plugins** (grc-reporter, grc-loop, grc-diagrams, teach-me, trust-center, compliance-posture-dashboard)
 - **grc-portfolio** — site-builder plugin that scaffolds and deploys a GRC engineer's portfolio website (React/Vite on S3 + CloudFront, optional Route 53/ACM and SES-backed contact form, GitHub Actions OIDC for CI/CD)
 
 Each plugin contains commands (user-facing) and skills (AI agents that implement functionality).
@@ -38,17 +39,19 @@ plugins/{plugin-name}/
 
 ### Two Plugin Patterns
 
-**1. Persona Plugins (grc-engineer, grc-auditor, grc-internal, grc-tprm)**
+**1. Script-backed plugins (grc-engineer, the connectors, `fedramp-20x`, `dashboards/compliance-posture`, `knowledge-sources/gcp-docs`)**
 
 - Include `scripts/` directory with Node.js implementations
-- Include `config/` directory with YAML configurations
+- Include `config/` directory with YAML configurations (where needed)
 - Commands invoke scripts: `node scripts/map-control.js $ARGUMENTS`
 
-**2. Framework Plugins (soc2, nist-800-53, iso27001, etc.)**
+**2. Prompt-only plugins (soc2, nist-800-53, iso27001, grc-auditor, grc-internal, grc-tprm, etc.)**
 
 - Command files are self-contained with embedded instructions
 - No scripts or config directories
-- Skills contain framework expertise as prompts
+- Skills contain expertise as prompts
+
+The persona plugins split across both patterns: `grc-engineer` is script-backed, while `grc-auditor`, `grc-internal`, and `grc-tprm` are prompt-only.
 
 ### Key Directories
 
@@ -181,7 +184,7 @@ Each plugin has a unique namespace for commands:
 - `/pbmm:` - Canadian Protected B cloud
 - `/ismap:` - Japanese government cloud
 - `/irap:` - Australian government cloud
-- (and 11 more framework plugins)
+- (plus the remaining framework plugins under `plugins/frameworks/`; [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) lists them all)
 
 ## Cross-Framework Intelligence (NEW)
 
@@ -774,8 +777,8 @@ Day-to-day bug reports and feature requests should still be filed as GitHub issu
 
 ## Important Notes
 
-- All plugins use MIT license
+- Plugins are MIT licensed, except `cis-controls`, which is `CC-BY-SA-4.0 AND MIT`
 - Plugin versions are synchronized at 0.1.0
 - Framework control mappings are in YAML for easy extension
-- Node.js scripts are only in persona plugins (grc-engineer, etc.)
-- Framework plugins are pure markdown/prompt-based
+- Most framework plugins are pure markdown/prompt-based; `fedramp-20x` is the exception and ships `check-fedramp-updates.js`
+- Node.js scripts live in `grc-engineer`, every connector, `dashboards/compliance-posture`, and `knowledge-sources/gcp-docs`. `grc-auditor`, `grc-internal`, and `grc-tprm` are prompt-only despite being personas

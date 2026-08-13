@@ -1,0 +1,36 @@
+{
+  "SecretList": [
+    {
+      "ARN": "arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf",
+      "Name": "legacy-db-credentials",
+      "LastChangedDate": "2024-11-02T10:00:00+00:00",
+      "LastRotatedDate": "2024-11-02T10:00:00+00:00",
+      "LastAccessedDate": "2026-04-01T08:30:00+00:00",
+      "Tags": [
+        { "Key": "Owner", "Value": "platform-team" },
+        { "Key": "Environment", "Value": "production" }
+      ]
+    },
+    {
+      "ARN": "arn:aws:secretsmanager:us-east-1:123456789012:secret:public-thirdparty-api-key-GhIjKl",
+      "Name": "public-thirdparty-api-key",
+      "LastChangedDate": "2025-03-14T10:00:00+00:00",
+      "LastRotatedDate": "2025-03-14T10:00:00+00:00",
+      "LastAccessedDate": "2026-04-10T08:30:00+00:00",
+      "Tags": [
+        { "Key": "Owner", "Value": "integrations-team" },
+        { "Key": "DataClassification", "Value": "internal" }
+      ]
+    },
+    {
+      "ARN": "arn:aws:secretsmanager:us-east-1:123456789012:secret:never-accessed-credential-MnOpQr",
+      "Name": "never-accessed-credential",
+      "LastChangedDate": "2025-12-01T10:00:00+00:00",
+      "LastRotatedDate": "2026-01-13T10:00:00+00:00",
+      "LastAccessedDate": null,
+      "Tags": [
+        { "Key": "Owner", "Value": "data-team" }
+      ]
+    }
+  ]
+}

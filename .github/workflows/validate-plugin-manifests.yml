@@ -1,19 +1,10 @@
 name: Validate plugin manifests
 
 on:
+  # No paths filter on pull_request: this job is a required status check on main,
+  # and a path-filtered required check never reports on PRs outside its paths,
+  # leaving them permanently unmergeable without an admin bypass.
   pull_request:
-    paths:
-      - 'plugins/**/plugin.json'
-      - 'plugins/grc-diagrams/**'
-      - '.claude-plugin/marketplace.json'
-      - 'schemas/plugin.schema.json'
-      - 'schemas/marketplace.schema.json'
-      - 'tests/schema-validator.test.mjs'
-      - 'tests/validate-json-schema.cjs'
-      - 'tests/validate-plugin-manifests.sh'
-      - 'tests/validate-grc-diagram-skills.sh'
-      - 'package.json'
-      - '.github/workflows/validate-plugin-manifests.yml'
   push:
     branches: [main]
     paths:

@@ -1,0 +1,35 @@
+{
+  "data": {
+    "issues": {
+      "nodes": [
+        {
+          "id": "issue-redacted-1",
+          "title": "Public exposure with sensitive data",
+          "severity": "MEDIUM",
+          "status": "OPEN",
+          "type": "TOXIC_COMBINATION",
+          "createdAt": "2026-04-29T10:00:00Z",
+          "entitySnapshot": {
+            "id": "vm-redacted-1",
+            "name": "vm-redacted-1",
+            "type": "VIRTUAL_MACHINE",
+            "nativeType": "AWS::EC2::Instance",
+            "subscriptionId": "cloud-account-redacted-1",
+            "region": "us-east-1"
+          },
+          "project": {
+            "id": "project-redacted-1",
+            "name": "Project Redacted"
+          },
+          "frameworkCategories": [
+            { "name": "NIST 800-53 RA-3" }
+          ]
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": null
+      }
+    }
+  }
+}
