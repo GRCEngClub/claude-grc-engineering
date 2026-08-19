@@ -90,9 +90,24 @@ aws iam list-groups --output json > evidence/nist-ac2-iam-groups-$(date +%Y%m%d)
 # generate-credential-report is asynchronous — it returns STARTED/INPROGRESS and
 # builds in the background, so poll for COMPLETE before fetching. Reading too
 # early errors out and leaves you with no artifact.
-until aws iam generate-credential-report --query State --output text | grep -q COMPLETE; do
+#
+# Bound the loop and check the AWS call's own exit status. Piping straight into
+# grep hides a failure: a denied iam:GenerateCredentialReport makes grep return
+# non-zero every pass, so an unbounded `until` turns a permissions error into a
+# silent hang instead of an error you can act on.
+state=""
+for _ in $(seq 1 12); do
+  if ! state=$(aws iam generate-credential-report --query State --output text); then
+    echo "ERROR: generate-credential-report failed — check iam:GenerateCredentialReport." >&2
+    exit 1
+  fi
+  [ "$state" = "COMPLETE" ] && break
   sleep 5
 done
+if [ "$state" != "COMPLETE" ]; then
+  echo "ERROR: credential report still '$state' after 60s — rerun once it finishes." >&2
+  exit 1
+fi
 aws iam get-credential-report --query Content --output text | base64 -d \
   > evidence/nist-ac2-credential-report-$(date +%Y%m%d).csv
 ```
@@ -408,13 +423,32 @@ class AC2Evidence:
         self.inactivity_days = inactivity_days
         self.stamp = datetime.now(timezone.utc).strftime("%Y%m%d")
         self.out_dir = os.path.join(out_dir, "automated", datetime.now(timezone.utc).strftime("%Y-%m"))
-        os.makedirs(self.out_dir, exist_ok=True)
+        # 0700/0600: this directory fills with usernames, MFA state, and key ages.
+        # makedirs' mode only applies when it creates the directory, so chmod the
+        # existing case too — a rerun into an already-loose directory is the
+        # common path, not the rare one.
+        os.makedirs(self.out_dir, mode=0o700, exist_ok=True)
+        os.chmod(self.out_dir, 0o700)
         self.iam = boto3.client("iam")
 
     def _write(self, name, payload):
         path = os.path.join(self.out_dir, f"{name}-{self.stamp}.json")
-        with open(path, "w") as fh:
+        with open(path, "w", encoding="utf-8") as fh:
             json.dump(payload, fh, indent=2, default=str)
+        os.chmod(path, 0o600)
+        return path
+
+    def _write_csv(self, name, content):
+        """Persist a raw CSV artifact (the credential report) beside the JSON.
+
+        The parsed rows are derived evidence; the report AWS handed back is the
+        primary artifact an assessor asks for. Writing only the derived file
+        leaves the evidence package missing the source it was built from.
+        """
+        path = os.path.join(self.out_dir, f"{name}-{self.stamp}.csv")
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(content)
+        os.chmod(path, 0o600)
         return path
 
     def _paginate(self, operation, key, **kwargs):
@@ -453,6 +487,7 @@ class AC2Evidence:
                 f"IAM credential report still {state} after {waited}s — rerun once it finishes."
             )
         content = self.iam.get_credential_report()["Content"].decode("utf-8")
+        self._write_csv("credential-report", content)
         return list(csv.DictReader(io.StringIO(content)))
 
     def account_inventory(self):
@@ -463,35 +498,86 @@ class AC2Evidence:
         return users
 
     def inactive_accounts(self, rows):
-        """AC-2(3): flag accounts idle beyond the inactivity ODP. Moderate+ only."""
+        """AC-2(3): flag accounts idle beyond the inactivity ODP. Moderate+ only.
+
+        Two sentinels in the credential report mean opposite things to a naive
+        filter. "no_information" on password_last_used means the password has
+        never been used; "N/A" means the credential does not exist. Skipping
+        "no_information" drops every never-signed-in account — the most stale
+        population in the report — out of the AC-2(3) artifact.
+
+        Console activity alone is also the wrong population. A user with no
+        password but a two-year-old access key is an inactive account. So take
+        the most recent activity across the password and both access keys, and
+        treat an account with no activity at all as inactive rather than exempt.
+        """
         if "AC-2(3)" not in self.enhancements:
             print("[skip] AC-2(3) not in scope for baseline 'low'")
             return []
+
+        # "not_supported" shows up on root and on credential types an account
+        # cannot use; like "N/A" it means no timestamp exists, not recent use.
+        no_timestamp = ("N/A", "no_information", "not_supported", "")
+        activity_fields = [
+            "password_last_used",
+            "access_key_1_last_used_date",
+            "access_key_2_last_used_date",
+        ]
+
         stale = []
         for row in rows:
-            last = row.get("password_last_used", "N/A")
-            if row.get("password_enabled") == "true" and last not in ("N/A", "no_information", ""):
-                used = datetime.fromisoformat(last.replace("Z", "+00:00"))
-                if (datetime.now(timezone.utc) - used).days > self.inactivity_days:
-                    stale.append({"user": row["user"], "password_last_used": last})
+            # Root has no lifecycle to review under AC-2(3), and an unused root
+            # is the desired state — flagging it would invert the finding.
+            if row.get("user") == "<root_account>":
+                continue
+
+            timestamps = []
+            for field in activity_fields:
+                value = row.get(field, "N/A")
+                if value not in no_timestamp:
+                    timestamps.append(datetime.fromisoformat(value.replace("Z", "+00:00")))
+
+            if timestamps:
+                last_active = max(timestamps)
+                idle_days = (datetime.now(timezone.utc) - last_active).days
+                last_seen = last_active.isoformat()
+            else:
+                # No usable timestamp on any credential: the account has never
+                # been used. Carry the creation date so the reviewer can see how
+                # long it has sat rather than just that it is idle.
+                idle_days = None
+                last_seen = "never used"
+
+            if idle_days is None or idle_days > self.inactivity_days:
+                stale.append({
+                    "user": row["user"],
+                    "last_activity": last_seen,
+                    "idle_days": idle_days,
+                    "user_creation_time": row.get("user_creation_time", ""),
+                })
         self._write("inactive-accounts", stale)
         flag = "OK" if not stale else f"{len(stale)} OVER {self.inactivity_days}d — disable per AC-2(3)"
         print(f"[AC-2(3)] inactive accounts: {flag}")
         return stale
 
     def privileged_inventory(self, users):
-        """Privileged-principal inventory. Base AC-2 flags privileged as an
-        account type; the dedicated review control AC-6(5) applies at Moderate+.
+        """Privileged-principal inventory across IAM users. Runs at every baseline.
+
+        Base AC-2 requires privileged accounts to be identified as an account
+        type, so this inventory is base evidence rather than an enhancement — it
+        runs at Low too. Only the dedicated privileged-account *review* control,
+        AC-6(5), is Moderate+, and that changes the label on the artifact, not
+        whether it gets collected.
 
         Admin reaches a user three ways: a directly attached managed policy, a
         managed policy inherited from a group, or an inline policy. Checking only
         the first misses group-based admin — the pattern AWS actually recommends —
         and reports real administrators as unprivileged. An understated privileged
         population is the finding an assessor writes up, so check all three.
+
+        Scope is IAM users. Privileged roles and group inline policies are a
+        separate population — collect them before claiming full AC-2 coverage.
         """
-        if self.baseline == "low":
-            print("[skip] dedicated privileged-account review (AC-6(5)) applies at Moderate+")
-            return []
         privileged = []
         for user in users:
             name = user["UserName"]
@@ -520,7 +606,8 @@ class AC2Evidence:
                     "inline_policies_for_manual_review": inline,
                 })
         self._write("privileged", privileged)
-        print(f"[AC-6(5)] privileged principals: {len(privileged)} "
+        label = "base AC-2" if self.baseline == "low" else "AC-6(5)"
+        print(f"[{label}] privileged principals: {len(privileged)} "
               f"(inline-policy holders included, flagged for manual review)")
         return privileged
 
@@ -528,8 +615,14 @@ class AC2Evidence:
         print(f"AC-2 evidence collection — baseline={self.baseline}, "
               f"enhancements in scope: {self.enhancements or 'none (base control only)'}")
         users = self.account_inventory()
-        rows = self._credential_report()
-        self.inactive_accounts(rows)
+        # The credential report exists here to serve AC-2(3). Gate the call, not
+        # just the consumer: at Low it is an API call the baseline puts out of
+        # scope, and it would write a sensitive artifact the checklist then
+        # declares irrelevant.
+        if "AC-2(3)" in self.enhancements:
+            self.inactive_accounts(self._credential_report())
+        else:
+            print("[skip] credential report not collected — AC-2(3) out of scope at 'low'")
         self.privileged_inventory(users)
         print(f"Evidence written to {self.out_dir}/  —  do not commit this directory.")
 
