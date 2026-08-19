@@ -447,8 +447,14 @@ class AC2Evidence:
         open(2) syscall, which does take a mode, so the file is never wrong even
         mid-write. It returns a file descriptor rather than a file object, and
         os.fdopen wraps that descriptor back into one.
+
+        That mode only applies when os.open creates the file. Reruns land on the
+        same dated filename, so an artifact left at looser permissions by an
+        earlier run would keep them through O_TRUNC. fchmod on the open
+        descriptor normalizes that case before anything is written.
         """
         fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        os.fchmod(fd, 0o600)
         return os.fdopen(fd, "w", encoding="utf-8")
 
     def _write_csv(self, name, content):
@@ -560,13 +566,19 @@ class AC2Evidence:
                 # inactive, and reporting it as over a 90-day threshold is a
                 # false positive an assessor will use to discount the artifact.
                 created = row.get("user_creation_time", "")
-                if not created:
-                    continue
-                created_at = datetime.fromisoformat(created.replace("Z", "+00:00"))
-                idle_days = (datetime.now(timezone.utc) - created_at).days
-                last_seen = "never used"
+                if created:
+                    created_at = datetime.fromisoformat(created.replace("Z", "+00:00"))
+                    idle_days = (datetime.now(timezone.utc) - created_at).days
+                    last_seen = "never used"
+                else:
+                    # Never used, and no creation date to age it against. Dropping
+                    # the row would silently shrink the population, which is the
+                    # failure this checklist exists to argue against — so report
+                    # it for manual review instead of skipping it.
+                    idle_days = None
+                    last_seen = "never used (creation date unavailable)"
 
-            if idle_days > self.inactivity_days:
+            if idle_days is None or idle_days > self.inactivity_days:
                 stale.append({
                     "user": row["user"],
                     "last_activity": last_seen,
