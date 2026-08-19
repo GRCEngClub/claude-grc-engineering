@@ -6,6 +6,7 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Added
 
+- **NIST AI 600-1 Generative AI Profile framework plugin (stub).** Added `nist-ai-600-1`, the companion plugin the `nist-ai-rmf` entry planned, scaffolded at Stub depth from the SCF crosswalk (`general-nist-600-1-gen-ai-profile`, 139 SCF controls → 250 framework controls, counts verified against scf-api), with surgical marketplace registration and SCF API links on the club-canonical mirror.
 - **NIST AI RMF framework plugin (stub).** Added `nist-ai-rmf`, the toolkit's first AI-governance framework plugin, scaffolded at Stub depth from the SCF crosswalk (`general-nist-100-1-ai-rmf`, 158 SCF controls → 91 AI RMF subcategories across GOVERN/MAP/MEASURE/MANAGE, counts verified against scf-api v2026.1), with marketplace registration. Reference-depth level-up (scope, evidence checklist, substantive SKILL) planned as a follow-up, along with a Generative AI Profile (AI 600-1) companion plugin. Closes [#195](https://github.com/GRCEngClub/claude-grc-engineering/issues/195).
 
 ### Changed
