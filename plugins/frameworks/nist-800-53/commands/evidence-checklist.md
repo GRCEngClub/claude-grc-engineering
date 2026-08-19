@@ -543,12 +543,18 @@ class AC2Evidence:
                 last_seen = last_active.isoformat()
             else:
                 # No usable timestamp on any credential: the account has never
-                # been used. Carry the creation date so the reviewer can see how
-                # long it has sat rather than just that it is idle.
-                idle_days = None
+                # been used. Age it from creation rather than flagging outright —
+                # a user provisioned yesterday has not yet had time to be
+                # inactive, and reporting it as over a 90-day threshold is a
+                # false positive an assessor will use to discount the artifact.
+                created = row.get("user_creation_time", "")
+                if not created:
+                    continue
+                created_at = datetime.fromisoformat(created.replace("Z", "+00:00"))
+                idle_days = (datetime.now(timezone.utc) - created_at).days
                 last_seen = "never used"
 
-            if idle_days is None or idle_days > self.inactivity_days:
+            if idle_days > self.inactivity_days:
                 stale.append({
                     "user": row["user"],
                     "last_activity": last_seen,
