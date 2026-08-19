@@ -433,10 +433,23 @@ class AC2Evidence:
 
     def _write(self, name, payload):
         path = os.path.join(self.out_dir, f"{name}-{self.stamp}.json")
-        with open(path, "w", encoding="utf-8") as fh:
+        with self._open_private(path) as fh:
             json.dump(payload, fh, indent=2, default=str)
-        os.chmod(path, 0o600)
         return path
+
+    def _open_private(self, path):
+        """Open a file for writing that is 0600 from the moment it exists.
+
+        The builtin open() has no mode parameter, so it creates at the umask
+        default and needs a follow-up chmod. That chmod does not run if the
+        write raises — leaving a half-written credential report readable by
+        every account on the host until somebody notices. os.open maps onto the
+        open(2) syscall, which does take a mode, so the file is never wrong even
+        mid-write. It returns a file descriptor rather than a file object, and
+        os.fdopen wraps that descriptor back into one.
+        """
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        return os.fdopen(fd, "w", encoding="utf-8")
 
     def _write_csv(self, name, content):
         """Persist a raw CSV artifact (the credential report) beside the JSON.
@@ -446,9 +459,8 @@ class AC2Evidence:
         leaves the evidence package missing the source it was built from.
         """
         path = os.path.join(self.out_dir, f"{name}-{self.stamp}.csv")
-        with open(path, "w", encoding="utf-8") as fh:
+        with self._open_private(path) as fh:
             fh.write(content)
-        os.chmod(path, 0o600)
         return path
 
     def _paginate(self, operation, key, **kwargs):
