@@ -16,8 +16,9 @@ Produce a multi-framework gap assessment by joining cached connector findings wi
 **Arguments**:
 
 - `<frameworks>` (required): comma-separated list. Use common names or SCF framework IDs.
-  - Aliases: `SOC2`, `ISO-27001-2022`, `NIST-800-53-r5`, `PCI-DSS-4`, `FedRAMP-Moderate`, `FedRAMP-High`, `CMMC-2`, `HITRUST-CSF`, `CIS-v8`, `HIPAA`, `GDPR`, `NYDFS`, `DORA`, `Essential-8`, `IRAP`, `ISMAP`, `PBMM`, `GLBA`
+  - Aliases: `SOC2`, `ISO-27001-2022`, `NIST-800-53-r5`, `PCI-DSS-4`, `FedRAMP-Moderate`, `FedRAMP-High`, `CMMC-2`, `CIS-v8`, `HIPAA`, `GDPR`, `NYDFS`, `DORA`, `Essential-8`, `IRAP`, `ISMAP`, `GLBA`
   - Or: any SCF framework_id (see `curl https://grcengclub.github.io/scf-api/api/crosswalks.json | jq '.frameworks[].framework_id'`)
+  - Not supported: `HITRUST-CSF` (proprietary; SCF publishes no public crosswalk), `StateRAMP` and `PBMM` (no direct crosswalk; use NIST-800-53 as a proxy), `US-Export` (not a security controls framework). Requesting one of these, or any label that does not resolve in the crosswalk, aborts with exit code `7` before any report is produced.
 
 **Options**:
 
@@ -103,6 +104,7 @@ Remediation refs of the form `grc-engineer://generate-implementation/<control>/<
 - `4` — no frameworks requested
 - `5` — SCF API unreachable and no cache
 - `6` — all findings failed validation
+- `7` — one or more requested frameworks did not resolve in the SCF crosswalk (no report generated)
 
 ## Prerequisites
 

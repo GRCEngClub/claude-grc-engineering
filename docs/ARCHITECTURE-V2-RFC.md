@@ -296,7 +296,7 @@ Normalization plugins that read another plugin's output (typically a vendor's of
 
 Examples in flight:
 
-- [`#44`](https://github.com/GRCEngClub/claude-grc-engineering/issues/44) — Vanta bridge over [`VantaInc/vanta-mcp-plugin`](https://github.com/VantaInc/vanta-mcp-plugin)
+- [`#44`](https://github.com/GRCEngClub/claude-grc-engineering/issues/44) — Vanta bridge over [`vanta-mcp-plugin`](https://github.com/anthropics/claude-plugins-official)
 - [`#45`](https://github.com/GRCEngClub/claude-grc-engineering/issues/45) — Drata bridge over Drata's AI MCP
 
 Namespace convention: `/vanta-bridge:*`, `/drata-bridge:*` (the bridge suffix makes the "normalization layer" role explicit, distinguishing these from the vendor's own `/vanta:*` commands when both plugins are installed).

@@ -58,7 +58,7 @@ Copy from `$TOOLKIT_DIR/examples/vite.config.js` as-is. It's already well-config
 
 ## Step 5: Generate Components by Site Type
 
-### All Types (shared components):
+### All Types (shared components)
 
 **Navbar.jsx** -- Navigation bar with:
 - Site name/logo on the left
@@ -83,26 +83,30 @@ Copy from `$TOOLKIT_DIR/examples/vite.config.js` as-is. It's already well-config
 - Loading state, success/error feedback
 - Basic client-side validation
 
-### Portfolio/Personal Components:
+### Portfolio/Personal Components
+
 - **About.jsx** -- Professional summary, photo placeholder
 - **Skills.jsx** -- Skills organized by category in a grid
 - **Projects.jsx** -- Project cards with descriptions, tech tags, links
 - **Certifications.jsx** -- Certification badges/list
 - **Speaking.jsx** -- Talks, podcasts, articles (if data provided)
 
-### Business Landing Page Components:
+### Business Landing Page Components
+
 - **Services.jsx** -- Service cards with descriptions
 - **Testimonials.jsx** -- Testimonial cards with quotes
 - **Team.jsx** -- Team member cards
 - **Pricing.jsx** -- Pricing tier cards (if data provided)
 
-### SaaS Marketing Components:
+### SaaS Marketing Components
+
 - **Features.jsx** -- Feature grid with icons and descriptions
 - **Pricing.jsx** -- Pricing comparison table/cards
 - **Integrations.jsx** -- Integration logos/grid
 - **CTA.jsx** -- Call-to-action section with demo/signup buttons
 
-### Brochure Components:
+### Brochure Components
+
 - **About.jsx** -- Business description
 - **Services.jsx** -- Service list
 - **Hours.jsx** -- Business hours and location/map placeholder
@@ -110,6 +114,7 @@ Copy from `$TOOLKIT_DIR/examples/vite.config.js` as-is. It's already well-config
 ## Step 6: Generate Styles
 
 ### index.css
+
 CSS reset and base styles. Set CSS custom properties based on `design.colorScheme`:
 
 **navy-slate (GRC default):**
@@ -151,6 +156,7 @@ CSS reset and base styles. Set CSS custom properties based on `design.colorSchem
 If `design.colorScheme` is "custom", use `design.primaryColor` and `design.accentColor` from config and derive the rest.
 
 ### App.css
+
 Component-level styles. Use the CSS custom properties from index.css. Style should match `design.style`:
 - **professional**: Conservative layout, clean typography, authoritative feel
 - **bold-modern**: Strong colors, larger typography, prominent shadows

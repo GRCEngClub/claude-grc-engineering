@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "source": "aws-secrets-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-aws-secrets-rotation-fail",
+  "collected_at": "2026-04-13T15:10:00Z",
+  "resource": {
+    "type": "aws_secretsmanager_secret",
+    "id": "arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf",
+    "arn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf",
+    "region": "us-east-1",
+    "account_id": "123456789012",
+    "tags": {
+      "Owner": "platform-team",
+      "Environment": "production"
+    }
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-09",
+      "status": "fail",
+      "severity": "high",
+      "message": "Automatic rotation is not enabled.",
+      "remediation": {
+        "summary": "Enable automatic rotation with a rotation Lambda; this is a key-management lifecycle control.",
+        "ref": "grc-engineer://generate-implementation/secret_rotation/aws",
+        "effort_hours": 1,
+        "automation": "semi_automated"
+      }
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-09",
+      "status": "fail",
+      "severity": "high",
+      "message": "Encrypted with AWS-managed key (alias/aws/secretsmanager); no customer-managed key with assigned owner.",
+      "remediation": {
+        "summary": "Create or assign a customer-managed KMS key to this secret so the key has an assigned owner and rotation policy.",
+        "ref": "grc-engineer://generate-implementation/kms_cmk/aws",
+        "effort_hours": 0.5,
+        "automation": "auto_fixable"
+      }
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-21",
+      "status": "pass",
+      "severity": "info",
+      "message": "No resource policy attached; access is governed by IAM only."
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-15.3",
+      "status": "pass",
+      "severity": "info",
+      "message": "Last accessed 12 day(s) ago."
+    }
+  ],
+  "raw_attributes": {
+    "Name": "legacy-db-credentials",
+    "ARN": "arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy-db-credentials-AbCdEf",
+    "RotationEnabled": false,
+    "RotationRules": null,
+    "LastRotatedDate": "2024-11-02T10:00:00Z",
+    "LastChangedDate": "2024-11-02T10:00:00Z",
+    "LastAccessedDate": "2026-04-01T08:30:00Z",
+    "KmsKeyId": "alias/aws/secretsmanager",
+    "OwningService": null,
+    "PrimaryRegion": "us-east-1",
+    "Description": "Legacy database credentials",
+    "InactiveDays": 12,
+    "RotationAgeDays": 162
+  }
+}

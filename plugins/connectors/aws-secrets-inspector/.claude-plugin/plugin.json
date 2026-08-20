@@ -1,0 +1,9 @@
+{
+  "name": "aws-secrets-inspector",
+  "version": "0.1.0",
+  "description": "GRC connector for AWS Secrets Manager: evaluates rotation, customer-managed KMS key, resource policy (public access), and access patterns. Hybrid shape — emits v1 finding-contract documents in inspector mode and supports opt-in secret retrieval to stdout or 0600 files in retrieve mode.",
+  "author": { "name": "GRC Engineering Club Contributors" },
+  "license": "MIT",
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "keywords": ["grc", "compliance", "aws", "secrets-manager", "scf", "soc2", "fedramp", "connector"]
+}

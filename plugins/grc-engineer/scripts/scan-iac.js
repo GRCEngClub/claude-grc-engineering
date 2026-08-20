@@ -11,9 +11,13 @@
  * Checks against: SOC2, PCI-DSS, NIST 800-53, ISO 27001, etc.
  */
 
-const fs = require('fs');
-const path = require('path');
-const yaml = require('js-yaml');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import yaml from 'js-yaml';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class IaCScanner {
   constructor(directory, frameworks, options = {}) {
@@ -209,23 +213,51 @@ class IaCScanner {
    * Scan YAML file (Kubernetes, CloudFormation)
    */
   scanYaml(filePath, content) {
+    // Only the parse is guarded: a dispatch error must surface, not be
+    // swallowed as "not YAML" (that silence hid a missing-method bug that
+    // skipped every Kubernetes document).
+    let docs;
     try {
-      const docs = yaml.loadAll(content);
+      docs = yaml.loadAll(content);
+    } catch (err) {
+      return; // Not a valid YAML file for our purposes
+    }
 
-      for (const doc of docs) {
-        if (!doc) continue;
+    for (const doc of docs) {
+      if (!doc) continue;
 
-        // Detect type
-        if (doc.kind) {
-          // Kubernetes
-          this.scanKubernetesResource(doc, filePath);
-        } else if (doc.AWSTemplateFormatVersion) {
-          // CloudFormation
-          this.scanCloudFormation(doc, filePath);
+      // Detect type
+      if (doc.kind) {
+        // Kubernetes
+        this.scanKubernetesResource(doc, filePath);
+      } else if (doc.AWSTemplateFormatVersion) {
+        // CloudFormation
+        this.scanCloudFormation(doc, filePath);
+      }
+    }
+  }
+
+  /**
+   * Scan a single parsed Kubernetes document against the kubernetes-type
+   * rules. The document is re-serialized to YAML so validators can use the
+   * same substring/regex checks they apply to Terraform resource bodies.
+   */
+  scanKubernetesResource(doc, filePath) {
+    const resourceType = doc.kind;
+    const resourceName = doc.metadata?.name || 'unnamed';
+    const resourceBody = yaml.dump(doc);
+    const lineNumber = 1;
+
+    for (const [controlId, rule] of Object.entries(this.rules)) {
+      for (const check of rule.checks) {
+        if (check.type === 'kubernetes' && check.resources.includes(resourceType)) {
+          const result = check.validator(resourceType, resourceName, resourceBody, filePath, lineNumber);
+
+          if (result) {
+            this.recordFinding(controlId, rule, result, filePath, lineNumber, resourceType, resourceName);
+          }
         }
       }
-    } catch (err) {
-      // Not a valid YAML file for our purposes
     }
   }
 
@@ -282,6 +314,48 @@ class IaCScanner {
           issue: 'RDS database storage is not encrypted',
           remediation: 'Set storage_encrypted = true and specify kms_key_id',
           autoFixable: true
+        });
+      }
+    }
+
+    return issues.length > 0 ? issues : null;
+  }
+
+  /**
+   * Check encryption on Kubernetes persistent storage.
+   *
+   * A PV/PVC is only encrypted at rest if its StorageClass says so, and the
+   * StorageClass usually lives in another manifest this scanner cannot
+   * resolve. So a bare storageClassName reference is NOT accepted as
+   * encryption evidence: it gets a manual-verification finding, while the
+   * absence of any indicator gets the stronger prompt. Both are MEDIUM,
+   * a review prompt rather than proof the volume is unencrypted.
+   */
+  checkK8sEncryption(resourceType, resourceName, resourceBody, filePath, lineNumber) {
+    const issues = [];
+    // Only affirmative declarations count as evidence. Bare mentions of
+    // "encryption" or "kms" (e.g. `encryption: disabled`, a description
+    // saying "encryption pending") must not suppress the finding.
+    const declaresEncryption =
+      /encrypted\s*[:=]\s*["']?true\b/i.test(resourceBody)
+      || /encryption\s*:\s*["']?(true|enabled|aes256|aws:kms)\b/i.test(resourceBody)
+      || /[\w.-]*kms[\w.-]*key[\w.-]*\s*:\s*\S+/i.test(resourceBody);
+    const referencesStorageClass = /storageClassName\s*:\s*\S/i.test(resourceBody);
+
+    if (!declaresEncryption) {
+      if (referencesStorageClass) {
+        issues.push({
+          severity: 'MEDIUM',
+          issue: `${resourceType} '${resourceName}' references a StorageClass this scanner cannot resolve; encryption at rest is unverified`,
+          remediation: 'Confirm the referenced StorageClass provisions encrypted volumes (e.g. EBS/PD parameters with encrypted: "true"), or add an explicit encryption indicator to the manifest.',
+          autoFixable: false
+        });
+      } else {
+        issues.push({
+          severity: 'MEDIUM',
+          issue: `${resourceType} '${resourceName}' does not reference an encrypted StorageClass`,
+          remediation: 'Set storageClassName to a StorageClass whose provisioner enables encryption at rest (e.g. an EBS/PD class with encrypted: "true").',
+          autoFixable: false
         });
       }
     }
@@ -561,7 +635,9 @@ class IaCScanner {
 }
 
 // CLI Interface
-if (require.main === module) {
+// `process.argv[1]` is undefined under `node --eval` and some embedders, where
+// pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
@@ -627,4 +703,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = IaCScanner;
+export default IaCScanner;

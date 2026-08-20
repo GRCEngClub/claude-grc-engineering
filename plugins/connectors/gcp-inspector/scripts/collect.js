@@ -150,10 +150,13 @@ const serviceHandlers = {
       if (!staleKeys.length) {
         evaluations.push({ control_framework: 'SCF', control_id: 'IAC-15.1', status: 'pass', severity: 'info' });
       } else {
+        // staleKeys is in service-account iteration order, so element 0 is
+        // just the first one found, not the oldest one.
+        const oldestKey = staleKeys.reduce((a, b) => (b.age_days > a.age_days ? b : a));
         evaluations.push({
           control_framework: 'SCF', control_id: 'IAC-15.1',
           status: 'fail', severity: 'medium',
-          message: `${staleKeys.length} service-account key(s) older than 90 days. Oldest: ${staleKeys[0].sa} key ${staleKeys[0].key_id} (${staleKeys[0].age_days}d).`,
+          message: `${staleKeys.length} service-account key(s) older than 90 days. Oldest: ${oldestKey.sa} key ${oldestKey.key_id} (${oldestKey.age_days}d).`,
           remediation: { summary: 'Rotate service account keys or replace with Workload Identity / IAM conditions where possible.', ref: 'grc-engineer://generate-implementation/key_rotation/gcp', effort_hours: 2, automation: 'semi_automated' }
         });
       }
@@ -453,7 +456,8 @@ function fail(code, msg) {
   process.exit(code);
 }
 
-const invokedFromCLI = import.meta.url === pathToFileURL(process.argv[1]).href;
+const invokedFromCLI = process.argv[1] !== undefined
+  && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invokedFromCLI) {
   main(process.argv.slice(2)).catch(err => {
     process.stderr.write(`[${SOURCE}] unexpected error: ${err.stack || err.message}\n`);

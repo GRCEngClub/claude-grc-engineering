@@ -212,6 +212,12 @@
       "version": "0.1.0"
     },
     {
+      "name": "aws-secrets-inspector",
+      "source": "./plugins/connectors/aws-secrets-inspector",
+      "description": "GRC connector for AWS Secrets Manager: rotation, customer-managed KMS, resource policy, and access-pattern checks \u2192 v1 finding contract. Hybrid shape supports opt-in secret retrieval to stdout or 0600-permission files.",
+      "version": "0.1.0"
+    },
+    {
       "name": "github-inspector",
       "source": "./plugins/connectors/github-inspector",
       "description": "GRC connector for GitHub: branch protection, secret scanning, Dependabot, code scanning \u2192 v1 finding contract",
