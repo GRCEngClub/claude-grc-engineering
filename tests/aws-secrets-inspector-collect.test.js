@@ -10,6 +10,11 @@
 // Fixture mode is enabled by the AWS_SECRETS_INSPECTOR_FIXTURE_DIR env
 // var; canned AWS CLI responses live under
 // tests/fixtures/aws-api/secretsmanager/.
+//
+// AWS_SECRETS_INSPECTOR_FAKE_NOW pins the fixture clock so date-relative
+// checks (IAC-15.3 staleness) do not drift as real time passes: fixture
+// LastAccessedDate values (2026-04) stay inside the "recent" window
+// instead of silently flipping to fail after ~180 days of wall time.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -45,7 +50,8 @@ async function makeEnv() {
       HOME: home,
       USERPROFILE: home,
       CLAUDE_GRC_CONFIG_DIR: configDir,
-      AWS_SECRETS_INSPECTOR_FIXTURE_DIR: fixtureDir
+      AWS_SECRETS_INSPECTOR_FIXTURE_DIR: fixtureDir,
+      AWS_SECRETS_INSPECTOR_FAKE_NOW: '2026-04-20T08:30:00Z'
     }
   };
 }
