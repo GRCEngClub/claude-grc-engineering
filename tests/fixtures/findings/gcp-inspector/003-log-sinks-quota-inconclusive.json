@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "source": "gcp-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-gcp-0003",
+  "collected_at": "2026-09-05T15:00:00Z",
+  "resource": {
+    "type": "gcp_logging",
+    "id": "logging-acme-prod-123456",
+    "account_id": "acme-prod-123456"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "MON-02",
+      "status": "inconclusive",
+      "severity": "medium",
+      "message": "Log sinks fetch failed: ERROR: (gcloud.logging.sinks.list) RESOURCE_EXHAUSTED: Quota exceeded for quota metric 'Read requests' and limit 'Read requests per minute' of service 'logging.googleapis.com'."
+    }
+  ]
+}

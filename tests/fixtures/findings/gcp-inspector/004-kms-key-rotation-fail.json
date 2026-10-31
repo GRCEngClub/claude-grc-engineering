@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "source": "gcp-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-gcp-0004",
+  "collected_at": "2026-09-05T15:00:00Z",
+  "resource": {
+    "type": "gcp_kms_key",
+    "id": "projects/acme-prod-123456/locations/us-central1/keyRings/prod-ring/cryptoKeys/db-encryption",
+    "uri": "projects/acme-prod-123456/locations/us-central1/keyRings/prod-ring/cryptoKeys/db-encryption",
+    "region": "us-central1",
+    "account_id": "acme-prod-123456"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-09",
+      "status": "fail",
+      "severity": "medium",
+      "message": "Key db-encryption rotation period is 365d — exceeds 90d baseline.",
+      "remediation": {
+        "summary": "Shorten rotationPeriod to 7776000s (90d).",
+        "ref": "grc-engineer://generate-implementation/key_rotation/gcp",
+        "effort_hours": 0.1,
+        "automation": "auto_fixable"
+      }
+    }
+  ]
+}

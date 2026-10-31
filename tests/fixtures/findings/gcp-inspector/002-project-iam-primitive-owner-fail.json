@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "source": "gcp-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-gcp-0002",
+  "collected_at": "2026-09-05T15:00:00Z",
+  "resource": {
+    "type": "gcp_project_iam",
+    "id": "acme-prod-123456",
+    "uri": "//cloudresourcemanager.googleapis.com/projects/acme-prod-123456",
+    "region": null,
+    "account_id": "acme-prod-123456"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-07.2",
+      "status": "fail",
+      "severity": "high",
+      "message": "2 user account(s) hold primitive role(s): user:alice@example.com (roles/owner); user:bob@example.com (roles/editor).",
+      "remediation": {
+        "summary": "Replace primitive roles with predefined or custom roles. roles/owner and roles/editor are over-broad.",
+        "ref": "grc-engineer://generate-implementation/least_privilege/gcp",
+        "effort_hours": 1,
+        "automation": "semi_automated"
+      }
+    }
+  ]
+}
