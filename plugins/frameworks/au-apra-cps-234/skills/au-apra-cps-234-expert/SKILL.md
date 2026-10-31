@@ -119,6 +119,6 @@ ritual. Candidates for this framework:
 ## References
 
 - [Secure Controls Framework](https://securecontrolsframework.com)
-- [SCF API entry for this framework](https://hackidle.github.io/scf-api/api/crosswalks/apac-aus-ps-cps-234-2019.json)
+- [SCF API entry for this framework](https://grcengclub.github.io/scf-api/api/crosswalks/apac-aus-ps-cps-234-2019.json)
 - [APRA Prudential Standard CPS 234 Information Security](https://handbook.apra.gov.au/standard/cps-234)
 - [APRA Prudential Practice Guide CPG 234 Information Security](https://handbook.apra.gov.au/ppg/cpg-234)

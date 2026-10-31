@@ -31,4 +31,4 @@ A prioritized gap report listing unmet FINRA Broker-Dealer Cybersecurity Guidanc
 ## Further reading
 
 - [Secure Controls Framework](https://securecontrolsframework.com)
-- [SCF API entry for this framework](https://hackidle.github.io/scf-api/api/crosswalks/usa-federal-sro-finra.json)
+- [SCF API entry for this framework](https://grcengclub.github.io/scf-api/api/crosswalks/usa-federal-sro-finra.json)
