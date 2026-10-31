@@ -6,6 +6,7 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Added
 
+- **`grc-auditor:risk-report` command.** Drafts a ranked, evidence-cited risk report from a folder of raw evidence: reads every file as-is, clusters findings into risks, rates likelihood × impact from the evidence, and writes the report in the audience's language with a per-risk citation to the exact evidence file plus a run_id traceability block. This is the workflow taught in CGE-AUD Chapter 5.4 (Drafting a Risk Report) — the course references `/grc-auditor:risk-report`, but the plugin shipped without it, leaving `review-evidence` as the closest match. Accepts positional (`<path> <audience>`) and flag-style (`--input=`, `--audience=`) arguments, matching both forms shown in the course. The `examples/sample-evidence/` README now points at it for the Ch 5.4 exercise.
 - **NIST AI RMF framework plugin (stub).** Added `nist-ai-rmf`, the toolkit's first AI-governance framework plugin, scaffolded at Stub depth from the SCF crosswalk (`general-nist-100-1-ai-rmf`, 158 SCF controls → 91 AI RMF subcategories across GOVERN/MAP/MEASURE/MANAGE, counts verified against scf-api v2026.1), with marketplace registration. Reference-depth level-up (scope, evidence checklist, substantive SKILL) planned as a follow-up, along with a Generative AI Profile (AI 600-1) companion plugin. Closes [#195](https://github.com/GRCEngClub/claude-grc-engineering/issues/195).
 
 ### Changed
