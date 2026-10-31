@@ -97,7 +97,8 @@ Baseline Includes:
 ✓ AC-2(2) - Removal of Temporary / Emergency Accounts
 ✓ AC-2(3) - Disable Inactive Accounts
 ✓ AC-2(4) - Automated Audit Actions
-✓ AC-2(5) - Inactivity Logout (not baseline, but common)
+✓ AC-2(5) - Inactivity Logout
+✓ AC-2(13) - Disable Accounts for High-Risk Individuals
 
 Additional Enhancements Available (Optional):
 □ AC-2(6) - Dynamic Privilege Management
@@ -106,7 +107,6 @@ Additional Enhancements Available (Optional):
 □ AC-2(9) - Restrictions on Use of Shared Groups / Accounts
 □ AC-2(11) - Usage Conditions
 □ AC-2(12) - Account Monitoring / Atypical Usage
-□ AC-2(13) - Disable Accounts for High-Risk Individuals
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RECOMMENDED ENHANCEMENTS
