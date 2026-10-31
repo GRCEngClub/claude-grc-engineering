@@ -66,9 +66,12 @@ echo "📦 Creating Lambda deployment package..."
 cp "$LAMBDA_DIR/contact-form-handler.js" "$TEMP_DIR/index.js"
 
 # Install dependencies in temp directory
+# The Lambda layer's dependencies are pinned via the checked-in
+# contact-lambda/package-lock.json (npm security principle: hash-pinned
+# installs, required by OpenSSF Scorecard's PinnedDependencies check).
 cd "$TEMP_DIR"
-npm init -y > /dev/null 2>&1
-npm install @aws-sdk/client-ses --save > /dev/null 2>&1
+cp "$SCRIPT_DIR"/contact-lambda/package.json "$SCRIPT_DIR"/contact-lambda/package-lock.json .
+npm ci --ignore-scripts --no-audit --no-fund > /dev/null 2>&1
 
 # Create zip file
 zip -r function.zip . > /dev/null 2>&1

@@ -4,15 +4,17 @@ on:
   pull_request_target:
     types: [opened, reopened]
 
+# All privileged operations (closing the PR) use the GitHub App token issued
+# in-step, so the workflow-level GITHUB_TOKEN only needs read access.
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
         id: app-token
         with:
           app-id: ${{ secrets.VOUCH_APP_ID }}
