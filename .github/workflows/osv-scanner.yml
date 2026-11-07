@@ -16,15 +16,17 @@ on:
   schedule:
     - cron: '0 7 * * MON'  # Monday 07:00 UTC, between scorecard (06:00) and lychee (08:00)
 
+# security-events: write is granted only at the job scope so the reusable
+# scanner can upload SARIF results; the workflow-level token is minimal.
 permissions:
-  actions: read
   contents: read
-  security-events: write
 
 jobs:
   scan-scheduled:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@3d5827dbebf8a3f7ba681e730a8a1b116e8ebddd # v2.3.5
+    permissions:
+      security-events: write
     with:
       scan-args: |-
         --include-git-root
@@ -34,6 +36,8 @@ jobs:
   scan-pr:
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@3d5827dbebf8a3f7ba681e730a8a1b116e8ebddd # v2.3.5
+    permissions:
+      security-events: write
     with:
       scan-args: |-
         --include-git-root
