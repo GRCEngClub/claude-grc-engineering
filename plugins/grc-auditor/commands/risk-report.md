@@ -8,8 +8,8 @@ Reads every file in an evidence folder, clusters findings into risks, rates like
 
 ## Arguments
 
-- `$1` - Evidence folder or file path (required)
-- `$2` - Audience (optional: `leadership`, `ciso`, `audit-committee`, `engagement-manager`; defaults to `leadership`)
+- Evidence input - Evidence folder or file path (required)
+- Audience - Optional: `leadership`, `ciso`, `audit-committee`, `engagement-manager`; defaults to `leadership`
 
 Parse `$ARGUMENTS` before proceeding. Accept either a positional path followed by an optional audience, or `--input=<path>` and optional `--audience=<audience>` in either order. Bind the path to the evidence input and the audience to the requested audience; default the latter to `leadership`. Reject missing input, unknown flags, duplicate arguments, mixed positional and flag forms, and audiences outside the list above with a clear usage error.
 
