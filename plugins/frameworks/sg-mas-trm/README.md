@@ -38,6 +38,6 @@ level-up checklist.
 ## References
 
 - [Secure Controls Framework](https://securecontrolsframework.com) - crosswalk source (CC BY-ND 4.0)
-- [SCF API entry](https://hackidle.github.io/scf-api/api/crosswalks/apac-sgp-mas-trm-2021.json)
+- [SCF API entry](https://grcengclub.github.io/scf-api/api/crosswalks/apac-sgp-mas-trm-2021.json)
 - [MAS Technology Risk Management Guidelines, January 18 2021](https://www.mas.gov.sg/-/media/MAS/Regulations-and-Financial-Stability/Regulatory-and-Supervisory-Framework/Risk-Management/TRM-Guidelines-18-January-2021.pdf)
 - [Monetary Authority of Singapore](https://www.mas.gov.sg/)
