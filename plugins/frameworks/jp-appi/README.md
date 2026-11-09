@@ -32,7 +32,7 @@ Full depth adds framework-native workflow commands tied to the audit ritual. If 
 ## References
 
 - [Secure Controls Framework](https://securecontrolsframework.com) - crosswalk source (CC BY-ND 4.0)
-- [SCF API entry](https://hackidle.github.io/scf-api/api/crosswalks/apac-jpn-ppi-2020.json)
+- [SCF API entry](https://grcengclub.github.io/scf-api/api/crosswalks/apac-jpn-ppi-2020.json)
 - [Personal Information Protection Commission, Japan](https://www.ppc.go.jp/en/)
 - [PPC English APPI translation](https://www.ppc.go.jp/files/pdf/APPI_english.pdf)
 - [Japanese Law Translation: Act on the Protection of Personal Information](https://www.japaneselawtranslation.go.jp/en/laws/view/4241/en)
