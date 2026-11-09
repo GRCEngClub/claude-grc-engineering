@@ -81,10 +81,22 @@ expected to be automated and audited.
 ✓ **Account inventory and credential state** — AC-2(1) automated management
 
 ```bash
+(
+umask 077
+mkdir -p evidence && chmod 700 evidence || exit 1
+stamp=$(date +%Y%m%d)
+file="evidence/nist-ac2-iam-users-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
+file="evidence/nist-ac2-iam-roles-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
+file="evidence/nist-ac2-iam-groups-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
+file="evidence/nist-ac2-credential-report-$stamp.csv"
+: >> "$file" && chmod 600 "$file" || exit 1
 # IAM principals (users, roles, groups)
-aws iam list-users  --output json > evidence/nist-ac2-iam-users-$(date +%Y%m%d).json
-aws iam list-roles  --output json > evidence/nist-ac2-iam-roles-$(date +%Y%m%d).json
-aws iam list-groups --output json > evidence/nist-ac2-iam-groups-$(date +%Y%m%d).json
+aws iam list-users  --output json > evidence/nist-ac2-iam-users-${stamp}.json
+aws iam list-roles  --output json > evidence/nist-ac2-iam-roles-${stamp}.json
+aws iam list-groups --output json > evidence/nist-ac2-iam-groups-${stamp}.json
 
 # Credential report: password age, MFA, access-key age/last-use.
 # generate-credential-report is asynchronous — it returns STARTED/INPROGRESS and
@@ -109,42 +121,70 @@ if [ "$state" != "COMPLETE" ]; then
   exit 1
 fi
 aws iam get-credential-report --query Content --output text | base64 -d \
-  > evidence/nist-ac2-credential-report-$(date +%Y%m%d).csv
+  > evidence/nist-ac2-credential-report-${stamp}.csv
+)
 ```
 
 ✓ **Account lifecycle audit trail** — AC-2(4) automated audit actions
 
 ```bash
+(
+umask 077
+mkdir -p evidence && chmod 700 evidence || exit 1
+stamp=$(date +%Y%m%d)
+file="evidence/nist-ac2-lifecycle-CreateUser-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
+file="evidence/nist-ac2-lifecycle-DeleteUser-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
+file="evidence/nist-ac2-lifecycle-AttachUserPolicy-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
+file="evidence/nist-ac2-lifecycle-DetachUserPolicy-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
 # Account create/modify/delete events from CloudTrail (last 30 days)
 for ev in CreateUser DeleteUser AttachUserPolicy DetachUserPolicy; do
   aws cloudtrail lookup-events \
     --lookup-attributes AttributeKey=EventName,AttributeValue="$ev" \
     --start-time "$(date -u -d '30 days ago' +%Y-%m-%dT%H:%M:%S)" \
-    --output json > "evidence/nist-ac2-lifecycle-$ev-$(date +%Y%m%d).json"
+    --output json > "evidence/nist-ac2-lifecycle-$ev-${stamp}.json"
 done
+)
 ```
 
 □ **Privileged account candidates (partial)** — direct user attachments of the named AWS managed policy only, not a complete inventory or proof of effective access. Review groups, inline and custom policies, roles, identity federation, permission boundaries, SCPs and resource policies separately; reconcile with the complete account population. AC-6(5) covers privileged-account review at Moderate+.
 
 ```bash
+(
+umask 077
+mkdir -p evidence && chmod 700 evidence || exit 1
+stamp=$(date +%Y%m%d)
+file="evidence/nist-ac2-privileged-$stamp.csv"
+: >> "$file" && chmod 600 "$file" || exit 1
 # Principals carrying AdministratorAccess (adjust for your privileged policy set)
 for u in $(aws iam list-users --query 'Users[].UserName' --output text); do
   aws iam list-attached-user-policies --user-name "$u" \
     --query 'AttachedPolicies[?PolicyName==`AdministratorAccess`].PolicyName' \
     --output text | grep -q AdministratorAccess && \
-    echo "$u,AdministratorAccess" >> evidence/nist-ac2-privileged-$(date +%Y%m%d).csv
+    echo "$u,AdministratorAccess" >> evidence/nist-ac2-privileged-${stamp}.csv
 done
+)
 ```
 
 ✓ **Inactive account detection** — AC-2(3) disable accounts (confirm the inactivity ODP, e.g., 90 days)
 
 ```bash
+(
+umask 077
+mkdir -p evidence && chmod 700 evidence || exit 1
+stamp=$(date +%Y%m%d)
+file="evidence/nist-ac2-inactive-review-$stamp.csv"
+: >> "$file" && chmod 600 "$file" || exit 1
 # Password-enabled accounts unused beyond the org-defined inactivity window
 aws iam get-credential-report --query Content --output text | base64 -d \
-  > evidence/nist-ac2-inactive-review-$(date +%Y%m%d).csv
+  > evidence/nist-ac2-inactive-review-${stamp}.csv
 # Review password_last_used against your ODP; flag and disable stale accounts.
 # This file carries usernames, MFA state, and key ages — treat it as evidence,
 # not scratch: keep it in the encrypted locker, never in /tmp or a shared path.
+)
 ```
 
 Collection frequency: monthly inventory, weekly for privileged and inactive checks.
@@ -230,31 +270,54 @@ integrated with non-audit data sources including physical access monitoring.
 ✓ **Automated review integration** — AU-6(1) integrate with a SIEM/analysis capability
 
 ```bash
+(
+umask 077
+mkdir -p evidence && chmod 700 evidence || exit 1
+stamp=$(date +%Y%m%d)
+file="evidence/nist-au6-siem-subscriptions-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
 # Proof that audit records flow into a centralized analysis pipeline
 aws logs describe-subscription-filters \
   --log-group-name "<your-audit-log-group>" \
-  --output json > evidence/nist-au6-siem-subscriptions-$(date +%Y%m%d).json
+  --output json > evidence/nist-au6-siem-subscriptions-${stamp}.json
+)
 ```
 
 ✓ **Cross-repository correlation** — AU-6(3) correlate audit record repositories
 
 ```bash
+(
+umask 077
+mkdir -p evidence && chmod 700 evidence || exit 1
+stamp=$(date +%Y%m%d)
+file="evidence/nist-au6-securityhub-standards-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
+file="evidence/nist-au6-guardduty-detectors-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
 # Evidence that multiple audit sources are aggregated for correlation
 aws securityhub get-enabled-standards \
-  --output json > evidence/nist-au6-securityhub-standards-$(date +%Y%m%d).json
+  --output json > evidence/nist-au6-securityhub-standards-${stamp}.json
 aws guardduty list-detectors \
-  --output json > evidence/nist-au6-guardduty-detectors-$(date +%Y%m%d).json
+  --output json > evidence/nist-au6-guardduty-detectors-${stamp}.json
+)
 ```
 
 ✓ **Integrated analysis across data sources** — AU-6(5) combine audit with scan/performance data
 
 ```bash
+(
+umask 077
+mkdir -p evidence && chmod 700 evidence || exit 1
+stamp=$(date +%Y%m%d)
+file="evidence/nist-au6-integrated-findings-$stamp.json"
+: >> "$file" && chmod 600 "$file" || exit 1
 # Aggregated findings that fuse audit data with vulnerability and config signals.
 # No --max-items here on purpose: the CLI auto-paginates, and a capped artifact
 # would silently stop mid-population while still looking complete to a reader.
 aws securityhub get-findings \
   --filters '{"RecordState":[{"Value":"ACTIVE","Comparison":"EQUALS"}]}' \
-  --output json > evidence/nist-au6-integrated-findings-$(date +%Y%m%d).json
+  --output json > evidence/nist-au6-integrated-findings-${stamp}.json
+)
 ```
 
 If the finding volume makes a full pull impractical, narrow the population with
@@ -610,6 +673,7 @@ class AC2Evidence:
         Roles, federation and other access paths must be reviewed separately.
         """
         privileged = []
+        group_policies = {}
         for user in users:
             name = user["UserName"]
             matched = []
@@ -624,12 +688,17 @@ class AC2Evidence:
 
             for group in self._paginate("list_groups_for_user", "Groups", UserName=name):
                 group_name = group["GroupName"]
-                for policy in self._paginate("list_attached_group_policies",
-                                             "AttachedPolicies", GroupName=group_name):
+                if group_name not in group_policies:
+                    group_policies[group_name] = (
+                        self._paginate("list_attached_group_policies", "AttachedPolicies", GroupName=group_name),
+                        self._paginate("list_group_policies", "PolicyNames", GroupName=group_name),
+                    )
+                managed, inline_names = group_policies[group_name]
+                for policy in managed:
                     if policy["PolicyName"] in ADMIN_POLICIES:
                         matched.append(f"{policy['PolicyName']} (via group {group_name})")
                     managed_review.append(f"{policy['PolicyArn']} (via group {group_name})")
-                for policy_name in self._paginate("list_group_policies", "PolicyNames", GroupName=group_name):
+                for policy_name in inline_names:
                     group_inline.append(f"{policy_name} (via group {group_name})")
 
             # Inline policy names are arbitrary, so they cannot be matched against
