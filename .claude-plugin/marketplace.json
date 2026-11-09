@@ -418,7 +418,7 @@
     {
       "name": "nist-ai-600-1",
       "source": "./plugins/frameworks/nist-ai-600-1",
-      "description": "NIST AI 600-1 (Generative AI Profile) \u2014 stub-depth plugin backed by the SCF crosswalk (139 SCF \u2192 250 framework controls).",
+      "description": "NIST AI 600-1 (Generative AI Profile) \u2014 stub-depth plugin backed by the SCF crosswalk (139 SCF controls map to 250 profile items and suggested actions).",
       "version": "0.1.0"
     }
   ]

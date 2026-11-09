@@ -6,7 +6,7 @@ allowed-tools: Read, Glob, Grep
 
 # NIST AI 600-1 (Generative AI Profile) Expert
 
-Stub-depth expertise for **NIST AI 600-1 (Generative AI Profile)**. This plugin is scaffolded from the SCF crosswalk (139 SCF controls map to 250 SCF-mapped profile / suggested-action items) and defers to `/grc-engineer:gap-assessment` for the actual compliance check.
+Stub-depth expertise for **NIST AI 600-1 (Generative AI Profile)**. This plugin is scaffolded from the SCF crosswalk (139 SCF controls map to 250 distinct profile / suggested-action items) and delegates evidence review to `/grc-engineer:gap-assessment`; it does not establish compliance.
 
 ## Framework identity
 
@@ -16,7 +16,9 @@ Stub-depth expertise for **NIST AI 600-1 (Generative AI Profile)**. This plugin 
 - **Issuing body**: NIST (U.S. National Institute of Standards and Technology); voluntary framework, not enforced
 - **Canonical source**: NIST AI 600-1, "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile", July 2024
 
-AI 600-1 is a **cross-sectoral profile of AI RMF 1.0**, not a standalone framework, not a control catalog, and not a certification. It identifies risks that are novel to or exacerbated by generative AI and maps suggested actions to AI RMF subcategories; obligations resolve through the parent framework's GOVERN/MAP/MEASURE/MANAGE structure. Concrete controls come from the SCF crosswalk: 139 SCF controls map to 250 non-normative profile / suggested-action items, referenced by ID, never by paraphrased prose.
+AI 600-1 is a **cross-sectoral profile of AI RMF 1.0**, not a standalone control catalog or certification. It identifies risks that are novel to or exacerbated by generative AI and organizes suggested actions by AI RMF subcategory. The profile and parent framework are voluntary guidance; separate legal or contractual obligations may apply. The crosswalk links 139 SCF controls to 250 distinct profile / suggested-action items. A mapping or connector finding alone does not prove an action is unmet or establish compliance; assess applicability and evidence.
+
+Official source: [NIST AI 600-1](https://doi.org/10.6028/NIST.AI.600-1).
 
 Common failure modes when working with this framework: treating the profile as a framework separate from AI RMF, treating its suggested actions as mandatory controls, and mapping to action prose instead of IDs.
 
