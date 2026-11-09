@@ -1,0 +1,9 @@
+{
+  "name": "contact-lambda",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dependency-pinned Lambda layer for deploy-contact-api.sh (clients resolved + integrity-hashed via package-lock.json).",
+  "dependencies": {
+    "@aws-sdk/client-ses": "3.1161.0"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "source": "gcp-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-gcp-0001",
+  "collected_at": "2026-09-05T15:00:00Z",
+  "resource": {
+    "type": "gcp_storage_bucket",
+    "id": "acme-prod-audit-logs",
+    "uri": "gs://acme-prod-audit-logs",
+    "region": "us-central1",
+    "account_id": "acme-prod-123456"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "DCH-01.2",
+      "status": "pass",
+      "severity": "info"
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-10",
+      "status": "pass",
+      "severity": "info"
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-05",
+      "status": "pass",
+      "severity": "info",
+      "message": "Google-managed encryption (default). For regulated workloads, consider CMEK."
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "MON-01.2",
+      "status": "pass",
+      "severity": "info"
+    }
+  ]
+}
