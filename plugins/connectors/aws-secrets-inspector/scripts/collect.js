@@ -398,7 +398,12 @@ async function evaluateSecret({ env, region, runId, accountId, arn, summary }) {
   // was disabled; treat that as inconclusive.
   const lastAccessed = parseIsoDate(desc.LastAccessedDate);
   const lastRotated = parseIsoDate(desc.LastRotatedDate);
-  const now = Date.now();
+  // When a fixture clock is pinned (AWS_SECRETS_INSPECTOR_FAKE_NOW, test
+  // mode only), date-relative checks evaluate against that instant so
+  // fixtures keep their expected windows as real time passes. Real runs
+  // always use the wall clock.
+  const fakeNow = env.AWS_SECRETS_INSPECTOR_FAKE_NOW ? Date.parse(env.AWS_SECRETS_INSPECTOR_FAKE_NOW) : NaN;
+  const now = Number.isFinite(fakeNow) ? fakeNow : Date.now();
   const inactiveDays = lastAccessed ? Math.floor((now - lastAccessed.getTime()) / 86400000) : null;
   const rotationAgeDays = lastRotated ? Math.floor((now - lastRotated.getTime()) / 86400000) : null;
 
