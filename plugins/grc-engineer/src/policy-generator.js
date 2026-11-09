@@ -46,15 +46,6 @@ deny[msg] {
     instance.type == "aws_instance"
     instance.change.after.subnet_id == null
     msg := "EC2 instance must be in a VPC"
-}`,
-    default: `package policy
-
-import future.keywords.if
-
-# Generated policy based on requirement
-deny[msg] {
-    # Add your policy logic here
-    msg := "Policy requirement not met"
 }`
   },
   sentinel: {
@@ -66,12 +57,6 @@ main = rule {
         (rc.change.after.public_access_block is not null and
          rc.change.after.tags.Department is not null)
     }
-}`,
-    default: `import "tfplan/v2" as tfplan
-
-main = rule {
-    # Add your policy logic here
-    true
 }`
   },
   'aws-config': {
@@ -115,6 +100,9 @@ def evaluate_compliance(configuration_item, rule_parameters):
 };
 
 export function generatePolicy(requirement, format = 'rego') {
+  if (!Object.hasOwn(POLICY_TEMPLATES, format)) {
+    throw new Error(`Unsupported format: ${format}. Supported: ${Object.keys(POLICY_TEMPLATES).join(', ')}`);
+  }
   const normalizedReq = requirement.toLowerCase();
   
   // Detect requirement type
@@ -125,17 +113,17 @@ export function generatePolicy(requirement, format = 'rego') {
     policyType = 'ec2_encryption';
   }
 
-  const template = POLICY_TEMPLATES[format]?.[policyType] || POLICY_TEMPLATES[format]?.default;
+  const template = Object.hasOwn(POLICY_TEMPLATES[format], policyType) ? POLICY_TEMPLATES[format][policyType] : undefined;
   
   if (!template) {
-    throw new Error(`Unsupported format: ${format}. Supported: ${Object.keys(POLICY_TEMPLATES).join(', ')}`);
+    throw new Error(`No policy template available for this requirement in format: ${format}. No policy was generated.`);
   }
 
   // Generate policy with requirement context
   const policy = {
     requirement,
     format,
-    code: template,
+    code: `# DRAFT - DO NOT ENFORCE without independent review and testing. Keyword matching may not reflect the requirement.\n${template}`,
     metadata: {
       generated: new Date().toISOString(),
       requirement_type: policyType
@@ -151,6 +139,7 @@ export function generatePolicy(requirement, format = 'rego') {
     policy.documentation = generateAwsConfigDocs(requirement);
   }
 
+  policy.documentation = `> DRAFT: Do not enforce without independent review and testing. Keyword matching may not reflect the requirement.\n\n${policy.documentation}`;
   return policy;
 }
 
