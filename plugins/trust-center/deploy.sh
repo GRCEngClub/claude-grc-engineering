@@ -165,7 +165,7 @@ VITE_USER_POOL_CLIENT_ID=$USER_POOL_CLIENT_ID
 VITE_COMPANY_NAME=$COMPANY_NAME
 EOF
 
-  npm install --silent 2>/dev/null
+  npm ci --ignore-scripts --no-audit --no-fund --silent 2>/dev/null
   npm run build --silent 2>/dev/null
   ok "Frontend built"
 
