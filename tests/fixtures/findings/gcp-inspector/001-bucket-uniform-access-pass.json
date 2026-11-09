@@ -7,7 +7,7 @@
   "resource": {
     "type": "gcp_storage_bucket",
     "id": "acme-prod-audit-logs",
-    "uri": "gs://acme-prod-audit-logs",
+    "uri": "//storage.googleapis.com/acme-prod-audit-logs",
     "region": "us-central1",
     "account_id": "acme-prod-123456"
   },
