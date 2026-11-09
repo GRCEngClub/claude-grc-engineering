@@ -4,7 +4,7 @@ description: Generate draft policy templates from natural language requirements
 
 # Generate Policy
 
-This prototype selects a fixed template using keywords, not a reliable interpretation of the requirement. **Output is a draft, not an enforceable policy.** Independently review, adapt, and test it before any use. Templates may miss requirements or add unrelated checks; for example the S3 template always includes a Department tag check. No compliance coverage is inferred.
+This prototype selects a fixed template only for exact supported phrases, not a reliable interpretation of arbitrary requirements. **Output is a draft, not an enforceable policy.** Independently review, adapt, and test it before any use. Templates may miss requirements or add unrelated checks; for example the S3 template always includes a Department tag check. No compliance coverage is inferred.
 
 ## Arguments
 
@@ -13,10 +13,10 @@ This prototype selects a fixed template using keywords, not a reliable interpret
 
 ## Available templates
 
-- S3 public access or tags: `rego`, `sentinel`, `aws-config`
-- EC2 encryption: `rego` only
+- `Ensure no S3 buckets are public`: `rego`, `sentinel`, `aws-config`
+- `All EC2 instances must have encryption enabled`: `rego` only
 
-Other requirements and combinations fail without generating files. Terraform and Checkov are not implemented.
+Matching ignores case and surrounding or repeated whitespace; any other wording, extra clauses, or unsupported format combinations fail without generating files. Even semantically equivalent wording is rejected. Terraform and Checkov are not implemented.
 
 ## Instructions
 

@@ -4,7 +4,7 @@
  * Usage: node scripts/generate-policy.js "<requirement>" [format]
  *
  * Examples:
- *   node scripts/generate-policy.js "Ensure no S3 buckets are public and all must have a 'Department' tag" rego
+ *   node scripts/generate-policy.js "Ensure no S3 buckets are public" rego
  *   node scripts/generate-policy.js "All EC2 instances must have encryption enabled" rego
  */
 
@@ -21,7 +21,7 @@ async function main() {
     console.error('');
     console.error('Examples:');
     console.error('  node scripts/generate-policy.js "Ensure no S3 buckets are public" rego');
-    console.error('  node scripts/generate-policy.js "All EC2 instances encrypted" rego');
+    console.error('  node scripts/generate-policy.js "All EC2 instances must have encryption enabled" rego');
     console.error('');
     console.error('Supported formats: rego, sentinel, aws-config (template availability varies).');
     console.error('Outputs are drafts, not enforceable policies; independently review and test them.');

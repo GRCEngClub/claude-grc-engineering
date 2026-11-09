@@ -103,15 +103,17 @@ export function generatePolicy(requirement, format = 'rego') {
   if (!Object.hasOwn(POLICY_TEMPLATES, format)) {
     throw new Error(`Unsupported format: ${format}. Supported: ${Object.keys(POLICY_TEMPLATES).join(', ')}`);
   }
-  const normalizedReq = requirement.toLowerCase();
-  
-  // Detect requirement type
-  let policyType = 'default';
-  if (normalizedReq.includes('s3') && (normalizedReq.includes('public') || normalizedReq.includes('tag'))) {
-    policyType = 's3_public';
-  } else if (normalizedReq.includes('ec2') && normalizedReq.includes('encrypt')) {
-    policyType = 'ec2_encryption';
-  }
+  // Deliberately accept only complete, reviewed phrases. Keyword matching can
+  // mistake opposite or unrelated requirements for a supported template.
+  const supportedRequirements = {
+    'ensure no s3 buckets are public': 's3_public',
+    'all ec2 instances must have encryption enabled': 'ec2_encryption'
+  };
+  const normalizedReq = typeof requirement === 'string'
+    ? requirement.trim().toLowerCase().replace(/\s+/g, ' ')
+    : '';
+  const policyType = Object.hasOwn(supportedRequirements, normalizedReq)
+    ? supportedRequirements[normalizedReq] : undefined;
 
   const template = Object.hasOwn(POLICY_TEMPLATES[format], policyType) ? POLICY_TEMPLATES[format][policyType] : undefined;
   
@@ -123,7 +125,7 @@ export function generatePolicy(requirement, format = 'rego') {
   const policy = {
     requirement,
     format,
-    code: `# DRAFT - DO NOT ENFORCE without independent review and testing. Keyword matching may not reflect the requirement.\n${template}`,
+    code: `# DRAFT - DO NOT ENFORCE without independent review and testing. Template checks may not reflect the requirement.\n${template}`,
     metadata: {
       generated: new Date().toISOString(),
       requirement_type: policyType
@@ -139,7 +141,7 @@ export function generatePolicy(requirement, format = 'rego') {
     policy.documentation = generateAwsConfigDocs(requirement);
   }
 
-  policy.documentation = `> DRAFT: Do not enforce without independent review and testing. Keyword matching may not reflect the requirement.\n\n${policy.documentation}`;
+  policy.documentation = `> DRAFT: Do not enforce without independent review and testing. Template checks may not reflect the requirement.\n\n${policy.documentation}`;
   return policy;
 }
 
