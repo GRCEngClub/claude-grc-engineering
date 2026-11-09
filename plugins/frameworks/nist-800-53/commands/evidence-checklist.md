@@ -9,7 +9,7 @@ NIST 800-53 is a control *catalog*, not a regulation. Enforcement comes from the
 ## Usage
 
 ```bash
-/nist:evidence-checklist <control-id|family> [--baseline <low|moderate|high>] [--export <markdown|json|csv>]
+/nist-800-53:evidence-checklist <control-id|family> [--baseline <low|moderate|high>] [--export <markdown|json|csv>]
 ```
 
 ## Arguments
@@ -20,20 +20,20 @@ NIST 800-53 is a control *catalog*, not a regulation. Enforcement comes from the
 
 ## How baseline scoping works
 
-The base control is the floor; **control enhancements** layer on top as the impact level rises. The checklist only asks for evidence that the selected baseline actually requires, so a Low-baseline system is not chased for High-baseline artifacts it never had to implement.
+Use the actual allocations for each control in the selected baseline, including enhancements at Low. Do not infer allocation from the impact level alone. Check the official [NIST OSCAL baseline profiles](https://github.com/usnistgov/oscal-content/tree/master/nist.gov/SP800-53/rev5/json), and reconcile the selected and tailored profile with the SSP and authorizing program.
 
-- **`low`** — base control only. Policy, procedures, and a periodic manual review; no enhancement evidence.
-- **`moderate`** — base control plus Moderate enhancements. Adds automation logs, automated audit actions, and tightened ODPs (for example, disabling inactive accounts after a defined period).
-- **`high`** — base control plus Moderate and High enhancements. Adds continuous or behavioral monitoring, cross-source correlation, and physical/logical correlation evidence.
+- **`low`** — allocated base controls and enhancements (for example, IA-2(1)).
+- **`moderate`** — controls and enhancements allocated to Moderate.
+- **`high`** — controls and enhancements allocated to High.
 
-Organization-defined parameters (ODPs) also tighten with the baseline. Where a FedRAMP profile sets a well-known value (for example, disabling inactive accounts after 90 days), the checklist surfaces it as a parameter to confirm against your SSP rather than asserting a single universal number — always reconcile ODPs to your own authorization boundary.
+Organization-defined parameters (ODPs) depend on the applicable profile and organizational decisions; they do not universally tighten with baseline. Reconcile any example values against your SSP and authorization boundary.
 
 Baseline allocations follow NIST SP 800-53B. Control intent is paraphrased and referenced by control ID; consult the official NIST catalog for normative text.
 
 ## Example 1 — AC-2 Account Management (Moderate baseline)
 
 ```bash
-/nist:evidence-checklist AC-2 --baseline moderate
+/nist-800-53:evidence-checklist AC-2 --baseline moderate
 ```
 
 **Output:**
@@ -124,7 +124,7 @@ for ev in CreateUser DeleteUser AttachUserPolicy DetachUserPolicy; do
 done
 ```
 
-✓ **Privileged account inventory** — base AC-2 (privileged is an identified account type warranting extra scrutiny); the dedicated privileged-account review control at Moderate+ is AC-6(5)
+□ **Privileged account candidates (partial)** — direct user attachments of the named AWS managed policy only, not a complete inventory or proof of effective access. Review groups, inline and custom policies, roles, identity federation, permission boundaries, SCPs and resource policies separately; reconcile with the complete account population. AC-6(5) covers privileged-account review at Moderate+.
 
 ```bash
 # Principals carrying AdministratorAccess (adjust for your privileged policy set)
@@ -188,7 +188,7 @@ Purpose: demonstrate automated, audited account management at Moderate.
 ## Example 2 — AU-6 Audit Record Review, Analysis, and Reporting (High baseline)
 
 ```bash
-/nist:evidence-checklist AU-6 --baseline high
+/nist-800-53:evidence-checklist AU-6 --baseline high
 ```
 
 **Output:**
@@ -302,7 +302,7 @@ Purpose: demonstrate automated, correlated, integrated review at High.
 Passing a family instead of a single control expands the checklist to every control in that family that is in scope for the selected baseline:
 
 ```bash
-/nist:evidence-checklist AU --baseline high
+/nist-800-53:evidence-checklist AU --baseline high
 ```
 
 This produces a checklist covering AU-2, AU-3, AU-6, AU-11, AU-12, and the other AU controls allocated to High, each with its own documentation / automated / manual evidence breakdown. Use a single control ID when you want depth; use a family when you want coverage.
@@ -605,18 +605,22 @@ class AC2Evidence:
         and reports real administrators as unprivileged. An understated privileged
         population is the finding an assessor writes up, so check all three.
 
-        Scope is IAM users. Privileged roles and group inline policies are a
-        separate population — collect them before claiming full AC-2 coverage.
+        This is a candidate list, not an effective-access determination. All
+        managed policies and inline-policy names are retained for manual review.
+        Roles, federation and other access paths must be reviewed separately.
         """
         privileged = []
         for user in users:
             name = user["UserName"]
             matched = []
+            managed_review = []
+            group_inline = []
 
             for policy in self._paginate("list_attached_user_policies",
                                          "AttachedPolicies", UserName=name):
                 if policy["PolicyName"] in ADMIN_POLICIES:
                     matched.append(policy["PolicyName"])
+                managed_review.append(policy["PolicyArn"])
 
             for group in self._paginate("list_groups_for_user", "Groups", UserName=name):
                 group_name = group["GroupName"]
@@ -624,21 +628,27 @@ class AC2Evidence:
                                              "AttachedPolicies", GroupName=group_name):
                     if policy["PolicyName"] in ADMIN_POLICIES:
                         matched.append(f"{policy['PolicyName']} (via group {group_name})")
+                    managed_review.append(f"{policy['PolicyArn']} (via group {group_name})")
+                for policy_name in self._paginate("list_group_policies", "PolicyNames", GroupName=group_name):
+                    group_inline.append(f"{policy_name} (via group {group_name})")
 
             # Inline policy names are arbitrary, so they cannot be matched against
             # ADMIN_POLICIES. Surface them for manual review rather than guessing.
             inline = self._paginate("list_user_policies", "PolicyNames", UserName=name)
 
-            if matched or inline:
-                privileged.append({
+            # Keep every user, including users with no listed policies: omission
+            # is not proof of no effective access (e.g. resource-based grants).
+            privileged.append({
                     "user": name,
                     "admin_policies": sorted(set(matched)),
+                    "managed_policies_for_manual_review": sorted(set(managed_review)),
                     "inline_policies_for_manual_review": inline,
+                    "group_inline_policies_for_manual_review": sorted(set(group_inline)),
                 })
-        self._write("privileged", privileged)
+        self._write("privileged-candidates-partial", {"complete": False, "scope": "IAM users only; manual effective-access review required, including roles and federation", "users": privileged})
         label = "base AC-2" if self.baseline == "low" else "AC-6(5)"
-        print(f"[{label}] privileged principals: {len(privileged)} "
-              f"(inline-policy holders included, flagged for manual review)")
+        print(f"[{label}] {len(privileged)} IAM users for manual review; "
+              f"partial candidates only, not a complete privileged inventory")
         return privileged
 
     def run(self):
