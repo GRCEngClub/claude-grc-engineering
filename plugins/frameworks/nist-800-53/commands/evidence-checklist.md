@@ -82,6 +82,7 @@ expected to be automated and audited.
 
 ```bash
 (
+set -e -o pipefail
 umask 077
 mkdir -p evidence && chmod 700 evidence || exit 1
 stamp=$(date +%Y%m%d)
@@ -159,12 +160,16 @@ mkdir -p evidence && chmod 700 evidence || exit 1
 stamp=$(date +%Y%m%d)
 file="evidence/nist-ac2-privileged-$stamp.csv"
 : >> "$file" && chmod 600 "$file" || exit 1
+: > "$file" || exit 1
 # Principals carrying AdministratorAccess (adjust for your privileged policy set)
-for u in $(aws iam list-users --query 'Users[].UserName' --output text); do
-  aws iam list-attached-user-policies --user-name "$u" \
+users=$(aws iam list-users --query 'Users[].UserName' --output text) || exit 1
+for u in $users; do
+  policies=$(aws iam list-attached-user-policies --user-name "$u" \
     --query 'AttachedPolicies[?PolicyName==`AdministratorAccess`].PolicyName' \
-    --output text | grep -q AdministratorAccess && \
-    echo "$u,AdministratorAccess" >> evidence/nist-ac2-privileged-${stamp}.csv
+    --output text) || exit 1
+  if [ "$policies" = AdministratorAccess ]; then
+    echo "$u,AdministratorAccess" >> "$file" || exit 1
+  fi
 done
 )
 ```
@@ -173,6 +178,7 @@ done
 
 ```bash
 (
+set -e -o pipefail
 umask 077
 mkdir -p evidence && chmod 700 evidence || exit 1
 stamp=$(date +%Y%m%d)
@@ -192,6 +198,10 @@ Retention: per the authorizing program (commonly multi-year for federal systems)
 Purpose: demonstrate automated, audited account management at Moderate.
 
 ### Manual Evidence Collection
+
+□ **Inactivity logout — AC-2(5)**
+  - Document the organization-defined inactivity period and configure automatic session logout for applicable systems; reconcile scope and exceptions with the SSP.
+  - Evidence: session timeout configuration and a dated test showing an inactive session is automatically logged out within the defined period.
 
 □ **Periodic account review records (AC-2 review requirement)**
   - Account list reviewed at the org-defined frequency, with manager certification

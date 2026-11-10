@@ -23,7 +23,7 @@ with tempfile.TemporaryDirectory() as temp:
     aws.write_text('''#!/bin/bash
 case "$*" in
   *generate-credential-report*) printf 'COMPLETE\\n' ;;
-  *get-credential-report*) printf 'dXNlcixwYXNzd29yZAphbGljZSxuZXZlcg==\\n' ;;
+  *get-credential-report*) if [ "${FAIL_FETCH:-0}" = 1 ]; then exit 42; fi; printf 'dXNlcixwYXNzd29yZAphbGljZSxuZXZlcg==\\n' ;;
   *list-users*--query*) printf 'alice\\n' ;;
   *list-attached-user-policies*) printf 'AdministratorAccess\\n' ;;
   *) printf '{}\\n' ;;
@@ -40,6 +40,8 @@ esac
             assert files
             for f in files:
                 assert stat.S_IMODE(f.stat().st_mode) == 0o600, f
+                if f.name.startswith('nist-ac2-privileged-'):
+                    assert f.read_text().splitlines() == ['alice,AdministratorAccess']
                 f.chmod(0o666)  # Simulate a loose artifact from a previous run.
             directory.chmod(0o777)
             # Other collectors' artifacts are not touched; remove them between runs.
@@ -48,6 +50,13 @@ esac
             else:
                 for f in files:
                     f.unlink()
+
+    report_collectors = [b for b in collectors if 'aws iam get-credential-report' in b]
+    assert len(report_collectors) == 2
+    for block in report_collectors:
+        result = subprocess.run(['bash', '-c', block], cwd=root,
+                                env=dict(env, FAIL_FETCH='1'), capture_output=True)
+        assert result.returncode != 0, 'failed AWS fetch must fail the collector'
 
 source = re.search(r'```python\n(.*?)\n```', text, re.S).group(1)
 compile(source, str(DOC), 'exec')
