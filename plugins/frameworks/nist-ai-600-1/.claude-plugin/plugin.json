@@ -1,0 +1,19 @@
+{
+  "name": "nist-ai-600-1",
+  "description": "NIST AI 600-1 — stub plugin routing to /grc-engineer:gap-assessment via the SCF crosswalk. Level up by adding framework-specific commands, implementation guidance, and evidence patterns.",
+  "version": "0.1.0",
+  "author": {"name": "GRC Engineering Club Contributors"},
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "general-nist-600-1-gen-ai-profile",
+    "display_name": "NIST AI 600-1",
+    "region": "Global",
+    "country": "US",
+    "depth": "stub",
+    "scf_controls_mapped": 139,
+    "framework_controls_mapped": 250,
+    "industry": [],
+    "regulator": "NIST (voluntary framework; not enforced)"
+  }
+}
