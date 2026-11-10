@@ -263,7 +263,7 @@ function validateFinding(d) {
   return errs;
 }
 
-async function buildReport({ runId, frameworks, sources, findings, scf, loadErrors, log }) {
+export async function buildReport({ runId, frameworks, sources, findings, scf, loadErrors, log }) {
   // Normalize every evaluation into (scfId, frameworkProjection) rows.
   // We anchor on SCF controls; non-SCF evaluations are reverse-mapped.
   const scfHits = new Map();  // scfId → { control, evaluations: [{source, resource, evaluation}] }
@@ -323,10 +323,11 @@ async function buildReport({ runId, frameworks, sources, findings, scf, loadErro
     failing_low: 0,
     inconclusive: 0
   }));
+  const frameworkItems = new Map(frameworks.map(fw => [fw, new Map()]));
 
   // Gap tiers
-  const tier1 = []; // blocks cert (critical + high failing, or PCI/FedRAMP-mandatory failing)
-  const tier2 = []; // audit finding (medium)
+  const tier1 = []; // critical and high severity connector findings
+  const tier2 = []; // medium severity connector findings
   const tier3 = []; // recommendation (low)
   const passes = [];
   const inconclusive = [];
@@ -346,18 +347,20 @@ async function buildReport({ runId, frameworks, sources, findings, scf, loadErro
     }
     if (!anyMapped) continue;  // SCF control doesn't map to any requested framework; skip
 
-    // Update stats: count this SCF control as "evaluated" in each framework it maps to.
+    // Aggregate by distinct framework item: multiple SCF controls can map to it.
     for (const stat of frameworkStats) {
       const controlIds = perFrameworkControlIds[stat.framework] || [];
-      if (!controlIds.length) continue;
-      stat.evaluated += controlIds.length;
-      if (worstStatus === 'pass') stat.passing += controlIds.length;
-      else if (worstStatus === 'fail') {
-        stat.failing += controlIds.length;
-        const sev = worstSeverity || 'medium';
-        stat[`failing_${sev}`] = (stat[`failing_${sev}`] || 0) + controlIds.length;
+      const items = frameworkItems.get(stat.framework);
+      for (const id of controlIds) {
+        const previous = items.get(id);
+        const failedSeverity = worstSeverityOf(entry.evaluations
+          .filter(e => e.evaluation.status === 'fail')
+          .map(e => e.evaluation.severity).filter(Boolean));
+        items.set(id, {
+          status: previous ? worstOf([previous.status, worstStatus]) : worstStatus,
+          severity: worstSeverityOf([previous?.severity, failedSeverity].filter(Boolean))
+        });
       }
-      else if (worstStatus === 'inconclusive') stat.inconclusive += controlIds.length;
     }
 
     const item = {
@@ -392,6 +395,15 @@ async function buildReport({ runId, frameworks, sources, findings, scf, loadErro
 
   // Compute per-framework totals using the SCF summary (authoritative control count).
   for (const stat of frameworkStats) {
+    for (const item of frameworkItems.get(stat.framework).values()) {
+      stat.evaluated++;
+      if (item.status === 'pass') stat.passing++;
+      else if (item.status === 'fail') {
+        stat.failing++;
+        const sev = item.severity || 'medium';
+        stat[`failing_${sev}`] = (stat[`failing_${sev}`] || 0) + 1;
+      } else if (item.status === 'inconclusive') stat.inconclusive++;
+    }
     const fwSummary = await scf.frameworkSummary(stat.framework);
     if (fwSummary) {
       stat.resolved_framework_id = fwSummary.framework_id;
@@ -474,6 +486,8 @@ function renderMarkdown(r) {
 
   out.push('## Coverage');
   out.push('');
+  out.push('Counts are distinct crosswalk items with connector observations, using the worst observed status per item. They do not establish applicability, control effectiveness, compliance, or certification readiness.');
+  out.push('');
   out.push('| Framework | Evaluated | Passing | Failing | Inconclusive | Pass rate |');
   out.push('|---|---:|---:|---:|---:|---:|');
   for (const s of r.stats) {
@@ -481,7 +495,7 @@ function renderMarkdown(r) {
   }
   out.push('');
 
-  out.push(`## Tier 1 blockers (${r.tiers.tier1.length}) — critical or high-severity failures`);
+  out.push(`## Tier 1 findings (${r.tiers.tier1.length}) — critical or high-severity connector failures`);
   out.push('');
   if (!r.tiers.tier1.length) out.push('_None. 🎉_');
   else {
