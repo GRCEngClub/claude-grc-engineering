@@ -18,8 +18,11 @@ job, as taught in Chapter 5.4:
 
    ```bash
    /plugin install grc-auditor@grc-engineering-suite
-   /grc-auditor:review-evidence examples/sample-evidence/
+   /grc-auditor:risk-report examples/sample-evidence/ leadership
    ```
+
+   (`/grc-auditor:review-evidence examples/sample-evidence/` also works if you
+   want the control-by-control review instead of the ranked report.)
 
    or simply ask Claude Code to *"review the evidence in this folder and draft
    a ranked risk report, citing the specific file and line for every finding."*
