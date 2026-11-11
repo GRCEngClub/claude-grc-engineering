@@ -26,7 +26,7 @@ Parse `$ARGUMENTS` before proceeding. Accept either a positional path followed b
 5. Draft the ranked risk report for the audience. For `leadership` and `audit-committee`, use plain business language, not auditor jargon. Every risk gets:
    - A plain-language risk statement
    - A likelihood × impact rating with one-line justification
-   - A citation to the exact evidence file (and line or record) it came from
+   - A citation to every contributing evidence file, including the relevant line or record in each
    - A recommended next step
 
 6. Do not invent findings. If a configuration in the evidence is fine, do not flag it. If the evidence does not support a risk, leave it out — an empty section is better than an unsupported claim.
