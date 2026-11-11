@@ -122,7 +122,7 @@ One plugin holds the cross-cutting commands. Other plugins either *feed* the hub
 | `/grc-engineer:scan-iac` | Scan Terraform/CloudFormation/K8s for violations (emits Findings) |
 | `/grc-engineer:test-control` | Validate a control is working end-to-end |
 | `/grc-engineer:generate-implementation` | Produce remediation code (Terraform, Python, policy-as-code) |
-| `/grc-engineer:generate-policy` | Translate natural-language policy → Rego/Cedar |
+| `/grc-engineer:generate-policy` | Select draft templates for two supported phrases in Rego, Sentinel, or AWS Config; [availability varies by phrase](../plugins/grc-engineer/commands/generate-policy.md) |
 | `/grc-engineer:monitor-continuous` | Schedule recurring gap-assessment with alerting |
 | `/grc-engineer:map-controls-unified` | Show one control across every framework it maps to |
 | `/grc-engineer:find-conflicts` | Surface conflicting requirements across frameworks |

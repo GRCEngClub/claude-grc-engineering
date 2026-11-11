@@ -4,8 +4,8 @@
  * Usage: node scripts/generate-policy.js "<requirement>" [format]
  *
  * Examples:
- *   node scripts/generate-policy.js "Ensure no S3 buckets are public and all must have a 'Department' tag" rego
- *   node scripts/generate-policy.js "All EC2 instances must have encryption enabled" aws-config
+ *   node scripts/generate-policy.js "Ensure no S3 buckets are public" rego
+ *   node scripts/generate-policy.js "All EC2 instances must have encryption enabled" rego
  */
 
 import { generatePolicy } from '../src/policy-generator.js';
@@ -21,10 +21,10 @@ async function main() {
     console.error('');
     console.error('Examples:');
     console.error('  node scripts/generate-policy.js "Ensure no S3 buckets are public" rego');
-    console.error('  node scripts/generate-policy.js "All EC2 instances encrypted" aws-config');
-    console.error('  node scripts/generate-policy.js "Kubernetes pods not root" sentinel');
+    console.error('  node scripts/generate-policy.js "All EC2 instances must have encryption enabled" rego');
     console.error('');
-    console.error('Supported formats: rego, sentinel, aws-config, terraform, checkov');
+    console.error('Supported formats: rego, sentinel, aws-config (template availability varies).');
+    console.error('Outputs are drafts, not enforceable policies; independently review and test them.');
     process.exit(1);
   }
 
@@ -35,9 +35,7 @@ async function main() {
     const extensions = {
       rego: '.rego',
       sentinel: '.sentinel',
-      'aws-config': '.py',
-      terraform: '.tf',
-      checkov: '.yaml'
+      'aws-config': '.py'
     };
     
     const ext = extensions[format] || '.txt';

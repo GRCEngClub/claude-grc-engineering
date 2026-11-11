@@ -1,59 +1,24 @@
 ---
 name: policy-as-code-generator
-description: Converts natural language compliance requirements into executable policies (OPA Rego, AWS Config Rules, Sentinel, Terraform). Standardizes governance by making it part of the build process.
+description: Selects draft policy templates for a limited set of S3 and EC2 requirements. Output requires independent review and testing.
 allowed-tools: Bash, Read, Glob, Write, Edit
 ---
 
 # Policy-as-Code Generator
 
-Converts natural language compliance requirements into executable policy code. Generates OPA Rego, AWS Config Rules, Sentinel policies, or Terraform modules.
+This prototype accepts only exact supported phrases, not arbitrary natural-language requirements. **Output is a draft, not an enforceable policy.** Templates may omit requested checks or add unrelated ones, and do not establish compliance. Independently review, adapt, and test against representative compliant and noncompliant inputs before any use.
 
-## Quick Commands
+## Available templates
 
-**Generate OPA Rego policy:**
+- `Ensure no S3 buckets are public`: `rego`, `sentinel`, `aws-config`. Each includes a fixed Department tag check.
+- `All EC2 instances must have encryption enabled`: `rego` only; also includes a subnet check.
 
-```bash
-node plugins/grc-engineer/scripts/generate-policy.js "Ensure no S3 buckets are public and all must have a 'Department' tag" rego
-```
+Matching ignores case and surrounding or repeated whitespace; any other wording, extra clauses, or unsupported format combinations fail without generating files. Even semantically equivalent wording is rejected. Terraform and Checkov are not implemented.
 
-**Generate AWS Config Rule:**
-
-```bash
-node plugins/grc-engineer/scripts/generate-policy.js "All EC2 instances must have encryption enabled" aws-config
-```
-
-**Generate Sentinel policy:**
+## Example
 
 ```bash
-node plugins/grc-engineer/scripts/generate-policy.js "Terraform plans must not create resources without required tags" sentinel
+node plugins/grc-engineer/scripts/generate-policy.js "Ensure no S3 buckets are public" rego
 ```
 
-## Supported Output Formats
-
-- **rego** - Open Policy Agent (OPA) Rego language
-- **sentinel** - HashiCorp Sentinel policy language
-- **aws-config** - AWS Config Rule (Python/Lambda)
-- **terraform** - Terraform policy module
-- **checkov** - Checkov YAML policy
-
-## Example Inputs
-
-- "Ensure no S3 buckets are public and all must have a 'Department' tag"
-- "All EC2 instances must have encryption enabled and be in a VPC"
-- "Terraform plans must not create resources without required tags"
-- "Kubernetes pods must not run as root user"
-- "All databases must have automated backups enabled"
-
-## Output Structure
-
-Generated policies include:
-
-- Policy definition with clear logic
-- Test cases/examples
-- Documentation comments
-- Integration instructions for CI/CD
-
-## Prerequisites
-
-- Natural language requirement description
-- Optional: Output format (defaults to rego)
+The optional second argument selects the format; it defaults to `rego`. The output includes draft code and documentation, not validated test cases.
