@@ -24,7 +24,11 @@ Generates an evidence collection checklist for ISO/IEC 27001:2022 Annex A contro
 
 ### Export formats
 
-Return the checklist in the requested format, not a description of the format. Markdown uses checkboxes and the same fields as the examples below. JSON is an array of objects; CSV has a header and one row per item. Both use `control_id`, `item`, `owner`, `frequency`, `verification`, and `status` fields. Quote CSV fields containing commas, quotes or newlines; double embedded quotes. Default `status` to `outstanding` unless the user supplies verified evidence. Excluded controls should have a separate rationale item marked `excluded` rather than implying implementation.
+Return the checklist in the requested format, not a description of the format. Markdown uses checkboxes and the same fields as the examples below. JSON is an array of objects; CSV has a header and one row per item. Both use `control_id`, `item`, `owner`, `frequency`, `verification`, and `status` fields. Default `status` to `outstanding` unless the user supplies verified evidence. Excluded controls should have a separate rationale item marked `excluded` rather than implying implementation.
+
+For spreadsheet-oriented CSV, treat every data cell as untrusted text, including generated and user-supplied values. Before CSV encoding, prefix every data-cell value with a literal ASCII apostrophe (`'`), even if it begins with whitespace, a tab, a carriage return, a newline, `=`, `+`, `-`, or `@`. Do not trim away the prefix. Then encode each field as CSV: quote fields containing commas, double quotes, CR or LF, and double any embedded double quotes. Quoting alone does not prevent formula execution. For example, the data value `=1+1` becomes `'=1+1`; the data value `=1+1, "check"` becomes `"'=1+1, ""check"""` in the CSV. The fixed header need not be prefixed.
+
+This prefix changes the raw CSV values and spreadsheet behavior varies: import all columns explicitly as text, verify the target spreadsheet treats the apostrophe-prefixed cells as literal text, and do not enable formula evaluation for untrusted data. Saving and reopening in a spreadsheet may remove protective characters; reapply protection before any subsequent export. If the target importer cannot guarantee literal-text handling, do not open the CSV there; use JSON for faithful machine-readable values instead.
 
 ## Example 1 — Organizational: A.5.15
 
