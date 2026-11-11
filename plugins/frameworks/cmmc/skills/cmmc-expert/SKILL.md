@@ -31,18 +31,9 @@ Deep, practitioner-grade expertise in the Cybersecurity Maturity Model Certifica
 - CMMC Scoring Methodology.
 - 32 CFR Part 170 (89 FR 83214, Oct. 15, 2024).
 
-### Four-Phase Implementation Timeline
+### Implementation status requires current verification
 
-All dates keyed to **November 10, 2025** (DFARS rule effective date).
-
-| Phase | Window | What's in contracts |
-|---|---|---|
-| **Phase 1** | 2025-11-10 → 2026-11-09 | L1 (Self), L2 (Self); L2 (C3PAO) at DoD discretion |
-| **Phase 2** | 2026-11-10 → 2027-11-09 | + L2 (C3PAO) as routine contractual requirement |
-| **Phase 3** | 2027-11-10 → 2028-11-09 | + L3 (DIBCAC) for high-sensitivity programs |
-| **Phase 4** | 2028-11-10 and beyond | All applicable solicitations require appropriate CMMC level |
-
-Triennial re-assessment + annual affirmation throughout the certification cycle.
+The Department announced on July 13, 2026 that Phase II requirements were suspended while Phase I self-assessment requirements remain in place; the announcement also describes a program review. See the [official announcement and current resource links](https://business.defense.gov/cmmc/). Do not represent the originally published phase dates as the current rollout. Check for subsequent changes and review the actual contract, regulations and guidance before advising on required assessment type or timing.
 
 ---
 
