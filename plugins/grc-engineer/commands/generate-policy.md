@@ -8,8 +8,8 @@ This prototype selects a fixed template only for exact supported phrases, not a 
 
 ## Arguments
 
-- `$1` - Requirement description (required, in quotes)
-- `$2` - Output format (optional, defaults to rego)
+- Requirement description (required, in quotes)
+- Output format (optional, defaults to rego)
 
 ## Available templates
 
@@ -20,8 +20,9 @@ Matching ignores case and surrounding or repeated whitespace; any other wording,
 
 ## Instructions
 
-Use the actual user-supplied `$1` as the first CLI argument and, if provided,
-`$2` as the second. Preserve the entire requirement as one argument; do not
+Parse `$ARGUMENTS` as a quoted requirement followed by an optional format.
+Pass the actual requirement as the first CLI argument and the format, if supplied,
+as the second. Preserve the entire requirement as one argument; do not
 substitute an example or silently change either value. Pass arguments safely
 without interpreting their contents as shell syntax. Omit the second argument
 when no format was supplied so the script defaults to `rego`. If the requirement
