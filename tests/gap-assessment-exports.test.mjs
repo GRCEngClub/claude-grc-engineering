@@ -69,11 +69,24 @@ test('offline CLI writes the correct extension for every supported output', asyn
     const findings = path.join(dir, 'findings', 'fixture');
     await fs.mkdir(findings, { recursive: true });
     await fs.writeFile(path.join(findings, 'empty.json'), '[]');
+    await fs.writeFile(path.join(findings, 'broken.json'), '{');
+    await fs.writeFile(path.join(findings, 'invalid.json'), '{}');
     for (const [format, ext] of Object.entries({ markdown: 'md', json: 'json', sarif: 'sarif', 'oscal-ar': 'oscal-ar', html: 'html', csv: 'csv' })) {
       const out = path.join(dir, format);
       const result = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/gap-assessment.js', 'fixture', '--offline', '--quiet', '--output=' + format, '--cache-dir=' + path.dirname(findings), '--report-dir=' + out], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache } });
       assert.equal(result.status, 0, result.stderr);
       assert.equal((await fs.readFile(path.join(out, 'gap-report.' + ext), 'utf8')).trimEnd(), result.stdout.trimEnd());
+      const normalized = JSON.parse(await fs.readFile(path.join(out, 'findings.normalized.json'), 'utf8'));
+      normalized.load_errors.sort((a, b) => a.file.localeCompare(b.file));
+      assert.deepEqual(normalized.load_errors.map(({ source, file, kind }) => ({ source, file, kind })), [
+        { source: 'fixture', file: 'broken.json', kind: 'invalid-json' },
+        { source: 'fixture', file: 'invalid.json', kind: 'schema-violation' }
+      ]);
+      assert.ok(normalized.load_errors[0].message);
+      assert.ok(normalized.load_errors[1].violations.includes('missing schema_version'));
+      assert.deepEqual(normalized.inconclusive, []);
+      if (format === 'html') assert.match(result.stdout, /broken\.json.*invalid-json/);
+      if (format === 'csv') assert.doesNotMatch(result.stdout, /broken\.json|invalid\.json/);
     }
   } finally { await fs.rm(dir, { recursive: true, force: true }); }
 });

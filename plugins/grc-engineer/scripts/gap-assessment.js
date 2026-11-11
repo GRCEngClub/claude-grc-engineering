@@ -20,7 +20,7 @@
  * Options:
  *   --sources=<csv>          Connectors to include (default: all with cached findings)
  *   --refresh                Skip cache; re-collect each source (emits guidance; this script does not re-run connectors)
- *   --output=<fmt>           markdown (default) | json | sarif | oscal-ar
+ *   --output=<fmt>           markdown (default) | json | sarif | oscal-ar | html | csv
  *   --cache-dir=<path>       Override ~/.cache/claude-grc/findings
  *   --report-dir=<path>      Where to write the report bundle (default: ./gap-assessment-<date>/)
  *   --offline                Use cached SCF data only
@@ -451,6 +451,7 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
     },
     normalized: {
       run_id: runId,
+      load_errors: loadErrors,
       tier1, tier2, tier3, passes, inconclusive
     }
   };
