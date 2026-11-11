@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "source": "okta-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-okta-0001",
+  "collected_at": "2026-04-13T15:10:00Z",
+  "resource": {
+    "type": "okta_org_mfa_posture",
+    "id": "mfa-example",
+    "account_id": "example"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-01.2",
+      "status": "pass",
+      "severity": "info"
+    }
+  ]
+}
