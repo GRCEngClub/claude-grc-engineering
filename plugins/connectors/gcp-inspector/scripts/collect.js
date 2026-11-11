@@ -177,14 +177,14 @@ const serviceHandlers = {
     } catch (err) {
       // Return single inconclusive document at project level
       return [buildDoc(ctx,
-        { type: 'gcp_storage_project', id: ctx.project, account_id: ctx.project },
+        { type: 'gcp_storage_project', id: ctx.project, uri: `//cloudresourcemanager.googleapis.com/projects/${ctx.project}`, account_id: ctx.project },
         [{ control_framework: 'SCF', control_id: 'CRY-05', status: 'inconclusive', severity: 'medium', message: `Bucket enumeration failed: ${err.message}` }])];
     }
     log(`storage: ${buckets.length} buckets`);
     for (const b of buckets) {
       const name = b.name || b.metadata?.name;
       if (!name) continue;
-      const resource = { type: 'gcp_storage_bucket', id: name, uri: `gs://${name}`, region: (b.location || '').toLowerCase(), account_id: ctx.project };
+      const resource = { type: 'gcp_storage_bucket', id: name, uri: `//storage.googleapis.com/${name}`, region: (b.location || '').toLowerCase(), account_id: ctx.project };
       const evaluations = [];
 
       // DCH-01.2: Public access prevention
@@ -233,7 +233,7 @@ const serviceHandlers = {
   },
 
   async logging(ctx, log) {
-    const resource = { type: 'gcp_logging', id: `logging-${ctx.project}`, account_id: ctx.project };
+    const resource = { type: 'gcp_logging', id: `logging-${ctx.project}`, uri: `//logging.googleapis.com/projects/${ctx.project}`, account_id: ctx.project };
     const evaluations = [];
     try {
       const { stdout } = await gcloud(['logging', 'sinks', 'list', `--project=${ctx.project}`, '--format=json']);
@@ -281,12 +281,12 @@ const serviceHandlers = {
         } catch { /* skip unavailable locations */ }
       }
     } catch (err) {
-      return [buildDoc(ctx, { type: 'gcp_kms', id: `kms-${ctx.project}`, account_id: ctx.project },
+      return [buildDoc(ctx, { type: 'gcp_kms', id: `kms-${ctx.project}`, uri: `//cloudresourcemanager.googleapis.com/projects/${ctx.project}`, account_id: ctx.project },
         [{ control_framework: 'SCF', control_id: 'CRY-09', status: 'inconclusive', severity: 'medium', message: `KMS enumeration failed: ${err.message}` }])];
     }
 
     if (!keyrings.length) {
-      return [buildDoc(ctx, { type: 'gcp_kms', id: `kms-${ctx.project}`, account_id: ctx.project },
+      return [buildDoc(ctx, { type: 'gcp_kms', id: `kms-${ctx.project}`, uri: `//cloudresourcemanager.googleapis.com/projects/${ctx.project}`, account_id: ctx.project },
         [{ control_framework: 'SCF', control_id: 'CRY-09', status: 'not_applicable', severity: 'info', message: 'No CMEK keyrings found in probed locations.' }])];
     }
 
@@ -297,7 +297,7 @@ const serviceHandlers = {
         const keys = JSON.parse(stdout || '[]');
         for (const k of keys) {
           const keyName = k.name.split('/').pop();
-          const resource = { type: 'gcp_kms_key', id: k.name, uri: k.name, region: kr.location, account_id: ctx.project };
+          const resource = { type: 'gcp_kms_key', id: k.name, uri: `//cloudkms.googleapis.com/${k.name}`, region: kr.location, account_id: ctx.project };
           const evaluations = [];
           const period = k.rotationPeriod;  // e.g. "7776000s" (90d)
           if (k.purpose !== 'ENCRYPT_DECRYPT') {
@@ -320,7 +320,7 @@ const serviceHandlers = {
           findings.push(buildDoc(ctx, resource, evaluations));
         }
       } catch (err) {
-        findings.push(buildDoc(ctx, { type: 'gcp_kms_keyring', id: kr.name, region: kr.location, account_id: ctx.project },
+        findings.push(buildDoc(ctx, { type: 'gcp_kms_keyring', id: kr.name, uri: `//cloudkms.googleapis.com/${kr.name}`, region: kr.location, account_id: ctx.project },
           [{ control_framework: 'SCF', control_id: 'CRY-09', status: 'inconclusive', severity: 'low', message: err.message }]));
       }
     }
@@ -328,7 +328,7 @@ const serviceHandlers = {
   },
 
   async compute(ctx, log) {
-    const resource = { type: 'gcp_compute_project', id: `compute-${ctx.project}`, account_id: ctx.project };
+    const resource = { type: 'gcp_compute_project', id: `compute-${ctx.project}`, uri: `//compute.googleapis.com/projects/${ctx.project}`, account_id: ctx.project };
     const evaluations = [];
     try {
       const { stdout } = await gcloud(['compute', 'project-info', 'describe', `--project=${ctx.project}`, '--format=json']);

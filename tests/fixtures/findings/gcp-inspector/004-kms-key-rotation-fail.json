@@ -7,7 +7,7 @@
   "resource": {
     "type": "gcp_kms_key",
     "id": "projects/acme-prod-123456/locations/us-central1/keyRings/prod-ring/cryptoKeys/db-encryption",
-    "uri": "projects/acme-prod-123456/locations/us-central1/keyRings/prod-ring/cryptoKeys/db-encryption",
+    "uri": "//cloudkms.googleapis.com/projects/acme-prod-123456/locations/us-central1/keyRings/prod-ring/cryptoKeys/db-encryption",
     "region": "us-central1",
     "account_id": "acme-prod-123456"
   },
