@@ -476,11 +476,12 @@ function worstSeverityOf(sevs) {
   return worst;
 }
 
-// Values are inserted only as HTML text, never as markup or URL attributes.
+/** Escape untrusted values for HTML text, not markup or URL attributes. */
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 }
 
+/** Render coverage, findings, and loading warnings as a standalone HTML report. */
 export function renderHtml(r) {
   const e = escapeHtml;
   const coverage = r.stats.map(s => `<tr><td>${e(s.framework)}</td><td>${e(s.evaluated)}/${e(s.total_controls)} (${e(s.coverage_pct)}%)<br><progress max="100" value="${Math.max(0, Math.min(100, Number(s.coverage_pct) || 0))}"></progress></td><td>${e(s.passing)}</td><td>${e(s.failing)}</td><td>${e(s.inconclusive)}</td></tr>`).join('');
@@ -494,13 +495,14 @@ export function renderHtml(r) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Gap assessment</title><style>body{font-family:system-ui,sans-serif;margin:2em}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:.4em;text-align:left}progress{width:100%}</style></head><body><h1>Gap assessment</h1><p>Run: ${e(r.runId)}; generated: ${e(r.generated_at)}; SCF: ${e(r.scf_version)}; sources: ${e(r.sources.join(', '))}</p><h2>Coverage</h2><p>Counts are distinct crosswalk items with connector observations; they do not establish applicability, control effectiveness, compliance, or certification readiness.</p><table><thead><tr><th>Framework</th><th>Evaluated</th><th>Passing</th><th>Failing</th><th>Inconclusive</th></tr></thead><tbody>${coverage}</tbody></table>${tiers}<h2>Inconclusive</h2><ul>${inconclusive}</ul><h2>Remediation detail</h2>${details}<h2>Data quality warnings</h2><ul>${warnings}</ul><p>Control mappings provided by the Secure Controls Framework, licensed under CC BY-ND 4.0.</p></body></html>`;
 }
 
-// Quote every cell and neutralize spreadsheet formulas even after whitespace.
+/** Quote a CSV cell and neutralize spreadsheet formulas even after whitespace. */
 function csvCell(value) {
   let s = String(value ?? '');
   if (/^[\s\u0000-\u001f]*[=+@-]/u.test(s) || /^[\t\r\n]/u.test(s)) s = "'" + s;
   return `"${s.replace(/"/g, '""')}"`;
 }
 
+/** Render failing controls as a quoted CSV register; warnings remain in the bundle. */
 export function renderCsv(r) {
   const header = ['run_id', 'tier', 'scf_id', 'title', 'severity', ...r.frameworks.map(f => `${f}_controls`), 'failing_resources', 'remediation_ref', 'effort_hours'];
   const rows = [header];
