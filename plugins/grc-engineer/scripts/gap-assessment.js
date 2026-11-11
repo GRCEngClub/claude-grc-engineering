@@ -11,7 +11,7 @@
  *   2. Validate each against schemas/finding.schema.json (v1)
  *   3. For each evaluation, resolve to SCF control(s) and expand to requested frameworks
  *   4. Aggregate coverage, failures, severities, tiers
- *   5. Emit in the requested format: markdown | json | sarif | oscal-ar
+ *   5. Emit in the requested format: markdown | json | sarif | oscal-ar | html | csv
  *
  * Usage:
  *   node scripts/gap-assessment.js <frameworks> [options]
@@ -98,6 +98,8 @@ async function main(argv) {
 
   let rendered;
   switch (args.output) {
+    case 'html':     rendered = renderHtml(report); break;
+    case 'csv':      rendered = renderCsv(report); break;
     case 'json':     rendered = JSON.stringify(report.summary, null, 2); break;
     case 'sarif':    rendered = JSON.stringify(toSarif(report), null, 2); break;
     case 'oscal-ar': rendered = JSON.stringify(toOscalAssessmentResults(report), null, 2); break;
@@ -149,8 +151,8 @@ function parseArgs(argv) {
   if (positional) {
     out.frameworks = positional.split(',').map(s => s.trim()).filter(Boolean);
   }
-  if (!['markdown', 'json', 'sarif', 'oscal-ar'].includes(out.output)) {
-    fail(EXIT.USAGE, `--output must be one of markdown|json|sarif|oscal-ar`);
+  if (!['markdown', 'json', 'sarif', 'oscal-ar', 'html', 'csv'].includes(out.output)) {
+    fail(EXIT.USAGE, `--output must be one of markdown|json|sarif|oscal-ar|html|csv`);
   }
   return out;
 }
@@ -471,6 +473,42 @@ function worstSeverityOf(sevs) {
     if (!worst || (rank[s] || 0) > (rank[worst] || 0)) worst = s;
   }
   return worst;
+}
+
+// Values are inserted only as HTML text, never as markup or URL attributes.
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+export function renderHtml(r) {
+  const e = escapeHtml;
+  const coverage = r.stats.map(s => `<tr><td>${e(s.framework)}</td><td>${e(s.evaluated)}/${e(s.total_controls)} (${e(s.coverage_pct)}%)<br><progress max="100" value="${Math.max(0, Math.min(100, Number(s.coverage_pct) || 0))}"></progress></td><td>${e(s.passing)}</td><td>${e(s.failing)}</td><td>${e(s.inconclusive)}</td></tr>`).join('');
+  const tiers = ['tier1', 'tier2', 'tier3'].map((key, i) => {
+    const rows = r.tiers[key].map(t => `<tr><td>${e(t.scf_id)}</td><td>${e(t.title)}</td><td>${e(t.severity)}</td><td>${e(t.failing_resources.length)}</td><td>${e(r.frameworks.map(f => `${f}: ${(t.frameworks[f] || []).join(', ')}`).join('; '))}</td></tr>`).join('');
+    return `<h2>Tier ${i + 1} (${r.tiers[key].length})</h2><table><thead><tr><th>SCF</th><th>Title</th><th>Severity</th><th>Failing resources</th><th>Framework controls</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }).join('');
+  const details = ['tier1', 'tier2', 'tier3'].flatMap(key => r.tiers[key]).map(t => `<h3>${e(t.scf_id)} — ${e(t.title)}</h3><ul>${t.failing_resources.map(fr => `<li>${e(fr.source)}:${e(fr.resource_type)}:${e(fr.resource_id)} — ${e(fr.message)}<br>Remediation: ${e(fr.remediation?.ref)}; automation: ${e(fr.remediation?.automation)}; effort hours: ${e(fr.remediation?.effort_hours)}</li>`).join('')}</ul>`).join('');
+  const warnings = r.load_errors.map(w => `<li>${e(w.source)} ${e(w.file)}: ${e(w.kind)} ${e(w.message)} ${e((w.violations || []).join('; '))}</li>`).join('');
+  const inconclusive = r.tiers.inconclusive.map(t => `<li>${e(t.scf_id)} — ${e(t.title)}</li>`).join('');
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Gap assessment</title><style>body{font-family:system-ui,sans-serif;margin:2em}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:.4em;text-align:left}progress{width:100%}</style></head><body><h1>Gap assessment</h1><p>Run: ${e(r.runId)}; generated: ${e(r.generated_at)}; SCF: ${e(r.scf_version)}; sources: ${e(r.sources.join(', '))}</p><h2>Coverage</h2><p>Counts are distinct crosswalk items with connector observations; they do not establish applicability, control effectiveness, compliance, or certification readiness.</p><table><thead><tr><th>Framework</th><th>Evaluated</th><th>Passing</th><th>Failing</th><th>Inconclusive</th></tr></thead><tbody>${coverage}</tbody></table>${tiers}<h2>Inconclusive</h2><ul>${inconclusive}</ul><h2>Remediation detail</h2>${details}<h2>Data quality warnings</h2><ul>${warnings}</ul><p>Control mappings provided by the Secure Controls Framework, licensed under CC BY-ND 4.0.</p></body></html>`;
+}
+
+// Quote every cell and neutralize spreadsheet formulas even after whitespace.
+function csvCell(value) {
+  let s = String(value ?? '');
+  if (/^[\s\u0000-\u001f]*[=+@-]/u.test(s) || /^[\t\r\n]/u.test(s)) s = "'" + s;
+  return `"${s.replace(/"/g, '""')}"`;
+}
+
+export function renderCsv(r) {
+  const header = ['run_id', 'tier', 'scf_id', 'title', 'severity', ...r.frameworks.map(f => `${f}_controls`), 'failing_resources', 'remediation_ref', 'effort_hours'];
+  const rows = [header];
+  for (const [index, key] of ['tier1', 'tier2', 'tier3'].entries()) {
+    for (const t of r.tiers[key]) {
+      rows.push([r.runId, index + 1, t.scf_id, t.title, t.severity, ...r.frameworks.map(f => (t.frameworks[f] || []).join('; ')), t.failing_resources.map(fr => `${fr.source}:${fr.resource_type}:${fr.resource_id}`).join('; '), t.failing_resources.map(fr => fr.remediation?.ref || '').join('; '), t.failing_resources.map(fr => fr.remediation?.effort_hours ?? '').join('; ')]);
+    }
+  }
+  return rows.map(row => row.map(csvCell).join(',')).join('\r\n') + '\r\n';
 }
 
 function renderMarkdown(r) {
