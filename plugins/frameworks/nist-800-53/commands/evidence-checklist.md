@@ -86,18 +86,12 @@ set -e -o pipefail
 umask 077
 mkdir -p evidence && chmod 700 evidence || exit 1
 stamp=$(date +%Y%m%d)
-file="evidence/nist-ac2-iam-users-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
-file="evidence/nist-ac2-iam-roles-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
-file="evidence/nist-ac2-iam-groups-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
-file="evidence/nist-ac2-credential-report-$stamp.csv"
-: >> "$file" && chmod 600 "$file" || exit 1
+staging=$(mktemp -d "evidence/.nist-collector.XXXXXXXX")
+trap 'rm -rf -- "$staging"' EXIT
 # IAM principals (users, roles, groups)
-aws iam list-users  --output json > evidence/nist-ac2-iam-users-${stamp}.json
-aws iam list-roles  --output json > evidence/nist-ac2-iam-roles-${stamp}.json
-aws iam list-groups --output json > evidence/nist-ac2-iam-groups-${stamp}.json
+aws iam list-users  --output json > "$staging/nist-ac2-iam-users-${stamp}.json"
+aws iam list-roles  --output json > "$staging/nist-ac2-iam-roles-${stamp}.json"
+aws iam list-groups --output json > "$staging/nist-ac2-iam-groups-${stamp}.json"
 
 # Credential report: password age, MFA, access-key age/last-use.
 # generate-credential-report is asynchronous — it returns STARTED/INPROGRESS and
@@ -122,7 +116,11 @@ if [ "$state" != "COMPLETE" ]; then
   exit 1
 fi
 aws iam get-credential-report --query Content --output text | base64 -d \
-  > evidence/nist-ac2-credential-report-${stamp}.csv
+  > "$staging/nist-ac2-credential-report-${stamp}.csv"
+# Publish only after every collection succeeds; each rename is atomic.
+for artifact in "$staging"/*; do
+  mv -f -- "$artifact" "evidence/${artifact##*/}"
+done
 )
 ```
 
@@ -130,23 +128,22 @@ aws iam get-credential-report --query Content --output text | base64 -d \
 
 ```bash
 (
+set -e -o pipefail
 umask 077
 mkdir -p evidence && chmod 700 evidence || exit 1
 stamp=$(date +%Y%m%d)
-file="evidence/nist-ac2-lifecycle-CreateUser-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
-file="evidence/nist-ac2-lifecycle-DeleteUser-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
-file="evidence/nist-ac2-lifecycle-AttachUserPolicy-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
-file="evidence/nist-ac2-lifecycle-DetachUserPolicy-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
+staging=$(mktemp -d "evidence/.nist-collector.XXXXXXXX")
+trap 'rm -rf -- "$staging"' EXIT
 # Account create/modify/delete events from CloudTrail (last 30 days)
 for ev in CreateUser DeleteUser AttachUserPolicy DetachUserPolicy; do
   aws cloudtrail lookup-events \
     --lookup-attributes AttributeKey=EventName,AttributeValue="$ev" \
     --start-time "$(date -u -d '30 days ago' +%Y-%m-%dT%H:%M:%S)" \
-    --output json > "evidence/nist-ac2-lifecycle-$ev-${stamp}.json"
+    --output json > "$staging/nist-ac2-lifecycle-$ev-${stamp}.json"
+done
+# Publish only after every collection succeeds; each rename is atomic.
+for artifact in "$staging"/*; do
+  mv -f -- "$artifact" "evidence/${artifact##*/}"
 done
 )
 ```
@@ -155,12 +152,14 @@ done
 
 ```bash
 (
+set -e -o pipefail
 umask 077
 mkdir -p evidence && chmod 700 evidence || exit 1
 stamp=$(date +%Y%m%d)
-file="evidence/nist-ac2-privileged-$stamp.csv"
-: >> "$file" && chmod 600 "$file" || exit 1
-: > "$file" || exit 1
+staging=$(mktemp -d "evidence/.nist-collector.XXXXXXXX")
+trap 'rm -rf -- "$staging"' EXIT
+file="$staging/nist-ac2-privileged-$stamp.csv"
+: > "$file"
 # Principals carrying AdministratorAccess (adjust for your privileged policy set)
 users=$(aws iam list-users --query 'Users[].UserName' --output text) || exit 1
 for u in $users; do
@@ -170,6 +169,10 @@ for u in $users; do
   if [ "$policies" = AdministratorAccess ]; then
     echo "$u,AdministratorAccess" >> "$file" || exit 1
   fi
+done
+# Publish only after every collection succeeds; each rename is atomic.
+for artifact in "$staging"/*; do
+  mv -f -- "$artifact" "evidence/${artifact##*/}"
 done
 )
 ```
@@ -182,14 +185,18 @@ set -e -o pipefail
 umask 077
 mkdir -p evidence && chmod 700 evidence || exit 1
 stamp=$(date +%Y%m%d)
-file="evidence/nist-ac2-inactive-review-$stamp.csv"
-: >> "$file" && chmod 600 "$file" || exit 1
+staging=$(mktemp -d "evidence/.nist-collector.XXXXXXXX")
+trap 'rm -rf -- "$staging"' EXIT
 # Password-enabled accounts unused beyond the org-defined inactivity window
 aws iam get-credential-report --query Content --output text | base64 -d \
-  > evidence/nist-ac2-inactive-review-${stamp}.csv
+  > "$staging/nist-ac2-inactive-review-${stamp}.csv"
 # Review password_last_used against your ODP; flag and disable stale accounts.
 # This file carries usernames, MFA state, and key ages — treat it as evidence,
 # not scratch: keep it in the encrypted locker, never in /tmp or a shared path.
+# Publish only after every collection succeeds; each rename is atomic.
+for artifact in "$staging"/*; do
+  mv -f -- "$artifact" "evidence/${artifact##*/}"
+done
 )
 ```
 
@@ -281,15 +288,20 @@ integrated with non-audit data sources including physical access monitoring.
 
 ```bash
 (
+set -e -o pipefail
 umask 077
 mkdir -p evidence && chmod 700 evidence || exit 1
 stamp=$(date +%Y%m%d)
-file="evidence/nist-au6-siem-subscriptions-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
+staging=$(mktemp -d "evidence/.nist-collector.XXXXXXXX")
+trap 'rm -rf -- "$staging"' EXIT
 # Proof that audit records flow into a centralized analysis pipeline
 aws logs describe-subscription-filters \
   --log-group-name "<your-audit-log-group>" \
-  --output json > evidence/nist-au6-siem-subscriptions-${stamp}.json
+  --output json > "$staging/nist-au6-siem-subscriptions-${stamp}.json"
+# Publish only after every collection succeeds; each rename is atomic.
+for artifact in "$staging"/*; do
+  mv -f -- "$artifact" "evidence/${artifact##*/}"
+done
 )
 ```
 
@@ -297,18 +309,21 @@ aws logs describe-subscription-filters \
 
 ```bash
 (
+set -e -o pipefail
 umask 077
 mkdir -p evidence && chmod 700 evidence || exit 1
 stamp=$(date +%Y%m%d)
-file="evidence/nist-au6-securityhub-standards-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
-file="evidence/nist-au6-guardduty-detectors-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
+staging=$(mktemp -d "evidence/.nist-collector.XXXXXXXX")
+trap 'rm -rf -- "$staging"' EXIT
 # Evidence that multiple audit sources are aggregated for correlation
 aws securityhub get-enabled-standards \
-  --output json > evidence/nist-au6-securityhub-standards-${stamp}.json
+  --output json > "$staging/nist-au6-securityhub-standards-${stamp}.json"
 aws guardduty list-detectors \
-  --output json > evidence/nist-au6-guardduty-detectors-${stamp}.json
+  --output json > "$staging/nist-au6-guardduty-detectors-${stamp}.json"
+# Publish only after every collection succeeds; each rename is atomic.
+for artifact in "$staging"/*; do
+  mv -f -- "$artifact" "evidence/${artifact##*/}"
+done
 )
 ```
 
@@ -316,17 +331,22 @@ aws guardduty list-detectors \
 
 ```bash
 (
+set -e -o pipefail
 umask 077
 mkdir -p evidence && chmod 700 evidence || exit 1
 stamp=$(date +%Y%m%d)
-file="evidence/nist-au6-integrated-findings-$stamp.json"
-: >> "$file" && chmod 600 "$file" || exit 1
+staging=$(mktemp -d "evidence/.nist-collector.XXXXXXXX")
+trap 'rm -rf -- "$staging"' EXIT
 # Aggregated findings that fuse audit data with vulnerability and config signals.
 # No --max-items here on purpose: the CLI auto-paginates, and a capped artifact
 # would silently stop mid-population while still looking complete to a reader.
 aws securityhub get-findings \
   --filters '{"RecordState":[{"Value":"ACTIVE","Comparison":"EQUALS"}]}' \
-  --output json > evidence/nist-au6-integrated-findings-${stamp}.json
+  --output json > "$staging/nist-au6-integrated-findings-${stamp}.json"
+# Publish only after every collection succeeds; each rename is atomic.
+for artifact in "$staging"/*; do
+  mv -f -- "$artifact" "evidence/${artifact##*/}"
+done
 )
 ```
 

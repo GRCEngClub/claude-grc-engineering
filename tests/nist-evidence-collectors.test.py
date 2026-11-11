@@ -21,6 +21,10 @@ with tempfile.TemporaryDirectory() as temp:
     bindir.mkdir()
     aws = bindir / 'aws'
     aws.write_text('''#!/bin/bash
+if [ -n "${FAIL_MATCH:-}" ] && [[ "$*" == *"$FAIL_MATCH"* ]]; then
+  printf 'partial output before failure\\n'
+  exit 42
+fi
 case "$*" in
   *generate-credential-report*) printf 'COMPLETE\\n' ;;
   *get-credential-report*) if [ "${FAIL_FETCH:-0}" = 1 ]; then exit 42; fi; printf 'dXNlcixwYXNzd29yZAphbGljZSxuZXZlcg==\\n' ;;
@@ -50,6 +54,33 @@ esac
             else:
                 for f in files:
                     f.unlink()
+
+    # Fail every AWS operation, including early and late operations in each
+    # multi-file collector, after first creating same-day artifacts.
+    failures = [
+        ['iam list-users', 'iam list-roles', 'iam list-groups',
+         'iam generate-credential-report', 'iam get-credential-report'],
+        ['AttributeValue=CreateUser', 'AttributeValue=DeleteUser',
+         'AttributeValue=AttachUserPolicy', 'AttributeValue=DetachUserPolicy'],
+        ['iam list-users', 'iam list-attached-user-policies'],
+        ['iam get-credential-report'],
+        ['logs describe-subscription-filters'],
+        ['securityhub get-enabled-standards', 'guardduty list-detectors'],
+        ['securityhub get-findings'],
+    ]
+    for block, matches in zip(collectors, failures, strict=True):
+        for match in matches:
+            subprocess.run(['bash', '-c', block], cwd=root, env=env, check=True)
+            directory = root / 'evidence'
+            before = {f.name: f.read_bytes() for f in directory.iterdir()}
+            assert before
+            result = subprocess.run(['bash', '-c', block], cwd=root,
+                                    env=dict(env, FAIL_MATCH=match), capture_output=True)
+            assert result.returncode != 0, f'{match} must fail the collector'
+            after = {f.name: f.read_bytes() for f in directory.iterdir()}
+            assert after == before, f'{match} changed or left artifacts after failure'
+            for f in directory.iterdir():
+                f.unlink()
 
     report_collectors = [b for b in collectors if 'aws iam get-credential-report' in b]
     assert len(report_collectors) == 2
