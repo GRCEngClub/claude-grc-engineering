@@ -20,7 +20,15 @@ Matching ignores case and surrounding or repeated whitespace; any other wording,
 
 ## Instructions
 
-Run the generator with a quoted requirement and optional format:
+Use the actual user-supplied `$1` as the first CLI argument and, if provided,
+`$2` as the second. Preserve the entire requirement as one argument; do not
+substitute an example or silently change either value. Pass arguments safely
+without interpreting their contents as shell syntax. Omit the second argument
+when no format was supplied so the script defaults to `rego`. If the requirement
+is missing or the arguments are ambiguous, ask the user rather than guessing.
+Propagate errors without producing a substitute draft.
+
+For example, only for a request for this specific requirement and format:
 
 ```bash
 node plugins/grc-engineer/scripts/generate-policy.js "Ensure no S3 buckets are public" rego
