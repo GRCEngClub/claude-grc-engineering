@@ -25,8 +25,43 @@ test('unknown and errors prevent effective or compliant assessment', () => {
   tester.recordTest({ name: 'not implemented', status: 'NOT_IMPLEMENTED', frameworks: ['All'] });
   tester.calculateSummary();
   assert.equal(tester.determineStatus(), 'INDETERMINATE');
+  assert.equal(tester.results.summary.assessed, 1);
+  assert.equal(tester.results.summary.pass_rate, 1);
   assert.equal(tester.calculateFrameworkCompliance().NIST.status, 'INDETERMINATE');
+  assert.equal(tester.calculateFrameworkCompliance().NIST.score, 1);
+  assert.equal(tester.calculateFrameworkCompliance().NIST.assessed, 1);
   assert.deepEqual(tester.calculateFrameworkCompliance().NIST.issues, ['unknown', 'not implemented']);
+});
+
+test('scores include only assessed outcomes and are null without assessments', () => {
+  const tester = new ControlTester(id);
+  tester.recordTest({ name: 'unknown', status: 'NOT_IMPLEMENTED', frameworks: ['NIST'] });
+  tester.recordTest({ name: 'error', status: 'ERROR', frameworks: ['NIST'] });
+  tester.calculateSummary();
+  assert.equal(tester.results.summary.pass_rate, null);
+  assert.equal(tester.calculateFrameworkCompliance().NIST.score, null);
+  assert.equal(tester.calculateFrameworkCompliance().NIST.assessed, 0);
+  assert.match(tester.generateReport(), /Pass Rate \(assessed only\): N\/A/);
+  for (const status of ['PASS', 'FAIL', 'WARNING']) tester.recordTest({ name: status, status, frameworks: ['NIST'] });
+  tester.calculateSummary();
+  assert.equal(tester.results.summary.assessed, 3);
+  assert.equal(tester.results.summary.pass_rate, 1 / 3);
+  assert.equal(tester.calculateFrameworkCompliance().NIST.score, 0.33);
+  assert.equal(tester.calculateFrameworkCompliance().NIST.status, 'INDETERMINATE');
+});
+
+test('unknown control IDs yield structured indeterminate JSON and nonzero exit', () => {
+  for (const control of ['nonexistent-control', 'toString', '__proto__']) {
+    const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', control, '--output=json'], { encoding: 'utf8' });
+    assert.notEqual(cli.status, 0);
+    const result = JSON.parse(cli.stdout);
+    assert.equal(result.control_id, control);
+    assert.equal(result.status, 'INDETERMINATE');
+    assert.equal(result.error, `Control not found: ${control}`);
+    assert.equal(result.summary.pass_rate, null);
+    assert.equal(result.summary.errors, 1);
+    assert.equal(result.tests[0].status, 'ERROR');
+  }
 });
 
 test('unsupported provider and CLI fail closed without AWS', async () => {
@@ -58,7 +93,11 @@ test('missing AWS CLI yields errors, no fabricated PASS, and nonzero exit with v
   assert.equal(result.summary.passed, 0);
   assert.equal(result.summary.errors, 2);
   assert.equal(result.summary.not_implemented, 13);
-  for (const framework of Object.values(result.framework_compliance)) assert.equal(framework.status, 'INDETERMINATE');
+  assert.equal(result.summary.pass_rate, null);
+  for (const framework of Object.values(result.framework_compliance)) {
+    assert.equal(framework.status, 'INDETERMINATE');
+    assert.equal(framework.score, null);
+  }
 });
 
 

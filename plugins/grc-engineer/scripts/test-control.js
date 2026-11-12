@@ -37,7 +37,8 @@ class ControlTester {
         warnings: 0,
         errors: 0,
         not_implemented: 0,
-        pass_rate: 0
+        assessed: 0,
+        pass_rate: null
       }
     };
 
@@ -46,7 +47,7 @@ class ControlTester {
     this.crosswalk = yaml.load(fs.readFileSync(crosswalkPath, 'utf8'));
 
     // Load control definition
-    this.controlDef = this.crosswalk.controls[controlId];
+    this.controlDef = Object.hasOwn(this.crosswalk.controls, controlId) ? this.crosswalk.controls[controlId] : null;
     if (!this.controlDef) {
       throw new Error(`Control not found: ${controlId}`);
     }
@@ -455,10 +456,10 @@ class ControlTester {
    * Calculate summary statistics
    */
   calculateSummary() {
-    const total = this.results.summary.total_tests;
-    const passed = this.results.summary.passed;
-
-    this.results.summary.pass_rate = total > 0 ? passed / total : 0;
+    const summary = this.results.summary;
+    // Warnings are assessed outcomes but are not passes. Unknowns are excluded.
+    summary.assessed = summary.passed + summary.failed + summary.warnings;
+    summary.pass_rate = summary.assessed > 0 ? summary.passed / summary.assessed : null;
   }
 
   /**
@@ -495,10 +496,11 @@ class ControlTester {
       if (frameworkTests.length === 0) continue;
 
       const passed = frameworkTests.filter(t => t.status === 'PASS').length;
-      const score = passed / frameworkTests.length;
+      const assessed = frameworkTests.filter(t => ['PASS', 'FAIL', 'WARNING'].includes(t.status)).length;
+      const score = assessed ? passed / assessed : null;
 
       let status;
-      if (frameworkTests.some(t => t.status === 'ERROR' || t.status === 'NOT_IMPLEMENTED')) status = 'INDETERMINATE';
+      if (score === null || frameworkTests.some(t => t.status === 'ERROR' || t.status === 'NOT_IMPLEMENTED')) status = 'INDETERMINATE';
       else if (score >= 0.95) status = 'COMPLIANT';
       else if (score >= 0.80) status = 'PARTIAL';
       else status = 'NON_COMPLIANT';
@@ -509,7 +511,8 @@ class ControlTester {
 
       compliance[framework] = {
         status,
-        score: Math.round(score * 100) / 100,
+        score: score === null ? null : Math.round(score * 100) / 100,
+        assessed,
         issues
       };
     }
@@ -541,7 +544,8 @@ class ControlTester {
     report += `  ⚠ Warnings: ${this.results.summary.warnings}\n`;
     report += `  Errors: ${this.results.summary.errors}\n`;
     report += `  Not implemented: ${this.results.summary.not_implemented}\n`;
-    report += `  Pass Rate: ${Math.round(this.results.summary.pass_rate * 100)}%\n\n`;
+    report += `  Assessed: ${this.results.summary.assessed}\n`;
+    report += `  Pass Rate (assessed only): ${this.results.summary.pass_rate === null ? 'N/A' : `${Math.round(this.results.summary.pass_rate * 100)}%`}\n\n`;
 
     report += `Status: ${this.results.status}\n\n`;
 
@@ -582,18 +586,30 @@ if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.a
     fixFailures: args.includes('--fix-failures')
   };
 
-  const tester = new ControlTester(controlId, cloudProvider, options);
-
-  tester.runTests().then(results => {
+  let tester;
+  Promise.resolve().then(() => {
+    tester = new ControlTester(controlId, cloudProvider, options);
+    return tester.runTests();
+  }).then(results => {
     console.log(tester.generateReport());
 
     // Exit with error code if tests failed
     if (results.error || results.summary.failed > 0 || results.summary.errors > 0 || results.summary.not_implemented > 0 || results.summary.warnings > 0) {
-      process.exit(1);
+      process.exitCode = 1;
     }
   }).catch(error => {
-    console.error('Test execution failed:', error);
-    process.exit(1);
+    console.error('Test execution failed:', error.message);
+    const result = {
+      control_id: controlId,
+      timestamp: new Date().toISOString(),
+      status: 'INDETERMINATE',
+      error: error.message,
+      tests: [{ name: 'Test execution', status: 'ERROR', error: error.message, frameworks: ['All'] }],
+      summary: { total_tests: 1, passed: 0, failed: 0, warnings: 0, errors: 1, not_implemented: 0, assessed: 0, pass_rate: null },
+      framework_compliance: {}
+    };
+    console.log(options.output === 'json' ? JSON.stringify(result, null, 2) : `Status: INDETERMINATE\nError: ${error.message}`);
+    process.exitCode = 1;
   });
 }
 

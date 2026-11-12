@@ -20,4 +20,6 @@ For any other invocation, pass the requested control ID, optional provider, and 
 
 The provider defaults to `aws`. JSON is written to stdout and progress and errors to stderr. A nonzero exit indicates a failure, warning, error, or unimplemented check. An `INDETERMINATE` status means the control or framework could not be assessed; it is not a finding of compliance or noncompliance. Unimplemented checks report `NOT_IMPLEMENTED` and do not produce evidence. The tool does not collect an evidence package or automatically remediate findings.
 
+Summary `pass_rate` and framework `score` are fractions of assessed checks only: PASS divided by PASS + FAIL + WARNING. ERROR and NOT_IMPLEMENTED are excluded, and `assessed` gives the denominator. A score is null (shown as N/A in text) when no checks were assessed. A partial score is not an overall effectiveness or compliance determination; any unknown or error makes the relevant status INDETERMINATE.
+
 The existing AWS checks inspect limited configuration indicators, not complete control effectiveness. Review their scope and independently validate any observations before relying on them.
