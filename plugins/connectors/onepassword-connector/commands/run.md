@@ -22,8 +22,12 @@ export CONNECTOR_TOKEN='op://MyVault/MyItem/credential'
 node /path/to/onepassword-connector/scripts/run.js -- /path/to/trusted-collector --configured-option
 ```
 
-The reference is an example; use a valid field reference for your item. References
-are permitted only as complete values in `CONNECTOR_TOKEN`, `TOKEN`, `API_TOKEN`,
+The reference is an example; use a valid field reference for your item. The helper
+checks only that an allowed value starts with `op://`; it does not parse or
+validate reference syntax, completeness, existence, or access. 1Password CLI
+resolves and validates references; a prefix alone is not proof of a valid
+reference. See [1Password secret reference syntax](https://1password.dev/cli/secret-reference-syntax).
+References are permitted only as values beginning with `op://` in `CONNECTOR_TOKEN`, `TOKEN`, `API_TOKEN`,
 `API_KEY`, `ACCESS_TOKEN`, or `PASSWORD`; other variables containing `op://` cause
 an error before `op` starts. This prevents resolving references into loader or
 interpreter control variables. Commands needing another variable name require a
