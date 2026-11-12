@@ -25,6 +25,7 @@ def validate(path):
             assert by_id[cell.get('target')].get('vertex') == '1'
             assert cell.find("mxGeometry[@as='geometry'][@relative='1']") is not None
     assert by_id['owner'].get('value') == 'Owner: Security & IT'
+    assert by_id['e3'].get('value') == 'reviewed by'
     assert {(c.get('source'), c.get('target')) for c in cells if c.get('edge') == '1'} == {
         ('control', 'owner'), ('owner', 'evidence'), ('evidence', 'reviewer')}
 
