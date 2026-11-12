@@ -59,6 +59,54 @@ test('GitHub issue preview is data-only and includes only tier 1 and 2 findings'
   assert.ok(!('command' in parsed.issues[0]));
 });
 
+test('offline CLI previews nonempty hostile tier 1 and 2 data without executing it', async () => {
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'gap-preview-'));
+  try {
+    const cache = path.join(dir, 'scf');
+    const api = path.join(cache, 'test', 'api');
+    const findings = path.join(dir, 'findings', 'fixture');
+    const bin = path.join(dir, 'bin');
+    await Promise.all([fs.mkdir(path.join(cache, '_unknown', 'api'), { recursive: true }), fs.mkdir(path.join(api, 'controls'), { recursive: true }), fs.mkdir(path.join(api, 'crosswalks'), { recursive: true }), fs.mkdir(findings, { recursive: true }), fs.mkdir(bin)]);
+    await fs.writeFile(path.join(cache, '_unknown', 'api', 'summary.json'), JSON.stringify({ version: 'test' }));
+    await fs.writeFile(path.join(api, 'crosswalks.json'), JSON.stringify({ frameworks: [{ framework_id: 'fixture', framework_controls_mapped: 3 }] }));
+    await fs.writeFile(path.join(api, 'crosswalks', 'fixture.json'), JSON.stringify({ mappings: { 'SCF-1': ['F-1'], 'SCF-2': ['F-2'], 'SCF-3': ['F-3'] } }));
+    const marker = path.join(dir, 'executed');
+    const ghMarker = path.join(dir, 'gh-called');
+    const payload = `$(touch '${marker}'); '"\n@everyone <script>alert(1)</script>`;
+    await fs.writeFile(path.join(bin, 'gh'), `#!/bin/sh\ntouch '${ghMarker}'\nexit 1\n`, { mode: 0o755 });
+    for (const [id, title] of [['SCF-1', payload], ['SCF-2', 'medium finding'], ['SCF-3', 'low finding']]) {
+      await fs.writeFile(path.join(api, 'controls', `${id}.json`), JSON.stringify({ control_id: id, title }));
+    }
+    const docs = ['high', 'medium', 'low'].map((severity, i) => ({
+      schema_version: '1.0', source: 'fixture', source_version: '1', run_id: 'fixture-run', collected_at: '2026-01-01T00:00:00Z',
+      resource: { type: 'bucket', id: i === 0 ? payload : `resource-${i}` },
+      evaluations: [{ control_framework: 'SCF', control_id: `SCF-${i + 1}`, status: 'fail', severity, message: i === 0 ? payload : `${severity} message`, remediation: { ref: payload, effort_hours: 3 } }]
+    }));
+    await fs.writeFile(path.join(findings, 'findings.json'), JSON.stringify(docs));
+    const out = path.join(dir, 'out');
+    const result = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/gap-assessment.js', 'fixture', '--offline', '--quiet', '--output=github-issues', '--cache-dir=' + path.dirname(findings), '--report-dir=' + out], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache, PATH: bin + path.delimiter + process.env.PATH } });
+    assert.equal(result.status, 0, result.stderr);
+    const output = await fs.readFile(path.join(out, 'gap-report.github-issues.json'), 'utf8');
+    assert.equal(output.trimEnd(), result.stdout.trimEnd());
+    const preview = JSON.parse(output);
+    assert.match(preview.notice, /no issues have been created/i);
+    assert.deepEqual(preview.issues.map(({ tier, scf_id }) => [tier, scf_id]), [[1, 'SCF-1'], [2, 'SCF-2']]);
+    assert.equal(preview.issues[0].title, payload);
+    assert.equal(preview.issues[0].failing_resources[0].resource_id, payload);
+    assert.equal(preview.issues[0].failing_resources[0].message, payload);
+    assert.equal(preview.issues[0].failing_resources[0].remediation.ref, payload);
+    assert.ok(preview.issues.every(issue => !('command' in issue)));
+    await assert.rejects(fs.access(marker), { code: 'ENOENT' });
+    await assert.rejects(fs.access(ghMarker), { code: 'ENOENT' });
+    const normalized = JSON.parse(await fs.readFile(path.join(out, 'findings.normalized.json'), 'utf8'));
+    assert.deepEqual(normalized.load_errors, []);
+    assert.equal(normalized.tier3.length, 1);
+  } finally { await fs.rm(dir, { recursive: true, force: true }); }
+});
+
 test('CLI accepts new formats and rejects unknown formats before SCF initialization', () => {
   for (const format of ['html', 'csv']) {
     const result = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/gap-assessment.js', '--output=' + format], { encoding: 'utf8' });
