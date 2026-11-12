@@ -1,0 +1,8 @@
+{
+  "name": "vault-kv",
+  "version": "0.1.0",
+  "description": "Operator-only Vault KV runtime injection into a trusted local process.",
+  "author": { "name": "GRC Engineering Club Contributors" },
+  "license": "MIT",
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering"
+}

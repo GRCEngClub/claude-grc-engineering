@@ -11,6 +11,12 @@
   },
   "plugins": [
     {
+      "name": "vault-kv",
+      "source": "./plugins/connectors/vault-kv",
+      "description": "Operator-only Vault KV runtime injection into a trusted local process.",
+      "version": "0.1.0"
+    },
+    {
       "name": "gcp-secret-metadata",
       "source": "./plugins/connectors/gcp-secret-metadata",
       "description": "GCP Secret Manager name inventory and operator-only runtime injection.",
