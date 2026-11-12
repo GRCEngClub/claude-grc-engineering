@@ -20,7 +20,7 @@
  * Options:
  *   --sources=<csv>          Connectors to include (default: all with cached findings)
  *   --refresh                Skip cache; re-collect each source (emits guidance; this script does not re-run connectors)
- *   --output=<fmt>           markdown (default) | json | sarif | oscal-ar | html | csv
+ *   --output=<fmt>           markdown (default) | json | sarif | oscal-ar | html | csv | github-issues
  *   --cache-dir=<path>       Override ~/.cache/claude-grc/findings
  *   --report-dir=<path>      Where to write the report bundle (default: ./gap-assessment-<date>/)
  *   --offline                Use cached SCF data only
@@ -98,6 +98,7 @@ async function main(argv) {
 
   let rendered;
   switch (args.output) {
+    case 'github-issues': rendered = JSON.stringify(renderGithubIssuePreview(report), null, 2); break;
     case 'html':     rendered = renderHtml(report); break;
     case 'csv':      rendered = renderCsv(report); break;
     case 'json':     rendered = JSON.stringify(report.summary, null, 2); break;
@@ -106,7 +107,8 @@ async function main(argv) {
     case 'markdown':
     default:         rendered = renderMarkdown(report);
   }
-  const reportPath = path.join(bundleDir, `gap-report.${args.output === 'markdown' ? 'md' : args.output}`);
+  const extension = args.output === 'markdown' ? 'md' : args.output === 'github-issues' ? 'github-issues.json' : args.output;
+  const reportPath = path.join(bundleDir, `gap-report.${extension}`);
   await fs.writeFile(reportPath, rendered);
 
   if (!args.quiet) {
@@ -151,8 +153,8 @@ function parseArgs(argv) {
   if (positional) {
     out.frameworks = positional.split(',').map(s => s.trim()).filter(Boolean);
   }
-  if (!['markdown', 'json', 'sarif', 'oscal-ar', 'html', 'csv'].includes(out.output)) {
-    fail(EXIT.USAGE, `--output must be one of markdown|json|sarif|oscal-ar|html|csv`);
+  if (!['markdown', 'json', 'sarif', 'oscal-ar', 'html', 'csv', 'github-issues'].includes(out.output)) {
+    fail(EXIT.USAGE, `--output must be one of markdown|json|sarif|oscal-ar|html|csv|github-issues`);
   }
   return out;
 }
@@ -474,6 +476,22 @@ function worstSeverityOf(sevs) {
     if (!worst || (rank[s] || 0) > (rank[worst] || 0)) worst = s;
   }
   return worst;
+}
+
+/** Produce data-only drafts; no shell commands, GitHub calls, or issue creation. */
+export function renderGithubIssuePreview(r) {
+  return {
+    notice: 'Preview only. Review sensitive data and mappings before manually creating issues; no issues have been created.',
+    run_id: r.runId,
+    issues: ['tier1', 'tier2'].flatMap((tier, index) => r.tiers[tier].map(t => ({
+      tier: index + 1,
+      scf_id: t.scf_id,
+      title: t.title,
+      severity: t.severity,
+      frameworks: t.frameworks,
+      failing_resources: t.failing_resources
+    })))
+  };
 }
 
 /** Escape untrusted values for HTML text, not markup or URL attributes. */
