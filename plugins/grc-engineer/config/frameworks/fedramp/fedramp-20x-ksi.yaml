@@ -296,7 +296,7 @@ controls:
           echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           echo ""
           echo "=== CloudTrail Status ==="
-          aws cloudtrail describe-trails --query 'trailList[*].{Name:Name,IsMultiRegion:IsMultiRegionTrail,IsLogging:IsOrganizationTrail}' --output table
+          aws cloudtrail describe-trails --query 'trailList[*].{Name:Name,IsMultiRegion:IsMultiRegionTrail,IsOrganizationTrail:IsOrganizationTrail}' --output table
           echo ""
           echo "=== Config Recorder Status ==="
           aws config describe-configuration-recorder-status --output table

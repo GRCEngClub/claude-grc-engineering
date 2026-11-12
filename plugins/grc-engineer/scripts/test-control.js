@@ -189,26 +189,8 @@ class ControlTester {
       frameworks: ['NIST', 'ISO', 'SOC2', 'PCI']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws iam list-users');
-        const users = JSON.parse(stdout).Users;
-
-        const userIds = users.map(u => u.UserId);
-        const uniqueIds = new Set(userIds);
-
-        test.status = userIds.length === uniqueIds.size ? 'PASS' : 'FAIL';
-        test.result = {
-          users_checked: users.length,
-          unique_ids: uniqueIds.size,
-          duplicates: userIds.length - uniqueIds.size
-        };
-        test.message = `${users.length} IAM users found, all with unique IDs`;
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'IAM user enumeration alone cannot verify identifiers for all users';
 
     this.recordTest(test);
   }
@@ -238,42 +220,8 @@ class ControlTester {
       frameworks: ['NIST', 'SOC2']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws iam list-users');
-        const users = JSON.parse(stdout).Users;
-
-        let usersWithApproval = 0;
-
-        for (const user of users) {
-          try {
-            const { stdout: tagStdout } = await execPromise(`aws iam list-user-tags --user-name ${user.UserName}`);
-            const tags = JSON.parse(tagStdout).Tags;
-
-            const hasCreator = tags.some(t => t.Key === 'Creator');
-            const hasApprover = tags.some(t => t.Key === 'ApprovedBy');
-
-            if (hasCreator || hasApprover) {
-              usersWithApproval++;
-            }
-          } catch (err) {
-            throw err;
-          }
-        }
-
-        const percentage = Math.round((usersWithApproval / users.length) * 100);
-        test.status = percentage === 100 ? 'PASS' : 'WARNING';
-        test.result = {
-          total_users: users.length,
-          users_with_approval: usersWithApproval,
-          percentage
-        };
-        test.message = `${percentage}% of users have creator/approval tags`;
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'User tags do not establish documented approval';
 
     this.recordTest(test);
   }
@@ -287,30 +235,8 @@ class ControlTester {
       frameworks: ['NIST', 'SOC2']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        // Check for IAM Identity Center (SSO)
-        try {
-          const { stdout } = await execPromise('aws sso-admin list-instances');
-          const instances = JSON.parse(stdout).Instances;
-
-          test.status = instances.length > 0 ? 'PASS' : 'WARNING';
-          test.result = {
-            identity_center_configured: instances.length > 0,
-            instances: instances.length
-          };
-          test.message = instances.length > 0
-            ? 'IAM Identity Center configured with automated provisioning'
-            : 'Manual IAM user management (consider Identity Center)';
-        } catch (cmdError) {
-          test.status = 'ERROR';
-          test.error = cmdError.message;
-        }
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Identity Center existence does not establish automated provisioning or lifecycle management';
 
     this.recordTest(test);
   }
@@ -324,39 +250,8 @@ class ControlTester {
       frameworks: ['NIST', 'SOC2']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws iam list-users');
-        const users = JSON.parse(stdout).Users;
-
-        let usersWithBoundaries = 0;
-
-        for (const user of users) {
-          try {
-            const { stdout: userStdout } = await execPromise(`aws iam get-user --user-name ${user.UserName}`);
-            const userData = JSON.parse(userStdout).User;
-
-            if (userData.PermissionsBoundary) {
-              usersWithBoundaries++;
-            }
-          } catch (err) {
-            throw err;
-          }
-        }
-
-        const percentage = Math.round((usersWithBoundaries / users.length) * 100);
-        test.status = percentage >= 90 ? 'PASS' : 'WARNING';
-        test.result = {
-          total_users: users.length,
-          users_with_boundaries: usersWithBoundaries,
-          percentage
-        };
-        test.message = `${percentage}% of users have permissions boundaries`;
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Permissions boundaries alone do not establish least privilege';
 
     this.recordTest(test);
   }
@@ -371,21 +266,16 @@ class ControlTester {
     };
 
     try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws cloudtrail describe-trails');
-        const trails = JSON.parse(stdout).trailList;
-
-        const activeTrails = trails.filter(t => t.IsMultiRegionTrail);
-
-        test.status = activeTrails.length > 0 ? 'PASS' : 'FAIL';
-        test.result = {
-          total_trails: trails.length,
-          multi_region_trails: activeTrails.length
-        };
-        test.message = activeTrails.length > 0
-          ? `CloudTrail active in all regions (${activeTrails.length} trail(s))`
-          : 'No multi-region CloudTrail configured';
-      }
+      const { stdout } = await execPromise('aws cloudtrail describe-trails');
+      const trails = JSON.parse(stdout).trailList;
+      if (!Array.isArray(trails)) throw new Error('Invalid CloudTrail response');
+      const multiRegion = trails.filter(t => t.IsMultiRegionTrail === true);
+      test.result = { total_trails: trails.length, multi_region_trails: multiRegion.length };
+      // Configuration alone does not establish logging or event coverage.
+      test.status = multiRegion.length ? 'NOT_IMPLEMENTED' : 'FAIL';
+      test.message = multiRegion.length
+        ? 'Multi-region trail exists; active logging and management event coverage are not verified'
+        : 'No multi-region CloudTrail configured';
     } catch (error) {
       test.status = 'ERROR';
       test.error = error.message;
@@ -403,61 +293,8 @@ class ControlTester {
       frameworks: ['PCI']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws iam generate-credential-report && sleep 2 && aws iam get-credential-report');
-        const report = JSON.parse(stdout);
-        const csvContent = Buffer.from(report.Content, 'base64').toString('utf-8');
-
-        // Parse CSV (simplified)
-        const lines = csvContent.split('\n');
-        const headers = lines[0].split(',');
-        const passwordLastUsedIndex = headers.indexOf('password_last_used');
-
-        const inactiveUsers = [];
-        const threshold = 90;
-        const now = new Date();
-
-        for (let i = 1; i < lines.length; i++) {
-          const fields = lines[i].split(',');
-          if (fields.length <= passwordLastUsedIndex) continue;
-
-          const lastUsed = fields[passwordLastUsedIndex];
-          if (lastUsed && lastUsed !== 'N/A' && lastUsed !== 'no_information') {
-            const lastUsedDate = new Date(lastUsed);
-            const daysSinceUse = Math.floor((now - lastUsedDate) / (1000 * 60 * 60 * 24));
-
-            if (daysSinceUse > threshold) {
-              inactiveUsers.push({
-                user: fields[0],
-                days_inactive: daysSinceUse
-              });
-            }
-          }
-        }
-
-        test.status = inactiveUsers.length === 0 ? 'PASS' : 'WARNING';
-        test.result = {
-          inactive_users_count: inactiveUsers.length,
-          threshold_days: threshold,
-          inactive_users: inactiveUsers.slice(0, 10) // Limit to 10 for display
-        };
-        test.message = inactiveUsers.length === 0
-          ? 'No inactive users detected'
-          : `${inactiveUsers.length} users inactive >${threshold} days detected`;
-
-        if (inactiveUsers.length > 0) {
-          test.remediation = {
-            description: 'Disable inactive users',
-            command: 'python scripts/disable_inactive_users.py --threshold=90 --execute',
-            estimated_time_minutes: 30
-          };
-        }
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Credential reports alone do not establish detection and disabling of inactive accounts';
 
     this.recordTest(test);
   }
@@ -471,26 +308,8 @@ class ControlTester {
       frameworks: ['SOC2', 'NIST']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws accessanalyzer list-analyzers');
-        const analyzers = JSON.parse(stdout).analyzers;
-
-        const activeAnalyzers = analyzers.filter(a => a.status === 'ACTIVE');
-
-        test.status = activeAnalyzers.length > 0 ? 'PASS' : 'FAIL';
-        test.result = {
-          total_analyzers: analyzers.length,
-          active_analyzers: activeAnalyzers.length
-        };
-        test.message = activeAnalyzers.length > 0
-          ? `Access Analyzer active (${activeAnalyzers.length} analyzer(s))`
-          : 'No Access Analyzer configured';
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'An active analyzer alone does not establish continuous unused access detection';
 
     this.recordTest(test);
   }
@@ -505,30 +324,17 @@ class ControlTester {
     };
 
     try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws iam get-account-summary');
-        const summary = JSON.parse(stdout).SummaryMap;
-
-        const rootMFAEnabled = summary.AccountMFAEnabled === 1;
-
-        test.status = rootMFAEnabled ? 'PASS' : 'FAIL';
-        test.result = {
-          root_account_mfa: rootMFAEnabled,
-          iam_users_with_mfa: summary.UsersWithMFA || 0,
-          total_users: summary.Users || 0
-        };
-
-        if (rootMFAEnabled) {
-          const percentage = Math.round((summary.UsersWithMFA / summary.Users) * 100);
-          test.message = `Root MFA: Enabled, IAM users: ${percentage}% have MFA`;
-        } else {
-          test.message = 'Root account MFA is NOT enabled (critical security risk)';
-          test.remediation = {
-            description: 'Enable MFA for root account',
-            command: 'Manual: Log in to AWS Console as root → Security Credentials → Activate MFA',
-            estimated_time_minutes: 15
-          };
-        }
+      const { stdout } = await execPromise('aws iam get-account-summary');
+      const summary = JSON.parse(stdout).SummaryMap;
+      if (!summary || ![0, 1].includes(summary.AccountMFAEnabled)) throw new Error('Invalid root MFA summary');
+      test.result = { root_account_mfa: summary.AccountMFAEnabled === 1 };
+      if (summary.AccountMFAEnabled === 0) {
+        test.status = 'FAIL';
+        test.message = 'Root account MFA is not enabled';
+      } else {
+        // Root enrollment does not prove MFA enforcement for IAM or federated users.
+        test.status = 'NOT_IMPLEMENTED';
+        test.message = 'Root MFA is enabled; user MFA enforcement is not verified';
       }
     } catch (error) {
       test.status = 'ERROR';
@@ -547,26 +353,8 @@ class ControlTester {
       frameworks: ['NIST', 'SOC2']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws cloudtrail describe-trails');
-        const trails = JSON.parse(stdout).trailList;
-
-        const validatedTrails = trails.filter(t => t.LogFileValidationEnabled);
-
-        test.status = validatedTrails.length > 0 ? 'PASS' : 'FAIL';
-        test.result = {
-          total_trails: trails.length,
-          validated_trails: validatedTrails.length
-        };
-        test.message = validatedTrails.length > 0
-          ? 'CloudTrail log file validation enabled'
-          : 'CloudTrail log file validation NOT enabled';
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Log file validation configuration alone does not establish tamper-proof audit logs';
 
     this.recordTest(test);
   }
