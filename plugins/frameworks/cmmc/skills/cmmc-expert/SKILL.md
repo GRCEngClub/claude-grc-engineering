@@ -6,7 +6,9 @@ allowed-tools: Read, Glob, Grep, Write
 
 # CMMC Expert
 
-Deep, practitioner-grade expertise in the Cybersecurity Maturity Model Certification (CMMC) v2.0 for Department of Defense contractors. Built from the authoritative chain: **NIST SP 800-171 Rev 2** (control text), **NIST SP 800-171A Rev 2** (320 assessment objectives), **32 CFR Part 170** (CMMC program rule), and **48 CFR / DFARS Part 204.75** (acquisition rule).
+> **Review required:** This material is an unverified working aid, not an authoritative assessment or legal determination. Verify every control, objective, scope, assessment type, scoring and contractual claim against current official sources and obtain qualified CMMC and contracting review before use. If a source or contract is unavailable, mark the conclusion unverified; do not infer compliance.
+
+Deep, practitioner-grade expertise in the Cybersecurity Maturity Model Certification (CMMC) v2.0 for Department of Defense contractors. Built from the authoritative chain: **NIST SP 800-171 Rev 2** (control text), **NIST SP 800-171A (June 2018)** (assessment procedures), **32 CFR Part 170** (CMMC program rule), and **48 CFR / DFARS Part 204.75** (acquisition rule).
 
 ## 1. Program Overview & Authority
 
@@ -25,24 +27,15 @@ Deep, practitioner-grade expertise in the Cybersecurity Maturity Model Certifica
 **Authoritative sources to cite in deliverables:**
 
 - NIST SP 800-171 Rev 2 — https://doi.org/10.6028/NIST.SP.800-171r2 (Final, including updates as of 01-28-2021; withdrawn May 14, 2024 but remains operative for CMMC).
-- NIST SP 800-171A Rev 2 — assessment procedures, 320 objectives.
+- NIST SP 800-171A (June 2018) — assessment procedures, 320 objectives.
 - CMMC Assessment Guide L2 (current version on dodcio.defense.gov).
 - CMMC Scoping Guide L2.
 - CMMC Scoring Methodology.
 - 32 CFR Part 170 (89 FR 83214, Oct. 15, 2024).
 
-### Four-Phase Implementation Timeline
+### Implementation status requires current verification
 
-All dates keyed to **November 10, 2025** (DFARS rule effective date).
-
-| Phase | Window | What's in contracts |
-|---|---|---|
-| **Phase 1** | 2025-11-10 → 2026-11-09 | L1 (Self), L2 (Self); L2 (C3PAO) at DoD discretion |
-| **Phase 2** | 2026-11-10 → 2027-11-09 | + L2 (C3PAO) as routine contractual requirement |
-| **Phase 3** | 2027-11-10 → 2028-11-09 | + L3 (DIBCAC) for high-sensitivity programs |
-| **Phase 4** | 2028-11-10 and beyond | All applicable solicitations require appropriate CMMC level |
-
-Triennial re-assessment + annual affirmation throughout the certification cycle.
+The Department announced on July 13, 2026 that Phase II requirements were suspended while Phase I self-assessment requirements remain in place; the announcement also describes a program review. See the [official announcement and current resource links](https://business.defense.gov/cmmc/). Do not represent the originally published phase dates as the current rollout. Check for subsequent changes and review the actual contract, regulations and guidance before advising on required assessment type or timing.
 
 ---
 
@@ -59,7 +52,7 @@ Triennial re-assessment + annual affirmation throughout the certification cycle.
 - **OSA** — Organization Seeking Assessment.
 - **OSC** — Organization Seeking Certification (used specifically in C3PAO context; OSA/OSC are largely interchangeable in practice).
 - **C3PAO** — Certified Third-Party Assessor Organization. Accredited by the Cyber AB.
-- **CCA** — Certified CMMC Assessor (must hold Tier 3 background investigation).
+- **CCA** — Certified CMMC Assessor. Assessment personnel must meet the applicable Tier 3 investigation or equivalence requirements in [32 CFR 170.9(b)(3)–(4)](https://www.ecfr.gov/current/title-32/section-170.9#p-170.9(b)(3)).
 - **CCP** — Certified CMMC Professional (support role).
 - **DIBCAC** — **Defense Industrial Base Cybersecurity Assessment Center** (DCMA's assessment arm; conducts L3 assessments and high-water-mark L2 verifications).
 - **DC3** — DoD Cyber Crime Center (recipient of malware samples under DFARS 7012).
@@ -68,9 +61,9 @@ Triennial re-assessment + annual affirmation throughout the certification cycle.
 
 **Who needs what:**
 
-- Handles FCI only → L1.
-- Handles CUI → L2 (Self) or L2 (C3PAO) per the contract.
-- Sensitive national-security CUI → L3.
+- Verify the solicitation or contract and applicable clauses before assigning a status; if unavailable, leave it unverified.
+- FCI-only subcontracts subject to [32 CFR 170.23](https://www.ecfr.gov/current/title-32/section-170.23) require L1 (Self); CUI subcontract minimums depend on the prime requirement. The [DFARS 252.204-7021(f)](https://www.ecfr.gov/current/title-48/section-252.204-7021#p-252.204-7021(f)) flow-down excludes commercially available off-the-shelf items.
+- The contract specifies the required CMMC level and assessment type, including any Level 3 requirement.
 
 ---
 
@@ -100,55 +93,13 @@ Triennial re-assessment + annual affirmation throughout the certification cycle.
 
 ---
 
-## 4. 320 Assessment Objectives (NIST SP 800-171A Rev 2)
+## 4. Assessment objectives
 
-Each 800-171 requirement decomposes into **lettered assessment objectives** (e.g., 3.1.1[a]–[f]). All objectives within a practice must be satisfied for the practice to be **Met** in a C3PAO assessment.
-
-| Family | Controls | Assessment Objectives |
-|---|---|---|
-| 3.1 Access Control | 22 | **70** |
-| 3.2 Awareness & Training | 3 | 9 |
-| 3.3 Audit & Accountability | 9 | 29 |
-| 3.4 Configuration Management | 9 | **44** |
-| 3.5 Identification & Authentication | 11 | 25 |
-| 3.6 Incident Response | 3 | 14 |
-| 3.7 Maintenance | 6 | 10 |
-| 3.8 Media Protection | 9 | 15 |
-| 3.9 Personnel Security | 2 | 4 |
-| 3.10 Physical Protection | 6 | 16 |
-| 3.11 Risk Assessment | 3 | 9 |
-| 3.12 Security Assessment | 4 | 14 |
-| 3.13 System & Comms Protection | 16 | **41** |
-| 3.14 System & Info Integrity | 7 | 20 |
-| **TOTAL** | **110** | **320** |
-
-### High-Complexity Controls (5+ Objectives)
-
-These drive the bulk of assessment effort and evidence burden:
-
-| Control | Objectives | Evidence focus |
-|---|---|---|
-| 3.4.7 | **15** | Port/protocol/service documentation (most objectives of any control) |
-| 3.13.1 | 8 | Network boundary definition + monitoring/control/protection |
-| 3.4.5 | 8 | Change control access restrictions (physical AND logical) |
-| 3.12.4 | 8 | SSP completeness (boundary, environment, connections, update freq) |
-| 3.6.1 | 7 | IRP covering all incident response phases |
-| 3.6.2 | 6 | Incident reporting chain (internal + external) |
-| 3.1.1 | 6 | User/device/process inventory + access restrictions |
-| 3.1.20 | 6 | External system agreements + connection controls |
-| 3.3.1 | 6 | Audit log configuration + retention policy |
-| 3.3.8 | 6 | Log protection controls |
-| 3.4.1 | 6 | Baseline config + asset inventory |
-| 3.13.2 | 6 | Secure architecture documentation |
-| 3.14.1 | 6 | Flaw ID/report/correct with defined timeframes |
-| 3.1.3 | 5 | Data flow diagrams + flow enforcement |
-| 3.1.22 | 5 | Public web content review process |
-
----
+Consult [NIST SP 800-171A (June 2018)](https://doi.org/10.6028/NIST.SP.800-171A) directly for the applicable assessment objective and determination statements. Some statements are lettered; others, including 3.13.11, are unlettered. Verify labels and wording in the source; do not invent letter suffixes.
 
 ## 5. Assessment Methods — Examine / Interview / Test
 
-Per **NIST SP 800-171A Rev 2**, assessors use exactly **three** methods (not four). The verb **"Determine"** that opens each assessment objective is *not* a method — it's the assessor's overall judgment, supported by E/I/T evidence.
+Per **NIST SP 800-171A (June 2018)**, assessors use exactly **three** methods (not four). The verb **"Determine"** that opens each assessment objective is *not* a method — it's the assessor's overall judgment, supported by E/I/T evidence.
 
 | Method | What it is | Depth attributes |
 |---|---|---|
@@ -163,7 +114,7 @@ Per **NIST SP 800-171A Rev 2**, assessors use exactly **three** methods (not fou
 - **Activities** — operations, exercises, backup runs.
 - **Individuals** — system owners, admins, security personnel, users.
 
-**Practitioner rule of thumb:** For each AO, the OSC should be able to produce (1) the document/specification, (2) the technical artifact or screenshot showing the mechanism is configured, and (3) at least one person who can speak to operating the control.
+**Evidence planning:** Documents, technical artifacts, and interviews are possible assessment inputs; select methods and objects appropriate to the requirement, assessment scope, and official assessment guidance. No universal three-item evidence requirement is implied.
 
 ---
 
@@ -173,8 +124,8 @@ Per **NIST SP 800-171A Rev 2**, assessors use exactly **three** methods (not fou
 
 - Information **provided by or generated for** the Government under a contract.
 - Not intended for public release.
-- Not classified, not CUI.
-- Triggers **CMMC Level 1** safeguarding (FAR 52.204-21).
+- FCI and CUI definitions can overlap; identify each under its applicable definition.
+- FCI alone does not categorically trigger a CMMC assessment. Check [32 CFR 170.3](https://www.ecfr.gov/current/title-32/section-170.3), the solicitation or contract, applicable phase-in and exceptions, and the required status.
 - Examples: pricing, delivery schedules, contract-related correspondence.
 
 ### CUI — Controlled Unclassified Information
@@ -182,17 +133,17 @@ Per **NIST SP 800-171A Rev 2**, assessors use exactly **three** methods (not fou
 - Information **requiring safeguarding or dissemination controls** per law, regulation, or government-wide policy.
 - Governed by **32 CFR Part 2002** and the **CUI Registry** at `cui.archives.gov`.
 - The CUI Registry contains the authoritative list of CUI categories (organized under ~20 organizational index groupings), each with its own marking and handling rules.
-- Triggers **CMMC Level 2** (or L3 for sensitive programs).
-- Practical rule: **If DFARS 252.204-7012 is in your contract, you have CUI. Full stop.**
+- CUI alone does not categorically trigger a CMMC assessment or select its level. Check [32 CFR 170.3](https://www.ecfr.gov/current/title-32/section-170.3), the solicitation or contract, applicable phase-in and exceptions, and the required status.
+- DFARS 252.204-7012 alone does not establish that a contractor possesses CUI. Examine contract information, markings and flows; consult the contracting officer when uncertain. See [48 CFR 252.204-7012](https://www.ecfr.gov/current/title-48/section-252.204-7012).
 
 **Two flavors:**
 
-- **CUI Basic** — default safeguarding standard; 800-171 applies.
-- **CUI Specified** — additional handling requirements per the CUI category (e.g., ITAR, EAR, Privacy, Critical Infrastructure).
+- **CUI Basic** — review the applicable CUI safeguarding rules and contractual requirements, including when 800-171 applies.
+- **CUI Specified** — the underlying authority specifies particular safeguarding or dissemination requirements; consult the relevant CUI Registry category.
 
 **Confidentiality impact value:** No less than FIPS 199 **moderate**.
 
-**Boundary scope rule (key to scoping):** 800-171 requirements apply only to components that **process, store, or transmit CUI**, or that **provide protection** for such components.
+**Boundary scoping:** Assess the relevant system and asset categories under [32 CFR 170.19](https://www.ecfr.gov/current/title-32/section-170.19); do not assume that only assets directly handling CUI are relevant.
 
 **Marking expectations:**
 
@@ -210,15 +161,15 @@ Per **32 CFR 170.19** and the CMMC L2 Scoping Guide, each asset falls into one o
 |---|---|---|
 | **CUI Assets** | Process, store, or transmit CUI | **All 110 controls apply** |
 | **Security Protection Assets** | Provide security services to CUI Assets (firewalls, IDS/IPS, SIEM, VPN, MDM, patch mgmt, AD/LDAP) — may not touch CUI directly | Applicable security requirements apply |
-| **Contractor Risk Managed Assets (CRMA)** | Can technically reach CUI Assets but aren't required to process CUI (jump hosts, admin workstations) | Contractor-developed risk-based approach, documented |
-| **Specialized Assets** | OT/ICS, IoT, Government Furnished Equipment | Tailored — document applicability and any compensating controls in the SSP |
-| **Out-of-Scope Assets** | Isolated; no connection path to CUI systems | **Not** subject to CMMC — but isolation must be **technically demonstrated**, not merely asserted |
+| **Contractor Risk Managed Assets (CRMA)** | Can, but are not intended to, process, store, or transmit CUI because of policies, procedures and practices | SSP review; limited checks may be warranted under Table 3 |
+| **Specialized Assets** | Can process, store, or transmit CUI but cannot be fully secured, including certain OT, IoT and GFE | Document and manage using risk-based policies; SSP review, not other CMMC security requirements at Level 2 |
+| **Out-of-Scope Assets** | Cannot process, store, or transmit CUI, do not protect CUI assets, and are physically or logically separated | Prepare to justify inability to process, store or transmit CUI; in-scope categories cannot be out of scope |
 
 ### Scope-Reduction Plays
 
-1. **CMMC enclave** — isolate CUI into a dedicated environment (separate network segment, separate AD tenant, separate cloud tenant). Only the enclave is in scope.
-2. **Remove CUI from systems** that don't need it; document the removal; those systems exit scope.
-3. **FedRAMP-authorized CSP** — offload controls to the CSP for the cloud portion.
+1. **CMMC enclave** — isolate CUI into a dedicated environment; assess all applicable asset categories, including security protection assets outside the enclave.
+2. **Remove CUI from systems** that don't need it; reassess their asset category rather than assuming they exit scope.
+3. **FedRAMP-authorized CSP** — document shared responsibilities; authorization does not eliminate customer-side obligations.
 4. **Genuinely isolated systems** — air-gapped test networks with no path to CUI.
 
 ### CUI Identification — Required Before Scoping
@@ -236,44 +187,33 @@ The most commonly misunderstood area of CMMC. ESPs and CSPs follow **different**
 
 ### Cloud Service Provider (CSP)
 
-A third-party providing **cloud** services (SaaS / PaaS / IaaS) where CUI is processed, stored, or transmitted.
+A CSP is a cloud service provider; a CSP may also be an ESP, including when it processes, stores, or transmits Security Protection Data (SPD) without CUI.
 
-- **FedRAMP Moderate authorization required**, per DFARS 252.204-7012 and 252.239-7010.
-- **Equivalency option** exists ("equivalent to FedRAMP Moderate" via a DoD-approved process) but is complex and rarely used.
-- The OSA's on-premises infrastructure **connecting** to the CSP **is** in scope. The CSP environment itself is verified via FedRAMP, not as part of the CMMC assessment.
-- The CSP must provide a **Customer Responsibility Matrix (CRM)** showing which controls are the CSP's vs. the customer's. The OSC's SSP documents customer-side implementation of shared controls.
+- For an external cloud service provider handling covered defense information under DFARS 7012, the clause requires security requirements equivalent to the FedRAMP Moderate baseline and specified incident-related obligations; review the contract and applicable clause. See [48 CFR 252.204-7012(b)(2)(ii)(D)](https://www.ecfr.gov/current/title-48/section-252.204-7012).
+- For Level 2 certification, the cloud offering processing CUI must be FedRAMP Moderate (or higher) authorized **or** meet equivalent security requirements in accordance with DoD policy; the on-premises infrastructure connecting to it is in scope. CRM security requirements must be documented or referenced in the SSP. See [32 CFR 170.17(c)(5)](https://www.ecfr.gov/current/title-32/section-170.17#p-170.17(c)(5)).
+- Do not assume every CSP is outside assessment scope: see the SPD-only row below. FedRAMP authorization alone does not resolve customer responsibilities.
 
 **Common CSP options for CUI:**
 
-| Platform | FedRAMP | Notes |
-|---|---|---|
-| Microsoft 365 GCC High | High | Suitable for most DoD CUI, including ITAR |
-| Microsoft Azure Government | High | |
-| AWS GovCloud | High | |
-| Microsoft 365 GCC | Moderate | Limited CUI types; **not** suitable for ITAR/EAR |
-| Google Workspace Enterprise | Moderate (some configurations) | Validate per use case |
+Verify the exact offering and authorization boundary in the [FedRAMP Marketplace](https://marketplace.fedramp.gov/) and applicable DoD policy; platform names alone do not establish authorization, equivalence, or suitability for specific data.
 
 **ITAR/EAR caution:** A CSP can be FedRAMP-authorized **and** technically eligible — but still ineligible to process specific CUI categories due to export-control restrictions on foreign-national access. Evaluate CUI category restrictions independently of FedRAMP authorization.
 
 ### External Service Provider (ESP)
 
-A third-party that is **not** cloud-based but whose services implement 800-171 controls or that processes/stores/transmits CUI on the OSA's behalf.
+An ESP can be a CSP or a non-CSP. Classify the service using what it processes, stores, or transmits, not merely whether it is cloud-based.
 
 **Common ESPs:** MSSPs (SOC, SIEM), MSPs (patching, endpoint management), outsourced IT/AD admins, physical security monitoring vendors.
 
-**Rules (32 CFR 170.19 / 170.16):**
+**Level 2 scoping:** [32 CFR 170.19(c)(2)(i), Table 4](https://www.ecfr.gov/current/title-32/section-170.19#p-170.19(c)(2)(i)) distinguishes:
 
-1. **ESP services are not exempt from assessment.** If an ESP implements CMMC controls for the OSA, those services are within the assessment scope.
-2. The ESP's role and services must be **documented in the OSC's SSP** along with a CRM.
-3. **ESP CMMC certification (optional, strongly recommended):** if the ESP holds a valid CMMC certification covering the services provided, those services may be accepted without separate re-assessment. If the ESP is **not** CMMC-certified, the C3PAO must assess them as part of the OSC's assessment — significantly expanding scope and cost.
+| Data handled | CSP | Non-CSP ESP |
+|---|---|---|
+| CUI, with or without SPD | Meet FedRAMP requirements in 48 CFR 252.204-7012 | Services are in the OSA assessment scope and assessed as part of that assessment |
+| SPD without CUI | Services are in scope and assessed as Security Protection Assets | Services are in scope and assessed as Security Protection Assets |
+| Neither CUI nor SPD | Does not meet the CMMC definition of an ESP | Does not meet the CMMC definition of an ESP |
 
-**Decision tree:**
-
-```
-Is the third-party service cloud-based?
-├── YES → CSP → FedRAMP Moderate (or higher) authorization required
-└── NO  → ESP → Include in scope OR get ESP CMMC-certified
-```
+Under [170.19(c)(2)(ii)](https://www.ecfr.gov/current/title-32/section-170.19#p-170.19(c)(2)(ii)), document the ESP, relationship and services in the SSP, and describe them in the service description and CRM. Voluntary ESP certification may reduce the ESP's effort during the OSA assessment; it does **not** automatically exempt services from assessment. For non-CSP ESPs handling CUI, [170.17(c)(6)](https://www.ecfr.gov/current/title-32/section-170.17#p-170.17(c)(6)) addresses Level 2 certification, including assessment of services used to meet OSA requirements against all Level 2 requirements. Level 3 has a separate [Table 6](https://www.ecfr.gov/current/title-32/section-170.19#p-170.19(d)(2)(i)); Level 1 scoping differs.
 
 ---
 
@@ -293,7 +233,7 @@ Per the regulation (unless DoD specifies otherwise), the **prime contractor** de
 - Verify via SPRS (sub's CMMC Status should be visible — access mechanics still maturing).
 - Include DFARS 252.204-7021 flow-down clause in subcontracts.
 
-**Practical advisory:** Primes should build supplier cybersecurity verification into procurement processes now. Waiting until Phase 2/4 to verify subs will create supply chain disruptions.
+**Practical advisory:** Build supplier cybersecurity verification into procurement processes; check current phase-in and applicable contract requirements.
 
 ---
 
@@ -306,7 +246,7 @@ Per the regulation (unless DoD specifies otherwise), the **prime contractor** de
 | **SPRS Score** | Numerical (e.g., 98/110) from DoD Assessment Methodology self-assessment | SPRS (contractor-submitted) |
 | **CMMC Status** | Categorical (Conditional L2 / Final L2 / etc.) from a CMMC assessment under 32 CFR 170 | SPRS (self) or eMASS (C3PAO) |
 
-During Phase 1, a current SPRS score from a valid self-assessment **is** the CMMC L2 (Self) status.
+A DFARS assessment score alone does not establish CMMC Level 2 (Self) status; consult [32 CFR 170.16](https://www.ecfr.gov/current/title-32/section-170.16) for assessment, status, and affirmation requirements.
 
 ### DoD Assessment Methodology — Three Tiers
 
@@ -326,30 +266,14 @@ SPRS = 110 − Σ (deductions for not-implemented or partially-implemented contr
 
 - **Starting score:** 110.
 - **Point weights per practice:** **5 (High criticality), 3 (Medium), 1 (Low)** — set by the CMMC Scoring Methodology.
-- **Deduction:** full point value if Not Met; partial credit at assessor discretion for partially implemented controls.
-- **Conditional pass threshold:** **≥ 88** (i.e., ≥ 80% of 110).
+- **Deduction:** Apply the specified scoring methodology, not discretionary partial credit. [32 CFR 170.24](https://www.ecfr.gov/current/title-32/section-170.24) specifies adjusted deductions for IA.L2-3.5.3 and SC.L2-3.13.11 in particular circumstances; the requirements remain NOT MET when not fully implemented.
+- **Conditional Level 2:** assessment score divided by the total number of Level 2 requirements must be ≥ 0.8, alongside all other POA&M conditions. This is a weighted score, not a count of MET practices. See [32 CFR 170.21(a)(2)](https://www.ecfr.gov/current/title-32/section-170.21).
 - **Final status:** **110/110** with all practices Met (no open POA&Ms).
 - Score can go negative (theoretical floor around −203).
 
-### High-Impact (5-Point) Practices
+### Practice Weights
 
-A single Not-Implemented finding on any of these costs 5 points and — for most of them — is **not** POA&M-eligible. Verify against the current CMMC Scoring Methodology before client-facing work.
-
-- **AC.L2-3.1.1** — System access authorization
-- **IA.L2-3.5.3** — Multifactor authentication
-- **IA.L2-3.5.10** — Cryptographic password storage
-- **IR.L2-3.6.1** — Incident response capability
-- **IR.L2-3.6.2** — Incident tracking/reporting
-- **MA.L2-3.7.5** — Remote maintenance MFA
-- **RA.L2-3.11.2** — Vulnerability scanning
-- **SC.L2-3.13.8** — CUI encryption in transit
-- **SC.L2-3.13.10** — Cryptographic key management
-- **SC.L2-3.13.11** — FIPS-validated cryptography *(special POA&M exception — see §11)*
-- **SC.L2-3.13.16** — CUI encryption at rest
-- **SI.L2-3.14.1** — Flaw remediation
-- **SI.L2-3.14.2** — Malicious code protection
-- **SI.L2-3.14.6** — System monitoring for attacks
-- **CA.L2-3.12.4** — System Security Plan
+Consult the enumerated weights and exceptions in [32 CFR 170.24](https://www.ecfr.gov/current/title-32/section-170.24); do not infer a weight from a practice name.
 
 ---
 
@@ -361,30 +285,23 @@ A Plan of Action & Milestones is a time-bound documented plan to remediate ident
 
 **Rule 1 — Level 1 = NO POA&Ms ever.** Per 32 CFR 170.21(a)(1). All 15 FAR 52.204-21 practices must be fully implemented at time of self-assessment submission. No exceptions.
 
-**Rule 2 — Level 2 POA&Ms require a passing score of ≥ 80%.** Per 32 CFR 170.21(a)(2)(i). Assessment score ÷ 110 must be ≥ 0.8 → **≥ 88 of 110 practices must be MET** before any POA&M is allowed.
+**Rule 2 — Level 2 POA&Ms require a passing score of ≥ 80%.** Per 32 CFR 170.21(a)(2)(i). Assessment score ÷ total number of Level 2 requirements must be ≥ 0.8, and the other conditions in [32 CFR 170.21(a)(2)](https://www.ecfr.gov/current/title-32/section-170.21) must also be met. This is not a count of MET practices.
 
 **Rule 3 — Only 1-point practices on POA&M, with one exception.** Per 32 CFR 170.21(a)(2)(ii). No practice on a POA&M may have a point value greater than 1. The single exception: **SC.L2-3.13.11 (FIPS-validated cryptography)** may be on a POA&M at its **3-point** value **only if encryption is in use but not yet FIPS-validated**. If encryption is not employed at all, 3.13.11 carries its full 5-point weight and is not POA&M-eligible.
 
-### The FIPS Exception — Three Scenarios
+### FIPS encryption and conditional status
 
-| Scenario | Encryption posture | Deduction | POA&M eligible? |
-|---|---|---|---|
-| A | None | 5 pts | **No** — assessment fails |
-| B | In use, not FIPS-validated | 3 pts | **Yes** |
-| C | FIPS-validated in use | 0 pts | n/a — fully Met |
-
-**Practitioner play:** Before assessment, get clients to implement encryption (even if not yet FIPS-validated) — converts a disqualifying 5-point hit into a POA&M-eligible 3-point hit.
+Under [32 CFR 170.24](https://www.ecfr.gov/current/title-32/section-170.24), the deduction is 3 points if encryption is employed but not FIPS-validated, and 5 if encryption is not employed. The former may be included on a Level 2 POA&M only when all applicable conditions in [32 CFR 170.21](https://www.ecfr.gov/current/title-32/section-170.21) are satisfied. Encryption alone does not establish eligibility or that the requirement is MET.
 
 ### Controls That CANNOT Be on a POA&M
 
-Per 32 CFR 170.21(a)(2)(iii), the following are explicitly ineligible regardless of point value:
+Per [32 CFR 170.21(a)(2)(iii)](https://www.ecfr.gov/current/title-32/section-170.21), the following are explicitly ineligible regardless of point value:
 
-- **AC.L2-3.1.1** — Account management
-- **AC.L2-3.1.2** — Access enforcement
-- **AC.L2-3.1.20** — External system connections
-- **AC.L2-3.1.22** — CUI on publicly accessible systems
-- All 5-point practices (effectively, by Rule 3)
-- Verify the full list against current 32 CFR 170.21 before client deliverables.
+- AC.L2-3.1.20 and AC.L2-3.1.22 (CUI data)
+- CA.L2-3.12.4 (system security plan)
+- PE.L2-3.10.3, PE.L2-3.10.4 and PE.L2-3.10.5 (CUI data)
+
+The point-value restriction and encryption exception in Rule 3 also apply. Verify all conditions against the current regulation.
 
 ### Valid POA&M Entry — Required Fields
 
@@ -399,16 +316,13 @@ Per 32 CFR 170.21(a)(2)(iii), the following are explicitly ineligible regardless
 
 1. Remediate within **180 days**.
 2. Conduct closeout assessment (self or C3PAO — matching original assessment type).
-3. Post updated results: SPRS for Self, eMASS for C3PAO.
-4. Status upgrades **Conditional → Final**.
+3. Post results in the applicable system and verify that all conditions for Final status have been met.
+4. Confirm the resulting status; do not assume an automatic upgrade.
 
 ### If POA&M Not Closed in 180 Days
 
 - Conditional CMMC Status **expires**.
-- Contractor is immediately ineligible for new awards requiring that level.
-- Mid-performance contracts: standard contractual remedies apply.
-- New assessment from scratch required to regain status.
-- **No extension** — the 180 days is firm per regulation.
+- Review award eligibility, contractual obligations and the path to a current status with the contracting officer and qualified counsel; do not assume consequences or a particular reassessment path.
 
 ### Operational POA&M vs. CMMC POA&M
 
@@ -426,8 +340,7 @@ At the **assessment objective** level, each AO produces one of:
 At the **practice** level, the rollup is:
 
 - **MET** — *all* AOs within the practice are Satisfied.
-- **NOT MET** — one or more AOs are Other Than Satisfied (and the practice is not eligible for partial credit).
-- **PARTIAL** — some AOs Satisfied, others not, where partial credit applies under the Scoring Methodology.
+- **NOT MET** — one or more AOs are Other Than Satisfied. Applicable adjusted deductions under [32 CFR 170.24](https://www.ecfr.gov/current/title-32/section-170.24) do not create a PARTIAL practice status.
 - **NOT APPLICABLE** — control does not apply to the assessed scope (must be justified and documented in the SSP).
 
 Findings language convention in deliverables:
@@ -453,7 +366,7 @@ Findings language convention in deliverables:
 ### Assessment
 
 1. **Initiation** — CMMC UID assigned (10-character identifier).
-2. **Team composition** — minimum **3 CCAs** on the assessment team.
+2. **Team composition** — at least two people: a Lead CCA and at least one other CCA; additional CCAs and CCPs may participate. A separate CCA performs quality assurance and cannot be a member of the team for that assessment. See [32 CFR 170.9(b)(12)–(13)](https://www.ecfr.gov/current/title-32/section-170.9#p-170.9(b)(12)).
 3. **Assessment activities** — Examine / Interview / Test against every applicable AO.
 4. **Scoring** — each practice MET or NOT MET per its AOs.
 5. **POA&M determination** — which gaps qualify for POA&M.
@@ -462,14 +375,14 @@ Findings language convention in deliverables:
 
 1. C3PAO posts results to **CMMC-eMASS**; CMMC Status (Conditional or Final) appears in SPRS.
 2. **Certificate of CMMC Status** issued.
-3. **Evidence retention:** artifacts hashed (NIST-approved algorithm) and retained for **6 years** from CMMC Status Date.
-4. C3PAO uploads artifact names, hash values, and algorithm identifiers to eMASS.
+3. **Evidence retention:** the OSC hashes artifact files used as assessment evidence with a NIST-approved hashing algorithm and retains the hashed artifacts for **6 years** from the CMMC Status Date. The OSC provides the C3PAO the artifact names, hash values, and algorithm used for upload to CMMC-eMASS. See [32 CFR 170.17(c)(4)](https://www.ecfr.gov/current/title-32/section-170.17#p-170.17(c)(4)).
+4. C3PAO uploads the artifact names, hash values, and algorithm used to CMMC-eMASS as part of the assessment results. See [32 CFR 170.17(a)(1)(i)(J)](https://www.ecfr.gov/current/title-32/section-170.17#p-170.17(a)(1)(i)(J)).
 
-### C3PAO Rules (32 CFR 170.10 / 170.11)
+### C3PAO Rules (32 CFR 170.9 / 170.11)
 
 - Accredited by the Cyber AB.
-- CCAs must hold a Tier 3 background investigation (national security eligibility, not a clearance).
-- Must use only their own accredited IT for assessments.
+- Assessment personnel must meet Tier 3 investigation or applicable equivalence requirements under 170.9(b)(3)–(4).
+- Level 2 certification assessment activities must be performed on the information system within the assessment scope under [170.9(b)(15)](https://www.ecfr.gov/current/title-32/section-170.9#p-170.9(b)(15)).
 - **Prohibited** from providing consulting/implementation services to OSCs they certify.
 - Assessment information is strictly confidential.
 
@@ -488,20 +401,16 @@ Findings language convention in deliverables:
 
 ### Annual Affirmation (32 CFR 170.22)
 
-After initial CMMC Status, a **senior company official** must affirm in SPRS/eMASS each year that:
+Under [32 CFR 170.22(a)–(b)](https://www.ecfr.gov/current/title-32/section-170.22), each OSA's authorized senior-level Affirming Official submits the affirmation **in SPRS**, attesting that all applicable requirements for the status are implemented and will remain implemented for all systems within the relevant assessment scope. The regulation does not prescribe a blanket attestation that no material changes have occurred.
 
-- The organization continues to implement all required practices.
-- No material changes have occurred that affect CMMC compliance.
-- All information-system changes are reflected in the SSP.
-
-Frequency: within one year of initial CMMC Status Date, then annually for the 3-year cycle. Material changes may trigger re-assessment.
+Submit upon Conditional status, upon Final status, after POA&M closeout where applicable, and annually following a Final status date; Level 1 is at completion and annually thereafter. Level 3 requires annual affirmations of both Level 2 (C3PAO) and Level 3 (DIBCAC) status. See [170.22(a)(3), (b)(1)–(4)](https://www.ecfr.gov/current/title-32/section-170.22#p-170.22(a)(3)).
 
 ### False Claims Act Exposure
 
 CMMC creates real FCA exposure — context every client conversation should include:
 
 - **FCA liability:** Up to **3× government damages** + per-claim penalties for knowingly false certifications.
-- **DOJ Cyber-Fraud Initiative** has been pursuing cybersecurity false certifications since 2019.
+- **DOJ Civil Cyber-Fraud Initiative** addresses certain cybersecurity-related false claims; consult current DOJ guidance and counsel.
 - **Recent precedent:** Multiple multi-million-dollar settlements against defense contractors that falsely certified cybersecurity compliance.
 - **Personal liability:** The signing senior official is personally certifying.
 
@@ -512,101 +421,21 @@ CMMC creates real FCA exposure — context every client conversation should incl
 3. Certifying a bid as CMMC-compliant when the OSC knows it isn't.
 4. Prime contractor knowingly ignoring sub's false claims.
 
-**Safe-harbor posture:** an honest, low SPRS score plus a credible POA&M is defensible. An inflated score is not. **Accurate reporting + credible remediation = manageable risk; inflated reporting = potential criminal exposure.**
+**No safe-harbor assurance:** accurate reporting and remediation do not by themselves establish contract eligibility, satisfy all obligations, or insulate an organization or individual from liability. CMMC conditional status has specific eligibility and closeout rules in [32 CFR 170.21](https://www.ecfr.gov/current/title-32/section-170.21). Consult qualified legal counsel about the facts and applicable obligations.
 
 ---
 
-## 15. Rev 2 → Rev 3 Crosswalk + ODPs
+## 15. Revision transition
 
-CMMC is **currently** based on **800-171 Rev 2** only. Rev 3 (May 2024) is the forward horizon — not operative for CMMC until DoD adopts it (no announced date).
+For applicable CMMC requirements, consult [32 CFR 170.14](https://www.ecfr.gov/current/title-32/section-170.14) and the contract to identify the incorporated edition. Do not substitute NIST SP 800-171 Rev 3 for an applicable Rev 2 requirement. For transition planning, use NIST's [Rev 2 to Rev 3 comparison resources](https://csrc.nist.gov/projects/protecting-controlled-unclassified-information) and verify individual mappings; a crosswalk does not establish compliance. Rev 2 requirement 3.3.7 does not prescribe NTP; consult [NIST SP 800-171 Rev 2](https://doi.org/10.6028/NIST.SP.800-171r2).
 
-### Structural Changes
+## 16. Candidate Level 2 review topics
 
-| Metric | Rev 2 | Rev 3 |
-|---|---|---|
-| Control families | 14 | **17** (adds PL, SA, SR) |
-| Total requirements | 110 | ~97 (net — many consolidations) |
-| Numbering | `3.X.Y` | `03.X.Y` (leading zeros) |
-| Basic/Derived distinction | Yes | Eliminated |
-| ODPs | None | **Introduced** |
-| Family renames | — | CA → "Security Assessment and Monitoring" |
+These are prompts for evidence review, not automatic failures. Determine applicability, examine the relevant source and actual implementation, and obtain qualified assessor review before making a finding.
 
-### Key Consolidations
-
-- 3.1.12 + 3.1.14 + 3.1.15 → 03.01.12 (Remote Access)
-- 3.1.16 + 3.1.17 → 03.01.16 (Wireless)
-- 3.1.18 + 3.1.19 → 03.01.18 (Mobile Devices)
-- 3.1.20 + 3.1.21 → 03.01.20 (External Systems)
-- 3.2.1 + 3.2.3 → 03.02.01 (Literacy Training)
-- 3.5.4 + 3.5.6 + 3.5.8 + 3.5.9 + 3.5.10 + 3.5.11 → 03.05.03 / 03.05.07 (MFA, Password Mgmt)
-- 3.1.13 + 3.8.6 + 3.13.8 → 03.13.08 (Cryptographic Protection)
-- 3.12.4 (SSP) → 03.15.02 (relocated to new PL family)
-
-### ODPs — Organization-Defined Parameters
-
-Introduced in Rev 3. Select requirements contain `[Assignment: organization-defined X]` values that must be defined by either the contracting federal agency or the contractor. Once defined, they become **assessable scope**.
-
-ODP categories:
-
-- **Time periods** — inactivity timeouts, audit failure response windows, scan frequency.
-- **Roles/personnel** — who is authorized for privileged accounts, who responds to logon-attempt thresholds.
-- **Technical parameters** — number of invalid logon attempts allowed, configuration settings, types of cryptography.
-- **Security requirements** — requirements imposed on external systems, prohibited services/ports/protocols.
-
-ODP planning for clients pre-adoption:
-
-1. Stand up an ODP register (separate doc or SSP appendix).
-2. Have management approve each value.
-3. Implement controls using those defined values.
-4. Be ready to be assessed against your own stated values — they become binding.
-
-### Why You Can't "Just Use Rev 3"
-
-Some clients have implemented Rev 3-style controls and believe they're covered. Rev 2 has specific requirements that Rev 3 softened with ODPs — for current CMMC assessments, the **Rev 2** language governs:
-
-- **3.3.7 (clock sync)** — Rev 2 requires NTP sync with an authoritative source; Rev 3 softened.
-- **3.4.8 (allow/deny software)** — Rev 2 requires an explicit policy choice and implementation.
-- **3.5.3 (MFA)** — Rev 2 requires MFA for *network access to non-privileged accounts*; no ODP wiggle room.
-- **3.13.11 (FIPS crypto)** — Rev 2 says "FIPS-validated", flat. Rev 3 uses ODP. For CMMC, FIPS validation is mandatory.
-
----
-
-## 16. Common L2 Implementation Gaps (with AO citations)
-
-Replaces the loose gap list with practitioner-confirmed patterns mapped to specific assessment objectives.
-
-| Gap | Practices / AOs | Why it fails |
-|---|---|---|
-| **MFA partial** — admins only, not all network users | IA.L2-3.5.3 (all AOs); related 3.1.12 | Rev 2 requires MFA for network access to non-privileged accounts; "admins only" does not satisfy |
-| **SMS or push-only MFA** | IA.L2-3.5.3 | Phishing-resistant MFA expected; SMS increasingly called out |
-| **Account review records missing** | AC.L2-3.1.1[d–f]; 3.1.5[a–d] | Policy exists but no documented periodic review evidence |
-| **Asset inventory incomplete / no network diagram** | CM.L2-3.4.1[a–f]; CA.L2-3.12.4 | Baseline configuration cannot be asserted without inventory |
-| **Audit log retention without review** | AU.L2-3.3.1[e–f]; 3.3.5 | Logs generated but never analyzed — fails Examine + Interview |
-| **IR plan untested or no 72-hour reporting process** | IR.L2-3.6.1[a–g]; 3.6.3; DFARS 7012 | Plan exists but exercises absent; DIBNet reporting workflow undocumented |
-| **No baseline configurations / informal change control** | CM.L2-3.4.1; 3.4.3; 3.4.5[a–h] | Required artifacts (baselines, change records) cannot be produced |
-| **Allow/deny software policy missing** | CM.L2-3.4.8 | Policy-only without enforcement evidence; technical control required |
-| **FIPS-validated crypto unconfirmed** | SC.L2-3.13.11; 3.13.8; 3.13.16 | Encryption in use but not via CMVP-validated module — 3-pt POA&M if encryption present, 5-pt fail if not |
-| **No documented deny-by-default boundary rule** | SC.L2-3.13.6 | Implicit allow rules undermine flow control |
-| **CUI at rest not encrypted** | SC.L2-3.13.16 | Common on endpoints; full-disk encryption alone may not satisfy if CUI is in cloud sync folders |
-| **SSP not current** | CA.L2-3.12.4[a–h] | SSP exists but stale; assessor wants current state |
-| **Patch SLAs without evidence** | SI.L2-3.14.1; RA.L2-3.11.3 | Policy says "30 days" but no records demonstrate it |
-| **AV not auto-updating** | SI.L2-3.14.4; 3.14.5 | Signatures stale; tool report shows last update |
-| **Vulnerability scanning gap** | RA.L2-3.11.2; 3.11.3 | Authenticated scans not configured; remediation cadence undocumented |
-| **External system connections unmanaged** | AC.L2-3.1.20; 3.1.21 | No agreements with external systems; portable storage uncontrolled |
-| **Public-facing system content control** | AC.L2-3.1.22 | No review process for what posts publicly |
-
-### Controls Where "Policy Only" Always Fails
-
-These require technical implementation evidence, not just a policy document:
-
-- 3.1.8 (logon attempt limits)
-- 3.1.10 (screen lock)
-- 3.4.8 (allow/deny software policy)
-- 3.5.3 (MFA)
-- 3.13.8 (CUI in transit)
-- 3.13.11 (FIPS-validated cryptography)
-- 3.13.16 (CUI at rest)
-- 3.14.2 (malicious code protection)
+- **MFA:** Review coverage of local and network access to privileged accounts and network access to non-privileged accounts under 3.5.3. SMS or push alone is not automatically a failure of that requirement; check the applicable contract and any additional requirements separately.
+- **Access authorization:** Review authorized users, processes and devices, access restrictions, and least privilege under 3.1.1 and 3.1.5. Missing periodic account-review records alone do not automatically establish failure of those requirements; investigate other relevant evidence and requirements.
+- **Other topics:** Review configuration baselines, incident response, security logging, cryptographic protection, vulnerability scanning, and system security plans against the applicable requirement and evidence. Missing or incomplete evidence warrants investigation, not an invented outcome.
 
 ---
 
@@ -615,7 +444,7 @@ These require technical implementation evidence, not just a policy document:
 ### Primary
 
 - **NIST SP 800-171 Rev 2** — https://doi.org/10.6028/NIST.SP.800-171r2
-- **NIST SP 800-171A Rev 2** — assessment procedures (320 objectives)
+- **NIST SP 800-171A (June 2018)** — [assessment procedures](https://doi.org/10.6028/NIST.SP.800-171A)
 - **NIST SP 800-172** — Enhanced Security Requirements (L3 source)
 - **32 CFR Part 170** — CMMC program rule (89 FR 83214, Oct. 15, 2024; effective Dec. 16, 2024)
 - **48 CFR Part 204.75 (DFARS)** — CMMC acquisition rule (effective Nov. 10, 2025)
