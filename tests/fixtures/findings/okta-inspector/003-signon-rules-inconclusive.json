@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "source": "okta-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-okta-0003",
+  "collected_at": "2026-04-13T15:10:00Z",
+  "resource": {
+    "type": "okta_signon_policy",
+    "id": "signon-example",
+    "account_id": "example"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "IAC-15",
+      "status": "inconclusive",
+      "severity": "low",
+      "message": "Rules fetch failed: Okta rate limit on /api/v1/policies/signon-example/rules."
+    }
+  ]
+}

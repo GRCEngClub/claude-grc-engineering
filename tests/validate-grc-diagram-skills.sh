@@ -82,4 +82,5 @@ for command in "${required_commands[@]}"; do
   grep -q 'draw.io' "$file" || { echo "command must mention draw.io: $file" >&2; exit 1; }
 done
 
+python3 "$plugin_root/examples/validate-control-evidence.py"
 echo "GRC diagram plugin skill/command surface is valid."

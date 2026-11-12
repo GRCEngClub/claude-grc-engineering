@@ -11,6 +11,12 @@
   },
   "plugins": [
     {
+      "name": "gcp-secret-metadata",
+      "source": "./plugins/connectors/gcp-secret-metadata",
+      "description": "GCP Secret Manager name inventory and operator-only runtime injection.",
+      "version": "0.1.0"
+    },
+    {
       "name": "grc-engineer",
       "source": "./plugins/grc-engineer",
       "description": "Maps IaC to compliance controls, generates policies, collects evidence, reviews PRs",

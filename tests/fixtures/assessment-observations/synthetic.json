@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.1-proposal",
+  "assessment_id": "synthetic-example",
+  "source": "synthetic test data",
+  "observations": [
+    {
+      "id": "observation-1",
+      "control_id": "AC-1",
+      "test_result": "synthetic result, not an assessment",
+      "evidence_refs": ["example-evidence-1"],
+      "deficiency_refs": ["example-deficiency-1"]
+    }
+  ],
+  "deficiencies": [
+    { "id": "example-deficiency-1", "description": "Synthetic placeholder, not a real finding" }
+  ]
+}

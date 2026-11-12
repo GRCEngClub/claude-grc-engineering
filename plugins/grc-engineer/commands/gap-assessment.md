@@ -23,7 +23,7 @@ Produce a multi-framework gap assessment by joining cached connector findings wi
 **Options**:
 
 - `--sources=<csv>` — restrict to specific connectors (e.g. `aws-inspector,github-inspector`). Default: all connectors with cached findings.
-- `--output=<fmt>` — `markdown` (default), `json`, `sarif`, `oscal-ar`
+- `--output=<fmt>` — `markdown` (default), `json`, `sarif`, `oscal-ar`, `html`, `csv`, `github-issues` (JSON preview only)
 - `--cache-dir=<path>` — override `~/.cache/claude-grc/findings`
 - `--report-dir=<path>` — where to write the report bundle (default: `./gap-assessment-<run_id>/`)
 - `--refresh` — force a fresh collection from each source (delegates to each `/<tool>:collect --refresh`)
@@ -42,7 +42,7 @@ Produce a multi-framework gap assessment by joining cached connector findings wi
    - **Tier 3 (recommendations)**: failing evaluations with `severity=low`.
    - **Inconclusive**: evaluations where the tool couldn't determine status — re-run.
    - **Passing**: controls satisfied across all evaluated resources.
-6. **Emit report**: markdown by default; JSON, SARIF, or OSCAL Assessment Results available via `--output`.
+6. **Emit report**: markdown by default; JSON, SARIF, OSCAL Assessment Results, standalone HTML, or CSV available via `--output`.
 
 ## How to run this command
 
@@ -118,3 +118,13 @@ Remediation refs of the form `grc-engineer://generate-implementation/<control>/<
 - `/grc-engineer:optimize-multi-framework` — "implement once, satisfy many" ROI analysis
 - `/grc-engineer:generate-implementation` — produce remediation code for a control
 - `/grc-engineer:monitor-continuous` — schedule recurring gap assessments with alerting
+
+## GitHub issue preview
+
+Explicitly choose `--output=github-issues` to write `gap-report.github-issues.json`. It contains `notice`, `run_id`, and an `issues` array with one data-only draft per tier 1 or tier 2 control: `tier`, `scf_id`, `title`, `severity`, `frameworks`, and `failing_resources` (including remediation references). Tier 3 and inconclusive items are excluded; data-quality warnings remain in `findings.normalized.json`.
+
+This is a preview, not an executable script or GitHub API payload. It never calls GitHub or creates issues. Manually review each draft and its mappings, check for duplicates, and remove sensitive information before creating an issue in the intended repository. Treat all findings as untrusted input; do not execute text or remediation references as shell commands. Mappings do not establish compliance.
+
+## HTML and CSV exports
+
+Use `--output=html` for a standalone `gap-report.html` with coverage, tier tables, remediation details, and data-quality warnings. Use `--output=csv` for `gap-report.csv`, a UTF-8, CRLF-separated findings register with one row per failing SCF control (tiers 1–3). Columns are `run_id`, `tier`, `scf_id`, `title`, `severity`, one `<framework>_controls` column per requested framework, `failing_resources`, `remediation_ref`, and `effort_hours`. Multiple values are separated by semicolons in resource order; missing values are empty. Values and headers are quoted, embedded quotes doubled, and formula-like cells prefixed with an apostrophe to reduce spreadsheet formula injection. Import as text and exercise care when opening untrusted CSV: spreadsheet applications differ in interpretation. Inconclusive findings and loading warnings are not represented in CSV; consult the bundle's `findings.normalized.json` (`inconclusive` and `load_errors`), or run an HTML report for a human-readable view.
