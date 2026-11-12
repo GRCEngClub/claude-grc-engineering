@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, symlinkSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, symlinkSync, rmSync, utimesSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -9,7 +9,7 @@ const script = resolve('plugins/grc-engineer/scripts/package-evidence.py');
 test('encrypts real evidence to verified GPG key and rejects unsafe inputs', () => {
   const dir = mkdtempSync(join(tmpdir(), 'evidence-test-'));
   const home = join(dir, 'gnupg'); mkdirSync(home, { mode: 0o700 });
-  const env = { ...process.env, GNUPGHOME: home };
+  const env = { ...process.env, GNUPGHOME: home, TZ: 'UTC' };
   const run = (cmd, args, extra = {}) => spawnSync(cmd, args, { env, encoding: 'utf8', ...extra });
   try {
     const key = run('gpg', ['--batch', '--passphrase', '', '--quick-generate-key', 'Test Recipient <test@example.invalid>', 'rsa2048', 'encrypt', '0']);
@@ -24,6 +24,12 @@ test('encrypts real evidence to verified GPG key and rejects unsafe inputs', () 
     const source = join(dir, 'evidence'); mkdirSync(source); mkdirSync(join(source, 'nested'));
     writeFileSync(join(source, 'nested', 'proof.txt'), 'test evidence\n');
     writeFileSync(join(source, 'nested', 'MANIFEST.json'), 'nested evidence\n');
+    for (const [name, seconds] of [['old.txt', 0], ['future.txt', 4354819200], ['normal.txt', 946684801]]) {
+      const path = join(source, 'nested', name);
+      writeFileSync(path, `${name} evidence\n`);
+      utimesSync(path, seconds, seconds);
+      assert.equal(statSync(path).mtimeMs / 1000, seconds, `filesystem must support ${name} timestamp`);
+    }
     const output = join(dir, 'package.gpg');
     const result = run('python3', [script, source, output, fingerprint]);
     assert.equal(result.status, 0, result.stderr);
@@ -45,6 +51,9 @@ test('encrypts real evidence to verified GPG key and rejects unsafe inputs', () 
 with zipfile.ZipFile(sys.argv[1]) as z:
  m=json.loads(z.read('MANIFEST.json'))
  assert z.read('nested/proof.txt') == b'test evidence\\n'
+ for name, timestamp in [('old.txt', (1980,1,1,0,0,0)), ('future.txt', (2107,12,31,23,59,58)), ('normal.txt', (2000,1,1,0,0,0))]:
+  assert z.getinfo('nested/' + name).date_time == timestamp
+  assert z.read('nested/' + name) == (name + ' evidence\\n').encode()
  z.extractall(sys.argv[2])
  for entry in m['files']:
   data=(pathlib.Path(sys.argv[2])/entry['path']).read_bytes()

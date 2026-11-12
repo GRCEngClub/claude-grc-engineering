@@ -64,7 +64,7 @@ def package(source, output, fingerprint):
                 finally:
                     if fd != -1:
                         os.close(fd)
-                entry = zipfile.ZipInfo.from_file(path, relative)
+                entry = zipfile.ZipInfo.from_file(path, relative, strict_timestamps=False)
                 entry.compress_type = zipfile.ZIP_DEFLATED
                 archive.writestr(entry, data)
                 manifest.append({'path': relative, 'sha256': hashlib.sha256(data).hexdigest(), 'size': len(data)})
