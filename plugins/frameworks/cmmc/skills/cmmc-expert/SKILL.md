@@ -62,7 +62,7 @@ The Department announced on July 13, 2026 that Phase II requirements were suspen
 **Who needs what:**
 
 - Verify the solicitation or contract and applicable clauses before assigning a status; if unavailable, leave it unverified.
-- FCI-only subcontracts subject to [32 CFR 170.23](https://www.ecfr.gov/current/title-32/section-170.23) require L1 (Self); CUI subcontract minimums depend on the prime requirement. The [DFARS 252.204-7021(f)](https://www.acquisition.gov/dfars/252.204-7021-contractor-compliance-cybersecurity-maturity-model-certification-level-requirements.) flow-down excludes commercially available off-the-shelf items.
+- FCI-only subcontracts subject to [32 CFR 170.23](https://www.ecfr.gov/current/title-32/section-170.23) require L1 (Self); CUI subcontract minimums depend on the prime requirement. The [DFARS 252.204-7021(f)](https://www.ecfr.gov/current/title-48/section-252.204-7021#p-252.204-7021(f)) flow-down excludes commercially available off-the-shelf items.
 - The contract specifies the required CMMC level and assessment type, including any Level 3 requirement.
 
 ---
@@ -375,8 +375,8 @@ Findings language convention in deliverables:
 
 1. C3PAO posts results to **CMMC-eMASS**; CMMC Status (Conditional or Final) appears in SPRS.
 2. **Certificate of CMMC Status** issued.
-3. **Evidence retention:** artifacts hashed (NIST-approved algorithm) and retained for **6 years** from CMMC Status Date.
-4. C3PAO uploads artifact names, hash values, and algorithm identifiers to eMASS.
+3. **Evidence retention:** the OSC hashes artifact files used as assessment evidence with a NIST-approved hashing algorithm and retains the hashed artifacts for **6 years** from the CMMC Status Date. The OSC provides the C3PAO the artifact names, hash values, and algorithm used for upload to CMMC-eMASS. See [32 CFR 170.17(c)(4)](https://www.ecfr.gov/current/title-32/section-170.17#p-170.17(c)(4)).
+4. C3PAO uploads the artifact names, hash values, and algorithm used to CMMC-eMASS as part of the assessment results. See [32 CFR 170.17(a)(1)(i)(J)](https://www.ecfr.gov/current/title-32/section-170.17#p-170.17(a)(1)(i)(J)).
 
 ### C3PAO Rules (32 CFR 170.9 / 170.11)
 

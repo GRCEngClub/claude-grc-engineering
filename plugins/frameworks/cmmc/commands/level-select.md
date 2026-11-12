@@ -56,7 +56,7 @@ Helps determine the appropriate CMMC level required for your organization based 
 | CUI | Prime/Sub | Verify applicable contract | Level 2 may be self or C3PAO; verify contract |
 | CUI | Prime | Verify applicable contract | Verify contract and current requirements |
 
-The [DFARS 252.204-7021(f)](https://www.acquisition.gov/dfars/252.204-7021-contractor-compliance-cybersecurity-maturity-model-certification-level-requirements.) flow-down excludes commercially available off-the-shelf items; verify the actual clause, subcontract and applicable exceptions. Without the contract, the requirement is unverified.
+The [DFARS 252.204-7021(f)](https://www.ecfr.gov/current/title-48/section-252.204-7021#p-252.204-7021(f)) flow-down excludes commercially available off-the-shelf items; verify the actual clause, subcontract and applicable exceptions. Without the contract, the requirement is unverified.
 
 ## Output
 

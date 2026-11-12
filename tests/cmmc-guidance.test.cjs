@@ -134,3 +134,21 @@ test('unverified catalogs and mappings are disabled; use official objective sour
   assert.match(checklist, /identifier, if present/);
   assert.doesNotMatch(checklist, /lettered objectives/);
 });
+
+test('Level 2 C3PAO artifact retention and upload have distinct responsible parties', () => {
+  const expert = read('skills/cmmc-expert/SKILL.md');
+  const lifecycle = expert.split('### Post-Assessment')[1].split('### C3PAO Rules')[0];
+  assert.match(lifecycle, /OSC hashes artifact files used as assessment evidence with a NIST-approved hashing algorithm/);
+  assert.match(lifecycle, /retains the hashed artifacts for \*\*6 years\*\* from the CMMC Status Date/);
+  assert.match(lifecycle, /OSC provides the C3PAO the artifact names, hash values, and algorithm used/);
+  assert.match(lifecycle, /C3PAO uploads the artifact names, hash values, and algorithm used to CMMC-eMASS/);
+  assert.match(lifecycle, /section-170\.17#p-170\.17\(c\)\(4\)/);
+  assert.match(lifecycle, /section-170\.17#p-170\.17\(a\)\(1\)\(i\)\(J\)/);
+  assert.doesNotMatch(lifecycle, /C3PAO (?:hashes|retains)/);
+});
+
+test('DFARS flow-down references the corresponding eCFR clause', () => {
+  for (const path of ['commands/level-select.md', 'skills/cmmc-expert/SKILL.md']) {
+    assert.match(read(path), /ecfr\.gov\/current\/title-48\/section-252\.204-7021#p-252\.204-7021\(f\)/);
+  }
+});
