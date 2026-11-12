@@ -29,6 +29,7 @@ environment or memory; the helper cannot erase all copies from memory. The
 operator is responsible for safe evidence output, permissions, and host security.
 
 This is a manual runtime helper, not automatic integration with gcp-inspector or
-Terraform scanning. It does not collect rotation or version history. Neither
+Terraform scanning. This helper does not collect rotation or version history;
+the separate metadata-only `/gcp-secret-metadata:history` command can do so. Neither
 secret names nor references should be included in evidence without authorization.
 See [gcloud versions access](https://cloud.google.com/sdk/gcloud/reference/secrets/versions/access).

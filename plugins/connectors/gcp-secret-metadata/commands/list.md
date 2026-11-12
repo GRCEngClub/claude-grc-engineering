@@ -21,7 +21,8 @@ The project ID is mandatory; no implicit project is used. The command invokes
 `gcloud secrets list` for global secrets, letting gcloud handle pagination, and
 outputs only project ID and resource names. It discards other returned fields,
 provider stderr and malformed responses. It does not enumerate regional secrets,
-versions, rotation, IAM policies or payloads. Failures return nonzero without
+versions, rotation, IAM policies or payloads. For one secret's version and rotation
+metadata, use `/gcp-secret-metadata:history` with separate authorization. Failures return nonzero without
 partial results. Output is sensitive inventory: store or share it only according
 to the organization's policy. This inventory command does not inject secrets,
 produce findings or integrate with gcp-inspector. The separate operator-only
