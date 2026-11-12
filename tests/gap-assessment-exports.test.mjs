@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { renderHtml, renderCsv } from '../plugins/grc-engineer/scripts/gap-assessment.js';
+import { renderHtml, renderCsv, renderGithubIssuePreview } from '../plugins/grc-engineer/scripts/gap-assessment.js';
 
 const dangerous = '<script>alert("x")</script>';
 const finding = {
@@ -46,6 +46,19 @@ test('CSV neutralizes whitespace and control-prefixed formulas', () => {
   }
 });
 
+test('GitHub issue preview is data-only and includes only tier 1 and 2 findings', () => {
+  const payload = `$(touch /tmp/unsafe); '"\n@everyone`;
+  const malicious = { ...finding, title: payload, failing_resources: [{ ...finding.failing_resources[0], message: payload }] };
+  const preview = renderGithubIssuePreview({ ...report, tiers: { ...report.tiers, tier1: [malicious], tier2: [finding], tier3: [finding] } });
+  assert.match(preview.notice, /no issues have been created/i);
+  assert.deepEqual(preview.issues.map(i => i.tier), [1, 2]);
+  const parsed = JSON.parse(JSON.stringify(preview));
+  assert.equal(parsed.issues[0].title, payload);
+  assert.equal(parsed.issues[0].failing_resources[0].message, payload);
+  assert.equal(parsed.issues[0].failing_resources[0].remediation.ref, dangerous);
+  assert.ok(!('command' in parsed.issues[0]));
+});
+
 test('CLI accepts new formats and rejects unknown formats before SCF initialization', () => {
   for (const format of ['html', 'csv']) {
     const result = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/gap-assessment.js', '--output=' + format], { encoding: 'utf8' });
@@ -71,7 +84,7 @@ test('offline CLI writes the correct extension for every supported output', asyn
     await fs.writeFile(path.join(findings, 'empty.json'), '[]');
     await fs.writeFile(path.join(findings, 'broken.json'), '{');
     await fs.writeFile(path.join(findings, 'invalid.json'), '{}');
-    for (const [format, ext] of Object.entries({ markdown: 'md', json: 'json', sarif: 'sarif', 'oscal-ar': 'oscal-ar', html: 'html', csv: 'csv' })) {
+    for (const [format, ext] of Object.entries({ markdown: 'md', json: 'json', sarif: 'sarif', 'oscal-ar': 'oscal-ar', html: 'html', csv: 'csv', 'github-issues': 'github-issues.json' })) {
       const out = path.join(dir, format);
       const result = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/gap-assessment.js', 'fixture', '--offline', '--quiet', '--output=' + format, '--cache-dir=' + path.dirname(findings), '--report-dir=' + out], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache } });
       assert.equal(result.status, 0, result.stderr);
