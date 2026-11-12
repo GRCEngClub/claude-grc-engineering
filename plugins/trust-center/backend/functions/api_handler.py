@@ -59,6 +59,7 @@ def cors_response(status_code, body=None, headers=None):
         "statusCode": status_code,
         "headers": {
             "Content-Type": "application/json",
+            "Cache-Control": "no-store",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Content-Type,Authorization",
             "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
@@ -86,7 +87,7 @@ def get_user_from_token(event):
                    .get("authorizer", {})
                    .get("claims", {}))
     return {
-        "email": claims.get("email", "anonymous"),
+        "email": claims.get("email", ""),
         "sub": claims.get("sub", ""),
         "groups": claims.get("cognito:groups", ""),
     }
@@ -96,7 +97,7 @@ def is_admin(event):
     """Check if the caller belongs to the 'admins' Cognito group."""
     user = get_user_from_token(event)
     groups = user.get("groups", "")
-    return "admins" in groups
+    return "admins" in (groups if isinstance(groups, list) else [g.strip() for g in groups.strip("[]").split(",")])
 
 
 def now_iso():
@@ -152,6 +153,28 @@ def handle_webhook(event):
 # GSI1:
 #   GSI1PK = "REQUESTS"   GSI1SK = <status>#<timestamp>   → query requests by status
 #   GSI1PK = "DOCS"        GSI1SK = <access_level>#<name>  → query docs by access level
+
+
+def approved_for_document(event, doc_id):
+    """Only a request bound to the gateway-verified subject grants access."""
+    user = get_user_from_token(event)
+    if not user["sub"]:
+        return False
+    if is_admin(event):
+        return True
+    params = {
+        "KeyConditionExpression": "PK = :pk AND begins_with(SK, :sk)",
+        "ExpressionAttributeValues": {":pk": f"DOC#{doc_id}", ":sk": "REQUEST#"},
+        "ConsistentRead": True,
+    }
+    while True:
+        result = table.query(**params)
+        if any(r.get("requesterSub") == user["sub"] and r.get("status") == "approved"
+               for r in result.get("Items", [])):
+            return True
+        if not result.get("LastEvaluatedKey"):
+            return False
+        params["ExclusiveStartKey"] = result["LastEvaluatedKey"]
 
 
 # ---------------------------------------------------------------------------
@@ -212,7 +235,7 @@ def update_config(event):
 # Route: GET /api/documents
 # ---------------------------------------------------------------------------
 def list_documents(event):
-    """List all documents. Public users see public docs; authed users see gated too."""
+    """List public documents and, on private routes, approved documents."""
     try:
         resp = table.query(
             IndexName="GSI1",
@@ -221,12 +244,15 @@ def list_documents(event):
         )
         items = resp.get("Items", [])
 
-        user = get_user_from_token(event)
-        is_authenticated = bool(user.get("sub"))
-
         documents = []
-        for item in items:
-            access_level = item.get("accessLevel", "public")
+        for indexed_item in items:
+            # GSI projections may lag behind a public-to-private change.
+            item = table.get_item(Key={"PK": indexed_item["PK"], "SK": "META"}, ConsistentRead=True).get("Item")
+            if not item:
+                continue
+            access_level = item.get("accessLevel")
+            if access_level != "public" and not (event.get("_private_route") and approved_for_document(event, item.get("documentId"))):
+                continue
 
             doc = {
                 "id": item.get("documentId"),
@@ -238,12 +264,7 @@ def list_documents(event):
                 "lastUpdated": item.get("lastUpdated", ""),
             }
 
-            # Public docs visible to everyone
-            # Gated docs: metadata visible but download requires access request
-            if access_level == "public" or is_authenticated:
-                doc["downloadable"] = access_level == "public"
-            else:
-                doc["downloadable"] = False
+            doc["downloadable"] = True
 
             documents.append(doc)
 
@@ -259,11 +280,13 @@ def list_documents(event):
 def get_document(event, doc_id):
     """Get single document details."""
     try:
-        resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
+        resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True)
         item = resp.get("Item")
         if not item:
             return cors_response(404, {"error": "Document not found"})
 
+        if item.get("accessLevel") != "public" and not (event.get("_private_route") and approved_for_document(event, doc_id)):
+            return cors_response(404, {"error": "Document not found"})
         return cors_response(200, {
             "id": item.get("documentId"),
             "name": item.get("name"),
@@ -271,7 +294,6 @@ def get_document(event, doc_id):
             "category": item.get("category", ""),
             "accessLevel": item.get("accessLevel", "public"),
             "fileType": item.get("fileType", "pdf"),
-            "s3Key": item.get("s3Key", ""),
             "lastUpdated": item.get("lastUpdated", ""),
         })
     except Exception as e:
@@ -284,11 +306,14 @@ def get_document(event, doc_id):
 # ---------------------------------------------------------------------------
 def request_access(event, doc_id):
     """Request access to a gated document. Creates a pending request."""
+    user = get_user_from_token(event)
+    if not event.get("_private_route") or not user.get("sub"):
+        return cors_response(401, {"error": "Authentication required"})
     body = parse_body(event)
     now = now_iso()
     req_id = new_id()
 
-    requester_email = body.get("email", "")
+    requester_email = user.get("email", "")
     requester_name = body.get("name", "")
     requester_company = body.get("company", "")
     reason = body.get("reason", "")
@@ -297,7 +322,7 @@ def request_access(event, doc_id):
         return cors_response(400, {"error": "Email is required"})
 
     # Check document exists and is gated
-    doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
+    doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True)
     doc = doc_resp.get("Item")
     if not doc:
         return cors_response(404, {"error": "Document not found"})
@@ -314,6 +339,7 @@ def request_access(event, doc_id):
         "documentId": doc_id,
         "documentName": doc.get("name", ""),
         "requesterEmail": requester_email,
+        "requesterSub": user["sub"],
         "requesterName": requester_name,
         "requesterCompany": requester_company,
         "reason": reason,
@@ -345,41 +371,22 @@ def request_access(event, doc_id):
 def download_document(event, doc_id):
     """Generate a presigned S3 URL for downloading a document."""
     # Get document metadata
-    doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
+    doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True)
     doc = doc_resp.get("Item")
     if not doc:
         return cors_response(404, {"error": "Document not found"})
 
-    access_level = doc.get("accessLevel", "public")
+    access_level = doc.get("accessLevel")
     s3_key = doc.get("s3Key")
+
+    if access_level != "public":
+        if not event.get("_private_route") or not get_user_from_token(event).get("sub"):
+            return cors_response(404, {"error": "Document not found"})
+        if not approved_for_document(event, doc_id):
+            return cors_response(404, {"error": "Document not found"})
 
     if not s3_key:
         return cors_response(404, {"error": "Document file not found"})
-
-    # Public docs: anyone can download
-    # Gated docs: require authentication, then check approved request
-    if access_level != "public":
-        user = get_user_from_token(event)
-        if not user.get("sub"):
-            return cors_response(401, {"error": "Authentication required"})
-        email = user.get("email", "")
-
-        if not is_admin(event):
-            # Check for approved access request
-            resp = table.query(
-                KeyConditionExpression="PK = :pk AND begins_with(SK, :sk)",
-                ExpressionAttributeValues={
-                    ":pk": f"DOC#{doc_id}",
-                    ":sk": "REQUEST#",
-                },
-            )
-            requests = resp.get("Items", [])
-            approved = any(
-                r.get("requesterEmail") == email and r.get("status") == "approved"
-                for r in requests
-            )
-            if not approved:
-                return cors_response(403, {"error": "Access not approved for this document"})
 
     # Generate presigned URL (valid for 1 hour)
     try:
@@ -515,7 +522,9 @@ def create_document(event):
     doc_id = body.get("id") or new_id()
     now = now_iso()
 
-    access_level = body.get("accessLevel", "public")
+    access_level = body.get("accessLevel")
+    if access_level not in ("public", "gated"):
+        return cors_response(400, {"error": "accessLevel must be public or gated"})
     name = body.get("name", "")
 
     item = {
@@ -648,10 +657,21 @@ def handler(event, context):
     http_method = event.get("httpMethod", "GET")
     path = event.get("path", "")
 
+    # Only the dedicated Cognito-authorized resource may supply identity.
+    # API Gateway invokes Lambda; never expose this Lambda via an untrusted URL.
     # Strip stage prefix if present (e.g., /prod/api/... → /api/...)
-    if f"/{STAGE}/" in path:
-        path = path.split(f"/{STAGE}", 1)[1]
+    if path.startswith(f"/{STAGE}/"):
+        path = path[len(STAGE) + 1:]
 
+    private_route = path.startswith("/api/private/")
+    if private_route:
+        path = "/api/" + path[len("/api/private/"):]
+        if not (path == "/api/documents" or path.startswith("/api/documents/")):
+            return cors_response(404, {"error": "Route not found"})
+    event = dict(event)
+    event["_private_route"] = private_route
+    if not private_route and not path.startswith("/api/admin/"):
+        event["requestContext"] = {}
     logger.info(f"{http_method} {path}")
 
     try:

@@ -1,0 +1,126 @@
+"""Offline Lambda-route security tests; no AWS account or network needed."""
+import importlib.util
+import json
+import os
+import sys
+import types
+import unittest
+from pathlib import Path
+from unittest.mock import Mock
+
+os.environ.update(AWS_DEFAULT_REGION="us-east-1", AWS_ACCESS_KEY_ID="testing", AWS_SECRET_ACCESS_KEY="testing", AWS_EC2_METADATA_DISABLED="true")
+# The Lambda runtime provides boto3; tests stub it before loading the handler.
+fake = types.ModuleType("boto3")
+fake.resource = Mock()
+fake.client = Mock()
+sys.modules["boto3"] = fake
+exceptions = types.ModuleType("botocore.exceptions")
+exceptions.ClientError = type("ClientError", (Exception,), {})
+sys.modules["botocore"] = types.ModuleType("botocore")
+sys.modules["botocore.exceptions"] = exceptions
+spec = importlib.util.spec_from_file_location("api_handler", Path(__file__).parent / "functions/api_handler.py")
+api = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(api)
+
+
+class FakeTable:
+    def __init__(self):
+        self.docs = {"pub": {"documentId": "pub", "name": "Public", "accessLevel": "public", "s3Key": "public.pdf"},
+                     "secret": {"documentId": "secret", "name": "SECRET NAME", "description": "SECRET TEXT", "accessLevel": "gated", "s3Key": "secret.pdf"},
+                     "unknown": {"documentId": "unknown", "name": "UNKNOWN SECRET", "s3Key": "hidden.pdf"}}
+        for doc_id, doc in self.docs.items():
+            doc.update(PK=f"DOC#{doc_id}", SK="META")
+        self.requests = []
+
+    def get_item(self, Key, **kwargs):
+        return {"Item": self.docs.get(Key["PK"].removeprefix("DOC#"))}
+
+    def query(self, **kwargs):
+        values = kwargs["ExpressionAttributeValues"]
+        if values[":pk"] == "DOCS":
+            return {"Items": list(self.docs.values())}
+        return {"Items": [r for r in self.requests if r["PK"] == values[":pk"]]}
+
+    def put_item(self, Item):
+        if Item["PK"].startswith("DOC#"):
+            self.requests.append(Item)
+
+
+class AccessTests(unittest.TestCase):
+    def setUp(self):
+        api.table = FakeTable()
+        api.s3 = Mock()
+        api.s3.generate_presigned_url.return_value = "https://signed.example/file"
+
+    def call(self, method, path, sub=None, email="a@example.test", groups="", body=None):
+        claims = {"sub": sub, "email": email, "cognito:groups": groups} if sub else {}
+        event = {"httpMethod": method, "path": path, "requestContext": {"authorizer": {"claims": claims}}, "body": json.dumps(body or {})}
+        response = api.handler(event, None)
+        return response["statusCode"], json.loads(response.get("body", "{}"))
+
+    def test_public_never_exposes_private_metadata_or_file_even_if_claims_are_supplied(self):
+        status, result = self.call("GET", "/api/documents", sub="alice")
+        self.assertEqual(status, 200)
+        self.assertEqual([x["id"] for x in result["documents"]], ["pub"])
+        for doc in ("secret", "unknown"):
+            for suffix in ("", "/download"):
+                status, result = self.call("GET", f"/api/documents/{doc}{suffix}", sub="alice")
+                self.assertEqual(status, 404)
+                self.assertNotIn("SECRET", str(result))
+        self.assertEqual(self.call("GET", "/api/documents/pub/download")[0], 200)
+        self.assertNotIn("s3Key", self.call("GET", "/api/documents/pub")[1])
+
+    def test_stale_public_index_does_not_expose_private_metadata(self):
+        original_query = api.table.query
+
+        def stale_query(**kwargs):
+            result = original_query(**kwargs)
+            if kwargs['ExpressionAttributeValues'][':pk'] == 'DOCS':
+                result['Items'] = [dict(item, accessLevel='public') for item in result['Items']]
+            return result
+
+        api.table.query = stale_query
+        status, result = self.call('GET', '/api/documents')
+        self.assertEqual(status, 200)
+        self.assertEqual([item['id'] for item in result['documents']], ['pub'])
+        self.assertNotIn('SECRET', json.dumps(result))
+
+    def test_authenticated_approval_bound_to_subject_and_document(self):
+        self.assertEqual(self.call("POST", "/api/documents/secret/request-access", body={"email": "victim@example.test"})[0], 401)
+        status, result = self.call("POST", "/api/private/documents/secret/request-access", sub="alice", email="alice@example.test", body={"email": "victim@example.test"})
+        self.assertEqual(status, 201)
+        request = api.table.requests[0]
+        self.assertEqual((request["requesterSub"], request["requesterEmail"]), ("alice", "alice@example.test"))
+        request["status"] = "approved"
+        self.assertEqual(self.call("GET", "/api/private/documents/secret/download", sub="bob", email="alice@example.test")[0], 404)
+        self.assertEqual(self.call("GET", "/api/private/documents/secret", sub="bob")[0], 404)
+        self.assertEqual(self.call("GET", "/api/private/documents/secret", sub="alice")[0], 200)
+        self.assertEqual(self.call("GET", "/api/private/documents/secret/download", sub="alice")[0], 200)
+        self.assertEqual(self.call("GET", "/api/private/documents/unknown/download", sub="alice")[0], 404)
+        request["status"] = "denied"
+        self.assertEqual(self.call("GET", "/api/private/documents/secret/download", sub="alice")[0], 404)
+
+    def test_missing_file_does_not_disclose_private_document(self):
+        api.table.docs['secret']['s3Key'] = ''
+        status, result = self.call('GET', '/api/documents/secret/download')
+        self.assertEqual((status, result), (404, {'error': 'Document not found'}))
+
+    def test_private_alias_cannot_reach_admin_and_stage_prefix_is_anchored(self):
+        self.assertEqual(self.call('GET', '/api/private/admin/requests', sub='alice', groups='admins')[0], 404)
+        self.assertEqual(self.call('GET', '/api/unrelated/prod/api/admin/requests', sub='alice', groups='admins')[0], 404)
+        self.assertEqual(self.call('GET', '/prod/api/documents')[0], 200)
+
+    def test_approval_query_paginates_and_uses_consistent_reads(self):
+        api.table.query = Mock(side_effect=[{'Items': [], 'LastEvaluatedKey': {'PK': 'DOC#secret', 'SK': 'REQUEST#1'}},
+                                             {'Items': [{'requesterSub': 'alice', 'status': 'approved'}]}])
+        self.assertEqual(self.call('GET', '/api/private/documents/secret/download', sub='alice')[0], 200)
+        self.assertTrue(all(call.kwargs['ConsistentRead'] for call in api.table.query.call_args_list))
+        self.assertIn('ExclusiveStartKey', api.table.query.call_args_list[1].kwargs)
+
+    def test_admin_group_is_exact(self):
+        self.assertEqual(self.call("GET", "/api/admin/requests", sub="user", groups="not-admins")[0], 403)
+        self.assertEqual(self.call("GET", "/api/admin/requests", sub="user", groups="[admins]")[0], 200)
+
+
+if __name__ == "__main__":
+    unittest.main()
