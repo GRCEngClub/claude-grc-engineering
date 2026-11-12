@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://grc.engineering/schemas/assessment-observations-proposal-0.1.schema.json",
+  "title": "Experimental assessment observations interchange proposal",
+  "description": "Review input only; not an official FedRAMP artifact, baseline or assessment conclusion. The contract is unstable pending maintainer decisions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "assessment_id", "source", "observations", "deficiencies"],
+  "properties": {
+    "schema_version": { "const": "0.1-proposal" },
+    "assessment_id": { "$ref": "#/definitions/text" },
+    "source": { "$ref": "#/definitions/text" },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "control_id", "test_result", "evidence_refs", "deficiency_refs"],
+        "properties": {
+          "id": { "$ref": "#/definitions/text" },
+          "control_id": { "$ref": "#/definitions/text" },
+          "test_result": { "$ref": "#/definitions/text" },
+          "evidence_refs": { "$ref": "#/definitions/refs" },
+          "deficiency_refs": { "$ref": "#/definitions/refs" }
+        }
+      }
+    },
+    "deficiencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description"],
+        "properties": {
+          "id": { "$ref": "#/definitions/text" },
+          "description": { "$ref": "#/definitions/text" },
+          "likelihood": { "$ref": "#/definitions/text" },
+          "impact": { "$ref": "#/definitions/text" },
+          "risk_rating": { "$ref": "#/definitions/text" },
+          "owner": { "$ref": "#/definitions/text" },
+          "remediation": { "$ref": "#/definitions/text" },
+          "due_date": { "type": "string", "format": "date" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "refs": { "type": "array", "items": { "$ref": "#/definitions/text" }, "uniqueItems": true }
+  }
+}
