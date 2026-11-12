@@ -40,3 +40,30 @@ test('working aids require qualified review and no invented assessment selection
   assert.match(level, /Level 2 may be self-assessed or C3PAO-assessed/);
   assert.doesNotMatch(level, /CUI \| Prime\/Sub \| Level 2 \| Triennial C3PAO/);
 });
+
+test('provider scoping distinguishes CSP, non-CSP, CUI and SPD', () => {
+  const expert = read('skills/cmmc-expert/SKILL.md');
+  assert.match(expert, /170\.19\(c\)\(2\)\(i\), Table 4/);
+  assert.match(expert, /\| CUI, with or without SPD \| Meet FedRAMP requirements[^\n]+\| Services are in the OSA assessment scope/);
+  assert.match(expert, /\| SPD without CUI \| Services are in scope and assessed as Security Protection Assets \| Services are in scope and assessed as Security Protection Assets/);
+  assert.match(expert, /\| Neither CUI nor SPD \| Does not meet the CMMC definition of an ESP \| Does not meet the CMMC definition of an ESP/);
+  assert.match(expert, /170\.17\(c\)\(5\)/);
+  assert.match(expert, /or\*\* meet equivalent security requirements/);
+  assert.match(expert, /does \*\*not\*\* automatically exempt services from assessment/);
+  assert.doesNotMatch(expert, /Only the enclave is in scope|those systems exit scope|accepted without separate re-assessment|CSP environment itself is verified via FedRAMP/);
+});
+
+test('staffing, affirmation and legal risk retain regulatory distinctions', () => {
+  const expert = read('skills/cmmc-expert/SKILL.md');
+  assert.match(expert, /at least two people: a Lead CCA and at least one other CCA/);
+  assert.match(expert, /separate CCA performs quality assurance/);
+  assert.match(expert, /170\.9\(b\)\(12\)–\(13\)/);
+  assert.match(expert, /affirmation \*\*in SPRS\*\*/);
+  assert.match(expert, /upon Conditional status, upon Final status, after POA&M closeout/i);
+  assert.match(expert, /annual affirmations of both Level 2 \(C3PAO\) and Level 3 \(DIBCAC\)/);
+  assert.match(expert, /170\.22\(a\)\(3\), \(b\)\(1\)–\(4\)/);
+  assert.match(expert, /No safe-harbor assurance/);
+  assert.match(expert, /do not by themselves establish contract eligibility/);
+  assert.match(expert, /DFARS assessment score alone does not establish CMMC Level 2/);
+  assert.doesNotMatch(expert, /minimum \*\*3 CCAs\*\*|affirm in SPRS\/eMASS|Safe-harbor posture/);
+});

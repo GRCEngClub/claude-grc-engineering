@@ -52,7 +52,7 @@ The Department announced on July 13, 2026 that Phase II requirements were suspen
 - **OSA** — Organization Seeking Assessment.
 - **OSC** — Organization Seeking Certification (used specifically in C3PAO context; OSA/OSC are largely interchangeable in practice).
 - **C3PAO** — Certified Third-Party Assessor Organization. Accredited by the Cyber AB.
-- **CCA** — Certified CMMC Assessor (must hold Tier 3 background investigation).
+- **CCA** — Certified CMMC Assessor. Assessment personnel must meet the applicable Tier 3 investigation or equivalence requirements in [32 CFR 170.9(b)(3)–(4)](https://www.ecfr.gov/current/title-32/section-170.9#p-170.9(b)(3)).
 - **CCP** — Certified CMMC Professional (support role).
 - **DIBCAC** — **Defense Industrial Base Cybersecurity Assessment Center** (DCMA's assessment arm; conducts L3 assessments and high-water-mark L2 verifications).
 - **DC3** — DoD Cyber Crime Center (recipient of malware samples under DFARS 7012).
@@ -203,15 +203,15 @@ Per **32 CFR 170.19** and the CMMC L2 Scoping Guide, each asset falls into one o
 |---|---|---|
 | **CUI Assets** | Process, store, or transmit CUI | **All 110 controls apply** |
 | **Security Protection Assets** | Provide security services to CUI Assets (firewalls, IDS/IPS, SIEM, VPN, MDM, patch mgmt, AD/LDAP) — may not touch CUI directly | Applicable security requirements apply |
-| **Contractor Risk Managed Assets (CRMA)** | Can technically reach CUI Assets but aren't required to process CUI (jump hosts, admin workstations) | Contractor-developed risk-based approach, documented |
-| **Specialized Assets** | OT/ICS, IoT, Government Furnished Equipment | Tailored — document applicability and any compensating controls in the SSP |
-| **Out-of-Scope Assets** | Isolated; no connection path to CUI systems | **Not** subject to CMMC — but isolation must be **technically demonstrated**, not merely asserted |
+| **Contractor Risk Managed Assets (CRMA)** | Can, but are not intended to, process, store, or transmit CUI because of policies, procedures and practices | SSP review; limited checks may be warranted under Table 3 |
+| **Specialized Assets** | Can process, store, or transmit CUI but cannot be fully secured, including certain OT, IoT and GFE | Document and manage using risk-based policies; SSP review, not other CMMC security requirements at Level 2 |
+| **Out-of-Scope Assets** | Cannot process, store, or transmit CUI, do not protect CUI assets, and are physically or logically separated | Prepare to justify inability to process, store or transmit CUI; in-scope categories cannot be out of scope |
 
 ### Scope-Reduction Plays
 
-1. **CMMC enclave** — isolate CUI into a dedicated environment (separate network segment, separate AD tenant, separate cloud tenant). Only the enclave is in scope.
-2. **Remove CUI from systems** that don't need it; document the removal; those systems exit scope.
-3. **FedRAMP-authorized CSP** — offload controls to the CSP for the cloud portion.
+1. **CMMC enclave** — isolate CUI into a dedicated environment; assess all applicable asset categories, including security protection assets outside the enclave.
+2. **Remove CUI from systems** that don't need it; reassess their asset category rather than assuming they exit scope.
+3. **FedRAMP-authorized CSP** — document shared responsibilities; authorization does not eliminate customer-side obligations.
 4. **Genuinely isolated systems** — air-gapped test networks with no path to CUI.
 
 ### CUI Identification — Required Before Scoping
@@ -229,44 +229,33 @@ The most commonly misunderstood area of CMMC. ESPs and CSPs follow **different**
 
 ### Cloud Service Provider (CSP)
 
-A third-party providing **cloud** services (SaaS / PaaS / IaaS) where CUI is processed, stored, or transmitted.
+A CSP is a cloud service provider; a CSP may also be an ESP, including when it processes, stores, or transmits Security Protection Data (SPD) without CUI.
 
 - For an external cloud service provider handling covered defense information under DFARS 7012, the clause requires security requirements equivalent to the FedRAMP Moderate baseline and specified incident-related obligations; review the contract and applicable clause. See [48 CFR 252.204-7012(b)(2)(ii)(D)](https://www.ecfr.gov/current/title-48/section-252.204-7012).
-- **Equivalency option** exists ("equivalent to FedRAMP Moderate" via a DoD-approved process) but is complex and rarely used.
-- The OSA's on-premises infrastructure **connecting** to the CSP **is** in scope. The CSP environment itself is verified via FedRAMP, not as part of the CMMC assessment.
-- The CSP must provide a **Customer Responsibility Matrix (CRM)** showing which controls are the CSP's vs. the customer's. The OSC's SSP documents customer-side implementation of shared controls.
+- For Level 2 certification, the cloud offering processing CUI must be FedRAMP Moderate (or higher) authorized **or** meet equivalent security requirements in accordance with DoD policy; the on-premises infrastructure connecting to it is in scope. CRM security requirements must be documented or referenced in the SSP. See [32 CFR 170.17(c)(5)](https://www.ecfr.gov/current/title-32/section-170.17#p-170.17(c)(5)).
+- Do not assume every CSP is outside assessment scope: see the SPD-only row below. FedRAMP authorization alone does not resolve customer responsibilities.
 
 **Common CSP options for CUI:**
 
-| Platform | FedRAMP | Notes |
-|---|---|---|
-| Microsoft 365 GCC High | High | Suitable for most DoD CUI, including ITAR |
-| Microsoft Azure Government | High | |
-| AWS GovCloud | High | |
-| Microsoft 365 GCC | Moderate | Limited CUI types; **not** suitable for ITAR/EAR |
-| Google Workspace Enterprise | Moderate (some configurations) | Validate per use case |
+Verify the exact offering and authorization boundary in the [FedRAMP Marketplace](https://marketplace.fedramp.gov/) and applicable DoD policy; platform names alone do not establish authorization, equivalence, or suitability for specific data.
 
 **ITAR/EAR caution:** A CSP can be FedRAMP-authorized **and** technically eligible — but still ineligible to process specific CUI categories due to export-control restrictions on foreign-national access. Evaluate CUI category restrictions independently of FedRAMP authorization.
 
 ### External Service Provider (ESP)
 
-A third-party that is **not** cloud-based but whose services implement 800-171 controls or that processes/stores/transmits CUI on the OSA's behalf.
+An ESP can be a CSP or a non-CSP. Classify the service using what it processes, stores, or transmits, not merely whether it is cloud-based.
 
 **Common ESPs:** MSSPs (SOC, SIEM), MSPs (patching, endpoint management), outsourced IT/AD admins, physical security monitoring vendors.
 
-**Rules (32 CFR 170.19 / 170.16):**
+**Level 2 scoping:** [32 CFR 170.19(c)(2)(i), Table 4](https://www.ecfr.gov/current/title-32/section-170.19#p-170.19(c)(2)(i)) distinguishes:
 
-1. **ESP services are not exempt from assessment.** If an ESP implements CMMC controls for the OSA, those services are within the assessment scope.
-2. The ESP's role and services must be **documented in the OSC's SSP** along with a CRM.
-3. **ESP CMMC certification (optional, strongly recommended):** if the ESP holds a valid CMMC certification covering the services provided, those services may be accepted without separate re-assessment. If the ESP is **not** CMMC-certified, the C3PAO must assess them as part of the OSC's assessment — significantly expanding scope and cost.
+| Data handled | CSP | Non-CSP ESP |
+|---|---|---|
+| CUI, with or without SPD | Meet FedRAMP requirements in 48 CFR 252.204-7012 | Services are in the OSA assessment scope and assessed as part of that assessment |
+| SPD without CUI | Services are in scope and assessed as Security Protection Assets | Services are in scope and assessed as Security Protection Assets |
+| Neither CUI nor SPD | Does not meet the CMMC definition of an ESP | Does not meet the CMMC definition of an ESP |
 
-**Decision tree:**
-
-```
-Is the third-party service cloud-based?
-├── YES → CSP → FedRAMP Moderate (or higher) authorization required
-└── NO  → ESP → Include in scope OR get ESP CMMC-certified
-```
+Under [170.19(c)(2)(ii)](https://www.ecfr.gov/current/title-32/section-170.19#p-170.19(c)(2)(ii)), document the ESP, relationship and services in the SSP, and describe them in the service description and CRM. Voluntary ESP certification may reduce the ESP's effort during the OSA assessment; it does **not** automatically exempt services from assessment. For non-CSP ESPs handling CUI, [170.17(c)(6)](https://www.ecfr.gov/current/title-32/section-170.17#p-170.17(c)(6)) addresses Level 2 certification, including assessment of services used to meet OSA requirements against all Level 2 requirements. Level 3 has a separate [Table 6](https://www.ecfr.gov/current/title-32/section-170.19#p-170.19(d)(2)(i)); Level 1 scoping differs.
 
 ---
 
@@ -299,7 +288,7 @@ Per the regulation (unless DoD specifies otherwise), the **prime contractor** de
 | **SPRS Score** | Numerical (e.g., 98/110) from DoD Assessment Methodology self-assessment | SPRS (contractor-submitted) |
 | **CMMC Status** | Categorical (Conditional L2 / Final L2 / etc.) from a CMMC assessment under 32 CFR 170 | SPRS (self) or eMASS (C3PAO) |
 
-During Phase 1, a current SPRS score from a valid self-assessment **is** the CMMC L2 (Self) status.
+A DFARS assessment score alone does not establish CMMC Level 2 (Self) status; consult [32 CFR 170.16](https://www.ecfr.gov/current/title-32/section-170.16) for assessment, status, and affirmation requirements.
 
 ### DoD Assessment Methodology — Three Tiers
 
@@ -428,7 +417,7 @@ Findings language convention in deliverables:
 ### Assessment
 
 1. **Initiation** — CMMC UID assigned (10-character identifier).
-2. **Team composition** — minimum **3 CCAs** on the assessment team.
+2. **Team composition** — at least two people: a Lead CCA and at least one other CCA; additional CCAs and CCPs may participate. A separate CCA performs quality assurance and cannot be a member of the team for that assessment. See [32 CFR 170.9(b)(12)–(13)](https://www.ecfr.gov/current/title-32/section-170.9#p-170.9(b)(12)).
 3. **Assessment activities** — Examine / Interview / Test against every applicable AO.
 4. **Scoring** — each practice MET or NOT MET per its AOs.
 5. **POA&M determination** — which gaps qualify for POA&M.
@@ -440,11 +429,11 @@ Findings language convention in deliverables:
 3. **Evidence retention:** artifacts hashed (NIST-approved algorithm) and retained for **6 years** from CMMC Status Date.
 4. C3PAO uploads artifact names, hash values, and algorithm identifiers to eMASS.
 
-### C3PAO Rules (32 CFR 170.10 / 170.11)
+### C3PAO Rules (32 CFR 170.9 / 170.11)
 
 - Accredited by the Cyber AB.
-- CCAs must hold a Tier 3 background investigation (national security eligibility, not a clearance).
-- Must use only their own accredited IT for assessments.
+- Assessment personnel must meet Tier 3 investigation or applicable equivalence requirements under 170.9(b)(3)–(4).
+- Level 2 certification assessment activities must be performed on the information system within the assessment scope under [170.9(b)(15)](https://www.ecfr.gov/current/title-32/section-170.9#p-170.9(b)(15)).
 - **Prohibited** from providing consulting/implementation services to OSCs they certify.
 - Assessment information is strictly confidential.
 
@@ -463,20 +452,16 @@ Findings language convention in deliverables:
 
 ### Annual Affirmation (32 CFR 170.22)
 
-After initial CMMC Status, a **senior company official** must affirm in SPRS/eMASS each year that:
+Under [32 CFR 170.22(a)–(b)](https://www.ecfr.gov/current/title-32/section-170.22), each OSA's authorized senior-level Affirming Official submits the affirmation **in SPRS**, attesting that all applicable requirements for the status are implemented and will remain implemented for all systems within the relevant assessment scope. The regulation does not prescribe a blanket attestation that no material changes have occurred.
 
-- The organization continues to implement all required practices.
-- No material changes have occurred that affect CMMC compliance.
-- All information-system changes are reflected in the SSP.
-
-Frequency: within one year of initial CMMC Status Date, then annually for the 3-year cycle. Material changes may trigger re-assessment.
+Submit upon Conditional status, upon Final status, after POA&M closeout where applicable, and annually following a Final status date; Level 1 is at completion and annually thereafter. Level 3 requires annual affirmations of both Level 2 (C3PAO) and Level 3 (DIBCAC) status. See [170.22(a)(3), (b)(1)–(4)](https://www.ecfr.gov/current/title-32/section-170.22#p-170.22(a)(3)).
 
 ### False Claims Act Exposure
 
 CMMC creates real FCA exposure — context every client conversation should include:
 
 - **FCA liability:** Up to **3× government damages** + per-claim penalties for knowingly false certifications.
-- **DOJ Cyber-Fraud Initiative** has been pursuing cybersecurity false certifications since 2019.
+- **DOJ Civil Cyber-Fraud Initiative** addresses certain cybersecurity-related false claims; consult current DOJ guidance and counsel.
 - **Recent precedent:** Multiple multi-million-dollar settlements against defense contractors that falsely certified cybersecurity compliance.
 - **Personal liability:** The signing senior official is personally certifying.
 
@@ -487,7 +472,7 @@ CMMC creates real FCA exposure — context every client conversation should incl
 3. Certifying a bid as CMMC-compliant when the OSC knows it isn't.
 4. Prime contractor knowingly ignoring sub's false claims.
 
-**Safe-harbor posture:** an honest, low SPRS score plus a credible POA&M is defensible. An inflated score is not. **Accurate reporting + credible remediation = manageable risk; inflated reporting = potential criminal exposure.**
+**No safe-harbor assurance:** accurate reporting and remediation do not by themselves establish contract eligibility, satisfy all obligations, or insulate an organization or individual from liability. CMMC conditional status has specific eligibility and closeout rules in [32 CFR 170.21](https://www.ecfr.gov/current/title-32/section-170.21). Consult qualified legal counsel about the facts and applicable obligations.
 
 ---
 
