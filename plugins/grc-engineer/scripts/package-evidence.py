@@ -45,14 +45,14 @@ def package(source, output, fingerprint):
         for root, dirs, files in os.walk(source, followlinks=False, onerror=lambda e: (_ for _ in ()).throw(e)):
             dirs.sort()
             files.sort()
+            if Path(root) == source and 'MANIFEST.json' in dirs + files:
+                raise ValueError('MANIFEST.json is reserved')
             for name in dirs:
                 if (Path(root) / name).is_symlink():
                     raise ValueError('symbolic links are not supported')
             for name in files:
                 path = Path(root) / name
                 relative = path.relative_to(source).as_posix()
-                if relative == 'MANIFEST.json':
-                    raise ValueError('MANIFEST.json is reserved')
                 fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
                 try:
                     info = os.fstat(fd)

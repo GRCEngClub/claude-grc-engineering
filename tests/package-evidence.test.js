@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, symlinkSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, symlinkSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -23,6 +23,7 @@ test('encrypts real evidence to verified GPG key and rejects unsafe inputs', () 
     writeFileSync(join(home, 'gpg.conf'), `encrypt-to ${secondFingerprint}\n`);
     const source = join(dir, 'evidence'); mkdirSync(source); mkdirSync(join(source, 'nested'));
     writeFileSync(join(source, 'nested', 'proof.txt'), 'test evidence\n');
+    writeFileSync(join(source, 'nested', 'MANIFEST.json'), 'nested evidence\n');
     const output = join(dir, 'package.gpg');
     const result = run('python3', [script, source, output, fingerprint]);
     assert.equal(result.status, 0, result.stderr);
@@ -39,13 +40,33 @@ test('encrypts real evidence to verified GPG key and rejects unsafe inputs', () 
     const zip = join(dir, 'decrypted.zip');
     const decrypt = run('gpg', ['--batch', '--output', zip, '--decrypt', output]);
     assert.equal(decrypt.status, 0, decrypt.stderr);
-    const validate = run('python3', ['-c', `import hashlib,json,sys,zipfile
+    const extracted = join(dir, 'extracted');
+    const validate = run('python3', ['-c', `import hashlib,json,pathlib,sys,zipfile
 with zipfile.ZipFile(sys.argv[1]) as z:
  m=json.loads(z.read('MANIFEST.json'))
  assert z.read('nested/proof.txt') == b'test evidence\\n'
- assert m['files'][0]['sha256'] == hashlib.sha256(z.read('nested/proof.txt')).hexdigest()
-`, zip]);
+ z.extractall(sys.argv[2])
+ for entry in m['files']:
+  data=(pathlib.Path(sys.argv[2])/entry['path']).read_bytes()
+  assert entry['sha256'] == hashlib.sha256(data).hexdigest()
+  assert entry['size'] == len(data)
+ assert (pathlib.Path(sys.argv[2])/'nested'/'MANIFEST.json').read_text() == 'nested evidence\\n'
+`, zip, extracted]);
     assert.equal(validate.status, 0, validate.stderr);
+    for (const kind of ['file', 'empty-directory', 'nonempty-directory']) {
+      const reserved = join(source, 'MANIFEST.json');
+      if (kind === 'file') writeFileSync(reserved, 'collision');
+      else {
+        mkdirSync(reserved);
+        if (kind === 'nonempty-directory') writeFileSync(join(reserved, 'proof.txt'), 'collision');
+      }
+      const collisionOutput = join(dir, `${kind}.gpg`);
+      const collision = run('python3', [script, source, collisionOutput, fingerprint]);
+      assert.notEqual(collision.status, 0, kind);
+      assert.match(collision.stderr, /MANIFEST\.json is reserved/);
+      assert.equal(existsSync(collisionOutput), false);
+      rmSync(reserved, { recursive: true, force: true });
+    }
     assert.notEqual(run('python3', [script, source, output, fingerprint]).status, 0);
     assert.notEqual(run('python3', [script, source, join(source, 'inside.gpg'), fingerprint]).status, 0);
     assert.notEqual(run('python3', [script, source, join(dir, 'short.gpg'), fingerprint.slice(-16)]).status, 0);
