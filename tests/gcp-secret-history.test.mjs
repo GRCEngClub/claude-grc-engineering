@@ -32,6 +32,32 @@ test('collects only validated metadata, never payloads or provider errors', () =
       assert.doesNotMatch(r.stderr, /other-project|123456|999999|provider-sensitive/);
       if (/^\d+$/.test(project)) assert.match(r.stderr, /numeric project identifier.*unsupported/);
     }
+    // Every timestamp field uses the same fail-closed calendar validation.
+    const fields = [
+      value => ({ SECRET: JSON.stringify({ name, createTime: value }) }),
+      value => ({ SECRET: JSON.stringify({ name, expireTime: value }) }),
+      value => ({ SECRET: JSON.stringify({ name, rotation: { nextRotationTime: value } }) }),
+      value => ({ VERSIONS: JSON.stringify([{ name: `${name}/versions/1`, state: 'ENABLED', createTime: value }]) }),
+      value => ({ VERSIONS: JSON.stringify([{ name: `${name}/versions/1`, state: 'DESTROYED', destroyTime: value }]) }),
+    ];
+    const invalidTimes = [
+      '2025-02-30T00:00:00Z', '2025-02-29T00:00:00Z', '1900-02-29T00:00:00Z',
+      '2024-04-31T00:00:00Z', '2024-00-01T00:00:00Z', '2024-13-01T00:00:00Z',
+      '2024-01-00T00:00:00Z', '0000-01-01T00:00:00Z', '2024-01-01T24:00:00Z',
+      '2024-01-01T23:60:00Z', '2024-01-01T23:59:60Z', '2024-01-01T00:00:00+00:00',
+      '2024-01-01T00:00:00-05:00', '2024-01-01T00:00:00', '2024-01-01T00:00:00.1234567890Z',
+    ];
+    for (const field of fields) {
+      for (const value of invalidTimes) {
+        r = run(field(value));
+        assert.equal(r.status, 1, value); assert.equal(r.stdout, '', value);
+        assert.doesNotMatch(r.stderr, /provider-sensitive|202[45]/);
+      }
+      for (const value of ['2000-02-29T23:59:59.123456789Z', '2024-02-29T00:00:00Z', '0001-01-01T00:00:00Z', '9999-12-31T23:59:59Z']) {
+        r = run(field(value));
+        assert.equal(r.status, 0, value); assert.ok(r.stdout.includes(value), value);
+      }
+    }
     r = run({ SECRET: JSON.stringify({ name }), VERSIONS: '[]' });
     assert.deepEqual(JSON.parse(r.stdout), { project: 'project-one', name, rotation: null, versions: [] });
     assert.equal(run({}, ['--bad', 'sample']).status, 2);

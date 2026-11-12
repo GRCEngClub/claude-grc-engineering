@@ -17,7 +17,14 @@ function query(args) {
   return JSON.parse(result.stdout);
 }
 function timestamp(value) {
-  if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,9})?Z$/.test(value) || !Number.isFinite(Date.parse(value))) throw new Error();
+  const match = typeof value === 'string' && /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(?:\.\d{1,9})?Z$/.exec(value);
+  if (!match) throw new Error();
+  const [, y, m, d, h, min, s] = match;
+  const year = Number(y), month = Number(m), day = Number(d);
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (year === 0 || month < 1 || month > 12 || day < 1 || day > days[month - 1] ||
+      Number(h) > 23 || Number(min) > 59 || Number(s) > 59) throw new Error();
   return value;
 }
 function optionalTime(source, dest, key) {
