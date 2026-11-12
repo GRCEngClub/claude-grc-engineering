@@ -14,6 +14,18 @@ Use this skill to structure the GRC content and visual pattern for evidence coll
 - GitHub branch protection evidence
 - quarterly access review lifecycle
 
+## Control-to-evidence example
+
+For an auditor-facing map, request the control, responsible owner, evidence artifact, review cadence and reviewer. Do not include actual evidence, credentials, sensitive paths or identifying details without authorization. If an input is unknown, label it unknown rather than inventing it. Create editable nodes and labeled relationships, not a screenshot. The fictional [control-to-evidence example](../../examples/control-evidence-flow.drawio) shows an access review; it is not a claim that a real control operates effectively.
+
+Validate the example from the repository root:
+
+```bash
+python3 plugins/grc-diagrams/examples/validate-control-evidence.py
+```
+
+The parser checks escaping, cell IDs, edge references and geometry for this specific uncompressed example; it is not a general draw.io validator or a secret scanner. Open the file in draw.io to inspect layout and editability. The example does not model exceptions, retention, or evidence access controls; adapt it to the actual engagement and review for sensitive content before sharing.
+
 ## Recommended Elements
 
 Include these when relevant:
