@@ -26,7 +26,8 @@ try {
   if (!/^(?:[A-Za-z0-9_-]{2,}|[A-Za-z0-9+/]{2,}={0,2})$/.test(encoded) || encoded.length % 4 === 1) throw new Error();
   const bytes = Buffer.from(encoded.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
   if (bytes.toString('base64').replace(/=+$/, '') !== encoded.replace(/-/g, '+').replace(/_/g, '/').replace(/=+$/, '')) throw new Error();
-  value = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  // A leading BOM is part of the secret, not a text encoding signature.
+  value = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes);
   bytes.fill(0);
   if (value.includes('\0')) throw new Error();
 } catch {

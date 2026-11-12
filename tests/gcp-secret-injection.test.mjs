@@ -19,6 +19,13 @@ test('injects only into the trusted child and fails closed', () => {
     assert.equal(readFileSync(env.RECORD, 'utf8'), 'ok');
     assert.deepEqual(JSON.parse(readFileSync(env.ARGS, 'utf8')), ['secrets', 'versions', 'access', 'latest', '--secret=sample_secret', '--project=project-one', '--format=get(payload.data)', '--quiet']);
     rmSync(env.RECORD); rmSync(env.ARGS);
+    const bomSecret = '\uFEFFmock-sensitive';
+    const bomChild = join(dir, 'bom-child.cjs');
+    writeFileSync(bomChild, `require('fs').writeFileSync(process.env.RECORD, process.env.GCP_SECRET_VALUE); console.log(process.env.GCP_SECRET_VALUE); console.error(process.env.GCP_SECRET_VALUE);`);
+    result = run([...args.slice(0, -1), bomChild], { RESPONSE: Buffer.from(bomSecret).toString('base64url') });
+    assert.equal(result.status, 0); assert.equal(result.stdout + result.stderr, '');
+    assert.deepEqual(readFileSync(env.RECORD), Buffer.from(bomSecret));
+    rmSync(env.RECORD); rmSync(env.ARGS);
     for (const variable of ['NODE_OPTIONS', 'LD_PRELOAD', 'PYTHONPATH', 'PATH', 'TOKEN', 'gcp_secret_value', 'GCP_SECRET_VALUE_EXTRA']) {
       result = run([...args.slice(0, 3), variable, ...args.slice(4)]);
       assert.equal(result.status, 2); assert.equal(existsSync(env.ARGS), false); assert.equal(existsSync(env.RECORD), false);
