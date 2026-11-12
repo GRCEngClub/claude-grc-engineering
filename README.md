@@ -71,7 +71,7 @@ Using Claude Desktop or Claude Cowork instead of Claude Code? Start with [docs/C
 |---|---|
 | Run a gap assessment against one or more frameworks | `/grc-engineer:gap-assessment` |
 | Scan Terraform, CloudFormation, or Kubernetes for compliance issues | `/grc-engineer:scan-iac` |
-| Validate a control end to end | `/grc-engineer:test-control` |
+| Run available control checks (results may be indeterminate) | `/grc-engineer:test-control` |
 | Generate remediation code, scripts, or policy | `/grc-engineer:generate-implementation`, `/grc-engineer:generate-policy` |
 | Map one control across frameworks | `/grc-engineer:map-controls-unified` |
 | Find conflicting requirements across frameworks | `/grc-engineer:find-conflicts` |

@@ -15,7 +15,7 @@ import util from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import yaml from 'js-yaml';
+import yaml from '../vendor/js-yaml.cjs';
 
 const execPromise = util.promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
@@ -35,7 +35,10 @@ class ControlTester {
         passed: 0,
         failed: 0,
         warnings: 0,
-        pass_rate: 0
+        errors: 0,
+        not_implemented: 0,
+        assessed: 0,
+        pass_rate: null
       }
     };
 
@@ -44,7 +47,7 @@ class ControlTester {
     this.crosswalk = yaml.load(fs.readFileSync(crosswalkPath, 'utf8'));
 
     // Load control definition
-    this.controlDef = this.crosswalk.controls[controlId];
+    this.controlDef = Object.hasOwn(this.crosswalk.controls, controlId) ? this.crosswalk.controls[controlId] : null;
     if (!this.controlDef) {
       throw new Error(`Control not found: ${controlId}`);
     }
@@ -75,11 +78,13 @@ class ControlTester {
   async runTests() {
     const startTime = Date.now();
 
-    console.log(`\nTesting Control: ${this.controlDef.name}`);
-    console.log(`Frameworks: ${this.results.frameworks.join(', ')}`);
-    console.log(`Cloud Provider: ${this.cloudProvider}\n`);
+    (this.options.output === 'json' ? console.error : console.log)(`\nTesting Control: ${this.controlDef.name}`);
+    (this.options.output === 'json' ? console.error : console.log)(`Frameworks: ${this.results.frameworks.join(', ')}`);
+    (this.options.output === 'json' ? console.error : console.log)(`Cloud Provider: ${this.cloudProvider}\n`);
 
     try {
+      if (this.cloudProvider !== 'aws') throw new Error(`Unsupported cloud provider: ${this.cloudProvider}`);
+      if (this.controlId !== 'access_control_account_management') throw new Error(`Control testing not implemented: ${this.controlId}`);
       // Run test suites
       await this.runConfigurationTests();
       await this.runFunctionalityTests();
@@ -98,6 +103,10 @@ class ControlTester {
     } catch (error) {
       console.error(`Error during testing: ${error.message}`);
       this.results.error = error.message;
+      this.recordTest({ name: 'Test execution', status: 'ERROR', error: error.message, frameworks: ['All'] });
+      this.calculateSummary();
+      this.results.status = 'INDETERMINATE';
+      this.results.framework_compliance = this.calculateFrameworkCompliance();
     }
 
     this.results.duration_seconds = (Date.now() - startTime) / 1000;
@@ -109,7 +118,7 @@ class ControlTester {
    * Configuration tests
    */
   async runConfigurationTests() {
-    console.log('Running configuration tests...');
+    (this.options.output === 'json' ? console.error : console.log)('Running configuration tests...');
 
     if (this.controlId === 'access_control_account_management') {
       await this.testUniqueUserIds();
@@ -134,7 +143,7 @@ class ControlTester {
    * Functionality tests
    */
   async runFunctionalityTests() {
-    console.log('Running functionality tests...');
+    (this.options.output === 'json' ? console.error : console.log)('Running functionality tests...');
 
     if (this.controlId === 'access_control_account_management') {
       await this.testCloudTrailActive();
@@ -149,7 +158,7 @@ class ControlTester {
    * Compliance tests
    */
   async runComplianceTests() {
-    console.log('Running compliance tests...');
+    (this.options.output === 'json' ? console.error : console.log)('Running compliance tests...');
 
     if (this.controlId === 'access_control_account_management') {
       await this.testLogRetentionCompliance();
@@ -163,7 +172,7 @@ class ControlTester {
    * Integration tests
    */
   async runIntegrationTests() {
-    console.log('Running integration tests...');
+    (this.options.output === 'json' ? console.error : console.log)('Running integration tests...');
 
     if (this.controlId === 'access_control_account_management') {
       await this.testEndToEndLifecycle();
@@ -181,26 +190,8 @@ class ControlTester {
       frameworks: ['NIST', 'ISO', 'SOC2', 'PCI']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws iam list-users');
-        const users = JSON.parse(stdout).Users;
-
-        const userIds = users.map(u => u.UserId);
-        const uniqueIds = new Set(userIds);
-
-        test.status = userIds.length === uniqueIds.size ? 'PASS' : 'FAIL';
-        test.result = {
-          users_checked: users.length,
-          unique_ids: uniqueIds.size,
-          duplicates: userIds.length - uniqueIds.size
-        };
-        test.message = `${users.length} IAM users found, all with unique IDs`;
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'IAM user enumeration alone cannot verify identifiers for all users';
 
     this.recordTest(test);
   }
@@ -214,55 +205,9 @@ class ControlTester {
       frameworks: ['PCI']
     };
 
-    try {
-      // Check for EventBridge rule or Lambda function for access reviews
-      if (this.cloudProvider === 'aws') {
-        try {
-          const { stdout } = await execPromise('aws events list-rules --name-prefix quarterly-access-review');
-          const rules = JSON.parse(stdout).Rules;
-
-          if (rules.length > 0) {
-            // Check last execution
-            const ruleName = rules[0].Name;
-            const { stdout: targetStdout } = await execPromise(`aws events list-targets-by-rule --rule ${ruleName}`);
-            const targets = JSON.parse(targetStdout).Targets;
-
-            // For demo purposes, simulate checking last review date
-            // In production, would query CloudWatch Logs or DynamoDB
-            const lastReviewDate = new Date('2024-11-15'); // Simulated
-            const daysSinceReview = Math.floor((Date.now() - lastReviewDate.getTime()) / (1000 * 60 * 60 * 24));
-
-            test.status = daysSinceReview <= 90 ? 'PASS' : 'FAIL';
-            test.result = {
-              last_review_date: lastReviewDate.toISOString().split('T')[0],
-              days_since_review: daysSinceReview,
-              threshold: 90,
-              violation: daysSinceReview > 90
-            };
-
-            if (test.status === 'FAIL') {
-              test.remediation = {
-                description: 'Run quarterly access review immediately',
-                command: 'python scripts/access_review.py --immediate',
-                estimated_time_minutes: 120
-              };
-              test.message = `Last review: ${daysSinceReview} days ago (exceeds 90-day requirement)`;
-            } else {
-              test.message = `Last review: ${daysSinceReview} days ago (within 90-day requirement)`;
-            }
-          } else {
-            test.status = 'FAIL';
-            test.message = 'No quarterly access review schedule configured';
-          }
-        } catch (cmdError) {
-          test.status = 'FAIL';
-          test.message = 'Access review automation not configured';
-        }
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    // A schedule alone does not establish when a review was performed.
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Access review execution evidence is not collected';
 
     this.recordTest(test);
   }
@@ -276,42 +221,8 @@ class ControlTester {
       frameworks: ['NIST', 'SOC2']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws iam list-users');
-        const users = JSON.parse(stdout).Users;
-
-        let usersWithApproval = 0;
-
-        for (const user of users) {
-          try {
-            const { stdout: tagStdout } = await execPromise(`aws iam list-user-tags --user-name ${user.UserName}`);
-            const tags = JSON.parse(tagStdout).Tags;
-
-            const hasCreator = tags.some(t => t.Key === 'Creator');
-            const hasApprover = tags.some(t => t.Key === 'ApprovedBy');
-
-            if (hasCreator || hasApprover) {
-              usersWithApproval++;
-            }
-          } catch (err) {
-            // User might not have tags
-          }
-        }
-
-        const percentage = Math.round((usersWithApproval / users.length) * 100);
-        test.status = percentage === 100 ? 'PASS' : 'WARNING';
-        test.result = {
-          total_users: users.length,
-          users_with_approval: usersWithApproval,
-          percentage
-        };
-        test.message = `${percentage}% of users have creator/approval tags`;
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'User tags do not establish documented approval';
 
     this.recordTest(test);
   }
@@ -325,30 +236,8 @@ class ControlTester {
       frameworks: ['NIST', 'SOC2']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        // Check for IAM Identity Center (SSO)
-        try {
-          const { stdout } = await execPromise('aws sso-admin list-instances');
-          const instances = JSON.parse(stdout).Instances;
-
-          test.status = instances.length > 0 ? 'PASS' : 'WARNING';
-          test.result = {
-            identity_center_configured: instances.length > 0,
-            instances: instances.length
-          };
-          test.message = instances.length > 0
-            ? 'IAM Identity Center configured with automated provisioning'
-            : 'Manual IAM user management (consider Identity Center)';
-        } catch (cmdError) {
-          test.status = 'WARNING';
-          test.message = 'IAM Identity Center not configured (manual provisioning)';
-        }
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Identity Center existence does not establish automated provisioning or lifecycle management';
 
     this.recordTest(test);
   }
@@ -362,39 +251,8 @@ class ControlTester {
       frameworks: ['NIST', 'SOC2']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws iam list-users');
-        const users = JSON.parse(stdout).Users;
-
-        let usersWithBoundaries = 0;
-
-        for (const user of users) {
-          try {
-            const { stdout: userStdout } = await execPromise(`aws iam get-user --user-name ${user.UserName}`);
-            const userData = JSON.parse(userStdout).User;
-
-            if (userData.PermissionsBoundary) {
-              usersWithBoundaries++;
-            }
-          } catch (err) {
-            // User might not exist
-          }
-        }
-
-        const percentage = Math.round((usersWithBoundaries / users.length) * 100);
-        test.status = percentage >= 90 ? 'PASS' : 'WARNING';
-        test.result = {
-          total_users: users.length,
-          users_with_boundaries: usersWithBoundaries,
-          percentage
-        };
-        test.message = `${percentage}% of users have permissions boundaries`;
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Permissions boundaries alone do not establish least privilege';
 
     this.recordTest(test);
   }
@@ -409,21 +267,14 @@ class ControlTester {
     };
 
     try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws cloudtrail describe-trails');
-        const trails = JSON.parse(stdout).trailList;
-
-        const activeTrails = trails.filter(t => t.IsMultiRegionTrail);
-
-        test.status = activeTrails.length > 0 ? 'PASS' : 'FAIL';
-        test.result = {
-          total_trails: trails.length,
-          multi_region_trails: activeTrails.length
-        };
-        test.message = activeTrails.length > 0
-          ? `CloudTrail active in all regions (${activeTrails.length} trail(s))`
-          : 'No multi-region CloudTrail configured';
-      }
+      const { stdout } = await execPromise('aws cloudtrail describe-trails --output json');
+      const trails = JSON.parse(stdout).trailList;
+      if (!Array.isArray(trails)) throw new Error('Invalid CloudTrail response');
+      const multiRegion = trails.filter(t => t.IsMultiRegionTrail === true);
+      test.result = { total_trails: trails.length, multi_region_trails: multiRegion.length };
+      // Trail configuration alone establishes neither logging nor event coverage.
+      test.status = 'NOT_IMPLEMENTED';
+      test.message = `${multiRegion.length} multi-region trail(s) observed; active logging and account management event coverage are not verified`;
     } catch (error) {
       test.status = 'ERROR';
       test.error = error.message;
@@ -441,61 +292,8 @@ class ControlTester {
       frameworks: ['PCI']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws iam generate-credential-report && sleep 2 && aws iam get-credential-report');
-        const report = JSON.parse(stdout);
-        const csvContent = Buffer.from(report.Content, 'base64').toString('utf-8');
-
-        // Parse CSV (simplified)
-        const lines = csvContent.split('\n');
-        const headers = lines[0].split(',');
-        const passwordLastUsedIndex = headers.indexOf('password_last_used');
-
-        const inactiveUsers = [];
-        const threshold = 90;
-        const now = new Date();
-
-        for (let i = 1; i < lines.length; i++) {
-          const fields = lines[i].split(',');
-          if (fields.length <= passwordLastUsedIndex) continue;
-
-          const lastUsed = fields[passwordLastUsedIndex];
-          if (lastUsed && lastUsed !== 'N/A' && lastUsed !== 'no_information') {
-            const lastUsedDate = new Date(lastUsed);
-            const daysSinceUse = Math.floor((now - lastUsedDate) / (1000 * 60 * 60 * 24));
-
-            if (daysSinceUse > threshold) {
-              inactiveUsers.push({
-                user: fields[0],
-                days_inactive: daysSinceUse
-              });
-            }
-          }
-        }
-
-        test.status = inactiveUsers.length === 0 ? 'PASS' : 'WARNING';
-        test.result = {
-          inactive_users_count: inactiveUsers.length,
-          threshold_days: threshold,
-          inactive_users: inactiveUsers.slice(0, 10) // Limit to 10 for display
-        };
-        test.message = inactiveUsers.length === 0
-          ? 'No inactive users detected'
-          : `${inactiveUsers.length} users inactive >${threshold} days detected`;
-
-        if (inactiveUsers.length > 0) {
-          test.remediation = {
-            description: 'Disable inactive users',
-            command: 'python scripts/disable_inactive_users.py --threshold=90 --execute',
-            estimated_time_minutes: 30
-          };
-        }
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Credential reports alone do not establish detection and disabling of inactive accounts';
 
     this.recordTest(test);
   }
@@ -509,26 +307,8 @@ class ControlTester {
       frameworks: ['SOC2', 'NIST']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws accessanalyzer list-analyzers');
-        const analyzers = JSON.parse(stdout).analyzers;
-
-        const activeAnalyzers = analyzers.filter(a => a.status === 'ACTIVE');
-
-        test.status = activeAnalyzers.length > 0 ? 'PASS' : 'FAIL';
-        test.result = {
-          total_analyzers: analyzers.length,
-          active_analyzers: activeAnalyzers.length
-        };
-        test.message = activeAnalyzers.length > 0
-          ? `Access Analyzer active (${activeAnalyzers.length} analyzer(s))`
-          : 'No Access Analyzer configured';
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'An active analyzer alone does not establish continuous unused access detection';
 
     this.recordTest(test);
   }
@@ -543,31 +323,13 @@ class ControlTester {
     };
 
     try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws iam get-account-summary');
-        const summary = JSON.parse(stdout).SummaryMap;
-
-        const rootMFAEnabled = summary.AccountMFAEnabled === 1;
-
-        test.status = rootMFAEnabled ? 'PASS' : 'FAIL';
-        test.result = {
-          root_account_mfa: rootMFAEnabled,
-          iam_users_with_mfa: summary.UsersWithMFA || 0,
-          total_users: summary.Users || 0
-        };
-
-        if (rootMFAEnabled) {
-          const percentage = Math.round((summary.UsersWithMFA / summary.Users) * 100);
-          test.message = `Root MFA: Enabled, IAM users: ${percentage}% have MFA`;
-        } else {
-          test.message = 'Root account MFA is NOT enabled (critical security risk)';
-          test.remediation = {
-            description: 'Enable MFA for root account',
-            command: 'Manual: Log in to AWS Console as root → Security Credentials → Activate MFA',
-            estimated_time_minutes: 15
-          };
-        }
-      }
+      const { stdout } = await execPromise('aws iam get-account-summary --output json');
+      const summary = JSON.parse(stdout).SummaryMap;
+      if (!summary || ![0, 1].includes(summary.AccountMFAEnabled)) throw new Error('Invalid root MFA summary');
+      test.result = { root_account_mfa: summary.AccountMFAEnabled === 1 };
+      // Enrollment status alone does not establish whether MFA is enforced.
+      test.status = 'NOT_IMPLEMENTED';
+      test.message = `Root MFA is ${summary.AccountMFAEnabled === 1 ? 'enabled' : 'not enabled'}; MFA enforcement is not verified`;
     } catch (error) {
       test.status = 'ERROR';
       test.error = error.message;
@@ -585,26 +347,8 @@ class ControlTester {
       frameworks: ['NIST', 'SOC2']
     };
 
-    try {
-      if (this.cloudProvider === 'aws') {
-        const { stdout } = await execPromise('aws cloudtrail describe-trails');
-        const trails = JSON.parse(stdout).trailList;
-
-        const validatedTrails = trails.filter(t => t.LogFileValidationEnabled);
-
-        test.status = validatedTrails.length > 0 ? 'PASS' : 'FAIL';
-        test.result = {
-          total_trails: trails.length,
-          validated_trails: validatedTrails.length
-        };
-        test.message = validatedTrails.length > 0
-          ? 'CloudTrail log file validation enabled'
-          : 'CloudTrail log file validation NOT enabled';
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Log file validation configuration alone does not establish tamper-proof audit logs';
 
     this.recordTest(test);
   }
@@ -618,14 +362,8 @@ class ControlTester {
       frameworks: ['PCI', 'SOC2', 'NIST']
     };
 
-    // Simplified test - would check S3 lifecycle policies
-    test.status = 'PASS';
-    test.result = {
-      retention_days: 365,
-      online_days: 180,
-      archived_days: 185
-    };
-    test.message = 'S3 lifecycle configured for 365-day retention';
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Evidence collection for this check is not implemented';
 
     this.recordTest(test);
   }
@@ -639,14 +377,8 @@ class ControlTester {
       frameworks: ['NIST', 'SOC2']
     };
 
-    // Simplified test
-    test.status = 'PASS';
-    test.result = {
-      admin_users: 5,
-      auditor_users: 3,
-      overlap: 0
-    };
-    test.message = 'No users have both admin and auditor roles';
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Evidence collection for this check is not implemented';
 
     this.recordTest(test);
   }
@@ -660,13 +392,8 @@ class ControlTester {
       frameworks: ['All']
     };
 
-    test.status = 'PASS';
-    test.result = {
-      evidence_collection_script: true,
-      artifacts_generated: 5,
-      total_size_mb: 2.3
-    };
-    test.message = 'Evidence collection script executed successfully';
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Evidence collection for this check is not implemented';
 
     this.recordTest(test);
   }
@@ -680,18 +407,8 @@ class ControlTester {
       frameworks: ['ISO', 'SOC2']
     };
 
-    // Simplified test - would check for policy documents
-    test.status = 'FAIL';
-    test.result = {
-      policy_exists: true,
-      last_update: '2023-12-10',
-      days_since_update: 400
-    };
-    test.message = 'Policy document exists but not updated in last year';
-    test.remediation = {
-      description: 'Update access review policy document',
-      estimated_time_minutes: 240
-    };
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Evidence collection for this check is not implemented';
 
     this.recordTest(test);
   }
@@ -705,13 +422,8 @@ class ControlTester {
       frameworks: ['All']
     };
 
-    test.status = 'PASS';
-    test.result = {
-      test_scenario: 'Create → Assign → Review → Deactivate',
-      steps_completed: 5,
-      steps_total: 5
-    };
-    test.message = 'All lifecycle steps completed successfully';
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Lifecycle integration testing is not implemented';
 
     this.recordTest(test);
   }
@@ -720,6 +432,10 @@ class ControlTester {
    * Record test result
    */
   recordTest(test) {
+    if (!['PASS', 'FAIL', 'WARNING', 'ERROR', 'NOT_IMPLEMENTED'].includes(test.status)) {
+      test.status = 'ERROR';
+      test.message = 'Test did not produce a valid status';
+    }
     this.results.tests.push(test);
     this.results.summary.total_tests++;
 
@@ -729,6 +445,10 @@ class ControlTester {
       this.results.summary.failed++;
     } else if (test.status === 'WARNING') {
       this.results.summary.warnings++;
+    } else if (test.status === 'ERROR') {
+      this.results.summary.errors++;
+    } else if (test.status === 'NOT_IMPLEMENTED') {
+      this.results.summary.not_implemented++;
     }
   }
 
@@ -736,16 +456,17 @@ class ControlTester {
    * Calculate summary statistics
    */
   calculateSummary() {
-    const total = this.results.summary.total_tests;
-    const passed = this.results.summary.passed;
-
-    this.results.summary.pass_rate = total > 0 ? passed / total : 0;
+    const summary = this.results.summary;
+    // Warnings are assessed outcomes but are not passes. Unknowns are excluded.
+    summary.assessed = summary.passed + summary.failed + summary.warnings;
+    summary.pass_rate = summary.assessed > 0 ? summary.passed / summary.assessed : null;
   }
 
   /**
    * Determine overall control status
    */
   determineStatus() {
+    if (!this.results.tests.length || this.results.summary.errors || this.results.summary.not_implemented) return 'INDETERMINATE';
     const passRate = this.results.summary.pass_rate;
     const failed = this.results.summary.failed;
 
@@ -769,26 +490,29 @@ class ControlTester {
 
     for (const framework of frameworks) {
       const frameworkTests = this.results.tests.filter(t =>
-        t.frameworks && t.frameworks.includes(framework)
+        t.frameworks && (t.frameworks.includes(framework) || t.frameworks.includes('All'))
       );
 
       if (frameworkTests.length === 0) continue;
 
       const passed = frameworkTests.filter(t => t.status === 'PASS').length;
-      const score = passed / frameworkTests.length;
+      const assessed = frameworkTests.filter(t => ['PASS', 'FAIL', 'WARNING'].includes(t.status)).length;
+      const score = assessed ? passed / assessed : null;
 
       let status;
-      if (score >= 0.95) status = 'COMPLIANT';
+      if (score === null || frameworkTests.some(t => t.status === 'ERROR' || t.status === 'NOT_IMPLEMENTED')) status = 'INDETERMINATE';
+      else if (score >= 0.95) status = 'COMPLIANT';
       else if (score >= 0.80) status = 'PARTIAL';
       else status = 'NON_COMPLIANT';
 
       const issues = frameworkTests
-        .filter(t => t.status === 'FAIL' || t.status === 'WARNING')
+        .filter(t => t.status !== 'PASS')
         .map(t => t.name);
 
       compliance[framework] = {
         status,
-        score: Math.round(score * 100) / 100,
+        score: score === null ? null : Math.round(score * 100) / 100,
+        assessed,
         issues
       };
     }
@@ -818,7 +542,10 @@ class ControlTester {
     report += `  ✓ Passed: ${this.results.summary.passed}\n`;
     report += `  ✗ Failed: ${this.results.summary.failed}\n`;
     report += `  ⚠ Warnings: ${this.results.summary.warnings}\n`;
-    report += `  Pass Rate: ${Math.round(this.results.summary.pass_rate * 100)}%\n\n`;
+    report += `  Errors: ${this.results.summary.errors}\n`;
+    report += `  Not implemented: ${this.results.summary.not_implemented}\n`;
+    report += `  Assessed: ${this.results.summary.assessed}\n`;
+    report += `  Pass Rate (assessed only): ${this.results.summary.pass_rate === null ? 'N/A' : `${Math.round(this.results.summary.pass_rate * 100)}%`}\n\n`;
 
     report += `Status: ${this.results.status}\n\n`;
 
@@ -832,6 +559,17 @@ class ControlTester {
         if (test.remediation) {
           report += `    Fix: ${test.remediation.command}\n`;
         }
+      });
+    }
+
+    // Unknown checks are observations, not control verdicts.
+    const unknowns = this.results.tests.filter(t => t.status === 'NOT_IMPLEMENTED' || t.status === 'ERROR');
+    if (unknowns.length > 0) {
+      report += '\nUNASSESSED CHECKS (not control verdicts):\n';
+      unknowns.forEach(test => {
+        report += `\n[${test.status}] ${test.name}\n`;
+        if (test.message) report += `    ${test.message}\n`;
+        if (test.error) report += `    Error: ${test.error}\n`;
       });
     }
 
@@ -852,25 +590,37 @@ if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.a
   }
 
   const controlId = args[0];
-  const cloudProvider = args[1] || 'aws';
+  const cloudProvider = args[1] && !args[1].startsWith('--') ? args[1] : 'aws';
   const options = {
     output: args.find(a => a.startsWith('--output='))?.split('=')[1] || 'text',
     verbose: args.includes('--verbose'),
     fixFailures: args.includes('--fix-failures')
   };
 
-  const tester = new ControlTester(controlId, cloudProvider, options);
-
-  tester.runTests().then(results => {
+  let tester;
+  Promise.resolve().then(() => {
+    tester = new ControlTester(controlId, cloudProvider, options);
+    return tester.runTests();
+  }).then(results => {
     console.log(tester.generateReport());
 
     // Exit with error code if tests failed
-    if (results.summary.failed > 0) {
-      process.exit(1);
+    if (results.error || results.summary.failed > 0 || results.summary.errors > 0 || results.summary.not_implemented > 0 || results.summary.warnings > 0) {
+      process.exitCode = 1;
     }
   }).catch(error => {
-    console.error('Test execution failed:', error);
-    process.exit(1);
+    console.error('Test execution failed:', error.message);
+    const result = {
+      control_id: controlId,
+      timestamp: new Date().toISOString(),
+      status: 'INDETERMINATE',
+      error: error.message,
+      tests: [{ name: 'Test execution', status: 'ERROR', error: error.message, frameworks: ['All'] }],
+      summary: { total_tests: 1, passed: 0, failed: 0, warnings: 0, errors: 1, not_implemented: 0, assessed: 0, pass_rate: null },
+      framework_compliance: {}
+    };
+    console.log(options.output === 'json' ? JSON.stringify(result, null, 2) : `Status: INDETERMINATE\nError: ${error.message}`);
+    process.exitCode = 1;
   });
 }
 
