@@ -1,5 +1,7 @@
 # Trust Center — Deployment Guide
 
+> **Do not deploy for sensitive data:** this guide describes an unverified prototype, not a production-ready deployment. Private access, AWS routing and infrastructure require security validation and remediation first. See [security limitations](ACCESS-SECURITY.md).
+
 Step-by-step walkthrough to go from zero to a live trust center.
 
 ## Prerequisites

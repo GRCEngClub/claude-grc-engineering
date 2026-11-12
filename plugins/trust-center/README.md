@@ -1,15 +1,17 @@
 # GRC Trust Center
 
+> **Security warning:** This implementation is not production-ready. Do not use it to host sensitive documents. Private access and AWS deployment have not been verified end-to-end; see [security limitations](docs/ACCESS-SECURITY.md).
+
 An open-source, serverless trust center for publishing your compliance posture — certifications, policies, and audit reports — with gated access for sensitive documents.
 
 Built as a plugin for the [GRC Engineering Club](https://github.com/GRCEngClub/claude-grc-engineering) toolkit. Addresses [Issue #148](https://github.com/GRCEngClub/claude-grc-engineering/issues/148).
 
 ## What It Does
 
-Gives any company a production-ready trust center page where:
+The intended trust center page would let:
 
 - **Public visitors** see your certifications, security overview, and downloadable public reports (e.g., SOC 3)
-- **Gated visitors** request access to sensitive documents (SOC 2, individual policies) by signing an NDA via DocuSeal
+- **Gated visitors** request access to sensitive documents (SOC 2, individual policies); NDA enforcement is not implemented
 - **Admins** manage what's published, review access requests, and track who downloaded what
 
 ## Architecture
