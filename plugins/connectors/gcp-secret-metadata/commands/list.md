@@ -28,5 +28,10 @@ to the organization's policy. This inventory command does not inject secrets,
 produce findings or integrate with gcp-inspector. The separate operator-only
 `/gcp-secret-metadata:run` command documents the runtime injection helper.
 
+Returned resource names must contain the exact requested textual project ID.
+Numeric project identifiers are unsupported because this command does not verify
+their mapping to the requested ID; if gcloud returns them, the command fails closed
+without inventory output. The same restriction applies to the history command.
+
 References: [gcloud secrets list](https://cloud.google.com/sdk/gcloud/reference/secrets/list),
 [Secret Manager list API and IAM permission](https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/list).

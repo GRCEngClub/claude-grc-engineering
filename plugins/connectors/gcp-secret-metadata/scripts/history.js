@@ -28,7 +28,9 @@ try {
   const versions = query(['secrets', 'versions', 'list', secret]);
   if (!data || typeof data !== 'object' || Array.isArray(data) || typeof data.name !== 'string' || !Array.isArray(versions)) throw new Error();
   const parts = data.name.split('/');
-  if (parts.length !== 4 || parts[0] !== 'projects' || !/^(?:[a-z][a-z0-9-]{4,28}[a-z0-9]|[0-9]+)$/.test(parts[1]) || parts[2] !== 'secrets' || parts[3] !== secret || (!/^\d+$/.test(parts[1]) && parts[1] !== project)) throw new Error();
+  if (parts.length !== 4 || parts[0] !== 'projects' || !/^(?:[a-z][a-z0-9-]{4,28}[a-z0-9]|[0-9]+)$/.test(parts[1]) || parts[2] !== 'secrets' || parts[3] !== secret) throw new Error();
+  if (/^\d+$/.test(parts[1])) throw new Error('unsupported-numeric-project');
+  if (parts[1] !== project) throw new Error();
   const result = { project, name: data.name, rotation: null, versions: [] };
   optionalTime(data, result, 'createTime');
   optionalTime(data, result, 'expireTime');
@@ -51,7 +53,9 @@ try {
     return item;
   });
   console.log(JSON.stringify(result, null, 2));
-} catch {
-  console.error('Secret metadata collection failed or returned malformed data; provider output suppressed.');
+} catch (error) {
+  console.error(error.message === 'unsupported-numeric-project'
+    ? 'Secret metadata returned a numeric project identifier; project mapping is unsupported and output is suppressed.'
+    : 'Secret metadata collection failed or returned malformed or out-of-scope data; provider output suppressed.');
   process.exit(1);
 }

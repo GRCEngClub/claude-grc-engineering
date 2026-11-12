@@ -19,10 +19,15 @@ try {
   if (!Array.isArray(data)) throw new Error();
   const secrets = data.map(secret => {
     if (!secret || typeof secret.name !== 'string' || !/^projects\/(?:[a-z][a-z0-9-]{4,28}[a-z0-9]|[0-9]+)\/secrets\/[a-zA-Z0-9_-]+$/.test(secret.name)) throw new Error();
+    const returnedProject = secret.name.split('/')[1];
+    if (/^[0-9]+$/.test(returnedProject)) throw new Error('unsupported-numeric-project');
+    if (returnedProject !== args[0]) throw new Error();
     return { name: secret.name };
   });
   console.log(JSON.stringify({ project: args[0], secrets }, null, 2));
-} catch {
-  console.error('Secret inventory returned malformed data; provider output suppressed.');
+} catch (error) {
+  console.error(error.message === 'unsupported-numeric-project'
+    ? 'Secret inventory returned a numeric project identifier; project mapping is unsupported and output is suppressed.'
+    : 'Secret inventory returned malformed or out-of-scope data; provider output suppressed.');
   process.exit(1);
 }

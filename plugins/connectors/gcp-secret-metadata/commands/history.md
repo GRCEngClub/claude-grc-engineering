@@ -25,6 +25,9 @@ or malformed calls return no partial output. A missing rotation object is shown
 as null, not as evidence of compliance or noncompliance. GCP rotation schedules
 send notifications; they do not themselves prove a credential was rotated.
 The two calls are not an atomic snapshot. Regional secrets are not supported.
+Returned names must contain the exact requested textual project ID. Numeric
+project identifiers are unsupported without a verified mapping and cause a
+fail-closed error with no output; gcloud may return such identifiers.
 Store or share this sensitive inventory only under organizational policy.
 
 Use alongside `/gcp-inspector:collect` for the same explicitly selected project;
