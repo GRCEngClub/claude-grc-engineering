@@ -30,7 +30,7 @@ test('collects only validated metadata, never payloads or provider errors', () =
       r = run({ SECRET: JSON.stringify({ name: otherName }), VERSIONS: JSON.stringify([{ name: `${otherName}/versions/1`, state: 'ENABLED' }]) });
       assert.equal(r.status, 1); assert.equal(r.stdout, '');
       assert.doesNotMatch(r.stderr, /other-project|123456|999999|provider-sensitive/);
-      if (/^\d+$/.test(project)) assert.match(r.stderr, /numeric project identifier.*unsupported/);
+      if (/^\d+$/.test(project)) assert.match(r.stderr, /Project mapping failed/);
     }
     // Every timestamp field uses the same fail-closed calendar validation.
     const fields = [

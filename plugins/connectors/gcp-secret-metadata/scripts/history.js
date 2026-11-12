@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Read one global secret's metadata only; never access a payload.
 import { spawnSync } from 'node:child_process';
+import { projectScope } from './project-scope.js';
 
 const [project, secret, ...extra] = process.argv.slice(2);
 if (!/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/.test(project || '') ||
@@ -36,8 +37,7 @@ try {
   if (!data || typeof data !== 'object' || Array.isArray(data) || typeof data.name !== 'string' || !Array.isArray(versions)) throw new Error();
   const parts = data.name.split('/');
   if (parts.length !== 4 || parts[0] !== 'projects' || !/^(?:[a-z][a-z0-9-]{4,28}[a-z0-9]|[0-9]+)$/.test(parts[1]) || parts[2] !== 'secrets' || parts[3] !== secret) throw new Error();
-  if (/^\d+$/.test(parts[1])) throw new Error('unsupported-numeric-project');
-  if (parts[1] !== project) throw new Error();
+  projectScope(project)(parts[1]);
   const result = { project, name: data.name, rotation: null, versions: [] };
   optionalTime(data, result, 'createTime');
   optionalTime(data, result, 'expireTime');
@@ -61,8 +61,8 @@ try {
   });
   console.log(JSON.stringify(result, null, 2));
 } catch (error) {
-  console.error(error.message === 'unsupported-numeric-project'
-    ? 'Secret metadata returned a numeric project identifier; project mapping is unsupported and output is suppressed.'
+  console.error(error.message === 'mapping'
+    ? 'Project mapping failed; check project lookup permission. Provider output suppressed.'
     : 'Secret metadata collection failed or returned malformed or out-of-scope data; provider output suppressed.');
   process.exit(1);
 }

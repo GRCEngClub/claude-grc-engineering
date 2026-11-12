@@ -21,7 +21,7 @@ test('lists allowlisted fields using explicit project and suppresses provider er
       const failure = run('project-one', { RESPONSE: JSON.stringify([{ name: 'projects/project-one/secrets/foo' }, { name: `projects/${project}/secrets/sample` }]) });
       assert.equal(failure.status, 1); assert.equal(failure.stdout, '');
       assert.doesNotMatch(failure.stderr, /private-provider-error|other-project|123456|999999/);
-      if (/^\d+$/.test(project)) assert.match(failure.stderr, /numeric project identifier.*unsupported/);
+      if (/^\d+$/.test(project)) assert.match(failure.stderr, /Project mapping failed/);
     }
     for (const overrides of [{ CODE: '1' }, { RESPONSE: '{bad' }, { RESPONSE: '[{"name":"sentinel"}]' }]) {
       const failure = run('project-one', overrides);
