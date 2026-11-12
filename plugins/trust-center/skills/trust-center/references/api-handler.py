@@ -237,12 +237,18 @@ def update_config(event):
 def list_documents(event):
     """List public documents and, on private routes, approved documents."""
     try:
-        resp = table.query(
-            IndexName="GSI1",
-            KeyConditionExpression="GSI1PK = :pk",
-            ExpressionAttributeValues={":pk": "DOCS"},
-        )
-        items = resp.get("Items", [])
+        params = {
+            "IndexName": "GSI1",
+            "KeyConditionExpression": "GSI1PK = :pk",
+            "ExpressionAttributeValues": {":pk": "DOCS"},
+        }
+        items = []
+        while True:
+            resp = table.query(**params)
+            items.extend(resp.get("Items", []))
+            if not resp.get("LastEvaluatedKey"):
+                break
+            params["ExclusiveStartKey"] = resp["LastEvaluatedKey"]
 
         documents = []
         for indexed_item in items:

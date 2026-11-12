@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 // In production these come from environment variables or the /api/config endpoint.
 // Demo mode uses generic sample data. Replace with your own via the seed script
 // or the /api/admin/config endpoint after deploying.
-const DEMO_MODE = true;
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 
 const DEMO_CONFIG = {
   companyName: "Acme Corp",
@@ -332,7 +332,7 @@ function StatCard({ label, value }) {
   );
 }
 
-function DocumentRow({ doc, onRequestAccess }) {
+function DocumentRow({ doc, onRequestAccess, onDownload }) {
   const isPublic = doc.accessLevel === "public";
 
   return (
@@ -422,7 +422,7 @@ function DocumentRow({ doc, onRequestAccess }) {
 
         {isPublic ? (
           <button
-            onClick={() => {}}
+            onClick={() => onDownload(doc)}
             style={{
               display: "flex",
               alignItems: "center",
@@ -478,11 +478,12 @@ function AccessRequestModal({ document: doc, onClose, onSubmit }) {
     reason: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.email || !form.name) return;
-    onSubmit(doc.id, form);
-    setSubmitted(true);
+    try { await onSubmit(doc.id, form); setSubmitted(true); }
+    catch (e) { setSubmitError(e.message || "Request failed."); }
   };
 
   return (
@@ -667,6 +668,7 @@ function AccessRequestModal({ document: doc, onClose, onSubmit }) {
               ))}
             </div>
 
+            {submitError && <p role="alert" style={{ color: palette.red }}>{submitError}</p>}
             <button
               onClick={handleSubmit}
               disabled={!form.name || !form.email}
@@ -707,26 +709,34 @@ export default function TrustCenter() {
   const [filter, setFilter] = useState("all"); // "all" | "reports" | "policies"
   const [requestModal, setRequestModal] = useState(null);
   const [loading, setLoading] = useState(!DEMO_MODE);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (DEMO_MODE) return;
-    Promise.all([
-      fetch("/api/config").then((r) => r.json()),
-      fetch("/api/documents").then((r) => r.json()),
-    ]).then(([cfg, docs]) => {
-      setConfig(cfg);
-      setDocuments(docs.documents || []);
-      setLoading(false);
-    });
+    const read = async (url) => {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error();
+      return response.json();
+    };
+    Promise.all([read("/api/config"), read("/api/documents")])
+      .then(([cfg, docs]) => { setConfig(cfg); setDocuments(docs.documents || []); })
+      .catch(() => setError("Unable to load trust center data. Please try again later."))
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleRequestAccess = useCallback((docId, form) => {
-    if (DEMO_MODE) return;
-    fetch(`/api/documents/${docId}/request-access`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+  const handleDownload = useCallback(async (doc) => {
+    if (DEMO_MODE) { setError("Demo documents cannot be downloaded."); return; }
+    try {
+      const response = await fetch(`/api/documents/${encodeURIComponent(doc.id)}/download`);
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      if (!data.downloadUrl) throw new Error();
+      window.location.assign(data.downloadUrl);
+    } catch { setError("Download failed. Please try again later."); }
+  }, []);
+
+  const handleRequestAccess = useCallback(async () => {
+    throw new Error(DEMO_MODE ? "Demo requests are not submitted." : "Requester sign-in is not available yet. Contact the trust center owner.");
   }, []);
 
   const filteredDocs = documents.filter((d) => {
@@ -851,6 +861,8 @@ export default function TrustCenter() {
           </p>
         </header>
 
+        {error && <p role="alert" style={{ color: palette.red }}>{error}</p>}
+        {DEMO_MODE && <p>Demo mode — sample data only.</p>}
         {/* ── Certifications ── */}
         <section style={{ padding: "40px 0 0" }}>
           <h2
@@ -987,6 +999,7 @@ export default function TrustCenter() {
                   key={doc.id}
                   doc={doc}
                   onRequestAccess={(d) => setRequestModal(d)}
+                  onDownload={handleDownload}
                 />
               ))
             )}

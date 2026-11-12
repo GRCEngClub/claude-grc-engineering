@@ -117,6 +117,33 @@ class AccessTests(unittest.TestCase):
         self.assertTrue(all(call.kwargs['ConsistentRead'] for call in api.table.query.call_args_list))
         self.assertIn('ExclusiveStartKey', api.table.query.call_args_list[1].kwargs)
 
+    def test_document_listing_paginates_and_filters_each_page(self):
+        docs = api.table.docs
+        api.table.query = Mock(side_effect=[
+            {"Items": [docs["pub"]], "LastEvaluatedKey": {"PK": "DOC#pub", "SK": "META"}},
+            {"Items": [docs["secret"], docs["unknown"]]},
+        ])
+        status, result = self.call("GET", "/api/documents")
+        self.assertEqual(status, 200)
+        self.assertEqual([d["id"] for d in result["documents"]], ["pub"])
+        self.assertIn("ExclusiveStartKey", api.table.query.call_args_list[1].kwargs)
+
+    def test_private_route_without_subject_cannot_access_or_request(self):
+        api.table.requests.append({"PK": "DOC#secret", "requesterSub": "alice", "status": "approved"})
+        for method, suffix in (("GET", ""), ("GET", "/download"), ("POST", "/request-access")):
+            status, result = self.call(method, "/api/private/documents/secret" + suffix)
+            self.assertIn(status, (401, 404))
+            self.assertNotIn("SECRET", str(result))
+        api.s3.generate_presigned_url.assert_not_called()
+
+    def test_reference_artifacts_match_deployed_sources(self):
+        root = Path(__file__).resolve().parents[1]
+        reference = root / "skills/trust-center/references"
+        for source, copy in ((root / "backend/functions/api_handler.py", reference / "api-handler.py"),
+                             (root / "infrastructure/template.yaml", reference / "infrastructure-template.yaml"),
+                             (root / "frontend/src/pages/TrustCenter.jsx", reference / "frontend-files/src/pages/TrustCenter.jsx")):
+            self.assertEqual(source.read_bytes(), copy.read_bytes(), str(copy))
+
     def test_admin_group_is_exact(self):
         self.assertEqual(self.call("GET", "/api/admin/requests", sub="user", groups="not-admins")[0], 403)
         self.assertEqual(self.call("GET", "/api/admin/requests", sub="user", groups="[admins]")[0], 200)
