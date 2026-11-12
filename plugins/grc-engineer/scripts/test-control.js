@@ -15,7 +15,7 @@ import util from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import yaml from 'js-yaml';
+import yaml from '../vendor/js-yaml.cjs';
 
 const execPromise = util.promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
@@ -559,6 +559,17 @@ class ControlTester {
         if (test.remediation) {
           report += `    Fix: ${test.remediation.command}\n`;
         }
+      });
+    }
+
+    // Unknown checks are observations, not control verdicts.
+    const unknowns = this.results.tests.filter(t => t.status === 'NOT_IMPLEMENTED' || t.status === 'ERROR');
+    if (unknowns.length > 0) {
+      report += '\nUNASSESSED CHECKS (not control verdicts):\n';
+      unknowns.forEach(test => {
+        report += `\n[${test.status}] ${test.name}\n`;
+        if (test.message) report += `    ${test.message}\n`;
+        if (test.error) report += `    Error: ${test.error}\n`;
       });
     }
 

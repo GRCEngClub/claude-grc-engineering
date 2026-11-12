@@ -167,9 +167,50 @@ esac
     assert.deepEqual(result.tests.find(t => t.id === 'TEST-006').result, { total_trails: 0, multi_region_trails: 0 });
     assert.equal(result.tests.find(t => t.id === 'TEST-009').result.root_account_mfa, false);
     assert.equal(result.status, 'INDETERMINATE');
+    const text = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, 'aws'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
+    assert.notEqual(text.status, 0);
+    assert.match(text.stdout, /Status: INDETERMINATE/);
+    for (const check of ['TEST-006', 'TEST-009']) {
+      const observation = result.tests.find(t => t.id === check);
+      assert.ok(text.stdout.includes(`[NOT_IMPLEMENTED] ${observation.name}`));
+      assert.ok(text.stdout.includes(observation.message));
+    }
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
+test('text report includes unknown messages and error details', () => {
+  const tester = new ControlTester(id);
+  tester.recordTest({ name: 'Unknown check', status: 'NOT_IMPLEMENTED', message: 'Observed condition' });
+  tester.recordTest({ name: 'Broken check', status: 'ERROR', message: 'Unable to assess', error: 'access denied' });
+  tester.calculateSummary();
+  tester.results.status = tester.determineStatus();
+  const report = tester.generateReport();
+  for (const expected of ['[NOT_IMPLEMENTED] Unknown check', 'Observed condition', '[ERROR] Broken check', 'Unable to assess', 'access denied', 'Status: INDETERMINATE']) assert.ok(report.includes(expected));
+});
+
+test('installed plugin example runs outside checkout without dependencies', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'installed plugin '));
+  try {
+    const plugin = path.join(dir, '.claude', 'plugins', 'cache', 'marketplace', 'grc-engineer', '1.0');
+    const project = path.join(dir, 'other project');
+    fs.mkdirSync(path.dirname(plugin), { recursive: true });
+    fs.cpSync('plugins/grc-engineer', plugin, { recursive: true });
+    fs.mkdirSync(project);
+    const command = fs.readFileSync(path.join(plugin, 'commands/test-control.md'), 'utf8');
+    const invocation = command.match(/```bash\n([^\n]+)\n```/)[1];
+    assert.match(invocation, /"\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/test-control\.js"/);
+    const env = { ...process.env, CLAUDE_PLUGIN_ROOT: plugin, PATH: '/nonexistent' };
+    const run = args => spawnSync('/bin/sh', ['-c', `"${process.execPath}" ${invocation.slice(5).replace('access_control_account_management aws --output=json', args)}`], { cwd: project, encoding: 'utf8', env });
+    const example = run('access_control_account_management aws --output=json');
+    assert.equal(example.status, 1, example.stderr);
+    assert.equal(JSON.parse(example.stdout).control_id, id);
+    const alternate = run('encryption_at_rest azure --output=json');
+    assert.equal(alternate.status, 1, alternate.stderr);
+    const result = JSON.parse(alternate.stdout);
+    assert.equal(result.control_id, 'encryption_at_rest');
+    assert.match(result.error, /Unsupported cloud provider: azure/);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
 
 test('command instructions preserve requested arguments rather than hardcode an invocation', () => {
   const command = fs.readFileSync('plugins/grc-engineer/commands/test-control.md', 'utf8');
