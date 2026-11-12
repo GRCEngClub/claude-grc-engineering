@@ -107,8 +107,8 @@ test('misleading AWS configurations never pass control checks or CLI', () => {
     const aws = path.join(dir, 'aws');
     fs.writeFileSync(aws, `#!/bin/sh
 case "$*" in
-  "cloudtrail describe-trails") printf '%s' '{"trailList":[{"IsMultiRegionTrail":true,"LogFileValidationEnabled":true}]}' ;;
-  "iam get-account-summary") printf '%s' '{"SummaryMap":{"AccountMFAEnabled":1,"Users":10,"UsersWithMFA":0}}' ;;
+  "cloudtrail describe-trails --output json") printf '%s' '{"trailList":[{"IsMultiRegionTrail":true,"LogFileValidationEnabled":true}]}' ;;
+  "iam get-account-summary --output json") printf '%s' '{"SummaryMap":{"AccountMFAEnabled":1,"Users":10,"UsersWithMFA":0}}' ;;
   "sso-admin list-instances") printf '%s' '{"Instances":[{}]}' ;;
   *) exit 2 ;;
 esac
@@ -125,14 +125,41 @@ esac
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
+test('AWS JSON observations override a non-JSON default output format', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'control-output-'));
+  try {
+    const aws = path.join(dir, 'aws');
+    fs.writeFileSync(aws, `#!/bin/sh
+case "$*" in
+  "cloudtrail describe-trails --output json") printf '%s' '{"trailList":[{"IsMultiRegionTrail":true}]}' ;;
+  "iam get-account-summary --output json") printf '%s' '{"SummaryMap":{"AccountMFAEnabled":1}}' ;;
+  *) printf '%s' 'configured text output' ;;
+esac
+`);
+    fs.chmodSync(aws, 0o755);
+    const env = { ...process.env, PATH: dir, AWS_DEFAULT_OUTPUT: 'text' };
+    assert.equal(spawnSync(aws, ['iam', 'get-account-summary'], { encoding: 'utf8', env }).stdout, 'configured text output');
+    const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env });
+    assert.equal(cli.status, 1);
+    const result = JSON.parse(cli.stdout);
+    const trail = result.tests.find(t => t.id === 'TEST-006');
+    const mfa = result.tests.find(t => t.id === 'TEST-009');
+    assert.equal(trail.status, 'NOT_IMPLEMENTED');
+    assert.deepEqual(trail.result, { total_trails: 1, multi_region_trails: 1 });
+    assert.equal(mfa.status, 'NOT_IMPLEMENTED');
+    assert.deepEqual(mfa.result, { root_account_mfa: true });
+    assert.equal(result.status, 'INDETERMINATE');
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('single-region trail does not establish active logging or event coverage', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'control-mock-'));
   try {
     const aws = path.join(dir, 'aws');
     fs.writeFileSync(aws, `#!/bin/sh
 case "$*" in
-  "cloudtrail describe-trails") printf '%s' '{"trailList":[{"Name":"regional","IsMultiRegionTrail":false}]}' ;;
-  "iam get-account-summary") printf '%s' '{"SummaryMap":{"AccountMFAEnabled":1}}' ;;
+  "cloudtrail describe-trails --output json") printf '%s' '{"trailList":[{"Name":"regional","IsMultiRegionTrail":false}]}' ;;
+  "iam get-account-summary --output json") printf '%s' '{"SummaryMap":{"AccountMFAEnabled":1}}' ;;
   *) exit 2 ;;
 esac
 `);
@@ -154,8 +181,8 @@ test('disabled root MFA and missing trail do not establish enforcement or covera
     const aws = path.join(dir, 'aws');
     fs.writeFileSync(aws, `#!/bin/sh
 case "$*" in
-  "cloudtrail describe-trails") printf '%s' '{"trailList":[]}' ;;
-  "iam get-account-summary") printf '%s' '{"SummaryMap":{"AccountMFAEnabled":0}}' ;;
+  "cloudtrail describe-trails --output json") printf '%s' '{"trailList":[]}' ;;
+  "iam get-account-summary --output json") printf '%s' '{"SummaryMap":{"AccountMFAEnabled":0}}' ;;
   *) exit 2 ;;
 esac
 `);

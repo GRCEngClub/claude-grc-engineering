@@ -267,7 +267,7 @@ class ControlTester {
     };
 
     try {
-      const { stdout } = await execPromise('aws cloudtrail describe-trails');
+      const { stdout } = await execPromise('aws cloudtrail describe-trails --output json');
       const trails = JSON.parse(stdout).trailList;
       if (!Array.isArray(trails)) throw new Error('Invalid CloudTrail response');
       const multiRegion = trails.filter(t => t.IsMultiRegionTrail === true);
@@ -323,7 +323,7 @@ class ControlTester {
     };
 
     try {
-      const { stdout } = await execPromise('aws iam get-account-summary');
+      const { stdout } = await execPromise('aws iam get-account-summary --output json');
       const summary = JSON.parse(stdout).SummaryMap;
       if (!summary || ![0, 1].includes(summary.AccountMFAEnabled)) throw new Error('Invalid root MFA summary');
       test.result = { root_account_mfa: summary.AccountMFAEnabled === 1 };
