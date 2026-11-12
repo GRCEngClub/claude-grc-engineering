@@ -4,6 +4,8 @@ description: Determine required CMMC level based on contract and data types
 
 # CMMC Level Selection
 
+> **Review required:** This material is an unverified working aid, not an authoritative assessment or legal determination. Verify every control, objective, scope, assessment type, scoring and contractual claim against current official sources and obtain qualified CMMC and contracting review before use. If a source or contract is unavailable, mark the conclusion unverified; do not infer compliance.
+
 Helps determine the appropriate CMMC level required for your organization based on DoD contract types and data sensitivity.
 
 ## Arguments
@@ -18,14 +20,12 @@ Helps determine the appropriate CMMC level required for your organization based 
 **FCI (Federal Contract Information)**:
 
 - Contract details, pricing, technical data
-- Minimum: CMMC Level 1
-- Self-assessment acceptable
+- Verify the solicitation or contract and applicable clause; if Level 1 (Self) is specified, annual self-assessment and affirmation apply. If unavailable, leave the conclusion unverified.
 
 **CUI (Controlled Unclassified Information)**:
 
 - Technical data, export-controlled info, ITAR
-- Required: CMMC Level 2 or 3
-- Third-party assessment (C3PAO) required
+- Level and assessment type depend on the applicable solicitation, contract and current program requirements; Level 2 may be self-assessed or C3PAO-assessed.
 
 **Classified Information**:
 
@@ -37,32 +37,30 @@ Helps determine the appropriate CMMC level required for your organization based 
 **Prime Contractor**:
 
 - Direct contract with DoD
-- Level determined by data sensitivity
-- Full CMMC compliance required
+- Verify the applicable solicitation or contract, specified level and assessment type; data sensitivity alone does not determine the result.
 
 **Subcontractor**:
 
-- Inherits prime's requirements
-- Must meet same CMMC level
-- Flow-down requirements apply
+- Requirements depend on the subcontract and applicable flow-down, not automatic inheritance of the prime’s level. [32 CFR 170.23](https://www.ecfr.gov/current/title-32/section-170.23) specifies minimum levels by data and prime requirement.
 
 **Service Provider**:
 
 - Cloud/IT services to DoD contractors
-- Level 2+ typically required
-- FedRAMP alignment beneficial
+- Determine the provider’s role, data handled, applicable contract, and scope under [32 CFR 170.19](https://www.ecfr.gov/current/title-32/section-170.19); do not automatically assign a Level 2 status. For cloud services handling covered defense information, check applicable DFARS 252.204-7012 requirements.
 
 ## Selection Matrix
 
 | Data Type | Contract Type | Minimum Level | Assessment Type |
 |-----------|---------------|---------------|-----------------|
-| FCI only | Any | Level 1 | Annual self-assessment |
-| CUI | Prime/Sub | Level 2 | Triennial C3PAO |
-| CUI (critical) | Prime | Level 3 | Triennial Government |
+| FCI only | Any | Verify applicable contract; Level 1 if specified | Annual self-assessment and affirmation when Level 1 applies |
+| CUI | Prime/Sub | Verify applicable contract | Level 2 may be self or C3PAO; verify contract |
+| CUI | Prime | Verify applicable contract | Verify contract and current requirements |
+
+The [DFARS 252.204-7021(f)](https://www.ecfr.gov/current/title-48/section-252.204-7021#p-252.204-7021(f)) flow-down excludes commercially available off-the-shelf items; verify the actual clause, subcontract and applicable exceptions. Without the contract, the requirement is unverified.
 
 ## Output
 
-1. **Recommended CMMC Level**: Based on inputs
+1. **CMMC Level**: Contract-verified requirement, or unverified if unavailable
 2. **Justification**: Why this level is required
 3. **Assessment Requirements**: Self vs third-party
 4. **Timeline Considerations**: Assessment frequency
