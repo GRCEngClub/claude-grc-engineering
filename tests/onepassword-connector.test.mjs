@@ -13,7 +13,7 @@ test('passes literal arguments to op and suppresses its output on success and fa
     writeFileSync(join(dir, 'op'), `#!/usr/bin/env node\nrequire('fs').writeFileSync(process.env.RECORD, JSON.stringify(process.argv.slice(2)));\nconsole.log('sentinel-secret'); console.error('sentinel-secret'); process.exit(Number(process.env.CODE));\n`, { mode: 0o755 });
     for (const code of ['0', '7']) {
       const result = spawnSync(process.execPath, [script, '--', 'collector', 'literal;not-a-shell'], {
-        encoding: 'utf8', env: { PATH: `${dir}:${process.env.PATH}`, RECORD: record, CODE: code, TOKEN_REF: 'op://vault/item/field' },
+        encoding: 'utf8', env: { PATH: `${dir}:${process.env.PATH}`, RECORD: record, CODE: code, TOKEN: 'op://vault/item/field' },
       });
       assert.equal(result.status, code === '0' ? 0 : 1);
       assert.deepEqual(JSON.parse(readFileSync(record)), ['run', '--', 'collector', 'literal;not-a-shell']);
@@ -25,7 +25,7 @@ test('rejects missing reference or command, and handles missing provider without
   const env = { PATH: '/nonexistent' };
   assert.equal(spawnSync(process.execPath, [script, '--', 'cmd'], { env }).status, 2);
   assert.equal(spawnSync(process.execPath, [script], { env }).status, 2);
-  const missing = spawnSync(process.execPath, [script, '--', 'cmd'], { encoding: 'utf8', env: { ...env, REF: 'op://v/i/f' } });
+  const missing = spawnSync(process.execPath, [script, '--', 'cmd'], { encoding: 'utf8', env: { ...env, TOKEN: 'op://v/i/f' } });
   assert.equal(missing.status, 1);
   assert.doesNotMatch(missing.stderr, /op:\/\/v\/i\/f/);
 });
