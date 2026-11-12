@@ -13,12 +13,15 @@ The CLI supports token-based authentication and previously authenticated AppRole
 sessions; this helper does not perform login or accept credentials in arguments.
 
 ```bash
-node /path/to/vault-kv/scripts/run.js secret evidence/service api_key -- /path/to/trusted-command
+node /path/to/vault-kv/scripts/run.js 2 secret evidence/service api_key -- /path/to/trusted-command
 ```
 
-This invokes `vault kv get -mount=secret -field=api_key evidence/service` and
-injects the result only as `VAULT_KV_VALUE` into the child. Mount and secret path
-are separate; both KV v1 and v2 are supported by the CLI. The field must be a
+Specify the actual mount version (`1` or `2`); do not guess. The helper uses it
+to select the KV v1 or KV v2 JSON data shape, not to verify the mount version.
+This invokes `vault kv get -format=json -mount=secret evidence/service` and
+injects the selected field only as `VAULT_KV_VALUE` into the child. The entire
+secret at that path is retrieved into helper memory, not just the selected field.
+Mount and secret path are separate. The selected field must be a
 nonempty UTF-8 string without NUL; no trimming or newline is added. Unsupported
 values and provider errors fail closed. Provider and child output are suppressed,
 stdin is closed, and no shell is used. Provider calls time out after 15 seconds;
@@ -46,6 +49,8 @@ leases, authenticate AppRole, or emit findings. Those remain future scope; do no
 assume a read operation always has no side effects for non-KV engines.
 
 Sources: [Vault KV get](https://developer.hashicorp.com/vault/docs/commands/kv/get),
+[KV v1 API](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v1),
+[KV v2 API](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2),
 [Vault policies](https://developer.hashicorp.com/vault/docs/concepts/policies),
 [Vault CLI](https://developer.hashicorp.com/vault/docs/commands).
 Offline tests use a mock `vault` executable; no live Vault compatibility or
