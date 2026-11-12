@@ -13,7 +13,7 @@ Provides detailed implementation guidance for CMMC v2.0 domains and their associ
 - `$1` - Domain abbreviation (required: AC, AT, AU, CM, IA, IR, MA, MP, PS, PE, RA, CA, SC, SI)
 - `$2` - CMMC level (optional: 1, 2, 3 - shows practices for that level)
 
-See the [DoD CMMC model](https://dodcio.defense.gov/Portals/0/Documents/CMMC/ModelOverview_V2.0_FINAL2_20211202_508.pdf) for the 14 domains and authoritative practice text.
+See the [DoD CMMC Model Overview v2.13](https://dodcio.defense.gov/Portals/0/Documents/CMMC/ModelOverviewv2.pdf) for Levels 1–3 and [32 CFR 170.14](https://www.ecfr.gov/current/title-32/section-170.14) for regulatory requirements. Level 1 identifiers map to NIST assessment objectives as specified in [32 CFR 170.15(c)(1)(ii)](https://www.ecfr.gov/current/title-32/section-170.15).
 
 ## 14 CMMC Domains
 
@@ -23,10 +23,10 @@ Controls who can access systems and data based on approved authorizations.
 
 **Key practices**:
 
-- AC.L1-3.1.1: Limit access to authorized users
-- AC.L1-3.1.2: Limit access to transaction types
-- AC.L2-3.1.20: External connections control
-- AC.L2-3.1.22: Control public information
+- AC.L1-b.1.i: Limit access to authorized users
+- AC.L1-b.1.ii: Limit access to transaction types
+- AC.L1-b.1.iii: External connections control (maps to 3.1.20 objectives); AC.L2-3.1.20 applies at Level 2
+- AC.L1-b.1.iv: Control public information (maps to 3.1.22 objectives); AC.L2-3.1.22 applies at Level 2
 
 ### Audit and Accountability (AU)
 
@@ -64,8 +64,8 @@ Verifies identities of users and devices.
 
 **Key practices**:
 
-- IA.L1-3.5.1: Identify users/devices
-- IA.L1-3.5.2: Authenticate users/devices
+- IA.L1-b.1.v: Identify users/devices
+- IA.L1-b.1.vi: Authenticate users/devices
 - IA.L2-3.5.3: Multi-factor authentication (MFA)
 - IA.L2-3.5.7: Password complexity and change of characters
 - IA.L2-3.5.10: Store/transmit passwords encrypted
@@ -96,7 +96,7 @@ Protects digital and non-digital media.
 
 **Key practices**:
 
-- MP.L1-3.8.3: Sanitize/destroy media
+- MP.L1-b.1.vii: Sanitize/destroy media
 - MP.L2-3.8.1: Protect/control media
 - MP.L2-3.8.2: Limit access to CUI on media
 
@@ -115,9 +115,9 @@ Limits physical access to systems and facilities.
 
 **Key practices**:
 
-- PE.L1-3.10.1: Limit physical access
-- PE.L1-3.10.3: Escort visitors
-- PE.L1-3.10.4: Maintain physical access logs
+- PE.L1-b.1.viii: Limit physical access
+- PE.L1-b.1.ix (first phrase): Escort visitors
+- PE.L1-b.1.ix (second phrase): Maintain physical access logs
 
 ### Risk Assessment (RA)
 
@@ -145,7 +145,7 @@ Monitors and controls communications at system boundaries.
 
 **Key practices**:
 
-- SC.L1-3.13.1: Boundary protection
+- SC.L1-b.1.x: Boundary protection
 - SC.L2-3.13.8: Transmission confidentiality/integrity
 - SC.L2-3.13.11: Cryptographic protection
 
@@ -155,9 +155,9 @@ Identifies and manages information system flaws.
 
 **Key practices**:
 
-- SI.L1-3.14.1: Identify/report/correct flaws
-- SI.L1-3.14.2: Malicious code protection
-- SI.L2-3.14.4: Update malicious code protection
+- SI.L1-b.1.xii: Identify/report/correct flaws
+- SI.L1-b.1.xiii: Malicious code protection
+- SI.L1-b.1.xiv: Update malicious code protection (maps to 3.14.4 objectives); SI.L2-3.14.4 applies at Level 2
 
 ## Output
 

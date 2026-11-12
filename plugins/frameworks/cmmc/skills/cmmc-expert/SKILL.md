@@ -61,9 +61,9 @@ The Department announced on July 13, 2026 that Phase II requirements were suspen
 
 **Who needs what:**
 
-- Handles FCI only → L1.
-- Handles CUI → L2 (Self) or L2 (C3PAO) per the contract.
-- Sensitive national-security CUI → L3.
+- Verify the solicitation or contract and applicable clauses before assigning a status; if unavailable, leave it unverified.
+- FCI-only subcontracts subject to [32 CFR 170.23](https://www.ecfr.gov/current/title-32/section-170.23) require L1 (Self); CUI subcontract minimums depend on the prime requirement. The [DFARS 252.204-7021(f)](https://www.acquisition.gov/dfars/252.204-7021-contractor-compliance-cybersecurity-maturity-model-certification-level-requirements.) flow-down excludes commercially available off-the-shelf items.
+- The contract specifies the required CMMC level and assessment type, including any Level 3 requirement.
 
 ---
 
@@ -524,7 +524,7 @@ ODP planning for clients pre-adoption:
 
 Some clients have implemented Rev 3-style controls and believe they're covered. Rev 2 has specific requirements that Rev 3 softened with ODPs — for current CMMC assessments, the **Rev 2** language governs:
 
-- **3.3.7 (clock sync)** — Rev 2 requires NTP sync with an authoritative source; Rev 3 softened.
+- **3.3.7 (clock sync)** — Rev 2 requires a capability to compare and synchronize internal clocks with an authoritative source for audit timestamps; it does not prescribe NTP. See [NIST SP 800-171 Rev 2](https://doi.org/10.6028/NIST.SP.800-171r2).
 - **3.4.8 (allow/deny software)** — Rev 2 requires an explicit policy choice and implementation.
 - **3.5.3 (MFA)** — Rev 2 requires MFA for *network access to non-privileged accounts*; no ODP wiggle room.
 - **3.13.11 (FIPS crypto)** — Rev 2 says "FIPS-validated", flat. Rev 3 uses ODP. For CMMC, FIPS validation is mandatory.

@@ -15,15 +15,15 @@ Validates implementation of specific CMMC v2.0 practices and provides evidence g
 
 ## Practice ID Format
 
-**Structure**: `[DOMAIN].[LEVEL]-[NIST-ID]`
+**Structure**: `[DOMAIN].[LEVEL]-[REQUIREMENT]`
 
 - **Domain**: Two-letter abbreviation (AC, IA, SI, etc.)
 - **Level**: L1, L2, or L3
-- **NIST ID**: Corresponding NIST 800-171 control number
+- **Requirement**: FAR clause paragraph for Level 1; NIST SP 800-171 Rev 2 number for Level 2; selected NIST SP 800-172 number with `e` suffix for Level 3
 
 **Examples**:
 
-- `AC.L1-3.1.1` - Access Control, Level 1, NIST 3.1.1
+- `AC.L1-b.1.i` - Access Control, Level 1, NIST 3.1.1
 - `IA.L2-3.5.7` - Identification & Authentication, Level 2, NIST 3.5.7 (password complexity and change of characters)
 - `AU.L2-3.3.1` - Audit & Accountability, Level 2, NIST 3.3.1 (Audit records)
 
@@ -56,20 +56,20 @@ Identifies deficiencies in current state:
 - Documentation gaps
 - Remediation priorities
 
-See the [DoD CMMC model](https://dodcio.defense.gov/Portals/0/Documents/CMMC/ModelOverview_V2.0_FINAL2_20211202_508.pdf) for authoritative practice identifiers and text.
+See the [DoD CMMC Model Overview v2.13](https://dodcio.defense.gov/Portals/0/Documents/CMMC/ModelOverviewv2.pdf) for Levels 1–3 and [32 CFR 170.14](https://www.ecfr.gov/current/title-32/section-170.14) for regulatory requirements. Level 1 identifiers map to NIST assessment objectives as specified in [32 CFR 170.15(c)(1)(ii)](https://www.ecfr.gov/current/title-32/section-170.15).
 
 ## Common Practices
 
 ### Access Control
 
-- **AC.L1-3.1.1**: Limit system access to authorized users, processes, devices
-- **AC.L1-3.1.2**: Limit system access to types of transactions/functions
-- **AC.L2-3.1.20**: Verify and control external network connections
+- **AC.L1-b.1.i**: Limit system access to authorized users, processes, devices
+- **AC.L1-b.1.ii**: Limit system access to types of transactions/functions
+- **AC.L1-b.1.iii**: Verify and control external information system connections (maps to 3.1.20 objectives); AC.L2-3.1.20 applies at Level 2
 
 ### Identification & Authentication
 
-- **IA.L1-3.5.1**: Identify information system users
-- **IA.L1-3.5.2**: Authenticate (or verify) identities
+- **IA.L1-b.1.v**: Identify information system users
+- **IA.L1-b.1.vi**: Authenticate (or verify) identities
 - **IA.L2-3.5.3**: MFA for local and network access to privileged accounts and network access to non-privileged accounts
 - **IA.L2-3.5.7**: Password complexity and change of characters
 - **IA.L2-3.5.8**: Prohibit password reuse for a specified number of generations
@@ -82,9 +82,9 @@ See the [DoD CMMC model](https://dodcio.defense.gov/Portals/0/Documents/CMMC/Mod
 
 ### System Integrity
 
-- **SI.L1-3.14.1**: Identify, report, and correct information system flaws
-- **SI.L1-3.14.2**: Provide protection from malicious code
-- **SI.L2-3.14.4**: Update malicious code protection mechanisms
+- **SI.L1-b.1.xii**: Identify, report, and correct information system flaws
+- **SI.L1-b.1.xiii**: Provide protection from malicious code
+- **SI.L1-b.1.xiv**: Update malicious code protection mechanisms (maps to 3.14.4 objectives); SI.L2-3.14.4 applies at Level 2
 
 ## Output
 
@@ -106,7 +106,7 @@ See the [DoD CMMC model](https://dodcio.defense.gov/Portals/0/Documents/CMMC/Mod
 /cmmc:practice-check IA.L2-3.5.3 implementation
 
 # Review evidence for access control
-/cmmc:practice-check AC.L1-3.1.1 evidence
+/cmmc:practice-check AC.L1-b.1.i evidence
 
 # Gap analysis for incident response
 /cmmc:practice-check IR.L2-3.6.1 gaps

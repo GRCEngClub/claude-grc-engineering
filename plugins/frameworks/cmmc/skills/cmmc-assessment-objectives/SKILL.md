@@ -772,11 +772,11 @@ Each lettered sub-item (`[a]`, `[b]`, ...) is **one scoreable assessment objecti
 | 3.3.4 | Alert on audit logging process failure | 03.03.04 | Response to Audit Logging Process Failures | ODPs for time period and additional response actions |
 | 3.3.5 | Correlate audit record review/analysis | 03.03.05 | Audit Record Review, Analysis, and Reporting | ODP for review frequency |
 | 3.3.6 | Record reduction and report generation | 03.03.06 | Audit Record Reduction and Report Generation | Adds requirement to preserve original content and time ordering |
-| 3.3.7 | Synchronize internal clocks with authoritative source | 03.03.07 | Time Stamps | **Scope changed** — focus on UTC-based format and granularity; explicit NTP-sync requirement softened |
+| 3.3.7 | Synchronize internal clocks with authoritative source | 03.03.07 | Time Stamps | **Scope changed** — focus on UTC-based format and granularity; Rev 2 specifies clock synchronization but does not prescribe NTP |
 | 3.3.8 | Protect audit information and tools | 03.03.08 | Protection of Audit Information | Consolidated with 3.3.9 |
 | 3.3.9 | Limit management of audit logging to privileged users | **03.03.09** | **WITHDRAWN** | Into **03.03.08** |
 
-**AU summary:** 9 Rev 2 → 8 active Rev 3 (+ 1 withdrawn). Practitioner note on **3.3.7**: Rev 3 no longer requires explicit NTP sync with an authoritative source — but for CMMC purposes (Rev 2), NTP sync is still required.
+**AU summary:** 9 Rev 2 → 8 active Rev 3 (+ 1 withdrawn). Practitioner note on **3.3.7**: Rev 2 requires a capability to compare and synchronize internal clocks with an authoritative source for audit timestamps; NTP is an implementation option, not a specified requirement. See [NIST SP 800-171 Rev 2](https://doi.org/10.6028/NIST.SP.800-171r2).
 
 ---
 
@@ -1089,7 +1089,7 @@ When a Rev 3 finding references a specific control, map back to Rev 2 to underst
 
 Some clients have implemented Rev 3-style controls and believe they're covered. **Rev 2 has specific requirements that Rev 3 softened with ODPs** — for current CMMC assessments, the **Rev 2** language governs:
 
-- **3.3.7 (clock sync)** — Rev 2 requires NTP sync with an authoritative source; Rev 3 softened. NTP sync is required for CMMC.
+- **3.3.7 (clock sync)** — Rev 2 requires a capability to compare and synchronize internal clocks with an authoritative source for audit timestamps; it does not prescribe NTP. See [NIST SP 800-171 Rev 2](https://doi.org/10.6028/NIST.SP.800-171r2).
 - **3.4.8 (allow/deny software)** — Rev 2 requires an explicit policy choice and implementation. "We'll define an ODP later" does not satisfy Rev 2.
 - **3.5.3 (MFA)** — Rev 2 requires MFA for network access to non-privileged accounts. No ODP wiggle room in Rev 2.
 - **3.13.11 (FIPS crypto)** — Rev 2 says "FIPS-validated", flat. Rev 3 uses an ODP. For CMMC, FIPS 140-2/140-3 validation is mandatory.

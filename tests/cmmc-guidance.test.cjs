@@ -67,3 +67,36 @@ test('staffing, affirmation and legal risk retain regulatory distinctions', () =
   assert.match(expert, /DFARS assessment score alone does not establish CMMC Level 2/);
   assert.doesNotMatch(expert, /minimum \*\*3 CCAs\*\*|affirm in SPRS\/eMASS|Safe-harbor posture/);
 });
+
+
+test('Level 1 uses FAR identifiers and preserves mapped Level 2 requirements', () => {
+  const domain = read('commands/domain-guidance.md');
+  const practice = read('commands/practice-check.md');
+  for (const text of [domain, practice]) {
+    assert.match(text, /32 CFR 170\.15\(c\)\(1\)\(ii\)/);
+    assert.match(text, /AC\.L1-b\.1\.iii[^\n]*3\.1\.20/);
+    assert.match(text, /SI\.L1-b\.1\.xiv[^\n]*3\.14\.4/);
+    assert.doesNotMatch(text, /(?:AC|IA|MP|PE|SC|SI)\.L1-3\./);
+    assert.match(text, /ModelOverviewv2\.pdf/);
+    assert.match(text, /32 CFR 170\.14/);
+  }
+  assert.match(domain, /AC\.L1-b\.1\.iv[^\n]*3\.1\.22/);
+  assert.match(domain, /AC\.L2-3\.1\.22/);
+  assert.match(practice, /NIST SP 800-172 number with `e` suffix/);
+});
+
+test('selection remains contract-qualified and clock synchronization is protocol-neutral', () => {
+  const level = read('commands/level-select.md');
+  const expert = read('skills/cmmc-expert/SKILL.md');
+  const objectives = read('skills/cmmc-assessment-objectives/SKILL.md');
+  assert.match(level, /Without the contract, the requirement is unverified/);
+  assert.match(level, /commercially available off-the-shelf items/);
+  assert.match(level, /not automatic inheritance/);
+  assert.match(level, /do not automatically assign a Level 2 status/);
+  assert.doesNotMatch(level, /Inherits prime|Level 2\+ typically required|FCI only \| Any \| Level 1/);
+  for (const text of [expert, objectives]) {
+    assert.doesNotMatch(text, /(?:requires NTP sync|NTP sync is (?:still )?required)/i);
+    assert.match(text, /does not prescribe NTP/);
+    assert.match(text, /doi\.org\/10\.6028\/NIST\.SP\.800-171r2/);
+  }
+});
