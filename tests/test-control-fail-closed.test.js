@@ -86,7 +86,30 @@ esac
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('disabled root MFA and missing trail are failures', () => {
+test('single-region trail does not establish active logging or event coverage', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'control-mock-'));
+  try {
+    const aws = path.join(dir, 'aws');
+    fs.writeFileSync(aws, `#!/bin/sh
+case "$*" in
+  "cloudtrail describe-trails") printf '%s' '{"trailList":[{"Name":"regional","IsMultiRegionTrail":false}]}' ;;
+  "iam get-account-summary") printf '%s' '{"SummaryMap":{"AccountMFAEnabled":1}}' ;;
+  *) exit 2 ;;
+esac
+`);
+    fs.chmodSync(aws, 0o755);
+    const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
+    assert.notEqual(cli.status, 0);
+    const result = JSON.parse(cli.stdout);
+    const trail = result.tests.find(t => t.id === 'TEST-006');
+    assert.equal(trail.status, 'NOT_IMPLEMENTED');
+    assert.deepEqual(trail.result, { total_trails: 1, multi_region_trails: 0 });
+    assert.match(trail.message, /active logging and account management event coverage are not verified/);
+    assert.equal(result.status, 'INDETERMINATE');
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('disabled root MFA and missing trail do not establish enforcement or coverage', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'control-mock-'));
   try {
     const aws = path.join(dir, 'aws');
@@ -101,7 +124,9 @@ esac
     const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
     assert.notEqual(cli.status, 0);
     const result = JSON.parse(cli.stdout);
-    for (const check of ['TEST-006', 'TEST-009']) assert.equal(result.tests.find(t => t.id === check).status, 'FAIL');
+    for (const check of ['TEST-006', 'TEST-009']) assert.equal(result.tests.find(t => t.id === check).status, 'NOT_IMPLEMENTED');
+    assert.deepEqual(result.tests.find(t => t.id === 'TEST-006').result, { total_trails: 0, multi_region_trails: 0 });
+    assert.equal(result.tests.find(t => t.id === 'TEST-009').result.root_account_mfa, false);
     assert.equal(result.status, 'INDETERMINATE');
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });

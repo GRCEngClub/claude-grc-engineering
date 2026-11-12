@@ -271,11 +271,9 @@ class ControlTester {
       if (!Array.isArray(trails)) throw new Error('Invalid CloudTrail response');
       const multiRegion = trails.filter(t => t.IsMultiRegionTrail === true);
       test.result = { total_trails: trails.length, multi_region_trails: multiRegion.length };
-      // Configuration alone does not establish logging or event coverage.
-      test.status = multiRegion.length ? 'NOT_IMPLEMENTED' : 'FAIL';
-      test.message = multiRegion.length
-        ? 'Multi-region trail exists; active logging and management event coverage are not verified'
-        : 'No multi-region CloudTrail configured';
+      // Trail configuration alone establishes neither logging nor event coverage.
+      test.status = 'NOT_IMPLEMENTED';
+      test.message = `${multiRegion.length} multi-region trail(s) observed; active logging and account management event coverage are not verified`;
     } catch (error) {
       test.status = 'ERROR';
       test.error = error.message;
@@ -328,14 +326,9 @@ class ControlTester {
       const summary = JSON.parse(stdout).SummaryMap;
       if (!summary || ![0, 1].includes(summary.AccountMFAEnabled)) throw new Error('Invalid root MFA summary');
       test.result = { root_account_mfa: summary.AccountMFAEnabled === 1 };
-      if (summary.AccountMFAEnabled === 0) {
-        test.status = 'FAIL';
-        test.message = 'Root account MFA is not enabled';
-      } else {
-        // Root enrollment does not prove MFA enforcement for IAM or federated users.
-        test.status = 'NOT_IMPLEMENTED';
-        test.message = 'Root MFA is enabled; user MFA enforcement is not verified';
-      }
+      // Enrollment status alone does not establish whether MFA is enforced.
+      test.status = 'NOT_IMPLEMENTED';
+      test.message = `Root MFA is ${summary.AccountMFAEnabled === 1 ? 'enabled' : 'not enabled'}; MFA enforcement is not verified`;
     } catch (error) {
       test.status = 'ERROR';
       test.error = error.message;
