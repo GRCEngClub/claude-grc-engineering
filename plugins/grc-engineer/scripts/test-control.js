@@ -35,6 +35,8 @@ class ControlTester {
         passed: 0,
         failed: 0,
         warnings: 0,
+        errors: 0,
+        not_implemented: 0,
         pass_rate: 0
       }
     };
@@ -75,11 +77,13 @@ class ControlTester {
   async runTests() {
     const startTime = Date.now();
 
-    console.log(`\nTesting Control: ${this.controlDef.name}`);
-    console.log(`Frameworks: ${this.results.frameworks.join(', ')}`);
-    console.log(`Cloud Provider: ${this.cloudProvider}\n`);
+    (this.options.output === 'json' ? console.error : console.log)(`\nTesting Control: ${this.controlDef.name}`);
+    (this.options.output === 'json' ? console.error : console.log)(`Frameworks: ${this.results.frameworks.join(', ')}`);
+    (this.options.output === 'json' ? console.error : console.log)(`Cloud Provider: ${this.cloudProvider}\n`);
 
     try {
+      if (this.cloudProvider !== 'aws') throw new Error(`Unsupported cloud provider: ${this.cloudProvider}`);
+      if (this.controlId !== 'access_control_account_management') throw new Error(`Control testing not implemented: ${this.controlId}`);
       // Run test suites
       await this.runConfigurationTests();
       await this.runFunctionalityTests();
@@ -98,6 +102,10 @@ class ControlTester {
     } catch (error) {
       console.error(`Error during testing: ${error.message}`);
       this.results.error = error.message;
+      this.recordTest({ name: 'Test execution', status: 'ERROR', error: error.message, frameworks: ['All'] });
+      this.calculateSummary();
+      this.results.status = 'INDETERMINATE';
+      this.results.framework_compliance = this.calculateFrameworkCompliance();
     }
 
     this.results.duration_seconds = (Date.now() - startTime) / 1000;
@@ -109,7 +117,7 @@ class ControlTester {
    * Configuration tests
    */
   async runConfigurationTests() {
-    console.log('Running configuration tests...');
+    (this.options.output === 'json' ? console.error : console.log)('Running configuration tests...');
 
     if (this.controlId === 'access_control_account_management') {
       await this.testUniqueUserIds();
@@ -134,7 +142,7 @@ class ControlTester {
    * Functionality tests
    */
   async runFunctionalityTests() {
-    console.log('Running functionality tests...');
+    (this.options.output === 'json' ? console.error : console.log)('Running functionality tests...');
 
     if (this.controlId === 'access_control_account_management') {
       await this.testCloudTrailActive();
@@ -149,7 +157,7 @@ class ControlTester {
    * Compliance tests
    */
   async runComplianceTests() {
-    console.log('Running compliance tests...');
+    (this.options.output === 'json' ? console.error : console.log)('Running compliance tests...');
 
     if (this.controlId === 'access_control_account_management') {
       await this.testLogRetentionCompliance();
@@ -163,7 +171,7 @@ class ControlTester {
    * Integration tests
    */
   async runIntegrationTests() {
-    console.log('Running integration tests...');
+    (this.options.output === 'json' ? console.error : console.log)('Running integration tests...');
 
     if (this.controlId === 'access_control_account_management') {
       await this.testEndToEndLifecycle();
@@ -214,55 +222,9 @@ class ControlTester {
       frameworks: ['PCI']
     };
 
-    try {
-      // Check for EventBridge rule or Lambda function for access reviews
-      if (this.cloudProvider === 'aws') {
-        try {
-          const { stdout } = await execPromise('aws events list-rules --name-prefix quarterly-access-review');
-          const rules = JSON.parse(stdout).Rules;
-
-          if (rules.length > 0) {
-            // Check last execution
-            const ruleName = rules[0].Name;
-            const { stdout: targetStdout } = await execPromise(`aws events list-targets-by-rule --rule ${ruleName}`);
-            const targets = JSON.parse(targetStdout).Targets;
-
-            // For demo purposes, simulate checking last review date
-            // In production, would query CloudWatch Logs or DynamoDB
-            const lastReviewDate = new Date('2024-11-15'); // Simulated
-            const daysSinceReview = Math.floor((Date.now() - lastReviewDate.getTime()) / (1000 * 60 * 60 * 24));
-
-            test.status = daysSinceReview <= 90 ? 'PASS' : 'FAIL';
-            test.result = {
-              last_review_date: lastReviewDate.toISOString().split('T')[0],
-              days_since_review: daysSinceReview,
-              threshold: 90,
-              violation: daysSinceReview > 90
-            };
-
-            if (test.status === 'FAIL') {
-              test.remediation = {
-                description: 'Run quarterly access review immediately',
-                command: 'python scripts/access_review.py --immediate',
-                estimated_time_minutes: 120
-              };
-              test.message = `Last review: ${daysSinceReview} days ago (exceeds 90-day requirement)`;
-            } else {
-              test.message = `Last review: ${daysSinceReview} days ago (within 90-day requirement)`;
-            }
-          } else {
-            test.status = 'FAIL';
-            test.message = 'No quarterly access review schedule configured';
-          }
-        } catch (cmdError) {
-          test.status = 'FAIL';
-          test.message = 'Access review automation not configured';
-        }
-      }
-    } catch (error) {
-      test.status = 'ERROR';
-      test.error = error.message;
-    }
+    // A schedule alone does not establish when a review was performed.
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Access review execution evidence is not collected';
 
     this.recordTest(test);
   }
@@ -295,7 +257,7 @@ class ControlTester {
               usersWithApproval++;
             }
           } catch (err) {
-            // User might not have tags
+            throw err;
           }
         }
 
@@ -341,8 +303,8 @@ class ControlTester {
             ? 'IAM Identity Center configured with automated provisioning'
             : 'Manual IAM user management (consider Identity Center)';
         } catch (cmdError) {
-          test.status = 'WARNING';
-          test.message = 'IAM Identity Center not configured (manual provisioning)';
+          test.status = 'ERROR';
+          test.error = cmdError.message;
         }
       }
     } catch (error) {
@@ -378,7 +340,7 @@ class ControlTester {
               usersWithBoundaries++;
             }
           } catch (err) {
-            // User might not exist
+            throw err;
           }
         }
 
@@ -618,14 +580,8 @@ class ControlTester {
       frameworks: ['PCI', 'SOC2', 'NIST']
     };
 
-    // Simplified test - would check S3 lifecycle policies
-    test.status = 'PASS';
-    test.result = {
-      retention_days: 365,
-      online_days: 180,
-      archived_days: 185
-    };
-    test.message = 'S3 lifecycle configured for 365-day retention';
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Evidence collection for this check is not implemented';
 
     this.recordTest(test);
   }
@@ -639,14 +595,8 @@ class ControlTester {
       frameworks: ['NIST', 'SOC2']
     };
 
-    // Simplified test
-    test.status = 'PASS';
-    test.result = {
-      admin_users: 5,
-      auditor_users: 3,
-      overlap: 0
-    };
-    test.message = 'No users have both admin and auditor roles';
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Evidence collection for this check is not implemented';
 
     this.recordTest(test);
   }
@@ -660,13 +610,8 @@ class ControlTester {
       frameworks: ['All']
     };
 
-    test.status = 'PASS';
-    test.result = {
-      evidence_collection_script: true,
-      artifacts_generated: 5,
-      total_size_mb: 2.3
-    };
-    test.message = 'Evidence collection script executed successfully';
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Evidence collection for this check is not implemented';
 
     this.recordTest(test);
   }
@@ -680,18 +625,8 @@ class ControlTester {
       frameworks: ['ISO', 'SOC2']
     };
 
-    // Simplified test - would check for policy documents
-    test.status = 'FAIL';
-    test.result = {
-      policy_exists: true,
-      last_update: '2023-12-10',
-      days_since_update: 400
-    };
-    test.message = 'Policy document exists but not updated in last year';
-    test.remediation = {
-      description: 'Update access review policy document',
-      estimated_time_minutes: 240
-    };
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Evidence collection for this check is not implemented';
 
     this.recordTest(test);
   }
@@ -705,13 +640,8 @@ class ControlTester {
       frameworks: ['All']
     };
 
-    test.status = 'PASS';
-    test.result = {
-      test_scenario: 'Create → Assign → Review → Deactivate',
-      steps_completed: 5,
-      steps_total: 5
-    };
-    test.message = 'All lifecycle steps completed successfully';
+    test.status = 'NOT_IMPLEMENTED';
+    test.message = 'Lifecycle integration testing is not implemented';
 
     this.recordTest(test);
   }
@@ -720,6 +650,10 @@ class ControlTester {
    * Record test result
    */
   recordTest(test) {
+    if (!['PASS', 'FAIL', 'WARNING', 'ERROR', 'NOT_IMPLEMENTED'].includes(test.status)) {
+      test.status = 'ERROR';
+      test.message = 'Test did not produce a valid status';
+    }
     this.results.tests.push(test);
     this.results.summary.total_tests++;
 
@@ -729,6 +663,10 @@ class ControlTester {
       this.results.summary.failed++;
     } else if (test.status === 'WARNING') {
       this.results.summary.warnings++;
+    } else if (test.status === 'ERROR') {
+      this.results.summary.errors++;
+    } else if (test.status === 'NOT_IMPLEMENTED') {
+      this.results.summary.not_implemented++;
     }
   }
 
@@ -746,6 +684,7 @@ class ControlTester {
    * Determine overall control status
    */
   determineStatus() {
+    if (!this.results.tests.length || this.results.summary.errors || this.results.summary.not_implemented) return 'INDETERMINATE';
     const passRate = this.results.summary.pass_rate;
     const failed = this.results.summary.failed;
 
@@ -769,7 +708,7 @@ class ControlTester {
 
     for (const framework of frameworks) {
       const frameworkTests = this.results.tests.filter(t =>
-        t.frameworks && t.frameworks.includes(framework)
+        t.frameworks && (t.frameworks.includes(framework) || t.frameworks.includes('All'))
       );
 
       if (frameworkTests.length === 0) continue;
@@ -778,12 +717,13 @@ class ControlTester {
       const score = passed / frameworkTests.length;
 
       let status;
-      if (score >= 0.95) status = 'COMPLIANT';
+      if (frameworkTests.some(t => t.status === 'ERROR' || t.status === 'NOT_IMPLEMENTED')) status = 'INDETERMINATE';
+      else if (score >= 0.95) status = 'COMPLIANT';
       else if (score >= 0.80) status = 'PARTIAL';
       else status = 'NON_COMPLIANT';
 
       const issues = frameworkTests
-        .filter(t => t.status === 'FAIL' || t.status === 'WARNING')
+        .filter(t => t.status !== 'PASS')
         .map(t => t.name);
 
       compliance[framework] = {
@@ -818,6 +758,8 @@ class ControlTester {
     report += `  ✓ Passed: ${this.results.summary.passed}\n`;
     report += `  ✗ Failed: ${this.results.summary.failed}\n`;
     report += `  ⚠ Warnings: ${this.results.summary.warnings}\n`;
+    report += `  Errors: ${this.results.summary.errors}\n`;
+    report += `  Not implemented: ${this.results.summary.not_implemented}\n`;
     report += `  Pass Rate: ${Math.round(this.results.summary.pass_rate * 100)}%\n\n`;
 
     report += `Status: ${this.results.status}\n\n`;
@@ -852,7 +794,7 @@ if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.a
   }
 
   const controlId = args[0];
-  const cloudProvider = args[1] || 'aws';
+  const cloudProvider = args[1] && !args[1].startsWith('--') ? args[1] : 'aws';
   const options = {
     output: args.find(a => a.startsWith('--output='))?.split('=')[1] || 'text',
     verbose: args.includes('--verbose'),
@@ -865,7 +807,7 @@ if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.a
     console.log(tester.generateReport());
 
     // Exit with error code if tests failed
-    if (results.summary.failed > 0) {
+    if (results.error || results.summary.failed > 0 || results.summary.errors > 0 || results.summary.not_implemented > 0 || results.summary.warnings > 0) {
       process.exit(1);
     }
   }).catch(error => {
