@@ -1,0 +1,8 @@
+{
+  "name": "gcp-secret-metadata",
+  "version": "0.1.0",
+  "description": "GCP Secret Manager name inventory and operator-only runtime injection.",
+  "author": { "name": "GRC Engineering Club Contributors" },
+  "license": "MIT",
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering"
+}
