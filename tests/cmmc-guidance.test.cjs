@@ -100,3 +100,37 @@ test('selection remains contract-qualified and clock synchronization is protocol
     assert.match(text, /doi\.org\/10\.6028\/NIST\.SP\.800-171r2/);
   }
 });
+
+
+test('FCI and CUI do not categorically determine assessment or level', () => {
+  const expert = read('skills/cmmc-expert/SKILL.md');
+  assert.match(expert, /FCI alone does not categorically trigger a CMMC assessment/);
+  assert.match(expert, /CUI alone does not categorically trigger a CMMC assessment or select its level/);
+  assert.match(expert, /FCI and CUI definitions can overlap/);
+  assert.match(expert, /section-170\.3/);
+  assert.doesNotMatch(expert, /Triggers \*\*CMMC Level [12]\*\*/);
+});
+
+test('MFA and account review prompts do not assert unsupported automatic failure', () => {
+  const expert = read('skills/cmmc-expert/SKILL.md');
+  assert.match(expert, /SMS or push alone is not automatically a failure/);
+  assert.match(expert, /Missing periodic account-review records alone do not automatically establish failure/);
+  assert.match(expert, /local and network access to privileged accounts and network access to non-privileged accounts/);
+  assert.doesNotMatch(expert, /Phishing-resistant MFA expected|Account review records missing/);
+});
+
+test('unverified catalogs and mappings are disabled; use official objective source', () => {
+  const objectives = read('skills/cmmc-assessment-objectives/SKILL.md');
+  const expert = read('skills/cmmc-expert/SKILL.md');
+  const checklist = read('commands/evidence-checklist.md');
+  for (const text of [objectives, expert]) {
+    assert.match(text, /3\.13\.11[^\n]*unlettered/);
+    assert.match(text, /doi\.org\/10\.6028\/NIST\.SP\.800-171A/);
+    assert.doesNotMatch(text, /3\.13\.11\[a\]|Text below is verbatim|Each 800-171 requirement decomposes into \*\*lettered/);
+  }
+  assert.match(objectives, /catalog and revision crosswalk have been removed/);
+  assert.match(objectives, /if inaccessible, say the objective is unverified/);
+  assert.doesNotMatch(objectives, /^- \[a\]/m);
+  assert.match(checklist, /identifier, if present/);
+  assert.doesNotMatch(checklist, /lettered objectives/);
+});

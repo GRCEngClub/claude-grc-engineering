@@ -6,7 +6,7 @@ description: Prepare a CMMC readiness assessment by level
 
 Use `/cmmc:assess <level> [scope]` for a preliminary readiness review, not an official assessment or certification. Ask for the applicable contract, assessment type, boundary, review period, and authoritative source edition. Record unknowns rather than guessing. Verify current requirements and program status before advising.
 
-The existing `cmmc-expert` and `cmmc-assessment-objectives` skills provide background and objective lookup. For a Level 2 practice, use `/cmmc:evidence-checklist <practice-id>` to create an evidence review worksheet. Level 1 and Level 3 require separate source- and contract-specific review; do not extrapolate the Level 2 workflow to them.
+The existing `cmmc-expert` and `cmmc-assessment-objectives` skills provide background and source-based objective navigation. For a Level 2 practice, use `/cmmc:evidence-checklist <practice-id>` to create an evidence review worksheet. Level 1 and Level 3 require separate source- and contract-specific review; do not extrapolate the Level 2 workflow to them.
 
 For each in-scope requirement, provide its source and version, evidence references, observed gaps, limitations, reviewer, and next actions. Mark items without sufficient evidence **not assessed**. Do not claim certification, invent a readiness percentage, or assume a third-party assessment is required for every Level 2 contract. Any final assessment outcome requires authorized human review.
 

@@ -15,7 +15,7 @@ Use `/cmmc:evidence-checklist <practice-id>` to prepare a **draft**, not an asse
 ## Workflow
 
 1. Ask for the assessment type, applicable contract and requirements edition, assessment boundary, practice ID, and intended review period. Mark unknowns **not provided**; do not infer scope or assessment outcomes.
-2. Look up the exact practice and its lettered objectives in the applicable official assessment source. List each objective ID and cite the source and version. Use the existing `cmmc-assessment-objectives` skill as a navigation aid, not a substitute for the source.
+2. Look up the exact practice and its assessment objective and determination statements in the applicable official assessment source. List each source-verified objective or determination statement identifier, if present and cite the source and version. Use the existing `cmmc-assessment-objectives` skill as a navigation aid, not a substitute for the source.
 3. For each objective, identify candidate examine, interview, and test activities appropriate to the boundary. Identify artifact owners and a secure evidence reference. Suggestions are not mandatory evidence or a universal sampling rule.
 4. Record observed evidence, gaps, limitations, and a human review decision separately. Do not mark an objective met without supporting evidence and authorized assessor review. Do not generate or infer a compliance percentage or certification.
 5. Store evidence and the completed worksheet only in approved, access-controlled storage. Never commit actual evidence, credentials, CUI, personal data, or sensitive links to source control. Determine retention, transmission and access rules with the data owner.
@@ -39,4 +39,4 @@ Next action and owner: [not provided]
 
 ## Synthetic walkthrough
 
-For `/cmmc:evidence-checklist AC.L2-3.1.1`, first verify the source edition and objective IDs in the official assessment source. If no boundary or evidence is supplied, the worksheet must leave those fields **not provided**, list no invented observations, and leave human review **not reviewed**. An access inventory could be a candidate for examination, subject to the assessor's scoping decision; it alone is not proof that the practice is met.
+For `/cmmc:evidence-checklist AC.L2-3.1.1`, first verify the source edition and objective wording and any identifiers in the official assessment source. If no boundary or evidence is supplied, the worksheet must leave those fields **not provided**, list no invented observations, and leave human review **not reviewed**. An access inventory could be a candidate for examination, subject to the assessor's scoping decision; it alone is not proof that the practice is met.
