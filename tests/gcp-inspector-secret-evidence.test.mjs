@@ -22,11 +22,11 @@ fs.appendFileSync(process.env.RECORD, JSON.stringify(a)+'\\n');
 if(mode==='deny' && a[1]==='versions') { console.error('provider-sensitive'); process.exit(1); }
 if(a[0]==='projects') { console.log(JSON.stringify({projectId:'project-one',projectNumber:'12345'})); process.exit(); }
 if(a[0]!=='secrets') { console.log('[]'); process.exit(); }
-const project=mode==='foreign'?'other-project':mode==='numeric'?'12345':'project-one';
+const project=mode==='foreign'?'other-project':mode==='numeric'||mode==='hyphen-numeric'?'12345':'project-one';
 const name=id=>\`projects/\${project}/secrets/\${id}\`;
-if(a[1]==='list') console.log(JSON.stringify(mode==='empty'?[]:mode==='large'?Array.from({length:101},(_,i)=>({name:name('s'+i)})):[{name:name('one'),payload:'sentinel'}, {name:name('two')}]));
-else if(a[1]==='describe') console.log(JSON.stringify({name:name(a[2]),rotation:{rotationPeriod:'86400s'},labels:{hidden:'sentinel'}}));
-else if(a[1]==='versions') console.log(JSON.stringify([{name:name(a[3])+'/versions/1',state:'ENABLED',payload:'sentinel'},{name:name(a[3])+'/versions/2',state:'DISABLED'}]));
+if(a[1]==='list') console.log(JSON.stringify(mode==='empty'?[]:mode==='large'?Array.from({length:101},(_,i)=>({name:name('s'+i)})):mode.startsWith('hyphen')?[{name:name('--quiet')}]:[{name:name('one'),payload:'sentinel'}, {name:name('two')}]));
+else if(a[1]==='describe') console.log(JSON.stringify({name:name(a[2].split('/').pop()),rotation:{rotationPeriod:'86400s'},labels:{hidden:'sentinel'}}));
+else if(a[1]==='versions') console.log(JSON.stringify([{name:name(a[3].split('/').pop())+'/versions/1',state:'ENABLED',payload:'sentinel'},{name:name(a[3].split('/').pop())+'/versions/2',state:'DISABLED'}]));
 else process.exit(1);
 `, { mode: 0o755 });
     const record = join(dir, 'record');
@@ -74,6 +74,21 @@ test('empty inventory is evidence, permissions and out-of-scope results fail clo
   for (const mode of ['deny', 'foreign']) {
     const x = run(mode); assert.equal(x.r.status, 4); assert.equal(x.evidence, null); assert.deepEqual(x.files, []);
     assert.equal(x.out.summary.errors, 1); assert.doesNotMatch(x.r.stdout + x.r.stderr, /provider-sensitive|other-project/);
+  }
+});
+
+test('leading-hyphen IDs collect safely for text and numeric resource projects', () => {
+  for (const mode of ['hyphen', 'hyphen-numeric']) {
+    const x = run(mode);
+    assert.equal(x.r.status, 0, x.r.stderr);
+    const project = mode === 'hyphen' ? 'project-one' : '12345';
+    assert.equal(x.evidence.secrets[0].name, `projects/${project}/secrets/--quiet`);
+    assert.equal(x.evidence.secrets[0].versions.length, 2);
+    const resource = 'projects/project-one/secrets/--quiet';
+    assert.deepEqual(x.calls.filter(a => a[0] === 'secrets' && a[1] !== 'list'), [
+      ['secrets', 'describe', resource, '--project=project-one', '--format=json', '--quiet'],
+      ['secrets', 'versions', 'list', resource, '--project=project-one', '--format=json', '--quiet'],
+    ]);
   }
 });
 
