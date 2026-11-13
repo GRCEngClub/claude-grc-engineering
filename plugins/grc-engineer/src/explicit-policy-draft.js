@@ -122,10 +122,37 @@ warning contains msg if {
 }
 
 `;
+  // Standalone starter tests exercise both decisions; they do not certify coverage.
+  // Tag is encoded as a Rego string literal, never interpolated as source.
+  const testCode = `# DRAFT starter tests — expand and independently review before use.
+package draft.required_tag
+
+import rego.v1
+
+example(tags, unknown) := {"resource_changes": [{
+    "mode": "managed", "type": "aws_s3_bucket", "address": "aws_s3_bucket.example",
+    "change": {"actions": ["create"], "after": {"tags": tags}, "after_unknown": unknown}
+}]}
+
+test_missing_tag_denied if {
+    count(deny) == 1 with input as example({}, {})
+    count(warning) == 0 with input as example({}, {})
+}
+
+test_present_tag_not_denied if {
+    count(deny) == 0 with input as example({${JSON.stringify(tag)}: "example"}, {})
+    count(warning) == 0 with input as example({${JSON.stringify(tag)}: "example"}, {})
+}
+
+test_unknown_tag_warns if {
+    count(deny) == 0 with input as example({}, {"tags": true})
+    count(warning) == 1 with input as example({}, {"tags": true})
+}
+`;
   // Keep untrusted source as JSON data, not executable code or Markdown markup.
   const provenance = JSON.stringify({ reference: source.reference, excerpt: source.excerpt, required_tag: tag }, null, 2);
   return {
-    format, code,
+    format, code, testCode,
     metadata: { status: 'draft', source: { reference: source.reference, excerpt: source.excerpt }, required_tag: tag },
     documentation: `# DRAFT — human review required\n\nThis incomplete example checks only for a non-null tag value on planned managed aws_s3_bucket resources; data sources are excluded. It does not validate tag values, determine compliance, verify the supplied source, or infer control mappings. The separate warning set reports non-object input, invalid resource_changes, invalid resource identity, and indeterminate change/tag data; inspect both deny and warning. Pure deletions are excluded, while replacements are evaluated. Provider defaults and other resources require separate handling. Do not enforce or treat absence of denials as compliance.\n\nIndependently verify the source and its applicability, confirm the tag and input schema, assess unknown and malformed data, and test representative compliant, noncompliant, and edge-case plans before use.\n\nSource data (JSON-encoded; untrusted):\n\n${provenance.split('\n').map(line => `    ${line}`).join('\n')}\n`
   };
