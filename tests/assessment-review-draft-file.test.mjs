@@ -24,6 +24,11 @@ test('JSON draft file is exclusively created after validation with restrictive p
     symlinkSync(output, link);
     assert.notEqual(run(fixture, link).status, 0);
     assert.equal(readFileSync(output, 'utf8'), before);
+    const dangling = join(dir, 'dangling.json');
+    const missingTarget = join(dir, 'missing-target.json');
+    symlinkSync(missingTarget, dangling);
+    assert.notEqual(run(fixture, dangling).status, 0);
+    assert.throws(() => statSync(missingTarget), { code: 'ENOENT' });
     const invalid = join(dir, 'invalid.json');
     writeFileSync(invalid, '{}');
     const noOutput = join(dir, 'no-output.json');
