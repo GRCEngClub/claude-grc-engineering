@@ -28,7 +28,7 @@ Default output is a native `.drawio` file. If the user requests `png`, `svg`, or
 
 ## Generate a control-to-evidence flow
 
-For a reproducible single-control map, Python 3 can generate the same four-node pattern without a draw.io installation. Supply a UTF-8 JSON object containing exactly five nonempty strings: `control`, `owner`, `evidence`, `cadence`, and `reviewer`. The generator escapes labels as plain text, draws control → owner → evidence → reviewer, and places cadence on the evidence-production edge. Unknown details should be explicitly labeled `unknown`, not invented. For example, from the repository root:
+For a reproducible single-control map, Python 3.9 or newer can generate the same four-node pattern without a draw.io installation. Supply a UTF-8 JSON object containing exactly five nonempty strings: `control`, `owner`, `evidence`, `cadence`, and `reviewer`. The generator escapes labels as plain text, draws control → owner → evidence → reviewer, and places cadence on the evidence-production edge. Unknown details should be explicitly labeled `unknown`, not invented. For example, from the repository root:
 
 ```bash
 python3 plugins/grc-diagrams/scripts/control-evidence.py \
