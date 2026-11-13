@@ -9,8 +9,10 @@ The [official legacy SAR playbook](https://www.fedramp.gov/legacy/playbook/csp/a
 After `npm install` including development dependencies:
 
 ```sh
-node scripts/assessment-review-draft.mjs tests/fixtures/assessment-observations/synthetic.json > review.json
+node scripts/assessment-review-draft.mjs tests/fixtures/assessment-observations/synthetic.json review.json
 ```
+
+The optional output path must not already exist. The CLI validates and renders the draft before exclusively creating the file with restrictive permissions (subject to umask); existing files and symlinks are not overwritten. Use a trusted, private output directory: parent-directory symlinks are followed, and a user able to change directory entries can redirect, replace, or remove the output. Exclusive creation depends on filesystem support and does not provide atomic publication; readers can see an incomplete file. A write failure can leave a partial new file, which must be removed before retrying. Mode 0600 is a POSIX permission request, not a guarantee against privileged access, ACLs, or non-POSIX filesystem behavior. Omitting the output path retains JSON on stdout for existing integrations; shell redirection can truncate an existing file before validation and may create a more broadly readable file. Protect stdout and any redirected output as sensitive data.
 
 Input is the [experimental observations contract](assessment-observations-proposal.md); output contains one traceability row per observation, one risk-review row per supplied deficiency with reverse links, missing-field warnings, and explicitly unfilled report/attestation placeholders. Unknown controls remain visible; unknown deficiency references and duplicate IDs fail the entire run. Missing links are flagged for review, not assumed to be errors or evidence of no weakness. Supplied risk fields are reproduced as unverified text, never calculated or validated. Counts and absence of rows do not establish baseline coverage or compliance. Both input and output can contain sensitive assessment data; protect files and avoid public fixtures containing real data.
 
