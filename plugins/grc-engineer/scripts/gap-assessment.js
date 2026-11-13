@@ -216,14 +216,28 @@ export async function loadFindings(cacheDir, sources) {
       }
       throw err;
     }
-    for (const f of files.filter(n => n.endsWith('.json'))) {
+    const jsonFiles = files.filter(n => n.endsWith('.json'));
+    if (!jsonFiles.length) {
+      errors.push({ source, kind: 'coverage-unverified', message: `No JSON findings files under ${srcDir}; coverage cannot be verified` });
+    }
+    for (const f of jsonFiles) {
       const full = path.join(srcDir, f);
       let doc;
+      let content;
       try {
-        doc = JSON.parse(await fs.readFile(full, 'utf8'));
+        content = await fs.readFile(full, 'utf8');
+      } catch (err) {
+        errors.push({ source, file: f, kind: 'read-error', message: err.message });
+        continue;
+      }
+      try {
+        doc = JSON.parse(content);
       } catch (err) {
         errors.push({ source, file: f, kind: 'invalid-json', message: err.message });
         continue;
+      }
+      if (Array.isArray(doc) && doc.length === 0) {
+        errors.push({ source, file: f, kind: 'coverage-unverified', message: 'Empty findings array; this may mean no findings, but coverage cannot be verified' });
       }
       // Single-document or array shape
       const docs = Array.isArray(doc) ? doc : [doc];
