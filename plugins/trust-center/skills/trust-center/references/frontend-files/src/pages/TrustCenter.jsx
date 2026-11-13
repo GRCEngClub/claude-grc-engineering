@@ -565,8 +565,8 @@ function AccessRequestModal({ document: doc, onClose, onSubmit }) {
                 margin: 0,
               }}
             >
-              We'll review your request and email you when access is granted. You
-              may be asked to sign an NDA before downloading sensitive documents.
+              This prototype does not support requester access or enforce NDAs.
+              Do not use it for sensitive documents.
             </p>
           </div>
         ) : (

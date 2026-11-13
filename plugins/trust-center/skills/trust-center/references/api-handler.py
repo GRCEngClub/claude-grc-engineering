@@ -5,7 +5,7 @@ Routes:
   GET    /api/config              → Public site config (company name, certifications)
   GET    /api/documents           → List public + gated document metadata
   GET    /api/documents/:id       → Get single document details
-  POST   /api/documents/:id/request-access → Request gated document access (triggers NDA)
+  POST   /api/private/documents/:id/request-access → Request access (NDA is not enforced)
   GET    /api/documents/:id/download       → Get presigned download URL (if authorized)
 
   # Admin routes (require Cognito admin group)

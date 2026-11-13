@@ -38,8 +38,8 @@ jobs:
       - name: Test NIST evidence collectors
         run: python3 tests/nist-evidence-collectors.test.py
 
-      - name: Test trust center access controls
-        run: python3 -m unittest discover -s plugins/trust-center/backend -p "test_access.py" -v
+      - name: Test trust center access controls and deployment guards
+        run: python3 -m unittest discover -s plugins/trust-center/backend -p "test*.py" -v
 
       - name: Build trust center frontend
         working-directory: plugins/trust-center/frontend

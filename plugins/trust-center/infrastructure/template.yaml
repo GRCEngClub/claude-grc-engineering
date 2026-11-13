@@ -7,6 +7,13 @@ Description: >
 # ============================================================
 # PARAMETERS — what the deployer customizes
 # ============================================================
+# Deliberately reject all stack create/update attempts pending security review.
+Rules:
+  DeploymentBlocked:
+    Assertions:
+      - Assert: !Equals ["blocked", "permitted"]
+        AssertDescription: "STOP: deployment blocked; see docs/ACCESS-SECURITY.md"
+
 Parameters:
   CompanyName:
     Type: String

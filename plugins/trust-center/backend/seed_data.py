@@ -16,7 +16,7 @@ import json
 import boto3
 from datetime import datetime
 
-dynamodb = boto3.resource("dynamodb")
+dynamodb = None  # Never initialize AWS clients while seeding is blocked.
 
 
 def now_iso():
@@ -24,6 +24,7 @@ def now_iso():
 
 
 def seed(table_name, bucket_name):
+    raise RuntimeError("STOP: live seeding is blocked; see docs/ACCESS-SECURITY.md")
     table = dynamodb.Table(table_name)
     now = now_iso()
 

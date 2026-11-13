@@ -406,7 +406,7 @@
     {
       "name": "trust-center",
       "source": "./plugins/trust-center",
-      "description": "Build and deploy a serverless trust center — public compliance posture, gated document access with optional NDA e-signature, admin dashboard. Deploys to AWS.",
+      "description": "Experimental trust-center groundwork for offline synthetic-data evaluation only; deployment and sensitive data use are blocked. NDA enforcement is not implemented.",
       "version": "0.1.0"
     },
     {
