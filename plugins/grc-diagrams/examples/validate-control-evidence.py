@@ -5,8 +5,13 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
+class NoDTDTreeBuilder(ET.TreeBuilder):
+    def doctype(self, name, pubid, system):
+        raise ValueError('DTD and entity declarations are not permitted')
+
+
 def validate(path):
-    model = ET.parse(path).getroot()
+    model = ET.parse(path, parser=ET.XMLParser(target=NoDTDTreeBuilder())).getroot()
     assert model.tag == 'mxGraphModel'
     root = model.find('root')
     assert root is not None
@@ -26,8 +31,11 @@ def validate(path):
             assert cell.find("mxGeometry[@as='geometry'][@relative='1']") is not None
     assert by_id['owner'].get('value') == 'Owner: Security & IT'
     assert by_id['e3'].get('value') == 'reviewed by'
-    assert by_id['e3'].get('source') == 'evidence'
-    assert by_id['e3'].get('target') == 'reviewer'
+    for edge, source, target in (('e1', 'control', 'owner'),
+                                 ('e2', 'owner', 'evidence'),
+                                 ('e3', 'evidence', 'reviewer')):
+        assert by_id[edge].get('edge') == '1'
+        assert (by_id[edge].get('source'), by_id[edge].get('target')) == (source, target)
     assert {(c.get('source'), c.get('target')) for c in cells if c.get('edge') == '1'} == {
         ('control', 'owner'), ('owner', 'evidence'), ('evidence', 'reviewer')}
 
