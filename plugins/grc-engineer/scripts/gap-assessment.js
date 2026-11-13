@@ -290,6 +290,11 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
       if (resolutions === undefined) {
         try {
           resolutions = await scf.resolve(ev.control_framework, ev.control_id);
+          if (!resolutions.length) {
+            const message = `No SCF mapping for ${key}; evaluations were omitted`;
+            log(message);
+            loadErrors.push({ source: doc.source, kind: 'scf-unmapped', message });
+          }
         } catch (err) {
           log(`resolve failed for ${key}: ${err.message}`);
           loadErrors.push({ source: doc.source, kind: 'scf-resolution-failed', message: `Could not resolve ${key}: ${err.message}` });
