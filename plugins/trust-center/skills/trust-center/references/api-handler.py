@@ -6,7 +6,7 @@ Routes:
   GET    /api/documents           → List public + gated document metadata
   GET    /api/documents/:id       → Get single document details
   POST   /api/private/documents/:id/request-access → Request access (NDA is not enforced)
-  GET    /api/documents/:id/download       → Get presigned download URL (if authorized)
+  GET    /api/documents/:id/download       → Downloads disabled
 
   # Admin routes (require Cognito admin group)
   GET    /api/admin/requests      → List all access requests
@@ -18,6 +18,8 @@ Routes:
 """
 
 import json
+import base64
+import binascii
 import os
 import re
 import uuid
@@ -38,6 +40,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 dynamodb = boto3.resource("dynamodb")
+ddb_client = boto3.client("dynamodb")
 s3 = boto3.client("s3")
 cognito = boto3.client("cognito-idp")
 
@@ -387,7 +390,7 @@ def request_access(event, doc_id):
 # Route: GET /api/documents/:id/download
 # ---------------------------------------------------------------------------
 def download_document(event, doc_id):
-    """Generate a presigned S3 URL for downloading a document."""
+    """Fail closed; never issue a download URL."""
     # Get document metadata
     doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True)
     doc = doc_resp.get("Item")
@@ -406,25 +409,44 @@ def download_document(event, doc_id):
 # Route: GET /api/admin/requests
 # ---------------------------------------------------------------------------
 def list_requests(event):
-    """List all access requests (admin only)."""
+    """Return one bounded GSI page and a continuation token (admin only)."""
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
-    status_filter = (event.get("queryStringParameters") or {}).get("status", "")
+    query = event.get("queryStringParameters") or {}
+    status_filter = query.get("status", "")
+    if status_filter not in ("", "pending", "approved", "denied"):
+        return cors_response(400, {"error": "Invalid status"})
+    cursor = query.get("cursor")
+    start_key = None
+    if cursor is not None:
+        try:
+            if not isinstance(cursor, str) or not cursor or len(cursor) > 4096:
+                raise ValueError("invalid cursor")
+            decoded = json.loads(base64.b64decode(cursor.encode("ascii"), altchars=b"-_", validate=True))
+            if not isinstance(decoded, dict) or set(decoded) != {"status", "key"} or decoded["status"] != status_filter:
+                raise ValueError("invalid cursor")
+            start_key = decoded["key"]
+            if (not isinstance(start_key, dict) or set(start_key) != {"PK", "SK", "GSI1PK", "GSI1SK"}
+                    or any(not isinstance(v, str) or not v for v in start_key.values())
+                    or not start_key["PK"].startswith("DOC#") or not start_key["SK"].startswith("REQUEST#")
+                    or start_key["GSI1PK"] != "REQUESTS"
+                    or (status_filter and not start_key["GSI1SK"].startswith(status_filter + "#"))):
+                raise ValueError("invalid cursor")
+        except (ValueError, TypeError, UnicodeError, binascii.Error):
+            return cors_response(400, {"error": "Invalid cursor"})
 
     try:
         params = {
             "IndexName": "GSI1",
             "KeyConditionExpression": "GSI1PK = :pk" + (" AND begins_with(GSI1SK, :sk)" if status_filter else ""),
             "ExpressionAttributeValues": {":pk": "REQUESTS", **({":sk": f"{status_filter}#"} if status_filter else {})},
+            "Limit": 50,
         }
-        items = []
-        while True:
-            resp = table.query(**params)
-            items.extend(resp.get("Items", []))
-            if not resp.get("LastEvaluatedKey"):
-                break
-            params["ExclusiveStartKey"] = resp["LastEvaluatedKey"]
+        if start_key:
+            params["ExclusiveStartKey"] = start_key
+        resp = table.query(**params)
+        items = resp.get("Items", [])
         requests = [
             {
                 "requestId": item.get("requestId"),
@@ -443,7 +465,9 @@ def list_requests(event):
             for item in items
         ]
 
-        return cors_response(200, {"requests": requests})
+        last_key = resp.get("LastEvaluatedKey")
+        next_cursor = base64.urlsafe_b64encode(json.dumps({"status": status_filter, "key": last_key}, separators=(",", ":")).encode()).decode() if last_key else None
+        return cors_response(200, {"requests": requests, "nextCursor": next_cursor})
     except Exception as e:
         logger.error(f"list_requests error: {e}")
         return cors_response(500, {"error": "Failed to list requests"})
@@ -485,24 +509,27 @@ def update_request(event, request_id):
                 or request.get("documentId") != doc_id or request.get("requestId") != request_id
                 or authorization_id(generation, subject) != request_id):
             return cors_response(409, {"error": "Request is legacy, stale, missing or invalid"})
-        table.update_item(
-            Key=key,
-            ConditionExpression="generation = :generation AND requesterSub = :subject AND requestId = :request AND documentId = :doc AND #v = :expected",
-            UpdateExpression="SET #v = :next, #s = :s, updatedAt = :now, reviewedBy = :by, GSI1SK = :gsi",
-            ExpressionAttributeNames={"#s": "status", "#v": "version"},
-            ExpressionAttributeValues={
-                ":expected": expected_version,
-                ":next": new_id(),
-                ":generation": generation,
-                ":subject": subject,
-                ":request": request_id,
-                ":doc": doc_id,
-                ":s": new_status,
-                ":now": now,
-                ":by": admin_user["email"],
-                ":gsi": f"{new_status}#{now}",
-            },
-        )
+        # The low-level client requires DynamoDB AttributeValue shapes.
+        av = lambda values: {k: {"S": v} for k, v in values.items()}
+        ddb_client.transact_write_items(TransactItems=[
+            {"ConditionCheck": {
+                "TableName": TABLE_NAME, "Key": av({"PK": f"DOC#{doc_id}", "SK": "META"}),
+                "ConditionExpression": "generation = :generation AND documentId = :doc",
+                "ExpressionAttributeValues": av({":generation": generation, ":doc": doc_id}),
+            }},
+            {"Update": {
+                "TableName": TABLE_NAME, "Key": av(key),
+                "ConditionExpression": "generation = :generation AND requesterSub = :subject AND requestId = :request AND documentId = :doc AND #v = :expected",
+                "UpdateExpression": "SET #v = :next, #s = :s, updatedAt = :now, reviewedBy = :by, GSI1SK = :gsi",
+                "ExpressionAttributeNames": {"#s": "status", "#v": "version"},
+                "ExpressionAttributeValues": av({
+                    ":expected": expected_version, ":next": new_id(), ":generation": generation,
+                    ":subject": subject, ":request": request_id, ":doc": doc_id,
+                    ":s": new_status, ":now": now, ":by": admin_user["email"],
+                    ":gsi": f"{new_status}#{now}",
+                }),
+            }},
+        ])
 
         _write_audit_log(f"request_{new_status}", {
             "requestId": request_id,
@@ -515,7 +542,8 @@ def update_request(event, request_id):
             "requestId": request_id,
         })
     except ClientError as e:
-        if e.response.get("Error", {}).get("Code") == "ConditionalCheckFailedException":
+        if e.response.get("Error", {}).get("Code") == "TransactionCanceledException" and any(
+                reason.get("Code") == "ConditionalCheckFailed" for reason in e.response.get("CancellationReasons", [])):
             return cors_response(409, {"error": "Request changed; refresh before deciding"})
         logger.error(f"update_request error: {e}")
         return cors_response(500, {"error": "Failed to update request"})

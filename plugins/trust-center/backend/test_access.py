@@ -13,17 +13,17 @@ os.environ.update(AWS_DEFAULT_REGION="us-east-1", AWS_ACCESS_KEY_ID="testing", A
 fake = types.ModuleType("boto3")
 fake.resource = Mock()
 fake.client = Mock()
-sys.modules["boto3"] = fake
 exceptions = types.ModuleType("botocore.exceptions")
 class FakeClientError(Exception):
-    def __init__(self, code):
+    def __init__(self, code, reasons=None):
         self.response = {"Error": {"Code": code}}
+        if reasons is not None:
+            self.response["CancellationReasons"] = [{"Code": reason} for reason in reasons]
 exceptions.ClientError = FakeClientError
-sys.modules["botocore"] = types.ModuleType("botocore")
-sys.modules["botocore.exceptions"] = exceptions
 spec = importlib.util.spec_from_file_location("api_handler", Path(os.environ.get("TRUST_HANDLER", str(Path(__file__).parent / "functions/api_handler.py"))))
 api = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(api)
+with patch.dict(sys.modules, {"boto3": fake, "botocore": types.ModuleType("botocore"), "botocore.exceptions": exceptions}):
+    spec.loader.exec_module(api)
 
 
 class FakeTable:
@@ -66,10 +66,23 @@ class FakeTable:
             raise FakeClientError("ConditionalCheckFailedException")
         item.update(version=values[":next"], status=values[":s"], updatedAt=values[":now"], reviewedBy=values[":by"], GSI1SK=values[":gsi"])
 
+    def transact_write_items(self, TransactItems):
+        check, update = (TransactItems[0]['ConditionCheck'], TransactItems[1]['Update'])
+        unpack = lambda values: {k: v['S'] for k, v in values.items()}
+        doc = self.get_item(unpack(check['Key']))['Item'] or {}
+        cv = unpack(check['ExpressionAttributeValues'])
+        if doc.get('generation') != cv[':generation'] or doc.get('documentId') != cv[':doc']:
+            raise FakeClientError('TransactionCanceledException', ['ConditionalCheckFailed', 'None'])
+        try:
+            self.update_item(unpack(update['Key']), ExpressionAttributeValues=unpack(update['ExpressionAttributeValues']))
+        except FakeClientError:
+            raise FakeClientError('TransactionCanceledException', ['None', 'ConditionalCheckFailed'])
+
 
 class AccessTests(unittest.TestCase):
     def setUp(self):
         api.table = FakeTable()
+        api.ddb_client = api.table
         api.s3 = Mock()
         api.s3.generate_presigned_url.return_value = "https://signed.example/file"
 
@@ -317,11 +330,42 @@ class AccessTests(unittest.TestCase):
     def test_request_listing_paginates_filtered_and_unfiltered(self):
         for status_filter in ('', 'pending'):
             with self.subTest(status=status_filter):
-                api.table.query = Mock(side_effect=[{'Items': [{'requestId': 'one'}], 'LastEvaluatedKey': {'PK': 'x', 'SK': 'y'}}, {'Items': [{'requestId': 'two'}]}])
+                key = {'PK': 'DOC#x', 'SK': 'REQUEST#y', 'GSI1PK': 'REQUESTS', 'GSI1SK': 'pending#time'}
+                api.table.query = Mock(side_effect=[{'Items': [{'requestId': 'one'}], 'LastEvaluatedKey': key}, {'Items': [{'requestId': 'two'}]}])
                 event = {'requestContext': {'authorizer': {'claims': {'sub': 'admin', 'cognito:groups': 'admins'}}}, 'queryStringParameters': {'status': status_filter}}
                 response = api.list_requests(event)
-                self.assertEqual([r['requestId'] for r in json.loads(response['body'])['requests']], ['one', 'two'])
-                self.assertEqual(api.table.query.call_args_list[1].kwargs['ExclusiveStartKey'], {'PK': 'x', 'SK': 'y'})
+                page = json.loads(response['body'])
+                self.assertEqual([r['requestId'] for r in page['requests']], ['one'])
+                self.assertEqual(api.table.query.call_count, 1)
+                self.assertEqual(api.table.query.call_args.kwargs['Limit'], 50)
+                event['queryStringParameters']['cursor'] = page['nextCursor']
+                page = json.loads(api.list_requests(event)['body'])
+                self.assertEqual([r['requestId'] for r in page['requests']], ['two'])
+                self.assertIsNone(page['nextCursor'])
+                self.assertEqual(api.table.query.call_args_list[1].kwargs['ExclusiveStartKey'], key)
+
+    def test_decision_document_replacement_or_deletion_at_commit_fails(self):
+        for action in ('replace', 'delete'):
+            with self.subTest(action=action):
+                self.setUp()
+                _, result = self.call('POST', '/api/private/documents/secret/request-access', sub='alice')
+                original = api.table.transact_write_items
+                def interleave(**kwargs):
+                    if action == 'replace': api.table.docs['secret']['generation'] = 'replacement'
+                    else: del api.table.docs['secret']
+                    return original(**kwargs)
+                api.table.transact_write_items = interleave
+                status, _ = self.call('PUT', '/api/admin/requests/' + result['requestId'], sub='admin', groups='admins', body={'documentId': 'secret', 'status': 'approved'})
+                self.assertEqual(status, 409)
+                self.assertEqual(api.table.requests[0]['status'], 'pending')
+
+    def test_invalid_cursor_and_filter_fail_before_query(self):
+        api.table.query = Mock()
+        event = {'requestContext': {'authorizer': {'claims': {'cognito:groups': 'admins'}}}}
+        for query in ({'status': 'bogus'}, {'cursor': '!!!'}, {'cursor': 'x' * 4097}):
+            event['queryStringParameters'] = query
+            self.assertEqual(api.list_requests(event)['statusCode'], 400)
+        api.table.query.assert_not_called()
 
     def test_reference_artifacts_match_deployed_sources(self):
         root = Path(__file__).resolve().parents[1]

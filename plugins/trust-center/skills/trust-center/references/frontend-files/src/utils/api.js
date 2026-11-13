@@ -80,8 +80,11 @@ export async function deleteDocument(docId, token) {
   })
 }
 
-export async function getRequests(token, status = '') {
-  const query = status ? `?status=${status}` : ''
+export async function getRequests(token, status = '', cursor = '') {
+  const params = new URLSearchParams()
+  if (status) params.set('status', status)
+  if (cursor) params.set('cursor', cursor)
+  const query = params.toString() ? `?${params}` : ''
   return request(`/admin/requests${query}`, { token })
 }
 

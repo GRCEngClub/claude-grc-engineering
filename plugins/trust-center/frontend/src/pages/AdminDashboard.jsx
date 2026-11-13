@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.jsx'
 import * as api from '../utils/api.js'
@@ -130,6 +130,9 @@ export default function AdminDashboard() {
   const [auditLog, setAuditLog] = useState(() => isDemo ? DEMO_AUDIT : [])
   const [error, setError] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [nextCursor, setNextCursor] = useState(null)
+  const [pageLoading, setPageLoading] = useState(false)
+  const requestEpoch = useRef(0)
 
 
   useEffect(() => {
@@ -144,7 +147,14 @@ export default function AdminDashboard() {
     if (!token) return
 
     if (tab === 'requests') {
-      api.getRequests(token, statusFilter).then(data => setRequests(data?.requests || [])).catch(() => setError('Could not load requests.'))
+      const epoch = ++requestEpoch.current
+      setRequests([])
+      setNextCursor(null)
+      let active = true
+      api.getRequests(token, statusFilter).then(data => {
+        if (active && requestEpoch.current === epoch) { setRequests(data?.requests || []); setNextCursor(data?.nextCursor || null) }
+      }).catch(() => { if (active) setError('Could not load requests.') })
+      return () => { active = false }
     } else if (tab === 'audit') {
       api.getAuditLog(token).then(data => setAuditLog(data?.entries || [])).catch(() => setError('Could not load audit log.'))
     }
@@ -156,9 +166,13 @@ export default function AdminDashboard() {
       return
     }
     const token = getToken()
+    const epoch = ++requestEpoch.current
     try {
       await api.updateRequest(req.requestId, req.documentId, 'approved', req.version, token)
-      setRequests((await api.getRequests(token, statusFilter))?.requests || [])
+      const data = await api.getRequests(token, statusFilter)
+      if (requestEpoch.current !== epoch) return
+      setRequests(data?.requests || [])
+      setNextCursor(data?.nextCursor || null)
       setError('')
     } catch {
       setError('Decision failed or changed; refresh requests before retrying.')
@@ -171,16 +185,32 @@ export default function AdminDashboard() {
       return
     }
     const token = getToken()
+    const epoch = ++requestEpoch.current
     try {
       await api.updateRequest(req.requestId, req.documentId, 'denied', req.version, token)
-      setRequests((await api.getRequests(token, statusFilter))?.requests || [])
+      const data = await api.getRequests(token, statusFilter)
+      if (requestEpoch.current !== epoch) return
+      setRequests(data?.requests || [])
+      setNextCursor(data?.nextCursor || null)
       setError('')
     } catch {
       setError('Decision failed or changed; refresh requests before retrying.')
     }
   }
 
-  const pendingCount = requests.filter(r => r.status === 'pending').length
+  const loadMore = async () => {
+    if (!nextCursor || pageLoading) return
+    const epoch = requestEpoch.current
+    setPageLoading(true)
+    try {
+      const data = await api.getRequests(getToken(), statusFilter, nextCursor)
+      if (requestEpoch.current !== epoch) return
+      setRequests(prev => [...prev, ...(data?.requests || [])])
+      setNextCursor(data?.nextCursor || null)
+      setError('')
+    } catch { setError('Could not load more requests.') }
+    finally { setPageLoading(false) }
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: p.bg, fontFamily: baseFont }}>
@@ -232,7 +262,7 @@ export default function AdminDashboard() {
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 24 }}>
           {[
-            { key: 'requests', label: 'Access Requests', count: pendingCount },
+            { key: 'requests', label: 'Access Requests' },
             { key: 'audit', label: 'Audit Log' },
           ].map(({ key, label, count }) => (
             <button key={key} onClick={() => setTab(key)} style={{
@@ -261,7 +291,7 @@ export default function AdminDashboard() {
           <>
             <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
               {['', 'pending', 'approved', 'denied'].map(s => (
-                <button key={s} onClick={() => setStatusFilter(s)} style={{
+                <button key={s} onClick={() => { if (s !== statusFilter) requestEpoch.current++; setStatusFilter(s) }} style={{
                   fontFamily: monoFont, fontSize: 10, fontWeight: 600,
                   color: statusFilter === s ? p.text : p.textDim,
                   background: statusFilter === s ? p.surfaceHover : 'transparent',
@@ -300,6 +330,7 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
+            {nextCursor && <button disabled={pageLoading} onClick={loadMore}>Load more requests</button>}
           </>
         )}
 
