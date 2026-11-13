@@ -10,7 +10,7 @@ Scans a GCP project for compliance-relevant resources and configurations.
 ## How to run
 
 ```bash
-node plugins/connectors/gcp-inspector/scripts/collect.js [options]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" [options]
 ```
 
 ## Arguments
@@ -120,8 +120,12 @@ done
 
 ## CI/CD usage
 
+Set `CLAUDE_PLUGIN_ROOT` to the installed gcp-inspector plugin directory when
+running outside Claude Code. The gap-assessment command below assumes a
+marketplace checkout as its working directory.
+
 ```bash
 gcloud auth activate-service-account --key-file=sa.json
-node plugins/connectors/gcp-inspector/scripts/collect.js --quiet
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" --quiet
 node plugins/grc-engineer/scripts/gap-assessment.js FedRAMP-Moderate --sources=gcp-inspector --output=sarif --quiet > gcp-gap.sarif
 ```

@@ -6,12 +6,12 @@ import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 
 const plugin = resolve('plugins/connectors/gcp-inspector');
-function run(mode, args = ['--services=secret-manager'], config = 'project_id: project-one\n') {
+function run(mode, args = ['--services=secret-manager'], config = 'project_id: project-one\n', documented = false) {
   const dir = mkdtempSync(join(tmpdir(), 'inspector-secret-'));
   try {
     // Model an independently installed marketplace cache: no repository root,
     // sibling plugin, or root package.json is available to the child process.
-    const installed = join(dir, 'cache', 'marketplace', 'gcp-inspector', '0.1.0');
+    const installed = join(dir, 'cache', 'marketplace', 'gcp inspector', '0.1.0');
     cpSync(plugin, installed, { recursive: true });
     const collector = join(installed, 'scripts', 'collect.js');
     mkdirSync(join(dir, 'bin')); mkdirSync(join(dir, 'config', 'connectors'), { recursive: true });
@@ -33,7 +33,13 @@ else process.exit(1);
     const preload = join(dir, 'clock.cjs');
     writeFileSync(preload, "let n=0; Object.defineProperty(performance, 'now', {value: () => ++n < 3 ? 0 : 300001});\n");
     const nodeOptions = mode === 'deadline' ? `--require=${preload}` : '';
-    const r = spawnSync(process.execPath, [collector, ...args, '--output=json'], { encoding: 'utf8', cwd: dir, env: { ...process.env, NODE_OPTIONS: nodeOptions, HOME: dir, CLAUDE_GRC_CONFIG_DIR: join(dir, 'config'), PATH: `${join(dir, 'bin')}:${process.env.PATH}`, RECORD: record, MODE: mode } });
+    const env = { ...process.env, NODE_OPTIONS: nodeOptions, HOME: dir, CLAUDE_PLUGIN_ROOT: installed, CLAUDE_GRC_CONFIG_DIR: join(dir, 'config'), PATH: `${join(dir, 'bin')}:${process.env.PATH}`, RECORD: record, MODE: mode };
+    const doc = readFileSync(join(installed, 'commands', 'collect.md'), 'utf8');
+    const command = doc.match(/^node .* \[options\]$/m)?.[0].replace(' [options]', '');
+    assert.ok(command, 'documented collector invocation not found');
+    const r = documented
+      ? spawnSync('sh', ['-c', `${command} "$@"`, 'sh', ...args, '--output=json'], { encoding: 'utf8', cwd: dir, env })
+      : spawnSync(process.execPath, [collector, ...args, '--output=json'], { encoding: 'utf8', cwd: dir, env });
     const calls = existsSync(record) ? readFileSync(record, 'utf8').trim().split('\n').map(JSON.parse) : [];
     const out = r.stdout ? JSON.parse(r.stdout) : null;
     const evidencePath = out?.summary?.secret_manager_evidence_path;
@@ -44,6 +50,13 @@ else process.exit(1);
     return { r, calls, out, evidence, findings, modeBits: evidencePath ? statSync(evidencePath).mode & 0o777 : null, files: existsSync(evidenceDir) ? readdirSync(evidenceDir) : [], cacheExists: existsSync(cacheDir) };
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
+
+test('documented invocation works from unrelated cwd with installed plugin root', () => {
+  const x = run('normal', ['--services=secret-manager'], 'project_id: project-one\n', true);
+  assert.equal(x.r.status, 0, x.r.stderr);
+  assert.equal(x.evidence.project_id, 'project-one');
+  assert.equal(x.evidence.secrets.length, 2);
+});
 
 test('opt-in metadata evidence spans all returned inventory and versions without payloads or conclusions', () => {
   const x = run('normal');
