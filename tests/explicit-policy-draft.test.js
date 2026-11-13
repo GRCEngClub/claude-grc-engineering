@@ -60,21 +60,46 @@ test('generated Rego compiles and evaluates missing, present and hostile tag key
       const file = join(dir, 'policy.rego'); writeFileSync(file, result.code);
       const check = spawnSync(opa, ['check', file], { encoding: 'utf8' });
       assert.equal(check.status, 0, check.stderr);
-      const resource = (mode, tags, address = 'aws_s3_bucket.example') => ({ mode, type: 'aws_s3_bucket', address, change: { after: { tags } } });
-      for (const [changes, expected] of [
-        [[resource('managed', {})], 1],
-        [[resource('managed', { [tag]: 'alice' })], 0],
-        [[resource('managed', { [tag]: null })], 1],
-        [[resource('data', {})], 0],
-        [[resource(undefined, {})], 0],
-        [[resource('managed', {}, 'aws_s3_bucket.one'), resource('managed', {}, 'aws_s3_bucket.two')], 2],
-      ]) {
+      const resource = (mode, tags, address = 'aws_s3_bucket.example') => ({ mode, type: 'aws_s3_bucket', address, change: { actions: ['create'], after: { tags }, after_unknown: {} } });
+      const bucket = change => ({ mode: 'managed', type: 'aws_s3_bucket', address: 'aws_s3_bucket.example', change });
+      const base = { actions: ['create'], after: { tags: {} }, after_unknown: {} };
+      const cases = [
+        [[resource('managed', {})], 1, 0],
+        [[resource('managed', { [tag]: 'alice' })], 0, 0],
+        [[resource('managed', { [tag]: null })], 1, 0],
+        [[resource('managed', { [tag]: 42 })], 0, 1],
+        [[resource('data', {})], 0, 0],
+        [[resource(undefined, {})], 0, 1],
+        [[null], 0, 1],
+        [[resource('managed', {}, 'aws_s3_bucket.one'), resource('managed', {}, 'aws_s3_bucket.two')], 2, 0],
+        [[bucket({ ...base, after_unknown: { tags: true } })], 0, 1],
+        [[bucket({ ...base, after_unknown: { tags: { [tag]: true } } })], 0, 1],
+        [[bucket({ ...base, after_unknown: { tags: { Other: true } } })], 1, 0],
+        [[bucket({ ...base, after_unknown: { tags: { [tag]: 'bad' } } })], 0, 1],
+        [[bucket({ ...base, after: { tags: null } })], 0, 1],
+        [[bucket({ ...base, after: {} })], 0, 1],
+        [[bucket({ ...base, after: null })], 0, 1],
+        [[bucket(null)], 0, 1],
+        [[bucket({ ...base, after_unknown: null })], 0, 1],
+        [[bucket({ ...base, actions: ['delete'], after: null })], 0, 0],
+        [[bucket({ ...base, actions: ['delete', 'create'] })], 1, 0],
+        [[bucket({ ...base, actions: ['create', 'delete'] })], 1, 0],
+        [[bucket({ ...base, actions: ['garbage'] })], 0, 1],
+      ];
+      for (const [changes, denials, warnings] of cases) {
         const input = join(dir, 'plan.json');
         writeFileSync(input, JSON.stringify({ resource_changes: changes }));
-        const evalResult = spawnSync(opa, ['eval', '--format=json', '-d', file, '-i', input, 'data.draft.required_tag.deny'], { encoding: 'utf8' });
-        assert.equal(evalResult.status, 0, evalResult.stderr);
-        assert.equal(JSON.parse(evalResult.stdout).result[0].expressions[0].value.length, expected);
+        for (const [rule, expected] of [['deny', denials], ['warning', warnings]]) {
+          const evalResult = spawnSync(opa, ['eval', '--format=json', '-d', file, '-i', input, `data.draft.required_tag.${rule}`], { encoding: 'utf8' });
+          assert.equal(evalResult.status, 0, evalResult.stderr);
+          assert.equal(JSON.parse(evalResult.stdout).result[0].expressions[0].value.length, expected, `${rule}: ${JSON.stringify(changes)}`);
+        }
       }
+      const input = join(dir, 'plan.json');
+      writeFileSync(input, '{}');
+      const malformed = spawnSync(opa, ['eval', '--format=json', '-d', file, '-i', input, 'data.draft.required_tag.warning'], { encoding: 'utf8' });
+      assert.equal(JSON.parse(malformed.stdout).result[0].expressions[0].value.length, 1);
+
     }
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

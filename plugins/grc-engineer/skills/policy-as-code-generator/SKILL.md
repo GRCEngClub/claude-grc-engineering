@@ -39,12 +39,15 @@ node plugins/grc-engineer/scripts/generate-policy.js --spec spec.json
 ```
 
 All fields are mandatory; extra fields, other resources and other formats fail
-without producing files. Only tag-key presence with a non-null value is checked;
-empty values pass. Input is a Terraform plan JSON with `resource_changes`,
-`mode` set to `managed`, `change.after` and `tags` objects. Data sources are
-excluded. Denials identify the resource address. Missing or malformed `after` or non-object
-`tags`, unknown plan values, deletions, provider defaults, and other resources
-are not fully handled. Absence of denials is **not** evidence of compliance.
+without producing files. Input is Terraform `show -json` plan data. The `deny`
+set identifies managed S3 buckets with a known absent/null tag value; empty strings
+pass. The separate `warning` set identifies indeterminate unknown or malformed
+change/tag data, including missing/null tag objects and missing unknown metadata.
+Consumers must inspect **both** sets. Terraform `after_unknown` marks unknown whole
+objects or individual tag values; pure `["delete"]` actions are excluded, while
+replacement actions are evaluated. Data sources are excluded. Provider default
+tags, plan completeness, schema validation, other resources and tag value quality
+are not established. Neither empty set is evidence of compliance.
 The source and draft must be independently verified and the rule adapted and
 tested on representative compliant, noncompliant, unknown and malformed plans
 before any enforcement. Run the regression tests with OPA v1 installed via

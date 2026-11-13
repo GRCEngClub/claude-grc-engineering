@@ -18,23 +18,106 @@ package draft.required_tag
 
 import rego.v1
 
-deny contains msg if {
-    some resource in input.resource_changes
+# Only well-formed changes with known tag data can produce denials.
+target(resource) if {
     resource.mode == "managed"
     resource.type == "aws_s3_bucket"
-    after := object.get(resource.change, "after", null)
+}
+
+valid_actions(actions) if {
+    actions in [["no-op"], ["create"], ["update"], ["delete"], ["delete", "create"], ["create", "delete"]]
+}
+
+deleted(resource) if { resource.change.actions == ["delete"] }
+
+valid_unknown(u) if { u == true }
+valid_unknown(u) if { u == false }
+valid_unknown(u) if {
+    is_object(u)
+    marker := object.get(u, "tags", false)
+    is_boolean(marker)
+}
+valid_unknown(u) if {
+    is_object(u)
+    marker := object.get(u, "tags", false)
+    is_object(marker)
+    is_boolean(object.get(marker, ${JSON.stringify(tag)}, false))
+}
+
+unknown_tag(u) if { u == true }
+unknown_tag(u) if { is_object(u); object.get(u, "tags", false) == true }
+unknown_tag(u) if {
+    is_object(u)
+    marker := object.get(u, "tags", false)
+    is_object(marker)
+    object.get(marker, ${JSON.stringify(tag)}, false) == true
+}
+
+ready(resource) if {
+    change := object.get(resource, "change", null)
+    is_object(change)
+    valid_actions(object.get(change, "actions", null))
+    not deleted(resource)
+    after := object.get(change, "after", null)
     is_object(after)
-    tags := object.get(after, "tags", {})
+    tags := object.get(after, "tags", null)
     is_object(tags)
-    not object.get(tags, ${JSON.stringify(tag)}, null) != null
+    unknown := object.get(change, "after_unknown", null)
+    valid_unknown(unknown)
+    not unknown_tag(unknown)
+    value := object.get(tags, ${JSON.stringify(tag)}, null)
+    value == null
+}
+ready(resource) if {
+    change := object.get(resource, "change", null)
+    is_object(change)
+    valid_actions(object.get(change, "actions", null))
+    not deleted(resource)
+    after := object.get(change, "after", null)
+    is_object(after)
+    tags := object.get(after, "tags", null)
+    is_object(tags)
+    unknown := object.get(change, "after_unknown", null)
+    valid_unknown(unknown)
+    not unknown_tag(unknown)
+    is_string(object.get(tags, ${JSON.stringify(tag)}, null))
+}
+
+deny contains msg if {
+    some resource in input.resource_changes
+    target(resource)
+    ready(resource)
+    object.get(resource.change.after.tags, ${JSON.stringify(tag)}, null) == null
     msg := sprintf("Required S3 bucket tag is missing: %v", [object.get(resource, "address", "<unknown address>")])
 }
+
+# Consumers must evaluate warnings independently of deny.
+warning contains "Indeterminate: resource_changes must be an array" if {
+    not is_array(object.get(input, "resource_changes", null))
+}
+warning contains "Indeterminate: resource change entry lacks a valid mode or type" if {
+    some resource in input.resource_changes
+    not valid_identity(resource)
+}
+valid_identity(resource) if {
+    is_object(resource)
+    object.get(resource, "mode", null) in ["managed", "data"]
+    is_string(object.get(resource, "type", null))
+}
+warning contains msg if {
+    some resource in input.resource_changes
+    target(resource)
+    not deleted(resource)
+    not ready(resource)
+    msg := sprintf("Indeterminate tag data or change: %v", [object.get(resource, "address", "<unknown address>")])
+}
+
 `;
   // Keep untrusted source as JSON data, not executable code or Markdown markup.
   const provenance = JSON.stringify({ reference: source.reference, excerpt: source.excerpt, required_tag: tag }, null, 2);
   return {
     format, code,
     metadata: { status: 'draft', source: { reference: source.reference, excerpt: source.excerpt }, required_tag: tag },
-    documentation: `# DRAFT — human review required\n\nThis incomplete example checks only for a non-null tag value on planned managed aws_s3_bucket resources; data sources are excluded. It does not validate tag values, determine compliance, verify the supplied source, or infer control mappings. Resources with missing or non-object after/tags data are not evaluated; unknown values, deletes, provider defaults and other resources require separate handling. Do not enforce or treat absence of denials as compliance.\n\nIndependently verify the source and its applicability, confirm the tag and input schema, assess unknown and malformed data, and test representative compliant, noncompliant, and edge-case plans before use.\n\nSource data (JSON-encoded; untrusted):\n\n${provenance.split('\n').map(line => `    ${line}`).join('\n')}\n`
+    documentation: `# DRAFT — human review required\n\nThis incomplete example checks only for a non-null tag value on planned managed aws_s3_bucket resources; data sources are excluded. It does not validate tag values, determine compliance, verify the supplied source, or infer control mappings. The separate warning set reports indeterminate unknown or malformed change/tag data; inspect both deny and warning. Pure deletions are excluded, while replacements are evaluated. Provider defaults and other resources require separate handling. Do not enforce or treat absence of denials as compliance.\n\nIndependently verify the source and its applicability, confirm the tag and input schema, assess unknown and malformed data, and test representative compliant, noncompliant, and edge-case plans before use.\n\nSource data (JSON-encoded; untrusted):\n\n${provenance.split('\n').map(line => `    ${line}`).join('\n')}\n`
   };
 }
