@@ -28,8 +28,11 @@ node /path/to/vault-kv/scripts/run.js 2 secret evidence/service api_key --versio
 The pin must be a canonical positive integer up to 2147483647 and is rejected for
 KV v1. The helper checks that Vault's response metadata reports the requested
 version before starting the child. Provider failures and malformed or mismatched
-versions fail closed. This does not independently authenticate the
-provider response; use a trusted Vault CLI and verify TLS.
+versions fail closed. Pinned reads require a Node.js runtime supporting
+`JSON.parse` reviver `context.source`; otherwise they fail closed. The reported
+version must use the canonical integer representation emitted by Vault. This
+does not independently authenticate the provider response; use a trusted Vault
+CLI and verify TLS.
 
 The first example invokes `vault kv get -format=json -mount=secret evidence/service`;
 the pinned example adds `-version=7`. The helper

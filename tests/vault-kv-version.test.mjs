@@ -31,6 +31,22 @@ test('KV v2 pinned version is sent to Vault and verified before injection', () =
       const r = invoke('2', '--version=7', {PAYLOAD:JSON.stringify({data:{data:{key:'provider-secret'},metadata}})});
       assert.equal(r.status, 1); assert.doesNotMatch(r.stdout + r.stderr, /provider-secret/); assert.equal(existsSync(child), false);
     }
+    // JSON.parse rounds these fractional values to 7; they are not Vault integers.
+    for (const token of ['7.0000000000000001', '6.9999999999999999', '7.0', '7e0']) {
+      const payload = `{"data":{"data":{"key":"provider-secret"},"metadata":{"version":${token}}}}`;
+      const r = invoke('2', '--version=7', {PAYLOAD: payload});
+      assert.equal(r.status, 1, `version token ${token}`);
+      assert.doesNotMatch(r.stdout + r.stderr, /provider-secret/);
+      assert.equal(existsSync(child), false);
+    }
+    // A matching version in secret data must not validate metadata.
+    const decoy = invoke('2', '--version=7', {PAYLOAD: '{"data":{"data":{"key":"provider-secret","version":7},"metadata":{"version":7.0000000000000001}}}'});
+    assert.equal(decoy.status, 1); assert.equal(existsSync(child), false);
+    // Runtimes without JSON.parse source context must fail closed for pins.
+    const shim = join(dir, 'no-source.cjs');
+    writeFileSync(shim, `const parse = JSON.parse; JSON.parse = (text, reviver) => parse(text, reviver && function (key, value) { return reviver.call(this, key, value); });`);
+    const oldRuntime = invoke('2', '--version=7', {NODE_OPTIONS: `--require=${shim}`});
+    assert.equal(oldRuntime.status, 1); assert.equal(existsSync(child), false);
     rmSync(provider);
     for (const [version, pin] of [['1','--version=7'], ['2','--version=0'], ['2','--version=-1'], ['2','--version=01'], ['2','--version=2147483648'], ['2','--version=1x'], ['2','--version=']]) {
       const r = invoke(version, pin);

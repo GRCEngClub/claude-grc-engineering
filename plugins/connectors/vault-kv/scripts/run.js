@@ -26,12 +26,19 @@ if (result.error || result.signal || result.status !== 0) {
 }
 let value;
 try {
-  const response = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(result.stdout));
+  // Preserve the original metadata token: JSON.parse can round a fractional
+  // number to the requested integer. Older runtimes without context.source
+  // fail closed for pinned reads rather than trusting a rounded value.
+  const sources = new WeakMap();
+  const response = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(result.stdout), function (key, value, context) {
+    if (key === 'version') sources.set(this, context?.source);
+    return value;
+  });
   const isObject = x => x !== null && typeof x === 'object' && !Array.isArray(x);
   if (!isObject(response) || !isObject(response.data)) throw new Error();
   const data = version === '2' ? response.data.data : response.data;
   if (version === '2' && (!isObject(response.data.metadata) || !isObject(data))) throw new Error();
-  if (pinnedVersion !== undefined && response.data.metadata.version !== Number(pinnedVersion)) throw new Error();
+  if (pinnedVersion !== undefined && sources.get(response.data.metadata) !== pinnedVersion) throw new Error();
   if (!Object.hasOwn(data, field) || typeof data[field] !== 'string') throw new Error();
   value = data[field];
   // JSON can encode unpaired UTF-16 surrogates, which Node would silently
