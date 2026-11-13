@@ -16,7 +16,9 @@ test('JSON draft file is exclusively created after validation with restrictive p
     assert.equal(result.status, 0, result.stderr);
     assert.equal(result.stdout, '');
     assert.equal(JSON.parse(readFileSync(output, 'utf8')).assessment_id, 'synthetic-example');
-    assert.equal(statSync(output).mode & 0o077, 0);
+    if (process.platform !== 'win32') {
+      assert.equal(statSync(output).mode & 0o077, 0);
+    }
     const before = readFileSync(output, 'utf8');
     assert.notEqual(run(fixture, output).status, 0);
     assert.equal(readFileSync(output, 'utf8'), before);
