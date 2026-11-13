@@ -20,7 +20,15 @@ test('optional review outcome is an editable explicitly connected node, includin
 import sys, xml.etree.ElementTree as ET
 root = ET.parse(sys.argv[1]).getroot()
 cells = {c.get('id'): c for c in root.find('root').findall('mxCell')}
-assert 'r1-outcome' not in cells
+assert 'r1-outcome' not in cells and 'r1-e4' not in cells
+assert cells['legend'].get('value') == 'Legend: solid = responsibility; dashed = evidence or review flow'
+for p in ('r1-', 'r2-'):
+    for n, source, target, label in (
+        (1, 'control', 'owner', 'assigned to'),
+        (2, 'owner', 'evidence', 'produces: quarterly'),
+        (3, 'evidence', 'reviewer', 'reviewed by')):
+        e = cells[p + 'e' + str(n)]
+        assert (e.get('source'), e.get('target'), e.get('value')) == (p + source, p + target, label)
 node = cells['r2-outcome']
 assert node.get('value') == 'Review outcome: changes requested'
 assert node.get('vertex') == '1' and 'html=0' in node.get('style')

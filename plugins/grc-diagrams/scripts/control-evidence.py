@@ -61,7 +61,8 @@ def generate(data):
                                  style='edgeStyle=orthogonalEdgeStyle;endArrow=block;html=0;' + ('dashed=1;' if dashed else ''),
                                  edge='1', parent='1', source=prefix + source, target=prefix + target)
             ET.SubElement(cell, 'mxGeometry', relative='1', **{'as': 'geometry'})
-    cell = ET.SubElement(root, 'mxCell', id='legend', value='Legend: solid = responsibility; dashed = evidence flow',
+    legend = 'Legend: solid = responsibility; dashed = evidence or review flow' if any('review_outcome' in row for row in rows) else 'Legend: solid = responsibility; dashed = evidence flow'
+    cell = ET.SubElement(root, 'mxCell', id='legend', value=legend,
                          style='text;whiteSpace=wrap;html=0;', vertex='1', parent='1')
     ET.SubElement(cell, 'mxGeometry', x='40', y=str(100 + 120 * len(rows)), width='500', height='30', **{'as': 'geometry'})
     ET.indent(model)
