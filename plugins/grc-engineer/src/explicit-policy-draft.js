@@ -84,6 +84,7 @@ ready(resource) if {
 }
 
 deny contains msg if {
+    is_array(input.resource_changes)
     some resource in input.resource_changes
     target(resource)
     ready(resource)
@@ -92,19 +93,27 @@ deny contains msg if {
 }
 
 # Consumers must evaluate warnings independently of deny.
+warning contains "Indeterminate: input must be an object" if {
+    not is_object(input)
+}
 warning contains "Indeterminate: resource_changes must be an array" if {
+    is_object(input)
     not is_array(object.get(input, "resource_changes", null))
 }
 warning contains "Indeterminate: resource change entry lacks a valid mode or type" if {
+    is_array(input.resource_changes)
     some resource in input.resource_changes
     not valid_identity(resource)
 }
 valid_identity(resource) if {
     is_object(resource)
     object.get(resource, "mode", null) in ["managed", "data"]
-    is_string(object.get(resource, "type", null))
+    type := object.get(resource, "type", null)
+    is_string(type)
+    trim_space(type) != ""
 }
 warning contains msg if {
+    is_array(input.resource_changes)
     some resource in input.resource_changes
     target(resource)
     not deleted(resource)
@@ -118,6 +127,6 @@ warning contains msg if {
   return {
     format, code,
     metadata: { status: 'draft', source: { reference: source.reference, excerpt: source.excerpt }, required_tag: tag },
-    documentation: `# DRAFT — human review required\n\nThis incomplete example checks only for a non-null tag value on planned managed aws_s3_bucket resources; data sources are excluded. It does not validate tag values, determine compliance, verify the supplied source, or infer control mappings. The separate warning set reports indeterminate unknown or malformed change/tag data; inspect both deny and warning. Pure deletions are excluded, while replacements are evaluated. Provider defaults and other resources require separate handling. Do not enforce or treat absence of denials as compliance.\n\nIndependently verify the source and its applicability, confirm the tag and input schema, assess unknown and malformed data, and test representative compliant, noncompliant, and edge-case plans before use.\n\nSource data (JSON-encoded; untrusted):\n\n${provenance.split('\n').map(line => `    ${line}`).join('\n')}\n`
+    documentation: `# DRAFT — human review required\n\nThis incomplete example checks only for a non-null tag value on planned managed aws_s3_bucket resources; data sources are excluded. It does not validate tag values, determine compliance, verify the supplied source, or infer control mappings. The separate warning set reports non-object input, invalid resource_changes, invalid resource identity, and indeterminate change/tag data; inspect both deny and warning. Pure deletions are excluded, while replacements are evaluated. Provider defaults and other resources require separate handling. Do not enforce or treat absence of denials as compliance.\n\nIndependently verify the source and its applicability, confirm the tag and input schema, assess unknown and malformed data, and test representative compliant, noncompliant, and edge-case plans before use.\n\nSource data (JSON-encoded; untrusted):\n\n${provenance.split('\n').map(line => `    ${line}`).join('\n')}\n`
   };
 }

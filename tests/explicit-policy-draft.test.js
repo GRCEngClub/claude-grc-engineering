@@ -70,6 +70,12 @@ test('generated Rego compiles and evaluates missing, present and hostile tag key
         [[resource('managed', { [tag]: 42 })], 0, 1],
         [[resource('data', {})], 0, 0],
         [[resource(undefined, {})], 0, 1],
+        [[{ ...resource('managed', {}), type: '' }], 0, 1],
+        [[{ ...resource('managed', {}), type: '  \t' }], 0, 1],
+        [[{ ...resource('', {}) }], 0, 1],
+        [[{ ...resource('managed', {}), type: null }], 0, 1],
+        [[{ ...resource('managed', {}), type: [] }], 0, 1],
+        [[false, 42, 'entry'], 0, 1],
         [[null], 0, 1],
         [[resource('managed', {}, 'aws_s3_bucket.one'), resource('managed', {}, 'aws_s3_bucket.two')], 2, 0],
         [[bucket({ ...base, after_unknown: { tags: true } })], 0, 1],
@@ -96,9 +102,16 @@ test('generated Rego compiles and evaluates missing, present and hostile tag key
         }
       }
       const input = join(dir, 'plan.json');
-      writeFileSync(input, '{}');
-      const malformed = spawnSync(opa, ['eval', '--format=json', '-d', file, '-i', input, 'data.draft.required_tag.warning'], { encoding: 'utf8' });
-      assert.equal(JSON.parse(malformed.stdout).result[0].expressions[0].value.length, 1);
+      for (const plan of [null, [], 0, 'plan', false, {}, { resource_changes: null },
+        { resource_changes: 7 }, { resource_changes: 'bad' },
+        { resource_changes: { disguised: resource('managed', {}) } }]) {
+        writeFileSync(input, JSON.stringify(plan));
+        for (const [rule, expected] of [['deny', 0], ['warning', 1]]) {
+          const evaluated = spawnSync(opa, ['eval', '--strict-builtin-errors', '--format=json', '-d', file, '-i', input, `data.draft.required_tag.${rule}`], { encoding: 'utf8' });
+          assert.equal(evaluated.status, 0, evaluated.stderr);
+          assert.equal(JSON.parse(evaluated.stdout).result[0].expressions[0].value.length, expected, `${rule}: ${JSON.stringify(plan)}`);
+        }
+      }
 
     }
   } finally { rmSync(dir, { recursive: true, force: true }); }
