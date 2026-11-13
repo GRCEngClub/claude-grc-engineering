@@ -22,6 +22,24 @@ test('KV v1 and v2 preserve exact string and suppress all output', () => {
   } finally { rmSync(dir, {recursive:true, force:true}); }
 });
 
+test('provider output and time limits fail closed without launching the child', {timeout: 25000}, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'vault-limits-'));
+  try {
+    const marker = join(dir, 'child');
+    writeFileSync(join(dir, 'vault'), `#!/usr/bin/env node\nif (process.env.MODE === 'large') process.stdout.write('provider-secret' + 'x'.repeat(2 * 1024 * 1024)); else { process.stdout.write('provider-secret'); setInterval(() => {}, 1000); } console.error('provider-secret');`, {mode:0o755});
+    const child = [process.execPath, '-e', `require('fs').writeFileSync(${JSON.stringify(marker)},'called')`];
+    for (const mode of ['large', 'stuck']) {
+      const r = spawnSync(process.execPath, [script, '1', 'secret', 'app', 'key', '--', ...child], {
+        env: {PATH:`${dir}:${process.env.PATH}`, MODE:mode}, encoding:'utf8', timeout:20000, killSignal:'SIGKILL',
+      });
+      assert.equal(r.error, undefined, `${mode} exceeded outer deadline`);
+      assert.equal(r.status, 1, mode);
+      assert.doesNotMatch(r.stdout + r.stderr, /provider-secret|x{100}/);
+      assert.equal(existsSync(marker), false);
+    }
+  } finally { rmSync(dir, {recursive:true, force:true}); }
+});
+
 test('rejects invalid inputs and all non-string or malformed payloads without output leakage or child launch', () => {
   const dir = mkdtempSync(join(tmpdir(), 'vault-mock-'));
   try {
