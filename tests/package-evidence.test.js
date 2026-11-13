@@ -46,6 +46,9 @@ test('encrypts real evidence to verified GPG key and rejects unsafe inputs', () 
     const zip = join(dir, 'decrypted.zip');
     const decrypt = run('gpg', ['--batch', '--output', zip, '--decrypt', output]);
     assert.equal(decrypt.status, 0, decrypt.stderr);
+    const verified = run('python3', [resolve('plugins/grc-engineer/scripts/verify-evidence.py'), zip]);
+    assert.equal(verified.status, 0, verified.stderr);
+    assert.match(verified.stdout, /Sender authenticity is NOT verified/);
     const extracted = join(dir, 'extracted');
     const validate = run('python3', ['-c', `import hashlib,json,pathlib,sys,zipfile
 with zipfile.ZipFile(sys.argv[1]) as z:
