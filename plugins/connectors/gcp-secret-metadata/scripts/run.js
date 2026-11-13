@@ -4,13 +4,25 @@ import { spawnSync } from 'node:child_process';
 import { TextDecoder } from 'node:util';
 
 const args = process.argv.slice(2);
-const [project, secret, version, variable, separator, command, ...commandArgs] = args;
-const projectPattern = /^[a-z][a-z0-9-]{4,28}[a-z0-9]$/;
-if (!projectPattern.test(project || '') || !/^[A-Za-z0-9_-]{1,255}$/.test(secret || '') ||
+const [projectArg, secret, version, variable, separator, command, ...commandArgs] = args;
+const projectPattern = /^[a-z][a-z0-9-]{4,28}[a-z0-9](?![\s\S])/;
+if (!(projectArg === '--configured-project' || projectPattern.test(projectArg || '')) || !/^[A-Za-z0-9_-]{1,255}$/.test(secret || '') ||
     !/^(?:latest|[1-9][0-9]*)$/.test(version || '') || variable !== 'GCP_SECRET_VALUE' ||
     separator !== '--' || !command || command.startsWith('-')) {
-  console.error('Usage: node run.js <project-id> <secret-id> <latest|version> GCP_SECRET_VALUE -- <trusted-command> [args...]');
+  console.error('Usage: node run.js <project-id|--configured-project> <secret-id> <latest|version> GCP_SECRET_VALUE -- <trusted-command> [args...]');
   process.exit(2);
+}
+let project = projectArg;
+if (projectArg === '--configured-project') {
+  const config = spawnSync('gcloud', ['config', 'get', 'project', '--quiet'], {
+    encoding: 'utf8', shell: false, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 4096, timeout: 15000, killSignal: 'SIGKILL',
+  });
+  const configured = config.stdout?.replace(/\r?\n$/, '');
+  if (config.error || config.signal || config.status !== 0 || !projectPattern.test(configured || '')) {
+    console.error('Configured project lookup failed or returned an invalid project ID; provider output suppressed.');
+    process.exit(1);
+  }
+  project = configured;
 }
 // Ask gcloud for the encoded payload, never allowing provider diagnostics through.
 const result = spawnSync('gcloud', ['secrets', 'versions', 'access', version, `--secret=${secret}`, `--project=${project}`, '--format=get(payload.data)', '--quiet'], {

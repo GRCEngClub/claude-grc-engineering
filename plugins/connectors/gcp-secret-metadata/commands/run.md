@@ -15,8 +15,18 @@ workload identity are enforced by GCP, not evaluated by this helper.
 node /path/to/gcp-secret-metadata/scripts/run.js PROJECT_ID SECRET_ID latest GCP_SECRET_VALUE -- /path/to/trusted-command
 ```
 
-Replace `latest` with a positive version number to pin it. The project is always
-explicit, and only global secrets are supported. The helper resolves one UTF-8,
+Replace `latest` with a positive version number to pin it. To opt in to the
+active gcloud client configuration's project, an operator can replace
+`PROJECT_ID` with `--configured-project`. Before running, inspect
+`gcloud config get project` in the trusted terminal and authorize that exact
+project; configurations can change. The helper resolves it once, validates it as
+a project ID, and explicitly passes it to the access call. An explicit project
+ID overrides the configured project without looking it up. An unset, malformed,
+or failed lookup stops before secret access. This option is only for the
+operator runtime helper; metadata commands still require an explicit project.
+See [gcloud config get](https://cloud.google.com/sdk/gcloud/reference/config/get).
+
+Only global secrets are supported. The helper resolves one UTF-8,
 non-NUL payload into `GCP_SECRET_VALUE`, then runs the specified
 program without a shell. Provider and child output are suppressed, stdin is
 closed, and only generic errors are shown. The variable name is fixed to avoid
