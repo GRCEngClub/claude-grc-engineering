@@ -18,6 +18,8 @@ Use this skill to structure the GRC content and visual pattern for evidence coll
 
 For an auditor-facing map, request the control, responsible owner, evidence artifact, review cadence and reviewer. Do not include actual evidence, credentials, sensitive paths or identifying details without authorization. If an input is unknown, label it unknown rather than inventing it. Create editable nodes and labeled relationships, not a screenshot. The fictional [control-to-evidence example](../../examples/control-evidence-flow.drawio) shows an access review; it is not a claim that a real control operates effectively.
 
+For a simple, single control-to-evidence flow with supplied labels, the optional local generator described in the [plugin README](../../README.md#generate-a-control-to-evidence-flow) creates the editable model deterministically. Use it only when this fixed four-node pattern fits; the general workflow below remains available for other diagrams. Ask for missing fields rather than guessing, and review inputs for sensitive information. It does not scan for secrets or validate the truth of the relationships.
+
 Validate the example from the repository root:
 
 ```bash
