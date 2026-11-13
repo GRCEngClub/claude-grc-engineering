@@ -242,6 +242,7 @@ export async function loadFindings(cacheDir, sources) {
 
 function validateFinding(d) {
   const errs = [];
+  if (d === null || typeof d !== 'object' || Array.isArray(d)) return ['finding must be an object'];
   const required = ['schema_version', 'source', 'source_version', 'run_id', 'collected_at', 'resource', 'evaluations'];
   for (const k of required) if (!(k in d)) errs.push(`missing ${k}`);
   if (d.schema_version && !/^1\./.test(String(d.schema_version))) {
@@ -251,6 +252,10 @@ function validateFinding(d) {
   if (!Array.isArray(d.evaluations) || !d.evaluations.length) errs.push('evaluations must be a non-empty array');
   else {
     d.evaluations.forEach((e, i) => {
+      if (e === null || typeof e !== 'object' || Array.isArray(e)) {
+        errs.push(`evaluations[${i}] must be an object`);
+        return;
+      }
       if (!e.control_framework) errs.push(`evaluations[${i}].control_framework missing`);
       if (!e.control_id)        errs.push(`evaluations[${i}].control_id missing`);
       if (!['pass','fail','not_applicable','inconclusive','skipped'].includes(e.status)) {
@@ -271,6 +276,8 @@ function validateFinding(d) {
 const issueSeverities = new WeakMap();
 
 export async function buildReport({ runId, frameworks, sources, findings, scf, loadErrors, log }) {
+  // Do not mutate the caller's loader errors when adding resolution warnings.
+  loadErrors = [...loadErrors];
   // Normalize every evaluation into (scfId, frameworkProjection) rows.
   // We anchor on SCF controls; non-SCF evaluations are reverse-mapped.
   const scfHits = new Map();  // scfId → { control, evaluations: [{source, resource, evaluation}] }
@@ -285,6 +292,7 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
           resolutions = await scf.resolve(ev.control_framework, ev.control_id);
         } catch (err) {
           log(`resolve failed for ${key}: ${err.message}`);
+          loadErrors.push({ source: doc.source, kind: 'scf-resolution-failed', message: `Could not resolve ${key}: ${err.message}` });
           resolutions = [];
         }
         resolveCache.set(key, resolutions);
@@ -313,6 +321,7 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
       expansionCache.set(scfId, await scf.expand(scfId, frameworks));
     } catch (err) {
       log(`expand failed for ${scfId}: ${err.message}`);
+      loadErrors.push({ source: 'SCF', kind: 'scf-expansion-failed', message: `Could not expand ${scfId}: ${err.message}` });
       expansionCache.set(scfId, new Map(frameworks.map(f => [f, []])));
     }
   }
@@ -452,6 +461,7 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
       scf_version: scf.version(),
       frameworks,
       sources,
+      load_errors: loadErrors,
       stats: frameworkStats,
       totals: {
         tier1: tier1.length, tier2: tier2.length, tier3: tier3.length,
