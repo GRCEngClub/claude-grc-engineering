@@ -11,6 +11,10 @@ const cli = resolve('plugins/grc-engineer/scripts/generate-policy.js');
 const opa = process.env.OPA_BIN || 'opa';
 const available = spawnSync(opa, ['version']).status === 0;
 
+test('OPA is available when required', { skip: process.env.REQUIRE_OPA !== '1' }, () => {
+  assert.ok(available, `OPA required but unavailable: ${opa}`);
+});
+
 test('missing, unsupported and hostile inputs fail closed', () => {
   for (const input of [null, {}, { ...spec, source: null }, { ...spec, source: { reference: 'x' } }, { ...spec, required_tag: '' }, { ...spec, required_tag: 'a\nb' }, { ...spec, resource_type: 'aws_instance' }, { ...spec, format: 'terraform' }, { ...spec, format: '__proto__' }]) {
     assert.throws(() => generateExplicitPolicyDraft(input), /no policy was generated/i);
@@ -56,9 +60,17 @@ test('generated Rego compiles and evaluates missing, present and hostile tag key
       const file = join(dir, 'policy.rego'); writeFileSync(file, result.code);
       const check = spawnSync(opa, ['check', file], { encoding: 'utf8' });
       assert.equal(check.status, 0, check.stderr);
-      for (const [tags, expected] of [[{}, 1], [{ [tag]: 'alice' }, 0], [{ [tag]: null }, 1]]) {
+      const resource = (mode, tags, address = 'aws_s3_bucket.example') => ({ mode, type: 'aws_s3_bucket', address, change: { after: { tags } } });
+      for (const [changes, expected] of [
+        [[resource('managed', {})], 1],
+        [[resource('managed', { [tag]: 'alice' })], 0],
+        [[resource('managed', { [tag]: null })], 1],
+        [[resource('data', {})], 0],
+        [[resource(undefined, {})], 0],
+        [[resource('managed', {}, 'aws_s3_bucket.one'), resource('managed', {}, 'aws_s3_bucket.two')], 2],
+      ]) {
         const input = join(dir, 'plan.json');
-        writeFileSync(input, JSON.stringify({ resource_changes: [{ type: 'aws_s3_bucket', change: { after: { tags } } }] }));
+        writeFileSync(input, JSON.stringify({ resource_changes: changes }));
         const evalResult = spawnSync(opa, ['eval', '--format=json', '-d', file, '-i', input, 'data.draft.required_tag.deny'], { encoding: 'utf8' });
         assert.equal(evalResult.status, 0, evalResult.stderr);
         assert.equal(JSON.parse(evalResult.stdout).result[0].expressions[0].value.length, expected);

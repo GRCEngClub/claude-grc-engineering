@@ -32,7 +32,16 @@ jobs:
       - name: Test schema validator
         run: npm run test:schema-validator
 
+      - name: Install pinned OPA
+        run: |
+          curl --fail --location --retry 3 -o "$RUNNER_TEMP/opa" https://github.com/open-policy-agent/opa/releases/download/v1.22.4/opa_linux_amd64_static
+          echo '35e3b352e715e80624ead6c89930d8585f6f7d94cdc409eb2a9fe36620dcccba  '"$RUNNER_TEMP/opa" | sha256sum --check --strict
+          chmod +x "$RUNNER_TEMP/opa"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
       - name: Run unit test suites
+        env:
+          REQUIRE_OPA: '1'
         run: npm run test:unit
 
       - name: Test NIST evidence collectors

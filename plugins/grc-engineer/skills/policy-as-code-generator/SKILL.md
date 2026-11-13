@@ -41,14 +41,16 @@ node plugins/grc-engineer/scripts/generate-policy.js --spec spec.json
 All fields are mandatory; extra fields, other resources and other formats fail
 without producing files. Only tag-key presence with a non-null value is checked;
 empty values pass. Input is a Terraform plan JSON with `resource_changes`,
-`change.after` and `tags` objects. Missing or malformed `after` or non-object
+`mode` set to `managed`, `change.after` and `tags` objects. Data sources are
+excluded. Denials identify the resource address. Missing or malformed `after` or non-object
 `tags`, unknown plan values, deletions, provider defaults, and other resources
 are not fully handled. Absence of denials is **not** evidence of compliance.
 The source and draft must be independently verified and the rule adapted and
 tested on representative compliant, noncompliant, unknown and malformed plans
 before any enforcement. Run the regression tests with OPA v1 installed via
 `OPA_BIN=/path/to/opa node --test tests/explicit-policy-draft.test.js`; without
-OPA the behavior test is explicitly skipped.
+OPA the behavior test is explicitly skipped. Set `REQUIRE_OPA=1` to fail if
+OPA is unavailable; CI installs a checksum-pinned OPA and requires it.
 
 ## Example
 
