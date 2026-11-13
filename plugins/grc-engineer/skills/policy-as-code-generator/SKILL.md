@@ -15,6 +15,46 @@ This prototype accepts only exact supported phrases, not arbitrary natural-langu
 
 Matching ignores case and surrounding or repeated whitespace; any other wording, extra clauses, or unsupported format combinations fail without generating files. Even semantically equivalent wording is rejected. Terraform and Checkov are not implemented.
 
+## Explicit source-based draft
+
+For a separately scoped Rego v1 draft, supply a JSON specification with an exact
+resource type, tag key and source citation and excerpt. The source is supplied
+by the user and is **not verified**; no control IDs or compliance claims are
+inferred. Example `spec.json`:
+
+```json
+{
+  "format": "rego",
+  "resource_type": "aws_s3_bucket",
+  "required_tag": "Owner",
+  "source": {
+    "reference": "Internal tagging policy, section 3",
+    "excerpt": "S3 buckets must have an Owner tag."
+  }
+}
+```
+
+```bash
+node plugins/grc-engineer/scripts/generate-policy.js --spec spec.json
+```
+
+All fields are mandatory; extra fields, other resources and other formats fail
+without producing files. Input is Terraform `show -json` plan data. The `deny`
+set identifies managed S3 buckets with a known absent/null tag value; empty strings
+pass. The separate `warning` set identifies indeterminate unknown or malformed
+change/tag data, including missing/null tag objects and missing unknown metadata.
+Consumers must inspect **both** sets. Terraform `after_unknown` marks unknown whole
+objects or individual tag values; pure `["delete"]` actions are excluded, while
+replacement actions are evaluated. Data sources are excluded. Provider default
+tags, plan completeness, schema validation, other resources and tag value quality
+are not established. Neither empty set is evidence of compliance.
+The source and draft must be independently verified and the rule adapted and
+tested on representative compliant, noncompliant, unknown and malformed plans
+before any enforcement. Run the regression tests with OPA v1 installed via
+`OPA_BIN=/path/to/opa node --test tests/explicit-policy-draft.test.js`; without
+OPA the behavior test is explicitly skipped. Set `REQUIRE_OPA=1` to fail if
+OPA is unavailable; CI installs a checksum-pinned OPA and requires it.
+
 ## Example
 
 ```bash

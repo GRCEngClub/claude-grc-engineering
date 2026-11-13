@@ -9,6 +9,7 @@
  */
 
 import { generatePolicy } from '../src/policy-generator.js';
+import { generateExplicitPolicyDraft } from '../src/explicit-policy-draft.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -29,7 +30,14 @@ async function main() {
   }
 
   try {
-    const policy = generatePolicy(requirement, format);
+    const explicit = requirement === '--spec';
+    if (explicit && (!process.argv[3] || process.argv.length !== 4)) {
+      throw new Error('Usage: generate-policy.js --spec <spec.json>');
+    }
+    const policy = explicit
+      ? generateExplicitPolicyDraft(JSON.parse(await fs.readFile(process.argv[3], 'utf8')))
+      : generatePolicy(requirement, format);
+    const outputFormat = policy.format;
     
     // Determine file extension
     const extensions = {
@@ -38,7 +46,7 @@ async function main() {
       'aws-config': '.py'
     };
     
-    const ext = extensions[format] || '.txt';
+    const ext = extensions[outputFormat] || '.txt';
     const filename = `policy_${Date.now()}${ext}`;
     
     // Write policy code
@@ -56,9 +64,9 @@ async function main() {
       console.log(`\nDocumentation saved: ${docFile}`);
     }
     
-    console.log(`\nRequirement: ${requirement}`);
-    console.log(`Format: ${format}`);
-    console.log(`Generated: ${policy.metadata.generated}`);
+    if (!explicit) console.log(`\nRequirement: ${requirement}`);
+    console.log(`Format: ${outputFormat}`);
+    if (policy.metadata.generated) console.log(`Generated: ${policy.metadata.generated}`);
     
   } catch (error) {
     console.error(`Error: ${error.message}`);
