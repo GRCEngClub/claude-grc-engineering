@@ -49,12 +49,20 @@ PCI DSS v4.0.1 evidence checklist — Requirement 4
 SAQ: D merchant (eligibility unconfirmed); entity, boundary and assessment period: unknown
 Source revision and SAQ membership: unverified — supply the current merchant SAQ D.
 
-- [ ] Transmission protection inventory — requirement 4; membership_unverified
-  - Owner: Network team; suggested frequency: after material changes
-  - Verify: identify authorized in-scope channels and their protection settings.
-- [ ] Configuration review records — requirement 4; membership_unverified
-  - Owner: Security engineering; suggested frequency: periodic
-  - Verify: compare sampled settings with approved baselines and retain review records.
+- [ ] Transmission protection inventory
+  - requirement: 4 (family-level candidate; descendants unverified)
+  - saq: D merchant; source_revision: unverified; source_reference: unavailable
+  - item: Inventory of channels and protection settings; link to protected evidence only
+  - owner: Network team; frequency: after material changes (suggested)
+  - verification: Identify authorized in-scope channels and their protection settings.
+  - status: membership_unverified; evidence not verified
+- [ ] Configuration review records
+  - requirement: 4 (family-level candidate; descendants unverified)
+  - saq: D merchant; source_revision: unverified; source_reference: unavailable
+  - item: Review records and approved baselines; link to protected evidence only
+  - owner: Security engineering; frequency: periodic (suggested)
+  - verification: Compare sampled settings with approved baselines and retain review records.
+  - status: membership_unverified; evidence not verified
 ```
 
 ## Example 2 — Requirement 8, SAQ A
@@ -70,12 +78,20 @@ PCI DSS v4.0.1 evidence checklist — Requirement 8
 SAQ: A (eligibility unconfirmed); entity, boundary and assessment period: unknown
 Source revision and SAQ membership: unverified — supply the current SAQ A.
 
-- [ ] Authentication policy and review records — requirement 8; membership_unverified
-  - Owner: Identity team; suggested frequency: periodic
-  - Verify: review policies and sampled settings for the systems identified in scope.
-- [ ] Access lifecycle records — requirement 8; membership_unverified
-  - Owner: Identity team; suggested frequency: periodic
-  - Verify: sample authorization and removal records without exporting credentials.
+- [ ] Authentication policy and review records
+  - requirement: 8 (family-level candidate; descendants unverified)
+  - saq: A; source_revision: unverified; source_reference: unavailable
+  - item: Policy and review records; link to protected evidence only
+  - owner: Identity team; frequency: periodic (suggested)
+  - verification: Review policies and sampled settings for the systems identified in scope.
+  - status: membership_unverified; evidence not verified
+- [ ] Access lifecycle records
+  - requirement: 8 (family-level candidate; descendants unverified)
+  - saq: A; source_revision: unverified; source_reference: unavailable
+  - item: Authorization and removal records; link to protected evidence only
+  - owner: Identity team; frequency: periodic (suggested)
+  - verification: Sample authorization and removal records without exporting credentials.
+  - status: membership_unverified; evidence not verified
 ```
 
 These examples demonstrate presentation only, not actual SAQ membership, completeness or relative scope. Compare verified SAQ documents before producing a leaner SAQ A output. Configuration snapshots alone do not establish operation throughout the assessment period.
