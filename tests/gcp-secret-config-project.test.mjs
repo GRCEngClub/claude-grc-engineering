@@ -38,3 +38,48 @@ console.log(Buffer.from('synthetic-secret').toString('base64url'));
     assert.equal(r.status, 2); assert.equal(existsSync(env.LOG), false);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('lookup failures suppress provider output and never access secrets or launch the child', { timeout: 30000 }, async (t) => {
+  for (const scenario of ['timeout', 'oversize', 'missing executable']) {
+    await t.test(scenario, () => {
+      const dir = mkdtempSync(join(tmpdir(), 'gcp-lookup-failure-'));
+      try {
+        const log = join(dir, 'calls');
+        const childMarker = join(dir, 'child');
+        if (scenario !== 'missing executable') {
+          // Absolute interpreter and isolated PATH ensure this mock is the only gcloud.
+          writeFileSync(join(dir, 'gcloud'), `#!${process.execPath}
+const fs = require('fs');
+fs.appendFileSync(process.env.LOG, JSON.stringify(process.argv.slice(2)) + '\\n');
+process.stderr.write('provider-stderr-sensitive');
+if (process.env.SCENARIO === 'timeout') {
+  process.stdout.write('provider-stdout-sensitive');
+  setInterval(() => {}, 1000);
+} else {
+  process.stdout.write('provider-stdout-sensitive' + 'x'.repeat(8192));
+}
+`, { mode: 0o755 });
+        }
+        const childCode = `require('fs').writeFileSync(process.env.CHILD_MARKER, 'launched'); console.log('child-sensitive');`;
+        const result = spawnSync(process.execPath, [script, '--configured-project', 'sample', 'latest', 'GCP_SECRET_VALUE', '--', process.execPath, '-e', childCode], {
+          encoding: 'utf8', timeout: 25000,
+          env: { PATH: dir, LOG: log, CHILD_MARKER: childMarker, SCENARIO: scenario },
+        });
+        assert.equal(result.error, undefined, `helper must finish within test timeout: ${result.error}`);
+        assert.equal(result.signal, null);
+        assert.equal(result.status, 1);
+        assert.equal(result.stdout, '');
+        assert.equal(result.stderr, 'Configured project lookup failed or returned an invalid project ID; provider output suppressed.\n');
+        assert.equal(existsSync(childMarker), false, 'trusted command must not launch');
+        if (scenario === 'missing executable') {
+          assert.equal(existsSync(log), false);
+        } else {
+          const calls = readFileSync(log, 'utf8').trim().split('\n').map(JSON.parse);
+          assert.deepEqual(calls, [['config', 'get', 'project', '--quiet']], 'no secret access call');
+        }
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    });
+  }
+});

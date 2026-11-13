@@ -19,11 +19,17 @@ Replace `latest` with a positive version number to pin it. To opt in to the
 active gcloud client configuration's project, an operator can replace
 `PROJECT_ID` with `--configured-project`. Before running, inspect
 `gcloud config get project` in the trusted terminal and authorize that exact
-project; configurations can change. The helper resolves it once, validates it as
-a project ID, and explicitly passes it to the access call. An explicit project
-ID overrides the configured project without looking it up. An unset, malformed,
-or failed lookup stops before secret access. This option is only for the
-operator runtime helper; metadata commands still require an explicit project.
+project and active account; configuration, account, credentials, and environment
+can change between inspection, lookup, and access. The helper does not bind the
+lookup to the previously inspected configuration or pin the account or credentials;
+project pinning is not an identity or authorization guarantee. Use a controlled
+configuration and environment throughout, and prefer an explicit project ID when
+the inspected project must be assured. The helper resolves the project once,
+validates it as a project ID, and explicitly passes it to the access call. An
+explicit project ID overrides the configured project without looking it up, but
+still does not pin the identity. An unset, malformed, or failed lookup stops
+before secret access. This option is only for the operator runtime helper;
+metadata commands still require an explicit project.
 See [gcloud config get](https://cloud.google.com/sdk/gcloud/reference/config/get).
 
 Only global secrets are supported. The helper resolves one UTF-8,
