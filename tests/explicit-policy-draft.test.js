@@ -38,7 +38,13 @@ test('CLI writes a draft and source documentation for an explicit spec', () => {
     assert.equal(run.status, 0, run.stderr);
     assert.match(run.stdout, /DRAFT ONLY/);
     assert.match(run.stdout, /Format: rego/);
-    assert.deepEqual(readdirSync(dir).map(f => f.replace(/\d+/g, 'N')).sort(), ['policy_N.md', 'policy_N.rego', 'spec.json']);
+    assert.deepEqual(readdirSync(dir).map(f => f.replace(/\d+/g, 'N')).sort(), ['policy_N.md', 'policy_N.rego', 'policy_N.test.rego', 'spec.json']);
+    if (available) {
+      const files = readdirSync(dir).filter(f => f.endsWith('.rego')).map(f => join(dir, f));
+      const check = spawnSync(opa, ['test', '-v', ...files], { encoding: 'utf8' });
+      assert.equal(check.status, 0, check.stderr + check.stdout);
+      assert.match(check.stdout, /PASS: 3\/3/);
+    }
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -50,6 +56,27 @@ test('source is preserved as untrusted data and never interpolated into code', (
   assert.match(result.documentation, /human review required/i);
   assert.match(result.documentation, /does not.*infer control mappings/i);
   assert.match(result.documentation, /    "excerpt"/);
+});
+
+test('generated starter tests run and detect changed behavior, including hostile tag keys', { skip: !available && 'OPA binary not installed; set OPA_BIN' }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'policy-starter-'));
+  try {
+    for (const tag of ['Owner', 'x"} ; deny contains "injected" if { true #', 'back\\slash', '界']) {
+      const result = generateExplicitPolicyDraft({ ...spec, required_tag: tag, source: { reference: 'ref', excerpt: 'injected untrusted text' } });
+      assert.ok(!result.testCode.includes('injected untrusted text'));
+      assert.equal(result.testCode, generateExplicitPolicyDraft({ ...spec, required_tag: tag }).testCode);
+      const policy = join(dir, 'policy.rego');
+      const tests = join(dir, 'policy_test.rego');
+      writeFileSync(policy, result.code); writeFileSync(tests, result.testCode);
+      const run = spawnSync(opa, ['test', '-v', policy, tests], { encoding: 'utf8' });
+      assert.equal(run.status, 0, run.stderr + run.stdout);
+      assert.match(run.stdout, /PASS: 3\/3/);
+      writeFileSync(policy, result.code.replace('object.get(resource.change.after.tags, ' + JSON.stringify(tag) + ', null) == null', 'false'));
+      const sabotaged = spawnSync(opa, ['test', policy, tests], { encoding: 'utf8' });
+      assert.notEqual(sabotaged.status, 0, sabotaged.stdout);
+      assert.match(sabotaged.stdout, /FAIL/);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
 test('generated Rego compiles and evaluates missing, present and hostile tag keys', { skip: !available && 'OPA binary not installed; set OPA_BIN' }, () => {

@@ -35,8 +35,15 @@ python3 plugins/grc-diagrams/scripts/control-evidence.py \
   plugins/grc-diagrams/examples/control-evidence-input.json my-evidence-flow.drawio
 ```
 
-Open and edit the resulting native, uncompressed XML file in draw.io. The output must not already exist; invalid input or an existing output returns an error. The input and output are local files: do not put secrets, actual evidence, sensitive paths, or identifying details in them without authorization. The generator does not scan for secrets, verify control effectiveness, export images, or model exceptions, retention, access controls, or multiple controls. Inspect the layout in draw.io and adapt it to the engagement before sharing. The original hand-authored example remains available in `examples/control-evidence-flow.drawio`.
+To map several controls in one diagram, supply an array of 1–10 objects with the same five fields. Each becomes an independent row in input order; repeated owners or evidence are not merged and cross-row relationships are not inferred. For example:
 
-Run generator tests with `node --test tests/control-evidence-generator.test.js`; the root unit suite also picks them up.
+```bash
+python3 plugins/grc-diagrams/scripts/control-evidence.py \
+  plugins/grc-diagrams/examples/multi-control-evidence-input.json multi-control.drawio
+```
+
+Open and edit the resulting native, uncompressed XML file in draw.io. The output must not already exist; invalid input or an existing output returns an error. The input and output are local files: do not put secrets, actual evidence, sensitive paths, or identifying details in them without authorization. The generator does not scan for secrets, verify control effectiveness, export images, or model exceptions, retention, or access controls. Long labels may need manual layout adjustment. Inspect the layout in draw.io and adapt it to the engagement before sharing. The original hand-authored example remains available in `examples/control-evidence-flow.drawio`.
+
+Run generator tests with `node --test tests/control-evidence-generator.test.js tests/control-evidence-multi.test.js`; the root unit suite also picks them up.
 
 The separate `examples/validate-control-evidence.py` checks specific properties of the hand-authored example, including its edge identities and directions. It rejects DTDs and entity declarations, but is not a general draw.io validator or a security boundary for untrusted XML. It is not intended to validate arbitrary diagrams or generator output.
