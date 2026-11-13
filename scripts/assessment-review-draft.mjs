@@ -14,12 +14,26 @@ export function generateReview(data) {
   for (const o of data.observations) {
     if (!o.deficiency_refs.length) warnings.push(`Observation ${o.id}: no deficiency linkage supplied; review if required`);
   }
+  const context = data.assessment_context ?? {};
+  const contextOutput = {};
+  for (const field of ['scope', 'process', 'procedures', 'methodology']) {
+    contextOutput[field] = context[field] ?? null;
+    if (!(field in context)) warnings.push(`missing assessment context: ${field}`);
+  }
+  for (const field of ['corrected_deficiency_refs', 'remaining_deficiency_refs']) {
+    contextOutput[field] = context[field] ? [...context[field]] : null;
+    if (!(field in context)) warnings.push(`missing assessment context: ${field}`);
+  }
+  const classified = new Set([...(context.corrected_deficiency_refs ?? []), ...(context.remaining_deficiency_refs ?? [])]);
+  contextOutput.unclassified_deficiency_refs = data.deficiencies.filter(d => !classified.has(d.id)).map(d => d.id);
+  for (const id of contextOutput.unclassified_deficiency_refs) warnings.push(`Deficiency ${id}: not classified as corrected or remaining`);
   return {
     version: '0.1-proposal',
     notice: 'DRAFT REVIEW AID ONLY — not an official assessment, FedRAMP template, attestation, or authorization.',
     assessment_id: data.assessment_id,
     source: data.source,
     warnings,
+    assessment_context: contextOutput,
     traceability: data.observations.map(o => ({
       observation_id: o.id, control_id: o.control_id, test_result: o.test_result,
       evidence_refs: [...o.evidence_refs], deficiency_refs: [...o.deficiency_refs],
