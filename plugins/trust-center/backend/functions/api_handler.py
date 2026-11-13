@@ -159,6 +159,10 @@ def handle_webhook(event):
 #   GSI1PK = "DOCS"        GSI1SK = <access_level>#<name>  → query docs by access level
 
 
+def valid_document_id(value):
+    return isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9_-]{1,128}", value) is not None
+
+
 def authorization_id(generation, subject):
     # JSON array encoding is unambiguous, even if either value contains delimiters.
     return hashlib.sha256(json.dumps([generation, subject], ensure_ascii=True, separators=(',', ':')).encode()).hexdigest()
@@ -167,7 +171,7 @@ def authorization_id(generation, subject):
 def approved_for_document(event, doc):
     """Read one canonical decision for the exact subject and document incarnation."""
     user = get_user_from_token(event)
-    if not user["sub"]:
+    if not user["sub"] or not valid_document_id(doc.get("documentId")):
         return False
     if is_admin(event):
         return True
@@ -257,7 +261,8 @@ def list_documents(event):
         for indexed_item in items:
             # GSI projections may lag behind a public-to-private change.
             item = table.get_item(Key={"PK": indexed_item["PK"], "SK": "META"}, ConsistentRead=True).get("Item")
-            if not item:
+            if (not item or not valid_document_id(item.get("documentId"))
+                    or indexed_item["PK"] != "DOC#" + item["documentId"]):
                 continue
             access_level = item.get("accessLevel")
             if access_level != "public" and not (event.get("_private_route") and approved_for_document(event, item)):
@@ -288,10 +293,12 @@ def list_documents(event):
 # ---------------------------------------------------------------------------
 def get_document(event, doc_id):
     """Get single document details."""
+    if not valid_document_id(doc_id):
+        return cors_response(404, {"error": "Document not found"})
     try:
         resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True)
         item = resp.get("Item")
-        if not item:
+        if not item or item.get("documentId") != doc_id:
             return cors_response(404, {"error": "Document not found"})
 
         if item.get("accessLevel") != "public" and not (event.get("_private_route") and approved_for_document(event, item)):
@@ -318,6 +325,8 @@ def request_access(event, doc_id):
     user = get_user_from_token(event)
     if not event.get("_private_route") or not user.get("sub"):
         return cors_response(401, {"error": "Authentication required"})
+    if not valid_document_id(doc_id):
+        return cors_response(400, {"error": "Invalid document ID"})
     body = parse_body(event)
     now = now_iso()
 
@@ -333,7 +342,7 @@ def request_access(event, doc_id):
     # Check document exists and is gated
     doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True)
     doc = doc_resp.get("Item")
-    if not doc:
+    if not doc or doc.get("documentId") != doc_id:
         return cors_response(404, {"error": "Document not found"})
 
     if doc.get("accessLevel") == "public":
@@ -390,6 +399,8 @@ def request_access(event, doc_id):
 # ---------------------------------------------------------------------------
 def download_document(event, doc_id):
     """Fail closed; never issue a download URL."""
+    if not valid_document_id(doc_id):
+        return cors_response(404, {"error": "Document not found"})
     # Get document metadata
     doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True)
     doc = doc_resp.get("Item")
@@ -490,8 +501,8 @@ def update_request(event, request_id):
     if new_status not in ("approved", "denied"):
         return cors_response(400, {"error": "Status must be 'approved' or 'denied'"})
 
-    if not doc_id:
-        return cors_response(400, {"error": "documentId is required"})
+    if not valid_document_id(doc_id):
+        return cors_response(400, {"error": "Invalid document ID"})
 
     now = now_iso()
     admin_user = get_user_from_token(event)
@@ -563,7 +574,9 @@ def create_document(event):
         return cors_response(403, {"error": "Admin access required"})
 
     body = parse_body(event)
-    doc_id = body.get("id") or new_id()
+    doc_id = body["id"] if "id" in body else new_id()
+    if not valid_document_id(doc_id):
+        return cors_response(400, {"error": "Invalid document ID"})
     now = now_iso()
 
     access_level = body.get("accessLevel")
@@ -602,6 +615,8 @@ def delete_document(event, doc_id):
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
+    if not valid_document_id(doc_id):
+        return cors_response(400, {"error": "Invalid document ID"})
     table.delete_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
 
     _write_audit_log("document_deleted", {

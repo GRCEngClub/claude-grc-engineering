@@ -107,6 +107,23 @@ class AccessTests(unittest.TestCase):
         self.assertEqual(self.call("GET", "/api/documents/pub/download")[0], 503)
         self.assertNotIn("s3Key", self.call("GET", "/api/documents/pub")[1])
 
+    def test_safe_document_id_contract_and_legacy_records_fail_closed(self):
+        invalid = ['', '.', '..', 'a/b', 'space id', 'a.b', 'x\n', 'é', 'a' * 129, None, 0]
+        for doc_id in invalid:
+            with self.subTest(doc_id=doc_id):
+                self.assertFalse(api.valid_document_id(doc_id))
+                self.assertEqual(self.call('POST', '/api/admin/documents', sub='admin', groups='admins', body={'id': doc_id, 'accessLevel': 'gated'})[0], 400)
+                self.assertEqual(self.call('PUT', '/api/admin/requests/id', sub='admin', groups='admins', body={'documentId': doc_id, 'status': 'approved', 'expectedVersion': 'v'})[0], 400)
+        for doc_id in ['a', 'A_9-z', 'a' * 128]:
+            self.assertTrue(api.valid_document_id(doc_id))
+        api.table.docs['legacy.id'] = {'PK': 'DOC#legacy.id', 'SK': 'META', 'documentId': 'legacy.id', 'name': 'LEGACY', 'accessLevel': 'public'}
+        status, data = self.call('GET', '/api/documents')
+        self.assertEqual(status, 200)
+        self.assertNotIn('LEGACY', json.dumps(data))
+        self.assertEqual(self.call('GET', '/api/documents/legacy.id')[0], 404)
+        self.assertEqual(self.call('POST', '/api/private/documents/legacy.id/request-access', sub='alice', email='a@example.test', body={})[0], 400)
+        self.assertEqual(self.call('DELETE', '/api/admin/documents/legacy.id', sub='admin', groups='admins')[0], 400)
+
     def test_stale_public_index_does_not_expose_private_metadata(self):
         original_query = api.table.query
 

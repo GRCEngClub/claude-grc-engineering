@@ -37,6 +37,11 @@ async function request(path, options = {}) {
   return res.json()
 }
 
+function validateDocumentId(id) {
+  if (typeof id !== 'string' || id.length < 1 || id.length > 128 || /[^A-Za-z0-9_-]/.test(id)) throw new Error('Invalid document ID.')
+  return id
+}
+
 // ── Public endpoints ────────────────────────────────────────
 
 export async function getConfig() {
@@ -49,7 +54,7 @@ export async function getDocuments() {
 }
 
 export async function getDocument(id) {
-  return request(`/documents/${id}`)
+  return request(`/documents/${validateDocumentId(id)}`)
 }
 
 export async function getAccessibleDocuments(token) {
@@ -61,8 +66,7 @@ export async function getAccessibleDocuments(token) {
 
 export async function requestAccess(docId, form, token) {
   if (!token) throw new Error('Sign-in required.')
-  // Encode API-supported IDs as a single safe path segment.
-  if (typeof docId !== 'string' || !docId || docId === '.' || docId === '..' || docId.includes('/')) throw new Error('Invalid document ID.')
+  validateDocumentId(docId)
   const data = await request(`/private/documents/${encodeURIComponent(docId)}/request-access`, {
     method: 'POST',
     body: JSON.stringify(form),
@@ -74,7 +78,7 @@ export async function requestAccess(docId, form, token) {
 }
 
 export async function downloadDocument(docId, token) {
-  return request(`/documents/${docId}/download`, { token })
+  return request(`/documents/${validateDocumentId(docId)}/download`, { token })
 }
 
 // ── Admin endpoints ─────────────────────────────────────────
@@ -88,6 +92,7 @@ export async function updateConfig(config, token) {
 }
 
 export async function createDocument(doc, token) {
+  if (Object.hasOwn(doc, 'id')) validateDocumentId(doc.id)
   return request('/admin/documents', {
     method: 'POST',
     body: JSON.stringify(doc),
@@ -96,7 +101,7 @@ export async function createDocument(doc, token) {
 }
 
 export async function deleteDocument(docId, token) {
-  return request(`/admin/documents/${docId}`, {
+  return request(`/admin/documents/${validateDocumentId(docId)}`, {
     method: 'DELETE',
     token,
   })
@@ -111,6 +116,7 @@ export async function getRequests(token, status = '', cursor = '') {
 }
 
 export async function updateRequest(requestId, documentId, status, expectedVersion, token) {
+  validateDocumentId(documentId)
   return request(`/admin/requests/${requestId}`, {
     method: 'PUT',
     body: JSON.stringify({ status, documentId, expectedVersion }),

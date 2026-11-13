@@ -20,13 +20,12 @@ globalThis.fetch = async (url, options) => {
 };
 await assert.rejects(api.getAccessibleDocuments(null), /Sign-in/);
 await assert.rejects(api.requestAccess('x', {}, null), /Sign-in/);
-for (const id of ['../admin', 'a/b', '.', '..', ''])
+for (const id of ['../admin', 'a/b', '.', '..', '', 'report 2026.v1', 'x\n', 'x'.repeat(129), null])
   await assert.rejects(api.requestAccess(id, {}, 'secret'), /Invalid document ID/);
 assert.equal(calls.length, 0);
 assert.deepEqual(await api.getAccessibleDocuments('secret'), [{id:'approved'}]);
 await api.requestAccess('doc-1_2', {reason:'review'}, 'secret');
-await api.requestAccess('report 2026.v1', {}, 'secret');
-assert.deepEqual(calls.map(c => c.url), ['/api/private/documents', '/api/private/documents/doc-1_2/request-access', '/api/private/documents/report%202026.v1/request-access']);
+assert.deepEqual(calls.map(c => c.url), ['/api/private/documents', '/api/private/documents/doc-1_2/request-access']);
 for (const c of calls) { assert.equal(c.options.headers.Authorization, 'Bearer secret'); assert.equal(c.options.cache, 'no-store'); }
 assert.equal(calls[1].options.method, 'POST');
 assert.deepEqual(JSON.parse(calls[1].options.body), {reason:'review'});
@@ -51,8 +50,8 @@ let source = await readFile('src/pages/RequesterAccess.jsx', 'utf8');
 source = source.replace(/^import .*$/gm, '').replace('export default function RequesterAccess', 'function RequesterAccess');
 const compiled = await transformWithOxc(source, 'RequesterAccess.jsx', {jsx:{runtime:'classic'}});
 let auth = {};
-const Page = new Function('React', 'useState', 'useAuth', 'getAccessibleDocuments', 'requestAccess', compiled.code + ';return RequesterAccess')(
-  React, React.useState, () => auth, () => {}, () => {});
+const Page = new Function('React', 'Link', 'useState', 'useAuth', 'getAccessibleDocuments', 'requestAccess', compiled.code + ';return RequesterAccess')(
+  React, ({to,children}) => React.createElement('a',{href:to},children), React.useState, () => auth, () => {}, () => {});
 const render = () => renderToStaticMarkup(React.createElement(Page));
 auth = {loading:true}; assert.match(render(), /Checking session/);
 auth = {loading:false, user:null}; assert.match(render(), /requester-login/); assert.doesNotMatch(render(), /Submit request/);
@@ -123,6 +122,46 @@ auth=render(); assert.equal(await auth.getToken(),'refreshed');
 mode='fail'; await assert.rejects(auth.getToken(),/Session expired/); assert.equal(pool.storage.getItem('refresh'),null);
 auth=render(); await auth.login('user','password'); auth=render(); mode='pending'; const waiting=auth.getToken(); auth.logout(); pending(null,session('late'));
 await assert.rejects(waiting,/Session ended/); assert.equal(pool.storage.getItem('refresh'),null);
+'''
+        result = subprocess.run(['node', '--input-type=module', '-e', script], cwd=ROOT / 'frontend', capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_real_cognito_sdk_cache_and_refresh_races(self):
+        result = subprocess.run(['node', 'test-cognito-races.mjs'], cwd=ROOT / 'frontend', capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_stale_cognito_callbacks_and_sdk_writes_are_isolated(self):
+        script = r'''
+import {readFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import {transformWithOxc} from 'vite';
+let source = await readFile('src/hooks/useAuth.jsx','utf8');
+source = source.replace(/import \{[\s\S]*?\} from 'react'/, '').replace(/import \{[\s\S]*?\} from 'amazon-cognito-identity-js'/, '').replaceAll('import.meta.env', JSON.stringify({VITE_USER_POOL_ID:'pool',VITE_USER_POOL_CLIENT_ID:'client'})).replaceAll('export function ', 'function ');
+const compiled = await transformWithOxc(source,'auth.jsx',{jsx:{runtime:'classic'}});
+globalThis.localStorage={length:0};
+const sessions = token => ({isValid:()=>true,getIdToken:()=>({getJwtToken:()=>token,decodePayload:()=>({email:token})})});
+let attempts=[], refreshes=[];
+class Pool {constructor(o){this.storage=o.Storage} getCurrentUser(){return this.storage.getItem('user') ? new User({Pool:this,Storage:this.storage}) : null}}
+class User {constructor(o){this.storage=o.Storage} authenticateUser(_,cb){attempts.push({cb,storage:this.storage})} completeNewPasswordChallenge(_,a,cb){attempts.push({cb,storage:this.storage})} getSession(cb){refreshes.push({cb,storage:this.storage})}}
+let hooks=[],i=0; const React={createElement:(type,props)=>({type,props})};
+const useState=x=>{let n=i++;if(!(n in hooks))hooks[n]=x;return [hooks[n],v=>hooks[n]=v]};
+const useRef=x=>{let n=i++;if(!(n in hooks))hooks[n]={current:x};return hooks[n]};
+const Provider=new Function('React','createContext','useContext','useState','useRef','useEffect','useCallback','CognitoUserPool','CognitoUser','AuthenticationDetails',compiled.code+';return AuthProvider')(React,()=>({}),()=>null,useState,useRef,()=>{},f=>f,Pool,User,class{});
+const render=()=>{i=0;return Provider({}).props.value};
+const succeed=(a,token)=>{a.storage.setItem('user','yes');a.storage.setItem('refresh',token);a.cb.onSuccess(sessions(token))};
+let auth=render(); const a=auth.login('a','pw'); const b=auth.login('b','pw');
+succeed(attempts[1],'b'); await b; succeed(attempts[0],'a'); await assert.rejects(a,/cancelled/);
+assert.equal(attempts[1].storage.getItem('refresh'),'b'); assert.equal(render().user.email,'b');
+const r=auth.getToken(), r2=auth.getToken(); assert.equal(refreshes.length,1);
+const c=auth.login('c','pw'); succeed(attempts[2],'c'); await c;
+refreshes[0].storage.setItem('refresh','stale'); refreshes[0].cb(null,sessions('stale'));
+await assert.rejects(r,/ended/); await assert.rejects(r2,/ended/);
+assert.equal(attempts[2].storage.getItem('refresh'),'c');
+const d=auth.login('d','pw'); attempts[3].cb.newPasswordRequired({email:'d'}); const challenge=await d;
+const e=auth.login('e','pw'); succeed(attempts[4],'e'); await e;
+await assert.rejects(challenge.completeChallenge('pw'),/cancelled/);
+attempts[3].cb.onFailure(Error('old failure')); assert.equal(render().error,null);
+const f=auth.login('f','pw'); auth.logout(); succeed(attempts[5],'f'); await assert.rejects(f,/cancelled/); assert.equal(render().user,null);
 '''
         result = subprocess.run(['node', '--input-type=module', '-e', script], cwd=ROOT / 'frontend', capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth.jsx'
 import { getAccessibleDocuments, requestAccess } from '../utils/api.js'
@@ -7,11 +8,11 @@ const shell = { maxWidth: 700, margin: '2rem auto', padding: '1rem', fontFamily:
 export default function RequesterAccess() {
   const { user, loading, logout, getToken } = useAuth()
   return <main style={shell}>
-    <a href="/">← Trust Center</a>
+    <Link to="/">← Trust Center</Link>
     <h1>Requester access</h1>
     <p>Prototype only. Deployment is blocked. Downloads are unavailable and NDA signing is not enforced.</p>
     {loading ? <p>Checking session…</p> : !user ?
-      <p><a href="/requester-login">Sign in</a> with a provisioned account. Demo mode cannot sign in.</p> :
+      <p><Link to="/requester-login">Sign in</Link> with a provisioned account. Demo mode cannot sign in.</p> :
       <><button onClick={logout}>Sign out</button><AccessForm key={user.email} getToken={getToken} /></>}
   </main>
 }

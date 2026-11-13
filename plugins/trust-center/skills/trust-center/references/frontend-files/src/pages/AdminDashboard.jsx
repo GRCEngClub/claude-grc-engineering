@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.jsx'
@@ -243,9 +244,9 @@ export default function AdminDashboard() {
           )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <a href="/" style={{ fontFamily: baseFont, fontSize: 13, color: p.textDim, textDecoration: 'none' }}>
+          <Link to="/" style={{ fontFamily: baseFont, fontSize: 13, color: p.textDim, textDecoration: 'none' }}>
             ← Public Site
-          </a>
+          </Link>
           {user && (
             <>
               <span style={{ fontFamily: monoFont, fontSize: 11, color: p.textDim }}>{user.email}</span>

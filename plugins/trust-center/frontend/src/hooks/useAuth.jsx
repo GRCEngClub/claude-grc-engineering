@@ -10,12 +10,18 @@ const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 
 const poolId = import.meta.env.VITE_USER_POOL_ID
 const clientId = import.meta.env.VITE_USER_POOL_CLIENT_ID
-const values = new Map()
-const memoryStorage = {
-  getItem: key => values.get(key) ?? null,
-  setItem: (key, value) => { values.set(key, String(value)) },
-  removeItem: key => { values.delete(key) },
-  clear: () => values.clear(),
+// Each authentication attempt owns a revocable store. SDK writes happen before
+// callbacks, so stale attempts must never share storage with a newer session.
+function createStorage() {
+  const values = new Map()
+  let active = true
+  return {
+    getItem: key => active ? (values.get(key) ?? null) : null,
+    setItem: (key, value) => { if (active) values.set(key, String(value)) },
+    removeItem: key => { if (active) values.delete(key) },
+    clear: () => values.clear(),
+    revoke: () => { active = false; values.clear() },
+  }
 }
 // Remove only credentials persisted by older versions for this client.
 try {
@@ -25,137 +31,88 @@ try {
     if (key?.startsWith(prefix)) localStorage.removeItem(key)
   }
 } catch { /* Storage may be unavailable. */ }
-const userPool = !IS_DEMO && poolId && clientId ? new CognitoUserPool({
-  UserPoolId: poolId,
-  ClientId: clientId,
-  Storage: memoryStorage,
-}) : null
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const epoch = useRef(0)
+  const active = useRef(null)
 
-  // Check for existing session on mount
-  useEffect(() => {
-    if (!userPool) { setLoading(false); return }
-    const cognitoUser = userPool.getCurrentUser()
-    if (cognitoUser) {
-      cognitoUser.getSession((err, session) => {
-        if (err || !session?.isValid()) {
-          setUser(null)
-        } else {
-          const payload = session.getIdToken().decodePayload()
-          setUser({
-            email: payload.email,
-            groups: payload['cognito:groups'] || [],
-            token: session.getIdToken().getJwtToken(),
-            isAdmin: (payload['cognito:groups'] || []).includes('admins'),
-          })
-        }
-        setLoading(false)
-      })
-    } else {
-      setLoading(false)
-    }
+  useEffect(() => () => {
+    active.current?.storage.revoke()
+    active.current = null
   }, [])
 
   const login = useCallback((email, password) => {
     if (IS_DEMO) return Promise.reject(new Error('Sign-in is disabled in demo mode.'))
-    if (!userPool) return Promise.reject(new Error('Sign-in is not configured.'))
-    const current = ++epoch.current
-    memoryStorage.clear()
-    setUser(null)
+    if (!poolId || !clientId) return Promise.reject(new Error('Sign-in is not configured.'))
+    active.current?.storage.revoke()
+    const storage = createStorage()
+    const pool = new CognitoUserPool({ UserPoolId: poolId, ClientId: clientId, Storage: storage })
+    const attempt = { storage, pool, refresh: null }
+    active.current = attempt
+    setUser(null); setError(null); setLoading(false)
+    const isCurrent = () => active.current === attempt
+    const cancelled = () => new Error('Sign-in cancelled.')
+    const success = (session, resolve, reject) => {
+      if (!isCurrent()) { reject(cancelled()); return }
+      const payload = session.getIdToken().decodePayload()
+      const groups = payload['cognito:groups'] || []
+      const userData = { email: payload.email, groups, token: session.getIdToken().getJwtToken(), isAdmin: groups.includes('admins') }
+      setUser(userData); resolve(userData)
+    }
+    const failure = (err, reject) => {
+      if (!isCurrent()) { reject(cancelled()); return }
+      storage.revoke(); active.current = null; setUser(null); setError(err.message); reject(err)
+    }
     return new Promise((resolve, reject) => {
-      setError(null)
-      const cognitoUser = new CognitoUser({ Username: email, Pool: userPool, Storage: memoryStorage })
+      const cognitoUser = new CognitoUser({ Username: email, Pool: pool, Storage: storage })
       const authDetails = new AuthenticationDetails({ Username: email, Password: password })
-
       cognitoUser.authenticateUser(authDetails, {
-        onSuccess: (session) => {
-          if (current !== epoch.current) { memoryStorage.clear(); reject(new Error('Sign-in cancelled.')); return }
-          const payload = session.getIdToken().decodePayload()
-          const userData = {
-            email: payload.email,
-            groups: payload['cognito:groups'] || [],
-            token: session.getIdToken().getJwtToken(),
-            isAdmin: (payload['cognito:groups'] || []).includes('admins'),
-          }
-          setUser(userData)
-          resolve(userData)
-        },
-        onFailure: (err) => {
-          setError(err.message)
-          reject(err)
-        },
-        newPasswordRequired: (userAttributes) => {
-          // First login — Cognito requires a password change
-          // Return a function the UI can call with the new password
-          resolve({
-            challengeName: 'NEW_PASSWORD_REQUIRED',
-            completeChallenge: (newPassword) => {
-              return new Promise((res, rej) => {
-                delete userAttributes.email_verified
-                delete userAttributes.email
-                cognitoUser.completeNewPasswordChallenge(newPassword, userAttributes, {
-                  onSuccess: (session) => {
-                    if (current !== epoch.current) { memoryStorage.clear(); rej(new Error('Sign-in cancelled.')); return }
-                    const payload = session.getIdToken().decodePayload()
-                    const userData = {
-                      email: payload.email,
-                      groups: payload['cognito:groups'] || [],
-                      token: session.getIdToken().getJwtToken(),
-                      isAdmin: (payload['cognito:groups'] || []).includes('admins'),
-                    }
-                    setUser(userData)
-                    res(userData)
-                  },
-                  onFailure: (err) => {
-                    setError(err.message)
-                    rej(err)
-                  },
-                })
-              })
-            },
-          })
+        onSuccess: session => success(session, resolve, reject),
+        onFailure: err => failure(err, reject),
+        newPasswordRequired: attributes => {
+          if (!isCurrent()) { reject(cancelled()); return }
+          resolve({ challengeName: 'NEW_PASSWORD_REQUIRED', completeChallenge: newPassword => new Promise((res, rej) => {
+            if (!isCurrent()) { rej(cancelled()); return }
+            const attrs = { ...attributes }; delete attrs.email_verified; delete attrs.email
+            cognitoUser.completeNewPasswordChallenge(newPassword, attrs, {
+              onSuccess: session => success(session, res, rej),
+              onFailure: err => failure(err, rej),
+            })
+          }) })
         },
       })
     })
   }, [])
 
   const logout = useCallback(() => {
-    ++epoch.current
-    if (!userPool) { setUser(null); return }
-    const cognitoUser = userPool.getCurrentUser()
-    if (cognitoUser) cognitoUser.signOut()
-    memoryStorage.clear()
-    setUser(null)
+    const old = active.current
+    active.current = null
+    old?.storage.revoke()
+    setUser(null); setError(null)
   }, [])
 
-  // Cognito getSession refreshes expired tokens using the in-memory refresh token.
+  // Coalesce refreshes: an older SDK callback must not overwrite a newer one.
   const getToken = useCallback(() => {
-    const current = epoch.current
-    const cognitoUser = userPool?.getCurrentUser()
+    const attempt = active.current
+    const cognitoUser = attempt?.pool.getCurrentUser()
     if (!cognitoUser) return Promise.reject(new Error('Sign-in required.'))
-    return new Promise((resolve, reject) => cognitoUser.getSession((err, session) => {
-      if (current !== epoch.current) {
-        memoryStorage.clear()
-        reject(new Error('Session ended.'))
-      } else if (err || !session?.isValid()) {
-        cognitoUser.signOut()
-        memoryStorage.clear()
-        setUser(null)
-        reject(new Error('Session expired. Please sign in again.'))
-      } else resolve(session.getIdToken().getJwtToken())
+    if (attempt.refresh) return attempt.refresh
+    const pending = new Promise((resolve, reject) => cognitoUser.getSession((err, session) => {
+      if (active.current !== attempt) { reject(new Error('Session ended.')); return }
+      if (err || !session?.isValid()) {
+        attempt.storage.revoke(); active.current = null; setUser(null)
+        reject(new Error('Session expired. Please sign in again.')); return
+      }
+      resolve(session.getIdToken().getJwtToken())
     }))
+    attempt.refresh = pending
+    pending.then(() => { if (attempt.refresh === pending) attempt.refresh = null },
+                 () => { if (attempt.refresh === pending) attempt.refresh = null })
+    return pending
   }, [])
 
-  return (
-    <AuthContext.Provider value={{ user, loading, error, login, logout, getToken }}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={{ user, loading, error, login, logout, getToken }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

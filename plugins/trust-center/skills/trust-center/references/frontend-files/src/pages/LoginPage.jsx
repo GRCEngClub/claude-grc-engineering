@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.jsx'
@@ -156,9 +157,9 @@ export default function LoginPage({ requester = false }) {
         )}
 
         <div style={{ textAlign: 'center', marginTop: 24 }}>
-          <a href="/" style={{ fontFamily: baseFont, fontSize: 13, color: p.textDim, textDecoration: 'none' }}>
+          <Link to="/" style={{ fontFamily: baseFont, fontSize: 13, color: p.textDim, textDecoration: 'none' }}>
             ← Back to Trust Center
-          </a>
+          </Link>
         </div>
       </div>
     </div>

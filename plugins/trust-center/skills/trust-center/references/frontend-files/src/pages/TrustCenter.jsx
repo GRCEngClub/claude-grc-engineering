@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useState, useEffect, useCallback } from "react";
 import { getConfig, getDocuments } from "../utils/api.js";
 
@@ -727,7 +728,7 @@ export default function TrustCenter() {
           >
             {config?.description}
           </p>
-          <p><a href="/access" style={{ color: palette.accent }}>Requester access</a></p>
+          <p><Link to="/access" style={{ color: palette.accent }}>Requester access</Link></p>
         </header>
 
         {error && <p role="alert" style={{ color: palette.red }}>{error}</p>}
