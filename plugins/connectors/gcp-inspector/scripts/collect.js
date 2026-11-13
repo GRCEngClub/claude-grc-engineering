@@ -14,6 +14,7 @@ import crypto from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const execFileP = promisify(execFile);
 
@@ -21,6 +22,8 @@ const CONFIG_DIR = process.env.CLAUDE_GRC_CONFIG_DIR || path.join(os.homedir(), 
 const CONFIG_FILE = path.join(CONFIG_DIR, 'connectors', 'gcp-inspector.yaml');
 const CACHE_DIR = path.join(os.homedir(), '.cache', 'claude-grc', 'findings', 'gcp-inspector');
 const RUNS_LOG = path.join(os.homedir(), '.cache', 'claude-grc', 'runs.log');
+const EVIDENCE_DIR = path.join(os.homedir(), '.cache', 'claude-grc', 'evidence', 'gcp-inspector');
+const SECRET_SCRIPTS = fileURLToPath(new URL('../../gcp-secret-metadata/scripts/', import.meta.url));
 const SOURCE = 'gcp-inspector';
 const SOURCE_VERSION = '0.1.0';
 
@@ -37,6 +40,9 @@ async function main(argv) {
   const project = args.project || config.project_id;
   const services = args.services?.length ? args.services : (config.defaults?.services || ['iam', 'storage', 'logging', 'kms', 'compute']);
   if (!project) fail(EXIT.NOT_CONFIGURED, 'project_id missing. Re-run /gcp-inspector:setup.');
+  if (services.includes('secret-manager') && !args.services.includes('secret-manager')) {
+    fail(EXIT.USAGE, 'Secret Manager requires explicit --services=secret-manager opt-in.');
+  }
 
   await fs.mkdir(CACHE_DIR, { recursive: true });
   const runId = makeRunId();
@@ -46,9 +52,21 @@ async function main(argv) {
   const findings = [];
   const errors = [];
   const ctx = { project, runId };
+  let secretEvidencePath;
 
   for (const svc of services) {
     try {
+      if (svc === 'secret-manager') {
+        const evidence = await collectSecretEvidence(ctx);
+        await fs.mkdir(EVIDENCE_DIR, { recursive: true, mode: 0o700 });
+        const target = path.join(EVIDENCE_DIR, `${runId}.json`);
+        const file = await fs.open(target, 'wx', 0o600);
+        try { await file.writeFile(JSON.stringify(evidence, null, 2)); }
+        catch { await file.close(); await fs.unlink(target); throw new Error('Secret Manager evidence write failed.'); }
+        await file.close();
+        secretEvidencePath = target;
+        continue;
+      }
       const results = await serviceHandlers[svc](ctx, log);
       findings.push(...results);
     } catch (err) {
@@ -76,6 +94,7 @@ async function main(argv) {
     evaluations: findings.reduce((n, d) => n + d.evaluations.length, 0),
     counters, severities: sev, errors: errors.length
   };
+  if (secretEvidencePath) manifest.secret_manager_evidence_path = secretEvidencePath;
   await fs.appendFile(RUNS_LOG, JSON.stringify(manifest) + '\n');
 
   const summary = `${SOURCE}: ${findings.length} resources, ${manifest.evaluations} evaluations, ${counters.fail || 0} failing (${sev.critical || 0} critical, ${sev.high || 0} high, ${sev.medium || 0} medium).`;
@@ -90,6 +109,35 @@ async function main(argv) {
 
 // ---------------------------------------------------------------------------
 // Service handlers
+
+// Keep metadata outside the Finding cache: the Finding contract requires a
+// control evaluation, and inventory alone is not a compliance determination.
+async function collectSecretEvidence(ctx) {
+  async function helper(script, args) {
+    try {
+      const { stdout } = await execFileP(process.execPath, [path.join(SECRET_SCRIPTS, script), ...args], {
+        maxBuffer: 16 * 1024 * 1024, timeout: 120000
+      });
+      return JSON.parse(stdout);
+    } catch {
+      throw new Error('Secret Manager metadata collection failed; provider output suppressed.');
+    }
+  }
+  const inventory = await helper('list.js', [ctx.project]);
+  if (inventory.project !== ctx.project || !Array.isArray(inventory.secrets)) throw new Error('Invalid Secret Manager inventory.');
+  const seen = new Set();
+  const secrets = [];
+  for (const item of inventory.secrets) {
+    const name = item?.name;
+    if (typeof name !== 'string' || seen.has(name)) throw new Error('Invalid Secret Manager inventory.');
+    seen.add(name);
+    const id = name.split('/').pop();
+    const history = await helper('history.js', [ctx.project, id]);
+    if (history.project !== ctx.project || history.name !== name) throw new Error('Secret Manager inventory changed or project scope mismatch.');
+    secrets.push(history);
+  }
+  return { source: SOURCE, run_id: ctx.runId, collected_at: new Date().toISOString(), project_id: ctx.project, secrets };
+}
 
 const serviceHandlers = {
   async iam(ctx, log) {

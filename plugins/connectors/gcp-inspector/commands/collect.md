@@ -16,7 +16,7 @@ node plugins/connectors/gcp-inspector/scripts/collect.js [options]
 ## Arguments
 
 - `--project=<id>` — override the configured project
-- `--services=<csv>` — subset of `iam,storage,logging,kms,compute` (default: all)
+- `--services=<csv>` — subset of `iam,storage,logging,kms,compute,secret-manager` (default: first five only). Secret Manager must be explicitly selected on the command line, not just in config.
 - `--output=<fmt>` — `silent` | `summary` (default) | `json`
 - `--refresh` — ignore any cached data; re-query GCP
 - `--quiet` — no stderr progress
@@ -66,6 +66,7 @@ node plugins/connectors/gcp-inspector/scripts/collect.js [options]
 
 - `~/.cache/claude-grc/findings/gcp-inspector/<run_id>.json` — array of Findings
 - `~/.cache/claude-grc/runs.log` — run manifest appended
+- With explicit `--services=secret-manager`, `~/.cache/claude-grc/evidence/gcp-inspector/<run_id>.json` contains a separate metadata-only inventory and version history. JSON output and the run log include `secret_manager_evidence_path`. This is not a Finding or compliance evaluation; a rotation schedule is not proof a rotation occurred. Names and timestamps can be sensitive; protect and retain the evidence accordingly. New files are mode 0600.
 - stdout summary unless `--quiet`:
 
   ```
@@ -93,6 +94,8 @@ roles/resourcemanager.folderViewer  # (optional; multi-project)
 
 Alternatively, `roles/viewer` covers the basics.
 
+For opt-in Secret Manager evidence, install the adjacent `gcp-secret-metadata` plugin in the same marketplace checkout and grant `secretmanager.secrets.list`, `secretmanager.secrets.get`, and `secretmanager.versions.list` on the selected project/resources. Numeric resource names also require permission to describe the selected project to bind its project number to its ID. The collector calls only metadata list/describe commands, never version access. It uses gcloud's automatic pagination without a limit; successful collection reflects what the caller can list, not proof of broader visibility or an atomic snapshot. Permission, malformed-response, project mismatch, or helper errors cause a partial exit (4) and no Secret Manager evidence file. Review other services' results separately.
+
 ## Examples
 
 ```bash
@@ -106,6 +109,9 @@ done
 
 # Storage only
 /gcp-inspector:collect --services=storage
+
+# Metadata-only Secret Manager inventory and version history
+/gcp-inspector:collect --project=example-project --services=secret-manager --output=json
 ```
 
 ## CI/CD usage

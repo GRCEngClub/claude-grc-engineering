@@ -85,7 +85,7 @@ Not covered yet:
 - **Pub/Sub**: message encryption, schema enforcement
 - **GKE**: Workload Identity, Binary Authorization, private clusters, shielded nodes
 - **Cloud SQL**: encryption, backup, private IP
-- **Secret Manager**: rotation, automatic replication
+- **Secret Manager**: optional metadata-only inventory and version history is separate evidence, not a control evaluation. It does not establish that rotation occurred or that a policy is satisfied; automatic replication is not evaluated.
 - **Cloud Functions**: execution service account scope
 
 When a user asks about these, say "v0.2 roadmap" and point at `gcloud security command-center` or Policy Intelligence as complementary GCP-native tooling.
