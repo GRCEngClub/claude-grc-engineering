@@ -38,6 +38,11 @@ inferred. Example `spec.json`:
 node plugins/grc-engineer/scripts/generate-policy.js --spec spec.json
 ```
 
+The CLI also writes a paired `.test.rego` starter file and prints the exact
+`opa test` command for both files. The three examples cover a missing tag, a
+present tag, and an unknown tag; they are not a comprehensive test suite or
+proof of compliance. Review and extend them for the actual environment.
+
 All fields are mandatory; extra fields, other resources and other formats fail
 without producing files. Input is Terraform `show -json` plan data. The `deny`
 set identifies managed S3 buckets with a known absent/null tag value; empty strings

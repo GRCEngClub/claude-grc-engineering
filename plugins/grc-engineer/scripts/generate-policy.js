@@ -57,6 +57,13 @@ async function main() {
     console.log(policy.code);
     console.log('---');
     
+    if (policy.testCode) {
+      const testFile = filename.replace(ext, '.test.rego');
+      await fs.writeFile(testFile, policy.testCode, 'utf-8');
+      console.log(`Starter tests saved: ${testFile}`);
+      console.log(`Run: opa test ${filename} ${testFile}`);
+    }
+
     // Write documentation if available
     if (policy.documentation) {
       const docFile = filename.replace(ext, '.md');
