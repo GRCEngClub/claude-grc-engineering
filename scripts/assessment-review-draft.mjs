@@ -1,5 +1,5 @@
 // Experimental review aid; no baseline mapping or risk calculation is implied.
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { validateObservations } from './assessment-observations-proposal.mjs';
 
@@ -54,9 +54,15 @@ export function generateReview(data) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    if (process.argv.length !== 3) throw new Error('Usage: node scripts/assessment-review-draft.mjs <input.json>');
+    if (process.argv.length !== 3 && process.argv.length !== 4) throw new Error('Usage: node scripts/assessment-review-draft.mjs <input.json> [new-output.json]');
     const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
-    console.log(JSON.stringify(generateReview(input), null, 2));
+    const output = JSON.stringify(generateReview(input), null, 2) + '\n';
+    if (process.argv.length === 4) {
+      // Render first and never overwrite an existing path, including symlinks.
+      writeFileSync(process.argv[3], output, { flag: 'wx', mode: 0o600 });
+    } else {
+      process.stdout.write(output);
+    }
   } catch (error) {
     console.error(error.message);
     process.exitCode = 1;
