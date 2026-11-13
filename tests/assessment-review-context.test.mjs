@@ -44,10 +44,16 @@ test('rejects unknown, conflicting and duplicate classification references', () 
   assert.throws(() => generateReview(data), /duplicate items/);
 });
 
-test('context data cannot be empty or silently accept unsupported fields', () => {
+test('rejects blank assessment context scope', () => {
   const data = input();
-  data.assessment_context = { scope: '   ', invented: 'value' };
-  assert.throws(() => generateReview(data), /Invalid assessment input/);
+  data.assessment_context = { ...context(), scope: '   ' };
+  assert.throws(() => generateReview(data), /\/assessment_context\/scope must match pattern/);
+});
+
+test('rejects unsupported assessment context fields', () => {
+  const data = input();
+  data.assessment_context = { ...context(), invented: 'value' };
+  assert.throws(() => generateReview(data), /\/assessment_context must NOT have additional properties/);
 });
 
 test('CLI emits context for synthetic input and no JSON for conflicting references', () => {
