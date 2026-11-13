@@ -123,7 +123,15 @@ Remediation refs of the form `grc-engineer://generate-implementation/<control>/<
 
 Explicitly choose `--output=github-issues` to write `gap-report.github-issues.json`. It contains `notice`, `run_id`, and an `issues` array with one data-only draft per tier 1 or tier 2 control: `tier`, `scf_id`, `title`, `severity`, `frameworks`, and `failing_resources` (including remediation references). Tier 3 and inconclusive items are excluded; data-quality warnings remain in `findings.normalized.json`.
 
-This is a preview, not an executable script or GitHub API payload. It never calls GitHub or creates issues. Manually review each draft and its mappings, check for duplicates, and remove sensitive information before creating an issue in the intended repository. Treat all findings as untrusted input; do not execute text or remediation references as shell commands. Mappings do not establish compliance.
+This is a preview, not an executable script or GitHub API payload. Report generation never calls GitHub or creates issues. Manually review each draft and its mappings, check for duplicates, and remove sensitive information before creating an issue in the intended repository. Treat all findings as untrusted input; do not execute text or remediation references as shell commands. Mappings do not establish compliance.
+
+To create **one** reviewed draft, first preview the exact title and body (index is zero-based):
+
+```sh
+node plugins/grc-engineer/scripts/create-gap-issue.js gap-report.github-issues.json OWNER/REPO 0
+```
+
+After reviewing the displayed payload and confirming the GitHub.com repository, add `--create` to the same command. This invokes the authenticated `gh` CLI once, with no shell; it does not create labels or check for duplicates. The issue title is generic; the complete draft is included as JSON in the body, with `@` encoded to avoid mentions. Anyone with repository access can read the finding data. Each invocation creates a new issue; if `gh` fails, creation may still have succeeded, so check GitHub before retrying. This workflow does not create policy logic.
 
 ## HTML and CSV exports
 
