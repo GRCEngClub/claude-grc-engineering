@@ -5,8 +5,8 @@ Routes:
   GET    /api/config              → Public site config (company name, certifications)
   GET    /api/documents           → List public + gated document metadata
   GET    /api/documents/:id       → Get single document details
-  POST   /api/documents/:id/request-access → Request gated document access (triggers NDA)
-  GET    /api/documents/:id/download       → Get presigned download URL (if authorized)
+  POST   /api/private/documents/:id/request-access → Request access (NDA is not enforced)
+  GET    /api/documents/:id/download       → Downloads disabled
 
   # Admin routes (require Cognito admin group)
   GET    /api/admin/requests      → List all access requests
@@ -18,7 +18,10 @@ Routes:
 """
 
 import json
+import base64
+import binascii
 import os
+import re
 import uuid
 import time
 import hmac
@@ -37,6 +40,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 dynamodb = boto3.resource("dynamodb")
+ddb_client = boto3.client("dynamodb")
 s3 = boto3.client("s3")
 cognito = boto3.client("cognito-idp")
 
@@ -59,6 +63,7 @@ def cors_response(status_code, body=None, headers=None):
         "statusCode": status_code,
         "headers": {
             "Content-Type": "application/json",
+            "Cache-Control": "no-store",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Content-Type,Authorization",
             "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
@@ -86,7 +91,7 @@ def get_user_from_token(event):
                    .get("authorizer", {})
                    .get("claims", {}))
     return {
-        "email": claims.get("email", "anonymous"),
+        "email": claims.get("email", ""),
         "sub": claims.get("sub", ""),
         "groups": claims.get("cognito:groups", ""),
     }
@@ -96,7 +101,7 @@ def is_admin(event):
     """Check if the caller belongs to the 'admins' Cognito group."""
     user = get_user_from_token(event)
     groups = user.get("groups", "")
-    return "admins" in groups
+    return "admins" in (groups if isinstance(groups, list) else [g.strip() for g in groups.strip("[]").split(",")])
 
 
 def now_iso():
@@ -152,6 +157,32 @@ def handle_webhook(event):
 # GSI1:
 #   GSI1PK = "REQUESTS"   GSI1SK = <status>#<timestamp>   → query requests by status
 #   GSI1PK = "DOCS"        GSI1SK = <access_level>#<name>  → query docs by access level
+
+
+def valid_document_id(value):
+    return isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9_-]{1,128}", value) is not None
+
+
+def authorization_id(generation, subject):
+    # JSON array encoding is unambiguous, even if either value contains delimiters.
+    return hashlib.sha256(json.dumps([generation, subject], ensure_ascii=True, separators=(',', ':')).encode()).hexdigest()
+
+
+def approved_for_document(event, doc):
+    """Read one canonical decision for the exact subject and document incarnation."""
+    user = get_user_from_token(event)
+    if not user["sub"] or not valid_document_id(doc.get("documentId")):
+        return False
+    if is_admin(event):
+        return True
+    generation, doc_id = doc.get("generation"), doc.get("documentId")
+    if not isinstance(generation, str) or not generation or not isinstance(doc_id, str) or not doc_id:
+        return False  # Legacy records never grant access.
+    req_id = authorization_id(generation, user["sub"])
+    item = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": f"REQUEST#{req_id}"}, ConsistentRead=True).get("Item") or {}
+    return (item.get("requestId") == req_id and item.get("documentId") == doc_id
+            and item.get("generation") == generation and item.get("requesterSub") == user["sub"]
+            and item.get("status") == "approved")
 
 
 # ---------------------------------------------------------------------------
@@ -212,21 +243,30 @@ def update_config(event):
 # Route: GET /api/documents
 # ---------------------------------------------------------------------------
 def list_documents(event):
-    """List all documents. Public users see public docs; authed users see gated too."""
+    """List public documents and, on private routes, approved documents."""
     try:
-        resp = table.query(
-            IndexName="GSI1",
-            KeyConditionExpression="GSI1PK = :pk",
-            ExpressionAttributeValues={":pk": "DOCS"},
-        )
+        params = {
+            "IndexName": "GSI1",
+            "KeyConditionExpression": "GSI1PK = :pk",
+            "ExpressionAttributeValues": {":pk": "DOCS"},
+            "Limit": 50,
+        }
+        resp = table.query(**params)
+        # Fail explicitly rather than presenting an incomplete catalog as complete.
+        if resp.get("LastEvaluatedKey"):
+            return cors_response(503, {"error": "Document catalog exceeds the supported page size; pagination is not yet available"})
         items = resp.get("Items", [])
 
-        user = get_user_from_token(event)
-        is_authenticated = bool(user.get("sub"))
-
         documents = []
-        for item in items:
-            access_level = item.get("accessLevel", "public")
+        for indexed_item in items:
+            # GSI projections may lag behind a public-to-private change.
+            item = table.get_item(Key={"PK": indexed_item["PK"], "SK": "META"}, ConsistentRead=True).get("Item")
+            if (not item or not valid_document_id(item.get("documentId"))
+                    or indexed_item["PK"] != "DOC#" + item["documentId"]):
+                continue
+            access_level = item.get("accessLevel")
+            if access_level != "public" and not (event.get("_private_route") and approved_for_document(event, item)):
+                continue
 
             doc = {
                 "id": item.get("documentId"),
@@ -238,12 +278,7 @@ def list_documents(event):
                 "lastUpdated": item.get("lastUpdated", ""),
             }
 
-            # Public docs visible to everyone
-            # Gated docs: metadata visible but download requires access request
-            if access_level == "public" or is_authenticated:
-                doc["downloadable"] = access_level == "public"
-            else:
-                doc["downloadable"] = False
+            doc["downloadable"] = False
 
             documents.append(doc)
 
@@ -258,12 +293,16 @@ def list_documents(event):
 # ---------------------------------------------------------------------------
 def get_document(event, doc_id):
     """Get single document details."""
+    if not valid_document_id(doc_id):
+        return cors_response(404, {"error": "Document not found"})
     try:
-        resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
+        resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True)
         item = resp.get("Item")
-        if not item:
+        if not item or item.get("documentId") != doc_id:
             return cors_response(404, {"error": "Document not found"})
 
+        if item.get("accessLevel") != "public" and not (event.get("_private_route") and approved_for_document(event, item)):
+            return cors_response(404, {"error": "Document not found"})
         return cors_response(200, {
             "id": item.get("documentId"),
             "name": item.get("name"),
@@ -271,7 +310,6 @@ def get_document(event, doc_id):
             "category": item.get("category", ""),
             "accessLevel": item.get("accessLevel", "public"),
             "fileType": item.get("fileType", "pdf"),
-            "s3Key": item.get("s3Key", ""),
             "lastUpdated": item.get("lastUpdated", ""),
         })
     except Exception as e:
@@ -284,11 +322,16 @@ def get_document(event, doc_id):
 # ---------------------------------------------------------------------------
 def request_access(event, doc_id):
     """Request access to a gated document. Creates a pending request."""
+    user = get_user_from_token(event)
+    if not event.get("_private_route") or not user.get("sub"):
+        return cors_response(401, {"error": "Authentication required"})
+    if not valid_document_id(doc_id):
+        return cors_response(400, {"error": "Invalid document ID"})
     body = parse_body(event)
     now = now_iso()
-    req_id = new_id()
 
-    requester_email = body.get("email", "")
+
+    requester_email = user.get("email", "")
     requester_name = body.get("name", "")
     requester_company = body.get("company", "")
     reason = body.get("reason", "")
@@ -297,33 +340,45 @@ def request_access(event, doc_id):
         return cors_response(400, {"error": "Email is required"})
 
     # Check document exists and is gated
-    doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
+    doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True)
     doc = doc_resp.get("Item")
-    if not doc:
+    if not doc or doc.get("documentId") != doc_id:
         return cors_response(404, {"error": "Document not found"})
 
     if doc.get("accessLevel") == "public":
         return cors_response(400, {"error": "Document is publicly available, no request needed"})
 
+    generation = doc.get("generation")
+    if not isinstance(generation, str) or not generation:
+        return cors_response(409, {"error": "Document requires secure re-registration"})
+    req_id = authorization_id(generation, user["sub"])
     item = {
         "PK": f"DOC#{doc_id}",
         "SK": f"REQUEST#{req_id}",
+        "generation": generation,
         "GSI1PK": "REQUESTS",
         "GSI1SK": f"pending#{now}",
         "requestId": req_id,
         "documentId": doc_id,
         "documentName": doc.get("name", ""),
         "requesterEmail": requester_email,
+        "requesterSub": user["sub"],
         "requesterName": requester_name,
         "requesterCompany": requester_company,
         "reason": reason,
         "status": "pending",
+        "version": new_id(),
         "ndaSigned": False,
         "createdAt": now,
         "updatedAt": now,
     }
 
-    table.put_item(Item=item)
+    try:
+        table.put_item(Item=item, ConditionExpression="attribute_not_exists(PK)")
+    except ClientError as e:
+        if e.response.get("Error", {}).get("Code") == "ConditionalCheckFailedException":
+            return cors_response(409, {"error": "A request already exists for this document and identity"})
+        raise
 
     # Log the request in audit trail
     _write_audit_log("access_requested", {
@@ -343,91 +398,64 @@ def request_access(event, doc_id):
 # Route: GET /api/documents/:id/download
 # ---------------------------------------------------------------------------
 def download_document(event, doc_id):
-    """Generate a presigned S3 URL for downloading a document."""
+    """Fail closed; never issue a download URL."""
+    if not valid_document_id(doc_id):
+        return cors_response(404, {"error": "Document not found"})
     # Get document metadata
-    doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
+    doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True)
     doc = doc_resp.get("Item")
     if not doc:
         return cors_response(404, {"error": "Document not found"})
 
-    access_level = doc.get("accessLevel", "public")
-    s3_key = doc.get("s3Key")
-
-    if not s3_key:
-        return cors_response(404, {"error": "Document file not found"})
-
-    # Public docs: anyone can download
-    # Gated docs: check if requester has an approved request
-    if access_level != "public":
-        user = get_user_from_token(event)
-        email = user.get("email", "")
-
-        if not is_admin(event):
-            # Check for approved access request
-            resp = table.query(
-                KeyConditionExpression="PK = :pk AND begins_with(SK, :sk)",
-                ExpressionAttributeValues={
-                    ":pk": f"DOC#{doc_id}",
-                    ":sk": "REQUEST#",
-                },
-            )
-            requests = resp.get("Items", [])
-            approved = any(
-                r.get("requesterEmail") == email and r.get("status") == "approved"
-                for r in requests
-            )
-            if not approved:
-                return cors_response(403, {"error": "Access not approved for this document"})
-
-    # Generate presigned URL (valid for 1 hour)
-    try:
-        url = s3.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": DOCUMENTS_BUCKET, "Key": s3_key},
-            ExpiresIn=3600,
-        )
-    except ClientError as e:
-        logger.error(f"Presigned URL error: {e}")
-        return cors_response(500, {"error": "Failed to generate download link"})
-
-    # Audit log
-    user = get_user_from_token(event)
-    _write_audit_log("document_downloaded", {
-        "documentId": doc_id,
-        "documentName": doc.get("name", ""),
-        "downloadedBy": user.get("email", "anonymous"),
-    })
-
-    return cors_response(200, {"downloadUrl": url, "expiresIn": 3600})
+    # All signing is disabled: a formerly public mutable S3 key can later
+    # hold private data, and reads cannot be atomic with signing or revocation.
+    # Do not re-enable without an independently reviewed delivery design.
+    if doc.get("accessLevel") != "public":
+        return cors_response(404, {"error": "Document not found"})
+    return cors_response(503, {"error": "Document downloads are disabled pending security review"})
 
 
 # ---------------------------------------------------------------------------
 # Route: GET /api/admin/requests
 # ---------------------------------------------------------------------------
 def list_requests(event):
-    """List all access requests (admin only)."""
+    """Return one bounded GSI page and a continuation token (admin only)."""
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
-    status_filter = (event.get("queryStringParameters") or {}).get("status", "")
+    query = event.get("queryStringParameters") or {}
+    status_filter = query.get("status", "")
+    if status_filter not in ("", "pending", "approved", "denied"):
+        return cors_response(400, {"error": "Invalid status"})
+    cursor = query.get("cursor")
+    start_key = None
+    if cursor is not None:
+        try:
+            if not isinstance(cursor, str) or not cursor or len(cursor) > 4096:
+                raise ValueError("invalid cursor")
+            decoded = json.loads(base64.b64decode(cursor.encode("ascii"), altchars=b"-_", validate=True))
+            if not isinstance(decoded, dict) or set(decoded) != {"status", "key"} or decoded["status"] != status_filter:
+                raise ValueError("invalid cursor")
+            start_key = decoded["key"]
+            if (not isinstance(start_key, dict) or set(start_key) != {"PK", "SK", "GSI1PK", "GSI1SK"}
+                    or any(not isinstance(v, str) or not v for v in start_key.values())
+                    or not start_key["PK"].startswith("DOC#") or not start_key["SK"].startswith("REQUEST#")
+                    or start_key["GSI1PK"] != "REQUESTS"
+                    or (status_filter and not start_key["GSI1SK"].startswith(status_filter + "#"))):
+                raise ValueError("invalid cursor")
+        except (ValueError, TypeError, UnicodeError, binascii.Error):
+            return cors_response(400, {"error": "Invalid cursor"})
 
     try:
-        if status_filter:
-            resp = table.query(
-                IndexName="GSI1",
-                KeyConditionExpression="GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
-                ExpressionAttributeValues={
-                    ":pk": "REQUESTS",
-                    ":sk": f"{status_filter}#",
-                },
-            )
-        else:
-            resp = table.query(
-                IndexName="GSI1",
-                KeyConditionExpression="GSI1PK = :pk",
-                ExpressionAttributeValues={":pk": "REQUESTS"},
-            )
-
+        params = {
+            "IndexName": "GSI1",
+            "KeyConditionExpression": "GSI1PK = :pk" + (" AND begins_with(GSI1SK, :sk)" if status_filter else ""),
+            "ExpressionAttributeValues": {":pk": "REQUESTS", **({":sk": f"{status_filter}#"} if status_filter else {})},
+            "Limit": 50,
+        }
+        if start_key:
+            params["ExclusiveStartKey"] = start_key
+        resp = table.query(**params)
         items = resp.get("Items", [])
         requests = [
             {
@@ -439,6 +467,7 @@ def list_requests(event):
                 "requesterCompany": item.get("requesterCompany", ""),
                 "reason": item.get("reason", ""),
                 "status": item.get("status"),
+                "version": item.get("version"),
                 "ndaSigned": item.get("ndaSigned", False),
                 "createdAt": item.get("createdAt"),
                 "updatedAt": item.get("updatedAt"),
@@ -446,7 +475,9 @@ def list_requests(event):
             for item in items
         ]
 
-        return cors_response(200, {"requests": requests})
+        last_key = resp.get("LastEvaluatedKey")
+        next_cursor = base64.urlsafe_b64encode(json.dumps({"status": status_filter, "key": last_key}, separators=(",", ":")).encode()).decode() if last_key else None
+        return cors_response(200, {"requests": requests, "nextCursor": next_cursor})
     except Exception as e:
         logger.error(f"list_requests error: {e}")
         return cors_response(500, {"error": "Failed to list requests"})
@@ -463,28 +494,52 @@ def update_request(event, request_id):
     body = parse_body(event)
     new_status = body.get("status")  # "approved" or "denied"
     doc_id = body.get("documentId")
+    expected_version = body.get("expectedVersion")
+    if not isinstance(expected_version, str) or not expected_version:
+        return cors_response(400, {"error": "expectedVersion is required"})
 
     if new_status not in ("approved", "denied"):
         return cors_response(400, {"error": "Status must be 'approved' or 'denied'"})
 
-    if not doc_id:
-        return cors_response(400, {"error": "documentId is required"})
+    if not valid_document_id(doc_id):
+        return cors_response(400, {"error": "Invalid document ID"})
 
     now = now_iso()
     admin_user = get_user_from_token(event)
 
     try:
-        table.update_item(
-            Key={"PK": f"DOC#{doc_id}", "SK": f"REQUEST#{request_id}"},
-            UpdateExpression="SET #s = :s, updatedAt = :now, reviewedBy = :by, GSI1SK = :gsi",
-            ExpressionAttributeNames={"#s": "status"},
-            ExpressionAttributeValues={
-                ":s": new_status,
-                ":now": now,
-                ":by": admin_user["email"],
-                ":gsi": f"{new_status}#{now}",
-            },
-        )
+        key = {"PK": f"DOC#{doc_id}", "SK": f"REQUEST#{request_id}"}
+        request = table.get_item(Key=key, ConsistentRead=True).get("Item") or {}
+        doc = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True).get("Item") or {}
+        generation, subject = request.get("generation"), request.get("requesterSub")
+        if request.get("version") != expected_version:
+            return cors_response(409, {"error": "Request changed; refresh before deciding"})
+        if (not isinstance(generation, str) or not generation or not isinstance(subject, str) or not subject
+                or doc.get("generation") != generation or doc.get("documentId") != doc_id
+                or request.get("documentId") != doc_id or request.get("requestId") != request_id
+                or authorization_id(generation, subject) != request_id):
+            return cors_response(409, {"error": "Request is legacy, stale, missing or invalid"})
+        # The low-level client requires DynamoDB AttributeValue shapes.
+        av = lambda values: {k: {"S": v} for k, v in values.items()}
+        ddb_client.transact_write_items(TransactItems=[
+            {"ConditionCheck": {
+                "TableName": TABLE_NAME, "Key": av({"PK": f"DOC#{doc_id}", "SK": "META"}),
+                "ConditionExpression": "generation = :generation AND documentId = :doc",
+                "ExpressionAttributeValues": av({":generation": generation, ":doc": doc_id}),
+            }},
+            {"Update": {
+                "TableName": TABLE_NAME, "Key": av(key),
+                "ConditionExpression": "generation = :generation AND requesterSub = :subject AND requestId = :request AND documentId = :doc AND #v = :expected",
+                "UpdateExpression": "SET #v = :next, #s = :s, updatedAt = :now, reviewedBy = :by, GSI1SK = :gsi",
+                "ExpressionAttributeNames": {"#s": "status", "#v": "version"},
+                "ExpressionAttributeValues": av({
+                    ":expected": expected_version, ":next": new_id(), ":generation": generation,
+                    ":subject": subject, ":request": request_id, ":doc": doc_id,
+                    ":s": new_status, ":now": now, ":by": admin_user["email"],
+                    ":gsi": f"{new_status}#{now}",
+                }),
+            }},
+        ])
 
         _write_audit_log(f"request_{new_status}", {
             "requestId": request_id,
@@ -496,6 +551,15 @@ def update_request(event, request_id):
             "message": f"Request {new_status}",
             "requestId": request_id,
         })
+    except ClientError as e:
+        if e.response.get("Error", {}).get("Code") == "TransactionCanceledException" and any(
+                reason.get("Code") == "ConditionalCheckFailed" for reason in e.response.get("CancellationReasons", [])):
+            return cors_response(409, {"error": "Request changed; refresh before deciding"})
+        if e.response.get("Error", {}).get("Code") == "TransactionCanceledException" and any(
+                reason.get("Code") == "TransactionConflict" for reason in e.response.get("CancellationReasons", [])):
+            return cors_response(409, {"error": "Concurrent transaction conflict; refresh and retry", "retryable": True})
+        logger.error(f"update_request error: {e}")
+        return cors_response(500, {"error": "Failed to update request"})
     except Exception as e:
         logger.error(f"update_request error: {e}")
         return cors_response(500, {"error": "Failed to update request"})
@@ -510,10 +574,14 @@ def create_document(event):
         return cors_response(403, {"error": "Admin access required"})
 
     body = parse_body(event)
-    doc_id = body.get("id") or new_id()
+    doc_id = body["id"] if "id" in body else new_id()
+    if not valid_document_id(doc_id):
+        return cors_response(400, {"error": "Invalid document ID"})
     now = now_iso()
 
-    access_level = body.get("accessLevel", "public")
+    access_level = body.get("accessLevel")
+    if access_level not in ("public", "gated"):
+        return cors_response(400, {"error": "accessLevel must be public or gated"})
     name = body.get("name", "")
 
     item = {
@@ -523,6 +591,7 @@ def create_document(event):
         "GSI1SK": f"{access_level}#{name}",
         "documentId": doc_id,
         "name": name,
+        "generation": new_id(),  # Every save revokes decisions for the prior incarnation.
         "description": body.get("description", ""),
         "category": body.get("category", ""),
         "accessLevel": access_level,
@@ -546,6 +615,8 @@ def delete_document(event, doc_id):
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
+    if not valid_document_id(doc_id):
+        return cors_response(400, {"error": "Invalid document ID"})
     table.delete_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
 
     _write_audit_log("document_deleted", {
@@ -646,10 +717,21 @@ def handler(event, context):
     http_method = event.get("httpMethod", "GET")
     path = event.get("path", "")
 
+    # Only the dedicated Cognito-authorized resource may supply identity.
+    # API Gateway invokes Lambda; never expose this Lambda via an untrusted URL.
     # Strip stage prefix if present (e.g., /prod/api/... → /api/...)
-    if f"/{STAGE}/" in path:
-        path = path.split(f"/{STAGE}", 1)[1]
+    if path.startswith(f"/{STAGE}/"):
+        path = path[len(STAGE) + 1:]
 
+    private_route = path.startswith("/api/private/")
+    if private_route:
+        path = "/api/" + path[len("/api/private/"):]
+        if not (path == "/api/documents" or path.startswith("/api/documents/")):
+            return cors_response(404, {"error": "Route not found"})
+    event = dict(event)
+    event["_private_route"] = private_route
+    if not private_route and not path.startswith("/api/admin/"):
+        event["requestContext"] = {}
     logger.info(f"{http_method} {path}")
 
     try:
@@ -664,17 +746,17 @@ def handler(event, context):
         if path == "/api/documents" and http_method == "GET":
             return list_documents(event)
 
-        if path.startswith("/api/documents/") and path.endswith("/request-access") and http_method == "POST":
-            doc_id = path.split("/")[3]
-            return request_access(event, doc_id)
+        match = re.fullmatch(r"/api/documents/([^/]+)/request-access", path)
+        if match and http_method == "POST":
+            return request_access(event, match.group(1))
 
-        if path.startswith("/api/documents/") and path.endswith("/download") and http_method == "GET":
-            doc_id = path.split("/")[3]
-            return download_document(event, doc_id)
+        match = re.fullmatch(r"/api/documents/([^/]+)/download", path)
+        if match and http_method == "GET":
+            return download_document(event, match.group(1))
 
-        if path.startswith("/api/documents/") and http_method == "GET":
-            doc_id = path.split("/")[3]
-            return get_document(event, doc_id)
+        match = re.fullmatch(r"/api/documents/([^/]+)", path)
+        if match and http_method == "GET":
+            return get_document(event, match.group(1))
 
         # --- Admin routes ---
         if path == "/api/admin/config" and http_method == "PUT":
@@ -683,16 +765,16 @@ def handler(event, context):
         if path == "/api/admin/documents" and http_method == "POST":
             return create_document(event)
 
-        if path.startswith("/api/admin/documents/") and http_method == "DELETE":
-            doc_id = path.split("/")[4]
-            return delete_document(event, doc_id)
+        match = re.fullmatch(r"/api/admin/documents/([^/]+)", path)
+        if match and http_method == "DELETE":
+            return delete_document(event, match.group(1))
 
         if path == "/api/admin/requests" and http_method == "GET":
             return list_requests(event)
 
-        if path.startswith("/api/admin/requests/") and http_method == "PUT":
-            req_id = path.split("/")[4]
-            return update_request(event, req_id)
+        match = re.fullmatch(r"/api/admin/requests/([^/]+)", path)
+        if match and http_method == "PUT":
+            return update_request(event, match.group(1))
 
         if path == "/api/admin/audit-log" and http_method == "GET":
             return get_audit_log(event)

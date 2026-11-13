@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.jsx'
 import * as api from '../utils/api.js'
@@ -17,15 +18,11 @@ const monoFont = "'JetBrains Mono', monospace"
 
 // ── Demo data for preview ───────────────────────────────────
 const DEMO_REQUESTS = [
-  { requestId: 'r001', documentName: 'SOC 2 Type II Report', requesterName: 'Sarah Chen', requesterEmail: 'sarah@bigcorp.com', requesterCompany: 'BigCorp', reason: 'Vendor due diligence for enterprise procurement', status: 'pending', ndaSigned: false, createdAt: '2026-05-15T10:30:00Z' },
-  { requestId: 'r002', documentName: 'Information Security Policy', requesterName: 'James Mwangi', requesterEmail: 'james@techpartners.io', requesterCompany: 'TechPartners', reason: 'Security review for integration partnership', status: 'pending', ndaSigned: true, createdAt: '2026-05-16T14:20:00Z' },
-  { requestId: 'r003', documentName: 'SOC 2 Type II Report', requesterName: 'Lisa Park', requesterEmail: 'lisa@acme.com', requesterCompany: 'Acme Corp', reason: 'Annual vendor reassessment', status: 'approved', ndaSigned: true, createdAt: '2026-05-10T09:00:00Z' },
+  { requestId: 'demo-1', documentName: 'Example document (fictional)', requesterName: 'Demo requester', requesterEmail: 'requester@example.invalid', requesterCompany: 'Example only', reason: 'Synthetic demonstration', status: 'pending', createdAt: '2026-05-15T10:30:00Z' },
 ]
 
 const DEMO_AUDIT = [
-  { action: 'access_requested', details: { requesterEmail: 'sarah@bigcorp.com', documentId: 'soc2-type2' }, timestamp: '2026-05-15T10:30:00Z' },
-  { action: 'document_downloaded', details: { downloadedBy: 'lisa@acme.com', documentName: 'SOC 2 Type II Report' }, timestamp: '2026-05-14T16:45:00Z' },
-  { action: 'request_approved', details: { reviewedBy: 'admin@yourcompany.com', requestId: 'r003' }, timestamp: '2026-05-12T11:20:00Z' },
+  { action: 'access_requested', details: { requesterEmail: 'requester@example.invalid', documentId: 'example-only' }, timestamp: '2026-05-15T10:30:00Z' },
 ]
 
 function StatusBadge({ status }) {
@@ -46,7 +43,7 @@ function StatusBadge({ status }) {
   )
 }
 
-function RequestRow({ req, onApprove, onDeny }) {
+function RequestRow({ req, onApprove, onDeny, isDemo }) {
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: '1fr 1fr auto auto',
@@ -79,18 +76,19 @@ function RequestRow({ req, onApprove, onDeny }) {
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
-        {req.status === 'pending' && (
-          <>
+        {(req.version || isDemo) && ['pending', 'denied'].includes(req.status) && (
             <button onClick={() => onApprove(req)} style={{
               fontFamily: baseFont, fontSize: 12, fontWeight: 600, color: p.green,
               background: p.greenGlow, border: 'none', borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
             }}>Approve</button>
+        )}
+        {(req.version || isDemo) && ['pending', 'approved'].includes(req.status) && (
             <button onClick={() => onDeny(req)} style={{
               fontFamily: baseFont, fontSize: 12, fontWeight: 600, color: p.red,
               background: p.redGlow, border: 'none', borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
-            }}>Deny</button>
-          </>
+            }}>{req.status === 'approved' ? 'Revoke' : 'Deny'}</button>
         )}
+        {!req.version && !isDemo && <span>Legacy request — cannot decide</span>}
       </div>
     </div>
   )
@@ -129,11 +127,16 @@ export default function AdminDashboard() {
   const navigate = useNavigate()
 
   const [tab, setTab] = useState('requests')
-  const [requests, setRequests] = useState(DEMO_REQUESTS)
-  const [auditLog, setAuditLog] = useState(DEMO_AUDIT)
+  const isDemo = import.meta.env.VITE_DEMO_MODE === 'true'
+  const [requests, setRequests] = useState(() => isDemo ? DEMO_REQUESTS : [])
+  const [auditLog, setAuditLog] = useState(() => isDemo ? DEMO_AUDIT : [])
+  const [error, setError] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [nextCursor, setNextCursor] = useState(null)
+  const [pageLoading, setPageLoading] = useState(false)
+  const [refresh, setRefresh] = useState(0)
+  const requestEpoch = useRef(0)
 
-  const isDemo = !import.meta.env.VITE_API_URL
 
   useEffect(() => {
     if (!authLoading && !user && !isDemo) {
@@ -142,25 +145,41 @@ export default function AdminDashboard() {
   }, [user, authLoading, navigate, isDemo])
 
   useEffect(() => {
-    if (isDemo) return
-    const token = getToken()
-    if (!token) return
-
-    if (tab === 'requests') {
-      api.getRequests(token, statusFilter).then(data => setRequests(data?.requests || []))
-    } else if (tab === 'audit') {
-      api.getAuditLog(token).then(data => setAuditLog(data?.entries || []))
+    if (isDemo || !user) return
+    const epoch = ++requestEpoch.current
+    let active = true
+    if (tab === 'requests') { setRequests([]); setNextCursor(null) }
+    const load = async () => {
+      try {
+        const token = await getToken()
+        if (!active) return
+        const data = tab === 'requests' ? await api.getRequests(token, statusFilter) : await api.getAuditLog(token)
+        if (!active || requestEpoch.current !== epoch) return
+        if (tab === 'requests') { setRequests(data?.requests || []); setNextCursor(data?.nextCursor || null) }
+        else setAuditLog(data?.entries || [])
+      } catch { if (active) setError(tab === 'requests' ? 'Could not load requests.' : 'Could not load audit log.') }
     }
-  }, [tab, statusFilter, getToken, isDemo])
+    load()
+    return () => { active = false }
+  }, [tab, statusFilter, getToken, isDemo, refresh, user])
 
   const handleApprove = async (req) => {
     if (isDemo) {
       setRequests(prev => prev.map(r => r.requestId === req.requestId ? { ...r, status: 'approved' } : r))
       return
     }
-    const token = getToken()
-    await api.updateRequest(req.requestId, req.documentId, 'approved', token)
-    setRequests(prev => prev.map(r => r.requestId === req.requestId ? { ...r, status: 'approved' } : r))
+    const epoch = ++requestEpoch.current
+    try {
+      const token = await getToken()
+      await api.updateRequest(req.requestId, req.documentId, 'approved', req.version, token)
+      const data = await api.getRequests(token, statusFilter)
+      if (requestEpoch.current !== epoch) return
+      setRequests(data?.requests || [])
+      setNextCursor(data?.nextCursor || null)
+      setError('')
+    } catch {
+      setError('Decision failed or changed; refresh requests before retrying.')
+    }
   }
 
   const handleDeny = async (req) => {
@@ -168,12 +187,33 @@ export default function AdminDashboard() {
       setRequests(prev => prev.map(r => r.requestId === req.requestId ? { ...r, status: 'denied' } : r))
       return
     }
-    const token = getToken()
-    await api.updateRequest(req.requestId, req.documentId, 'denied', token)
-    setRequests(prev => prev.map(r => r.requestId === req.requestId ? { ...r, status: 'denied' } : r))
+    const epoch = ++requestEpoch.current
+    try {
+      const token = await getToken()
+      await api.updateRequest(req.requestId, req.documentId, 'denied', req.version, token)
+      const data = await api.getRequests(token, statusFilter)
+      if (requestEpoch.current !== epoch) return
+      setRequests(data?.requests || [])
+      setNextCursor(data?.nextCursor || null)
+      setError('')
+    } catch {
+      setError('Decision failed or changed; refresh requests before retrying.')
+    }
   }
 
-  const pendingCount = requests.filter(r => r.status === 'pending').length
+  const loadMore = async () => {
+    if (!nextCursor || pageLoading) return
+    const epoch = requestEpoch.current
+    setPageLoading(true)
+    try {
+      const data = await api.getRequests(await getToken(), statusFilter, nextCursor)
+      if (requestEpoch.current !== epoch) return
+      setRequests(prev => [...prev, ...(data?.requests || [])])
+      setNextCursor(data?.nextCursor || null)
+      setError('')
+    } catch { setError('Could not load more requests.') }
+    finally { setPageLoading(false) }
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: p.bg, fontFamily: baseFont }}>
@@ -204,9 +244,9 @@ export default function AdminDashboard() {
           )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <a href="/" style={{ fontFamily: baseFont, fontSize: 13, color: p.textDim, textDecoration: 'none' }}>
+          <Link to="/" style={{ fontFamily: baseFont, fontSize: 13, color: p.textDim, textDecoration: 'none' }}>
             ← Public Site
-          </a>
+          </Link>
           {user && (
             <>
               <span style={{ fontFamily: monoFont, fontSize: 11, color: p.textDim }}>{user.email}</span>
@@ -220,10 +260,12 @@ export default function AdminDashboard() {
       </nav>
 
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 24px' }}>
+        {isDemo && <p style={{ color: p.amber }}>Isolated demo — all records are fictional. Changes are simulated locally and are not submitted. NDA enforcement is not implemented.</p>}
+        {error && <p role="alert" style={{ color: p.red }}>{error}</p>}
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 24 }}>
           {[
-            { key: 'requests', label: 'Access Requests', count: pendingCount },
+            { key: 'requests', label: 'Access Requests' },
             { key: 'audit', label: 'Audit Log' },
           ].map(({ key, label, count }) => (
             <button key={key} onClick={() => setTab(key)} style={{
@@ -250,9 +292,10 @@ export default function AdminDashboard() {
         {/* Requests Tab */}
         {tab === 'requests' && (
           <>
+            {!isDemo && <button onClick={() => { requestEpoch.current++; setError(''); setRefresh(n => n + 1) }}>Refresh requests</button>}
             <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
               {['', 'pending', 'approved', 'denied'].map(s => (
-                <button key={s} onClick={() => setStatusFilter(s)} style={{
+                <button key={s} onClick={() => { if (s !== statusFilter) requestEpoch.current++; setStatusFilter(s) }} style={{
                   fontFamily: monoFont, fontSize: 10, fontWeight: 600,
                   color: statusFilter === s ? p.text : p.textDim,
                   background: statusFilter === s ? p.surfaceHover : 'transparent',
@@ -282,7 +325,7 @@ export default function AdminDashboard() {
               {requests
                 .filter(r => !statusFilter || r.status === statusFilter)
                 .map(req => (
-                  <RequestRow key={req.requestId} req={req} onApprove={handleApprove} onDeny={handleDeny} />
+                  <RequestRow key={req.requestId} req={req} onApprove={handleApprove} onDeny={handleDeny} isDemo={isDemo} />
                 ))
               }
               {requests.filter(r => !statusFilter || r.status === statusFilter).length === 0 && (
@@ -291,11 +334,13 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
+            {nextCursor && <button disabled={pageLoading} onClick={loadMore}>Load more requests</button>}
           </>
         )}
 
         {/* Audit Tab */}
         {tab === 'audit' && (
+          <><p style={{ color: p.amber }}>Best-effort activity log: entries may be missing and are not an authoritative audit trail.</p>
           <div style={{
             background: p.surface, border: `1px solid ${p.border}`, borderRadius: 16, overflow: 'hidden',
           }}>
@@ -307,7 +352,7 @@ export default function AdminDashboard() {
                 No audit entries yet
               </div>
             )}
-          </div>
+          </div></>
         )}
       </div>
     </div>

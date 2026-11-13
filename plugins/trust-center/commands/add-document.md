@@ -1,15 +1,3 @@
 # `/trust-center:add-document`
 
-Add a compliance document to the trust center.
-
-## Steps
-
-1. Ask for document name, description, category, and access level (public/gated)
-2. Update `backend/seed_data.py`
-3. If deployed, write the record to DynamoDB directly
-
-## Usage
-
-```
-/trust-center:add-document --name "SOC 2 Type II" --access gated --category "Audit Reports"
-```
+**STOP: Do not add, upload, seed, or publish documents or write to any deployed service.** Sensitive data must not be used with this experimental prototype; access controls and routing are unverified and NDA enforcement is not implemented. For offline evaluation use synthetic fixtures only. See `docs/ACCESS-SECURITY.md` for blockers.

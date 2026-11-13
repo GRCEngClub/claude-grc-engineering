@@ -7,6 +7,13 @@ Description: >
 # ============================================================
 # PARAMETERS — what the deployer customizes
 # ============================================================
+# Deliberately reject all stack create/update attempts pending security review.
+Rules:
+  DeploymentBlocked:
+    Assertions:
+      - Assert: !Equals ["blocked", "permitted"]
+        AssertDescription: "STOP: deployment blocked; see docs/ACCESS-SECURITY.md"
+
 Parameters:
   CompanyName:
     Type: String
@@ -398,6 +405,7 @@ Resources:
                   - dynamodb:GetItem
                   - dynamodb:PutItem
                   - dynamodb:UpdateItem
+                  - dynamodb:ConditionCheckItem
                   - dynamodb:DeleteItem
                   - dynamodb:Query
                   - dynamodb:Scan
@@ -503,14 +511,14 @@ Resources:
       ParentId: !Ref ApiResource
       PathPart: "{proxy+}"
 
+  # Public catch-all: config, documents list/detail, request-access, webhook
   ApiProxyMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref TrustCenterApi
       ResourceId: !Ref ApiProxyResource
       HttpMethod: ANY
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref CognitoAuthorizer
+      AuthorizationType: NONE
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
@@ -541,12 +549,125 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: true
             method.response.header.Access-Control-Allow-Origin: true
 
+  # ----------------------------------------------------------
+  # API Gateway — Protected admin routes (/api/admin/*)
+  # All admin methods require a valid Cognito JWT.
+  # ----------------------------------------------------------
+  ApiAdminResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ParentId: !Ref ApiResource
+      PathPart: admin
+
+  ApiAdminProxyResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ParentId: !Ref ApiAdminResource
+      PathPart: "{proxy+}"
+
+  # Requires Cognito JWT — covers all admin sub-routes
+  ApiAdminProxyMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ResourceId: !Ref ApiAdminProxyResource
+      HttpMethod: ANY
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref CognitoAuthorizer
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiFunction.Arn}/invocations"
+
+  # CORS preflight for admin routes — must stay NONE
+  ApiAdminOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ResourceId: !Ref ApiAdminProxyResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # Authenticated private document routes are isolated from the public proxy.
+  ApiPrivateResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ParentId: !Ref ApiResource
+      PathPart: private
+
+  ApiPrivateProxyResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ParentId: !Ref ApiPrivateResource
+      PathPart: "{proxy+}"
+
+  ApiPrivateProxyMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ResourceId: !Ref ApiPrivateProxyResource
+      HttpMethod: ANY
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref CognitoAuthorizer
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiFunction.Arn}/invocations"
+
+  ApiPrivateOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref TrustCenterApi
+      ResourceId: !Ref ApiPrivateProxyResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
   ApiDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
       - ApiProxyMethod
       - ApiProxyOptionsMethod
       - CognitoAuthorizer
+      - ApiAdminProxyMethod
+      - ApiAdminOptionsMethod
+      - ApiPrivateProxyMethod
+      - ApiPrivateOptionsMethod
     Properties:
       RestApiId: !Ref TrustCenterApi
 

@@ -1,17 +1,24 @@
 /**
  * Trust Center API Client
  *
- * All backend calls go through here. When VITE_API_URL is set,
- * calls hit the real Lambda. Otherwise falls back to demo data.
+ * Demo mode is explicit and never contacts the backend. Otherwise an empty
+ * base URL uses the same-origin API, just like the public page.
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || ''
-const IS_DEMO = !API_BASE
+// VITE_API_URL is a trusted deployment setting and must end in /api.
+const configuredBase = import.meta.env.VITE_API_URL || '/api'
+const API_BASE = (() => {
+  if (configuredBase === '/api' || configuredBase === '/api/') return '/api'
+  const url = new URL(configuredBase)
+  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || !/\/api\/?$/.test(url.pathname)) throw new Error('Invalid API URL configuration.')
+  return url.href.replace(/\/$/, '')
+})()
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 
 async function request(path, options = {}) {
   if (IS_DEMO) {
     console.warn(`[DEMO MODE] Skipped API call: ${path}`)
-    return null
+    throw new Error('Demo mode: API calls are disabled.')
   }
 
   const url = `${API_BASE}${path}`
@@ -21,12 +28,18 @@ async function request(path, options = {}) {
     headers['Authorization'] = `Bearer ${options.token}`
   }
 
-  const res = await fetch(url, { ...options, headers })
+  const { token, ...fetchOptions } = options
+  const res = await fetch(url, { ...fetchOptions, headers, redirect: 'error' })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }))
     throw new Error(err.error || `API error: ${res.status}`)
   }
   return res.json()
+}
+
+function validateDocumentId(id) {
+  if (typeof id !== 'string' || id.length < 1 || id.length > 128 || /[^A-Za-z0-9_-]/.test(id)) throw new Error('Invalid document ID.')
+  return id
 }
 
 // ── Public endpoints ────────────────────────────────────────
@@ -41,18 +54,31 @@ export async function getDocuments() {
 }
 
 export async function getDocument(id) {
-  return request(`/documents/${id}`)
+  return request(`/documents/${validateDocumentId(id)}`)
 }
 
-export async function requestAccess(docId, form) {
-  return request(`/documents/${docId}/request-access`, {
+export async function getAccessibleDocuments(token) {
+  if (!token) throw new Error('Sign-in required.')
+  const data = await request('/private/documents', { token, cache: 'no-store' })
+  if (!Array.isArray(data?.documents)) throw new Error('Invalid document response.')
+  return data.documents
+}
+
+export async function requestAccess(docId, form, token) {
+  if (!token) throw new Error('Sign-in required.')
+  validateDocumentId(docId)
+  const data = await request(`/private/documents/${encodeURIComponent(docId)}/request-access`, {
     method: 'POST',
     body: JSON.stringify(form),
+    token,
+    cache: 'no-store',
   })
+  if (data?.status !== 'pending' || typeof data.requestId !== 'string' || !data.requestId) throw new Error('Invalid request response.')
+  return data
 }
 
 export async function downloadDocument(docId, token) {
-  return request(`/documents/${docId}/download`, { token })
+  return request(`/documents/${validateDocumentId(docId)}/download`, { token })
 }
 
 // ── Admin endpoints ─────────────────────────────────────────
@@ -66,6 +92,7 @@ export async function updateConfig(config, token) {
 }
 
 export async function createDocument(doc, token) {
+  if (Object.hasOwn(doc, 'id')) validateDocumentId(doc.id)
   return request('/admin/documents', {
     method: 'POST',
     body: JSON.stringify(doc),
@@ -74,21 +101,25 @@ export async function createDocument(doc, token) {
 }
 
 export async function deleteDocument(docId, token) {
-  return request(`/admin/documents/${docId}`, {
+  return request(`/admin/documents/${validateDocumentId(docId)}`, {
     method: 'DELETE',
     token,
   })
 }
 
-export async function getRequests(token, status = '') {
-  const query = status ? `?status=${status}` : ''
+export async function getRequests(token, status = '', cursor = '') {
+  const params = new URLSearchParams()
+  if (status) params.set('status', status)
+  if (cursor) params.set('cursor', cursor)
+  const query = params.toString() ? `?${params}` : ''
   return request(`/admin/requests${query}`, { token })
 }
 
-export async function updateRequest(requestId, documentId, status, token) {
+export async function updateRequest(requestId, documentId, status, expectedVersion, token) {
+  validateDocumentId(documentId)
   return request(`/admin/requests/${requestId}`, {
     method: 'PUT',
-    body: JSON.stringify({ status, documentId }),
+    body: JSON.stringify({ status, documentId, expectedVersion }),
     token,
   })
 }

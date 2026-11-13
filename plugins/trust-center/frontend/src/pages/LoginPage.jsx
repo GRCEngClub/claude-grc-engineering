@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.jsx'
@@ -11,7 +12,7 @@ const p = {
 const baseFont = "'DM Sans', sans-serif"
 const monoFont = "'JetBrains Mono', monospace"
 
-export default function LoginPage() {
+export default function LoginPage({ requester = false }) {
   const { login, error: authError } = useAuth()
   const navigate = useNavigate()
 
@@ -33,7 +34,7 @@ export default function LoginPage() {
         setChallengeHandler(() => result.completeChallenge)
         setLoading(false)
       } else {
-        navigate('/admin')
+        navigate(requester ? '/access' : '/admin')
       }
     } catch (err) {
       setError(err.message || 'Login failed')
@@ -55,7 +56,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await challengeHandler(newPassword)
-      navigate('/admin')
+      navigate(requester ? '/access' : '/admin')
     } catch (err) {
       setError(err.message || 'Failed to set new password')
       setLoading(false)
@@ -93,10 +94,10 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 style={{ fontFamily: baseFont, fontSize: 22, fontWeight: 800, color: p.text, margin: '0 0 4px' }}>
-            {challengeHandler ? 'Set New Password' : 'Admin Login'}
+            {challengeHandler ? 'Set New Password' : requester ? 'Requester Sign In' : 'Admin Login'}
           </h1>
           <p style={{ fontFamily: baseFont, fontSize: 13, color: p.textDim, margin: 0 }}>
-            {challengeHandler ? 'Choose a new password to continue' : 'Trust Center Administration'}
+            {challengeHandler ? 'Choose a new password to continue' : requester ? 'Trust Center access' : 'Trust Center Administration'}
           </p>
         </div>
 
@@ -156,9 +157,9 @@ export default function LoginPage() {
         )}
 
         <div style={{ textAlign: 'center', marginTop: 24 }}>
-          <a href="/" style={{ fontFamily: baseFont, fontSize: 13, color: p.textDim, textDecoration: 'none' }}>
+          <Link to="/" style={{ fontFamily: baseFont, fontSize: 13, color: p.textDim, textDecoration: 'none' }}>
             ← Back to Trust Center
-          </a>
+          </Link>
         </div>
       </div>
     </div>

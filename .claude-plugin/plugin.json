@@ -1,7 +1,7 @@
 {
   "name": "trust-center",
   "version": "1.0.0",
-  "description": "Deploy a serverless trust center to publish your company's compliance posture. Supports AWS deployment with S3, CloudFront, Lambda, DynamoDB, Cognito, and WAF.",
+  "description": "Experimental trust-center groundwork for offline synthetic-data evaluation only; deployment and sensitive data use are blocked. NDA enforcement is not implemented.",
   "author": "GRC Engineering Club",
   "tags": ["trust-center", "compliance", "soc2", "grc", "serverless"],
   "skills": [

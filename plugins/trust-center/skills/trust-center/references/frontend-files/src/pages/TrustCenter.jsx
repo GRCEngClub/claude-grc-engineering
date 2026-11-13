@@ -1,120 +1,24 @@
+import { Link } from 'react-router-dom'
 import { useState, useEffect, useCallback } from "react";
+import { getConfig, getDocuments } from "../utils/api.js";
 
 // ─── Configuration ──────────────────────────────────────────
-// In production these come from environment variables or the /api/config endpoint.
-// Demo mode uses generic sample data. Replace with your own via the seed script
-// or the /api/admin/config endpoint after deploying.
-const DEMO_MODE = true;
+// Demo mode is isolated, synthetic, and explicitly enabled for offline preview.
+// Deployment and live seeding are blocked; NDA enforcement is not implemented.
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 
 const DEMO_CONFIG = {
-  companyName: "Acme Corp",
-  tagline: "Security & Compliance",
-  description:
-    "Acme Corp is committed to protecting your data. We maintain rigorous compliance standards and undergo independent audits to ensure the security, availability, and confidentiality of our platform.",
+  companyName: "Fictional Demo Only",
+  tagline: "Offline prototype preview",
+  description: "Synthetic example only. No security or compliance claims are made.",
   primaryColor: "#1a56db",
-  contactEmail: "security@acmecorp.example.com",
-  certifications: [
-    {
-      name: "SOC 2 Type II",
-      status: "active",
-      description:
-        "System and Organization Controls — Security trust services criteria",
-      auditPeriod: "Jan 2026 – Jun 2026",
-      auditor: "Example Audit Firm",
-      badge: "soc2",
-    },
-    {
-      name: "SOC 3",
-      status: "active",
-      description:
-        "General use report on Security controls — publicly downloadable",
-      auditPeriod: "Jan 2026 – Jun 2026",
-      auditor: "Example Audit Firm",
-      badge: "soc3",
-    },
-  ],
-  complianceStats: {
-    totalControls: 42,
-    trustServicesCriteria: 30,
-    complianceRate: "97%",
-    currentAuditPeriod: "Jul 1, 2026 – Jun 30, 2027",
-  },
+  contactEmail: "demo@example.invalid",
+  certifications: [],
 };
 
 const DEMO_DOCUMENTS = [
-  {
-    id: "soc3-report",
-    name: "SOC 3 Report",
-    description: "General use report on system controls — publicly available",
-    category: "Audit Reports",
-    accessLevel: "public",
-    fileType: "pdf",
-    downloadable: true,
-  },
-  {
-    id: "soc2-type2",
-    name: "SOC 2 Type II Report",
-    description:
-      "Detailed report on the design and operating effectiveness of security controls",
-    category: "Audit Reports",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-infosec",
-    name: "Information Security Policy",
-    description: "Overarching policy governing information asset protection",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-access",
-    name: "Access Control Policy",
-    description: "User provisioning, role-based access, and offboarding procedures",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-bcdr",
-    name: "Business Continuity & Disaster Recovery Plan",
-    description: "Procedures for maintaining operations during disruptions",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-incident",
-    name: "Incident Response Plan",
-    description: "Detection, response, and recovery procedures for security events",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-privacy",
-    name: "Privacy & Data Protection Policy",
-    description: "Data subject rights and privacy law compliance",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-vendor",
-    name: "Vendor Management Policy",
-    description: "Third-party risk assessment and ongoing monitoring",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
+  { id: "demo-public", name: "Fictional public example", description: "Synthetic preview; no file exists.", category: "Audit Reports", accessLevel: "public", fileType: "pdf", downloadable: false },
+  { id: "demo-gated", name: "Fictional restricted example", description: "Synthetic preview; no file exists.", category: "Policies", accessLevel: "gated", fileType: "pdf", downloadable: false },
 ];
 
 // ─── Styles ─────────────────────────────────────────────────
@@ -420,28 +324,8 @@ function DocumentRow({ doc, onRequestAccess }) {
           {doc.fileType}
         </span>
 
-        {isPublic ? (
-          <button
-            onClick={() => {}}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontFamily: baseFont,
-              fontSize: 13,
-              fontWeight: 600,
-              color: palette.green,
-              background: palette.greenGlow,
-              border: "none",
-              borderRadius: 8,
-              padding: "8px 14px",
-              cursor: "pointer",
-              transition: "opacity 0.15s",
-            }}
-          >
-            <DownloadIcon size={14} color={palette.green} />
-            Download
-          </button>
+        {DEMO_MODE ? <span>Example only — unavailable</span> : isPublic ? (
+          <span>Downloads unavailable</span>
         ) : (
           <button
             onClick={() => onRequestAccess(doc)}
@@ -478,11 +362,12 @@ function AccessRequestModal({ document: doc, onClose, onSubmit }) {
     reason: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.email || !form.name) return;
-    onSubmit(doc.id, form);
-    setSubmitted(true);
+    try { await onSubmit(doc.id, form); setSubmitted(true); }
+    catch (e) { setSubmitError(e.message || "Request failed."); }
   };
 
   return (
@@ -564,8 +449,8 @@ function AccessRequestModal({ document: doc, onClose, onSubmit }) {
                 margin: 0,
               }}
             >
-              We'll review your request and email you when access is granted. You
-              may be asked to sign an NDA before downloading sensitive documents.
+              This prototype does not support requester access or enforce NDAs.
+              Do not use it for sensitive documents.
             </p>
           </div>
         ) : (
@@ -667,6 +552,7 @@ function AccessRequestModal({ document: doc, onClose, onSubmit }) {
               ))}
             </div>
 
+            {submitError && <p role="alert" style={{ color: palette.red }}>{submitError}</p>}
             <button
               onClick={handleSubmit}
               disabled={!form.name || !form.email}
@@ -707,26 +593,19 @@ export default function TrustCenter() {
   const [filter, setFilter] = useState("all"); // "all" | "reports" | "policies"
   const [requestModal, setRequestModal] = useState(null);
   const [loading, setLoading] = useState(!DEMO_MODE);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (DEMO_MODE) return;
-    Promise.all([
-      fetch("/api/config").then((r) => r.json()),
-      fetch("/api/documents").then((r) => r.json()),
-    ]).then(([cfg, docs]) => {
-      setConfig(cfg);
-      setDocuments(docs.documents || []);
-      setLoading(false);
-    });
+    Promise.all([getConfig(), getDocuments()])
+      .then(([cfg, docs]) => { setConfig(cfg); setDocuments(docs); })
+      .catch(() => setError("Unable to load trust center data. Please try again later."))
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleRequestAccess = useCallback((docId, form) => {
-    if (DEMO_MODE) return;
-    fetch(`/api/documents/${docId}/request-access`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+
+  const handleRequestAccess = useCallback(async () => {
+    throw new Error(DEMO_MODE ? "Demo requests are not submitted." : "Requester sign-in is not available yet. Contact the trust center owner.");
   }, []);
 
   const filteredDocs = documents.filter((d) => {
@@ -849,8 +728,11 @@ export default function TrustCenter() {
           >
             {config?.description}
           </p>
+          <p><Link to="/access" style={{ color: palette.accent }}>Requester access</Link></p>
         </header>
 
+        {error && <p role="alert" style={{ color: palette.red }}>{error}</p>}
+        {DEMO_MODE && <p>Demo mode — sample data only.</p>}
         {/* ── Certifications ── */}
         <section style={{ padding: "40px 0 0" }}>
           <h2
@@ -1004,11 +886,11 @@ export default function TrustCenter() {
           >
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <DownloadIcon size={12} color={palette.green} />
-              <span>Public — download directly</span>
+              <span>{DEMO_MODE ? "Fictional public example" : "Public — downloads unavailable pending security review"}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <LockIcon size={12} color={palette.accent} />
-              <span>Gated — submit access request</span>
+              <span>{DEMO_MODE ? "Fictional restricted example" : "Restricted — requester access unavailable"}</span>
             </div>
           </div>
         </section>
