@@ -19,20 +19,24 @@ if(a[0]==='projects') { console.log(JSON.stringify({projectId:'project-one',proj
 if(a[0]!=='secrets') { console.log('[]'); process.exit(); }
 const project=mode==='foreign'?'other-project':mode==='numeric'?'12345':'project-one';
 const name=id=>\`projects/\${project}/secrets/\${id}\`;
-if(a[1]==='list') console.log(JSON.stringify(mode==='empty'?[]:[{name:name('one'),payload:'sentinel'}, {name:name('two')}]));
+if(a[1]==='list') console.log(JSON.stringify(mode==='empty'?[]:mode==='large'?Array.from({length:101},(_,i)=>({name:name('s'+i)})):[{name:name('one'),payload:'sentinel'}, {name:name('two')}]));
 else if(a[1]==='describe') console.log(JSON.stringify({name:name(a[2]),rotation:{rotationPeriod:'86400s'},labels:{hidden:'sentinel'}}));
 else if(a[1]==='versions') console.log(JSON.stringify([{name:name(a[3])+'/versions/1',state:'ENABLED',payload:'sentinel'},{name:name(a[3])+'/versions/2',state:'DISABLED'}]));
 else process.exit(1);
 `, { mode: 0o755 });
     const record = join(dir, 'record');
-    const r = spawnSync(process.execPath, [collector, ...args, '--output=json'], { encoding: 'utf8', env: { ...process.env, HOME: dir, CLAUDE_GRC_CONFIG_DIR: join(dir, 'config'), PATH: `${join(dir, 'bin')}:${process.env.PATH}`, RECORD: record, MODE: mode } });
+    const preload = join(dir, 'clock.cjs');
+    writeFileSync(preload, "let n=0; Object.defineProperty(performance, 'now', {value: () => ++n < 3 ? 0 : 300001});\n");
+    const nodeOptions = mode === 'deadline' ? `--require=${preload}` : '';
+    const r = spawnSync(process.execPath, [collector, ...args, '--output=json'], { encoding: 'utf8', env: { ...process.env, NODE_OPTIONS: nodeOptions, HOME: dir, CLAUDE_GRC_CONFIG_DIR: join(dir, 'config'), PATH: `${join(dir, 'bin')}:${process.env.PATH}`, RECORD: record, MODE: mode } });
     const calls = existsSync(record) ? readFileSync(record, 'utf8').trim().split('\n').map(JSON.parse) : [];
     const out = r.stdout ? JSON.parse(r.stdout) : null;
     const evidencePath = out?.summary?.secret_manager_evidence_path;
     const evidence = evidencePath ? JSON.parse(readFileSync(evidencePath, 'utf8')) : null;
     const findings = out ? JSON.parse(readFileSync(out.cache_path, 'utf8')) : null;
     const evidenceDir = join(dir, '.cache', 'claude-grc', 'evidence', 'gcp-inspector');
-    return { r, calls, out, evidence, findings, modeBits: evidencePath ? statSync(evidencePath).mode & 0o777 : null, files: existsSync(evidenceDir) ? readdirSync(evidenceDir) : [] };
+    const cacheDir = join(dir, '.cache', 'claude-grc');
+    return { r, calls, out, evidence, findings, modeBits: evidencePath ? statSync(evidencePath).mode & 0o777 : null, files: existsSync(evidenceDir) ? readdirSync(evidenceDir) : [], cacheExists: existsSync(cacheDir) };
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
@@ -60,4 +64,42 @@ test('disabled by default, including config defaults', () => {
   assert.equal(x.r.status, 0); assert.ok(x.calls.every(a => a[0] !== 'secrets'));
   const y = run('normal', [], 'project_id: project-one\ndefaults:\n  services: [secret-manager]\n');
   assert.equal(y.r.status, 2); assert.deepEqual(y.calls, []);
+});
+
+test('duplicate services are rejected before provider calls or any run artifacts', () => {
+  for (const args of [
+    ['--services=secret-manager,secret-manager'],
+    ['--services=logging,secret-manager,logging'],
+    ['--services=secret-manager', '--services=secret-manager'],
+  ]) {
+    const x = run('normal', args);
+    assert.equal(x.r.status, 2, x.r.stderr);
+    assert.match(x.r.stderr, /duplicate|repeated/i);
+    assert.deepEqual(x.calls, []);
+    assert.equal(x.out, null);
+    assert.equal(x.cacheExists, false);
+  }
+  const x = run('normal', [], 'project_id: project-one\ndefaults:\n  services: [logging, logging]\n');
+  assert.equal(x.r.status, 2, x.r.stderr);
+  assert.deepEqual(x.calls, []);
+  assert.equal(x.out, null);
+  assert.equal(x.cacheExists, false);
+});
+
+test('oversized inventory fails closed without partial evidence', () => {
+  const x = run('large');
+  assert.equal(x.r.status, 4, x.r.stderr);
+  assert.equal(x.evidence, null);
+  assert.deepEqual(x.files, []);
+  assert.equal(x.out.summary.errors, 1);
+  assert.ok(x.calls.every(a => a[1] !== 'describe' && a[1] !== 'versions'));
+});
+
+test('time budget expiry after inventory fails closed', () => {
+  const x = run('deadline');
+  assert.equal(x.r.status, 4, x.r.stderr);
+  assert.equal(x.evidence, null);
+  assert.deepEqual(x.files, []);
+  assert.match(x.out.errors[0].error, /time budget/);
+  assert.ok(x.calls.every(a => a[1] !== 'describe' && a[1] !== 'versions'));
 });

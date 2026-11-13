@@ -16,7 +16,7 @@ node plugins/connectors/gcp-inspector/scripts/collect.js [options]
 ## Arguments
 
 - `--project=<id>` — override the configured project
-- `--services=<csv>` — subset of `iam,storage,logging,kms,compute,secret-manager` (default: first five only). Secret Manager must be explicitly selected on the command line, not just in config.
+- `--services=<csv>` — subset of `iam,storage,logging,kms,compute,secret-manager` (default: first five only). Secret Manager must be explicitly selected on the command line, not just in config. Duplicate services (including in config defaults) and repeated `--services` flags are usage errors before collection or run artifacts.
 - `--output=<fmt>` — `silent` | `summary` (default) | `json`
 - `--refresh` — ignore any cached data; re-query GCP
 - `--quiet` — no stderr progress
@@ -76,7 +76,7 @@ node plugins/connectors/gcp-inspector/scripts/collect.js [options]
 ## Exit codes
 
 - `0` success
-- `2` credentials invalid or project inaccessible
+- `2` usage error or credentials invalid
 - `3` rate-limited (GCP quota exhausted)
 - `4` partial (some services inaccessible; report still written)
 - `5` config missing — run setup
@@ -95,6 +95,8 @@ roles/resourcemanager.folderViewer  # (optional; multi-project)
 Alternatively, `roles/viewer` covers the basics.
 
 For opt-in Secret Manager evidence, install the adjacent `gcp-secret-metadata` plugin in the same marketplace checkout and grant `secretmanager.secrets.list`, `secretmanager.secrets.get`, and `secretmanager.versions.list` on the selected project/resources. Numeric resource names also require permission to describe the selected project to bind its project number to its ID. The collector calls only metadata list/describe commands, never version access. It uses gcloud's automatic pagination without a limit; successful collection reflects what the caller can list, not proof of broader visibility or an atomic snapshot. Permission, malformed-response, project mismatch, or helper errors cause a partial exit (4) and no Secret Manager evidence file. Review other services' results separately.
+
+Secret Manager collection rejects inventories over 100 secrets rather than producing incomplete evidence. It has a five-minute time budget checked before and after each sequential helper; a helper already running can extend the elapsed time beyond five minutes, and is subject to its own 120-second timeout. These limits apply only to Secret Manager collection, not the whole multi-service run. Exceeding either limit causes exit 4 with no Secret Manager evidence; findings and a run manifest may still be written for the run.
 
 ## Examples
 
