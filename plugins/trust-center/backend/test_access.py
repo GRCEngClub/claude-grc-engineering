@@ -250,16 +250,28 @@ class AccessTests(unittest.TestCase):
         self.assertEqual(self.call('POST', '/api/private/documents/secret/request-access', sub='alice')[0], 409)
         self.assertEqual(api.table.requests, [])
 
-    def test_document_listing_paginates_and_filters_each_page(self):
+    def test_document_listing_fails_explicitly_if_incomplete(self):
         docs = api.table.docs
         api.table.query = Mock(side_effect=[
             {"Items": [docs["pub"]], "LastEvaluatedKey": {"PK": "DOC#pub", "SK": "META"}},
             {"Items": [docs["secret"], docs["unknown"]]},
         ])
         status, result = self.call("GET", "/api/documents")
-        self.assertEqual(status, 200)
-        self.assertEqual([d["id"] for d in result["documents"]], ["pub"])
-        self.assertIn("ExclusiveStartKey", api.table.query.call_args_list[1].kwargs)
+        self.assertEqual(status, 503)
+        self.assertIn('pagination is not yet available', result['error'])
+        self.assertNotIn('documents', result)
+        self.assertEqual(api.table.query.call_count, 1)
+        self.assertEqual(api.table.query.call_args.kwargs['Limit'], 50)
+
+    def test_transaction_conflict_is_retryable(self):
+        _, result = self.call('POST', '/api/private/documents/secret/request-access', sub='alice')
+        request_id = result['requestId']
+        api.ddb_client = Mock()
+        api.ddb_client.transact_write_items.side_effect = FakeClientError('TransactionCanceledException', ['None', 'TransactionConflict'])
+        status, result = self.call('PUT', '/api/admin/requests/' + request_id, sub='admin', groups='admins', body={'documentId': 'secret', 'status': 'approved'})
+        self.assertEqual(status, 409)
+        self.assertTrue(result['retryable'])
+        self.assertIn('refresh and retry', result['error'])
 
     def test_private_route_without_subject_cannot_access_or_request(self):
         api.table.requests.append({"PK": "DOC#secret", "requesterSub": "alice", "status": "approved"})

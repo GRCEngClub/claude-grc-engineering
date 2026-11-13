@@ -42,6 +42,34 @@ assert.deepEqual(calls, ['/api/admin/requests']);
         self.assertIn('No security or compliance claims are made', public)
         self.assertIn('if (DEMO_MODE) return;', public)
 
+    def test_request_row_renders_safe_decisions_and_no_public_download(self):
+        script = r'''
+import { readFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { transformWithOxc } from 'vite';
+const dashboard = await readFile('src/pages/AdminDashboard.jsx', 'utf8');
+const row = dashboard.slice(dashboard.indexOf('function RequestRow('), dashboard.indexOf('function AuditRow('));
+const compiled = await transformWithOxc(row, 'RequestRow.jsx', {jsx: {runtime: 'classic'}});
+const p = new Proxy({}, {get: () => '#000'});
+const RequestRow = new Function('React', 'p', 'baseFont', 'monoFont', 'StatusBadge', compiled.code + ';return RequestRow')(React, p, '', '', () => null);
+const render = (status, version, isDemo = false) => renderToStaticMarkup(React.createElement(RequestRow, {req: {status, version, createdAt: '2026-01-01'}, isDemo}));
+assert.match(render('approved', 'v1'), />Revoke</);
+assert.doesNotMatch(render('approved', 'v1'), />Approve</);
+assert.match(render('denied', 'v2'), />Approve</);
+assert.match(render('pending', 'v3'), />Deny</);
+assert.match(render('approved', null), /Legacy request/);
+assert.doesNotMatch(render('approved', null), />Revoke</);
+assert.match(dashboard, /updateRequest\(req.requestId, req.documentId, 'denied', req.version, token\)/);
+assert.match(dashboard, /not an authoritative audit trail/);
+const publicPage = await readFile('src/pages/TrustCenter.jsx', 'utf8');
+assert.match(publicPage, /Downloads unavailable/);
+assert.doesNotMatch(publicPage, /onDownload|handleDownload/);
+'''
+        result = subprocess.run(['node', '--input-type=module', '-e', script], cwd=ROOT / 'frontend', capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -42,7 +42,7 @@ function StatusBadge({ status }) {
   )
 }
 
-function RequestRow({ req, onApprove, onDeny }) {
+function RequestRow({ req, onApprove, onDeny, isDemo }) {
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: '1fr 1fr auto auto',
@@ -75,18 +75,19 @@ function RequestRow({ req, onApprove, onDeny }) {
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
-        {req.status === 'pending' && (
-          <>
+        {(req.version || isDemo) && ['pending', 'denied'].includes(req.status) && (
             <button onClick={() => onApprove(req)} style={{
               fontFamily: baseFont, fontSize: 12, fontWeight: 600, color: p.green,
               background: p.greenGlow, border: 'none', borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
             }}>Approve</button>
+        )}
+        {(req.version || isDemo) && ['pending', 'approved'].includes(req.status) && (
             <button onClick={() => onDeny(req)} style={{
               fontFamily: baseFont, fontSize: 12, fontWeight: 600, color: p.red,
               background: p.redGlow, border: 'none', borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
-            }}>Deny</button>
-          </>
+            }}>{req.status === 'approved' ? 'Revoke' : 'Deny'}</button>
         )}
+        {!req.version && !isDemo && <span>Legacy request — cannot decide</span>}
       </div>
     </div>
   )
@@ -132,6 +133,7 @@ export default function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState('')
   const [nextCursor, setNextCursor] = useState(null)
   const [pageLoading, setPageLoading] = useState(false)
+  const [refresh, setRefresh] = useState(0)
   const requestEpoch = useRef(0)
 
 
@@ -158,7 +160,7 @@ export default function AdminDashboard() {
     } else if (tab === 'audit') {
       api.getAuditLog(token).then(data => setAuditLog(data?.entries || [])).catch(() => setError('Could not load audit log.'))
     }
-  }, [tab, statusFilter, getToken, isDemo])
+  }, [tab, statusFilter, getToken, isDemo, refresh])
 
   const handleApprove = async (req) => {
     if (isDemo) {
@@ -289,6 +291,7 @@ export default function AdminDashboard() {
         {/* Requests Tab */}
         {tab === 'requests' && (
           <>
+            {!isDemo && <button onClick={() => { requestEpoch.current++; setError(''); setRefresh(n => n + 1) }}>Refresh requests</button>}
             <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
               {['', 'pending', 'approved', 'denied'].map(s => (
                 <button key={s} onClick={() => { if (s !== statusFilter) requestEpoch.current++; setStatusFilter(s) }} style={{
@@ -321,7 +324,7 @@ export default function AdminDashboard() {
               {requests
                 .filter(r => !statusFilter || r.status === statusFilter)
                 .map(req => (
-                  <RequestRow key={req.requestId} req={req} onApprove={handleApprove} onDeny={handleDeny} />
+                  <RequestRow key={req.requestId} req={req} onApprove={handleApprove} onDeny={handleDeny} isDemo={isDemo} />
                 ))
               }
               {requests.filter(r => !statusFilter || r.status === statusFilter).length === 0 && (
@@ -336,6 +339,7 @@ export default function AdminDashboard() {
 
         {/* Audit Tab */}
         {tab === 'audit' && (
+          <><p style={{ color: p.amber }}>Best-effort activity log: entries may be missing and are not an authoritative audit trail.</p>
           <div style={{
             background: p.surface, border: `1px solid ${p.border}`, borderRadius: 16, overflow: 'hidden',
           }}>
@@ -347,7 +351,7 @@ export default function AdminDashboard() {
                 No audit entries yet
               </div>
             )}
-          </div>
+          </div></>
         )}
       </div>
     </div>

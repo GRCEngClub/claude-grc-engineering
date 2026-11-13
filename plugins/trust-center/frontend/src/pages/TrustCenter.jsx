@@ -234,7 +234,7 @@ function StatCard({ label, value }) {
   );
 }
 
-function DocumentRow({ doc, onRequestAccess, onDownload }) {
+function DocumentRow({ doc, onRequestAccess }) {
   const isPublic = doc.accessLevel === "public";
 
   return (
@@ -323,27 +323,7 @@ function DocumentRow({ doc, onRequestAccess, onDownload }) {
         </span>
 
         {DEMO_MODE ? <span>Example only — unavailable</span> : isPublic ? (
-          <button
-            onClick={() => onDownload(doc)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontFamily: baseFont,
-              fontSize: 13,
-              fontWeight: 600,
-              color: palette.green,
-              background: palette.greenGlow,
-              border: "none",
-              borderRadius: 8,
-              padding: "8px 14px",
-              cursor: "pointer",
-              transition: "opacity 0.15s",
-            }}
-          >
-            <DownloadIcon size={14} color={palette.green} />
-            Download
-          </button>
+          <span>Downloads unavailable</span>
         ) : (
           <button
             onClick={() => onRequestAccess(doc)}
@@ -626,16 +606,6 @@ export default function TrustCenter() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleDownload = useCallback(async (doc) => {
-    if (DEMO_MODE) { setError("Demo documents cannot be downloaded."); return; }
-    try {
-      const response = await fetch(`/api/documents/${encodeURIComponent(doc.id)}/download`);
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      if (!data.downloadUrl) throw new Error();
-      window.location.assign(data.downloadUrl);
-    } catch { setError("Download failed. Please try again later."); }
-  }, []);
 
   const handleRequestAccess = useCallback(async () => {
     throw new Error(DEMO_MODE ? "Demo requests are not submitted." : "Requester sign-in is not available yet. Contact the trust center owner.");
@@ -901,7 +871,6 @@ export default function TrustCenter() {
                   key={doc.id}
                   doc={doc}
                   onRequestAccess={(d) => setRequestModal(d)}
-                  onDownload={handleDownload}
                 />
               ))
             )}

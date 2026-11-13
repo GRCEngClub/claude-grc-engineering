@@ -245,14 +245,13 @@ def list_documents(event):
             "IndexName": "GSI1",
             "KeyConditionExpression": "GSI1PK = :pk",
             "ExpressionAttributeValues": {":pk": "DOCS"},
+            "Limit": 50,
         }
-        items = []
-        while True:
-            resp = table.query(**params)
-            items.extend(resp.get("Items", []))
-            if not resp.get("LastEvaluatedKey"):
-                break
-            params["ExclusiveStartKey"] = resp["LastEvaluatedKey"]
+        resp = table.query(**params)
+        # Fail explicitly rather than presenting an incomplete catalog as complete.
+        if resp.get("LastEvaluatedKey"):
+            return cors_response(503, {"error": "Document catalog exceeds the supported page size; pagination is not yet available"})
+        items = resp.get("Items", [])
 
         documents = []
         for indexed_item in items:
@@ -545,6 +544,9 @@ def update_request(event, request_id):
         if e.response.get("Error", {}).get("Code") == "TransactionCanceledException" and any(
                 reason.get("Code") == "ConditionalCheckFailed" for reason in e.response.get("CancellationReasons", [])):
             return cors_response(409, {"error": "Request changed; refresh before deciding"})
+        if e.response.get("Error", {}).get("Code") == "TransactionCanceledException" and any(
+                reason.get("Code") == "TransactionConflict" for reason in e.response.get("CancellationReasons", [])):
+            return cors_response(409, {"error": "Concurrent transaction conflict; refresh and retry", "retryable": True})
         logger.error(f"update_request error: {e}")
         return cors_response(500, {"error": "Failed to update request"})
     except Exception as e:
