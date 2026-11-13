@@ -17,9 +17,9 @@ function main(args) {
   if (!issue || typeof issue !== 'object' || Array.isArray(issue) || ![1, 2].includes(issue.tier) || typeof issue.title !== 'string' || typeof issue.scf_id !== 'string') throw new Error('Invalid or missing tier 1/2 draft');
   const labels = [];
   if (options.includes('--severity-label')) {
-    const allowed = issue.tier === 1 ? ['critical', 'high'] : ['medium'];
-    if (!allowed.includes(issue.severity)) throw new Error('Invalid severity for selected tier; no issue created');
-    labels.push(`severity:${issue.severity}`);
+    // Legacy or ambiguous drafts carry no actionable severity: omit the label.
+    if (issue.label_severity != null && !['critical', 'high', 'medium'].includes(issue.label_severity)) throw new Error('Invalid actionable severity; no issue created');
+    if (issue.label_severity != null) labels.push(`severity:${issue.label_severity}`);
   }
   // JSON retains all draft fields. Encode @ to prevent mentions and use a fence
   // longer than any in the untrusted data so it cannot break out of the block.

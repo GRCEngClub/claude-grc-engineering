@@ -267,6 +267,9 @@ function validateFinding(d) {
   return errs;
 }
 
+// Kept out of serialized reports so issue labeling cannot change report semantics.
+const issueSeverities = new WeakMap();
+
 export async function buildReport({ runId, frameworks, sources, findings, scf, loadErrors, log }) {
   // Normalize every evaluation into (scfId, frameworkProjection) rows.
   // We anchor on SCF controls; non-SCF evaluations are reverse-mapped.
@@ -385,6 +388,10 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
       inconclusive_resources_count: entry.evaluations.filter(e => e.evaluation.status === 'inconclusive').length,
       total_resources_evaluated: entry.evaluations.length
     };
+    const failures = entry.evaluations.filter(e => e.evaluation.status === 'fail');
+    const severities = failures.map(e => e.evaluation.severity);
+    issueSeverities.set(item, failures.length && severities.every(s => ['critical', 'high', 'medium', 'low', 'info'].includes(s))
+      ? worstSeverityOf(severities) : null);
 
     if (worstStatus === 'fail') {
       if (worstSeverity === 'critical' || worstSeverity === 'high') tier1.push(item);
@@ -488,6 +495,7 @@ export function renderGithubIssuePreview(r) {
       scf_id: t.scf_id,
       title: t.title,
       severity: t.severity,
+      label_severity: ['critical', 'high', 'medium'].includes(issueSeverities.get(t)) ? issueSeverities.get(t) : null,
       frameworks: t.frameworks,
       failing_resources: t.failing_resources
     })))

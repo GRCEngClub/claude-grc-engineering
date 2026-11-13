@@ -16,7 +16,7 @@ test('optional severity label is previewed and passed to gh only with create', (
     fs.writeFileSync(path.join(bin, 'gh'), '#!/usr/bin/env node\nrequire("node:fs").writeFileSync(process.env.RECORD, JSON.stringify(process.argv.slice(2)));\n', { mode: 0o755 });
     const run = (...args) => spawnSync(process.execPath, [script, file, 'owner/repo', '0', ...args], { encoding: 'utf8', env: { ...process.env, PATH: bin + path.delimiter + process.env.PATH, RECORD: record } });
     for (const [tier, severity] of [[1, 'critical'], [1, 'high'], [2, 'medium']]) {
-      fs.writeFileSync(file, JSON.stringify({ issues: [{ tier, severity, title: 'x', scf_id: 'x' }] }));
+      fs.writeFileSync(file, JSON.stringify({ issues: [{ tier, severity, label_severity: severity, title: 'x', scf_id: 'x' }] }));
       const preview = run('--severity-label');
       assert.equal(preview.status, 0, preview.stderr);
       assert.deepEqual(JSON.parse(preview.stdout).labels, [`severity:${severity}`]);
@@ -27,8 +27,8 @@ test('optional severity label is previewed and passed to gh only with create', (
       assert.deepEqual(args.slice(-2), ['--label', `severity:${severity}`]);
       fs.unlinkSync(record);
     }
-    for (const [tier, severity] of [[1, 'medium'], [2, 'high'], [1, '--evil'], [2, null]]) {
-      fs.writeFileSync(file, JSON.stringify({ issues: [{ tier, severity, title: 'x', scf_id: 'x' }] }));
+    for (const [tier, severity] of [[1, '--evil'], [2, 'unknown']]) {
+      fs.writeFileSync(file, JSON.stringify({ issues: [{ tier, label_severity: severity, title: 'x', scf_id: 'x' }] }));
       const result = run('--create', '--severity-label');
       assert.notEqual(result.status, 0);
       assert.match(result.stderr, /severity/i);
