@@ -4,7 +4,7 @@ description: Draft a source-linked CMMC Level 2 assessment plan
 
 # CMMC Level 2 assessment plan — draft aid
 
-Use `/cmmc:assessment-plan [scope]` to prepare an editable planning aid for a Level 2 readiness review, self-assessment, or C3PAO assessment. This is not an official C3PAO form, assessment, certification, or determination of CMMC status. A qualified CMMC assessor and the organization must review the plan; their actual procedures and current contract govern. For Level 1 or Level 3, stop and use level-specific official sources instead. Do not infer the assessment type from CUI alone.
+Use `/cmmc:assessment-plan [scope]` to prepare an editable planning aid for a Level 2 readiness review, self-assessment, or C3PAO assessment. This is not an official C3PAO form, assessment, certification, or determination of CMMC status. The organization should have knowledgeable personnel review the plan; for a C3PAO assessment, coordinate with the authorized or accredited C3PAO. This recommendation does not impose a C3PAO or certified-assessor requirement on self-assessments. Applicable program rules and the current contract govern. For Level 1 or Level 3, stop and use level-specific official sources instead. Do not infer the assessment type from CUI alone.
 
 ## Source checks
 

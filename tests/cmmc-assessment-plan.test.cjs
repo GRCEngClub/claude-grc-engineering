@@ -10,6 +10,8 @@ test('Level 2 draft plan has source-linked scope, methods and review gates', () 
   for (const term of ['section-170.16', 'section-170.17', 'section-170.19', 'NIST.SP.800-171A', 'NIST.SP.800-171r2']) assert.ok(plan.includes(term), term);
   for (const term of ['[not provided]', 'Self', 'C3PAO', 'boundary', 'SSP', 'examine', 'interview', 'test', 'reviewer', 'not assessed']) assert.ok(plan.toLowerCase().includes(term.toLowerCase()), term);
   assert.match(plan, /not an official/i);
+  assert.match(plan, /does not impose a C3PAO or certified-assessor requirement on self-assessments/i);
+  assert.doesNotMatch(plan, /qualified CMMC assessor and the organization must review/i);
   assert.match(plan, /do not.*(?:invent|infer)/i);
   assert.match(plan, /Level 1 or (?:Level )?3/i);
   assert.match(plan, /not.*(?:certification|status)/i);
