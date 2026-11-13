@@ -35,8 +35,11 @@ check([('a/../outside',data),('MANIFEST.json',manifest([]))])
 check([('C:/outside',data),('MANIFEST.json',manifest([]))])
 check([('a\\b',data),('MANIFEST.json',manifest([]))])
 check([('a',data),('a/b',data),('MANIFEST.json',manifest([{**entry,'path':'a'},{**entry,'path':'a/b'}]))], message='archive path collision')
+link_data = b'target'
+link_entry = {'path':'link', 'size':len(link_data), 'sha256':hashlib.sha256(link_data).hexdigest()}
+check([('link',link_data),('MANIFEST.json',manifest([link_entry]))], True)
 link = zipfile.ZipInfo('link'); link.create_system=3; link.external_attr=(stat.S_IFLNK | 0o777)<<16
-check([(link,b'target'),('MANIFEST.json',manifest([]))])
+check([(link,link_data),('MANIFEST.json',manifest([link_entry]))], message='only regular files are supported')
 check([('MANIFEST.json','{"algorithm":"sha256","algorithm":"sha256","files":[]}')])
 check([('MANIFEST.json',manifest([entry,entry]))])
 check([('proof.txt',data),('MANIFEST.json',manifest([{**entry, 'size':True}]))])
