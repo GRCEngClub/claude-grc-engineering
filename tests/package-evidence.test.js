@@ -79,6 +79,34 @@ with zipfile.ZipFile(sys.argv[1]) as z:
       assert.equal(existsSync(collisionOutput), false);
       rmSync(reserved, { recursive: true, force: true });
     }
+    for (const name of ['bad\\\\name.txt', 'C:drive.txt']) {
+      const invalid = join(source, name);
+      writeFileSync(invalid, 'unsafe path');
+      const invalidOutput = join(dir, `invalid-${name.length}.gpg`);
+      const result = run('python3', [script, source, invalidOutput, fingerprint]);
+      assert.notEqual(result.status, 0, name);
+      assert.match(result.stderr, /unsafe archive path/);
+      assert.equal(existsSync(invalidOutput), false);
+      rmSync(invalid);
+    }
+    // Exercise verifier limits with a test-only lowered limit in an isolated copy.
+    const limitedDir = join(dir, 'limited'); mkdirSync(limitedDir);
+    const limitedScript = join(limitedDir, 'package-evidence.py');
+    writeFileSync(limitedScript, readFileSync(script));
+    const verifier = readFileSync(resolve('plugins/grc-engineer/scripts/verify-evidence.py'), 'utf8');
+    for (const [original, lowered, message] of [
+      ['MAX_ENTRIES = 10000', 'MAX_ENTRIES = 2', /too many entries/],
+      ['MAX_TOTAL = 100 * 1024 * 1024', 'MAX_TOTAL = 2', /archive exceeds verification size limit/],
+      ['MAX_MANIFEST = 4 * 1024 * 1024', 'MAX_MANIFEST = 2', /missing or oversized manifest/],
+    ]) {
+      assert.ok(verifier.includes(original));
+      writeFileSync(join(limitedDir, 'verify-evidence.py'), verifier.replace(original, lowered));
+      const limitedOutput = join(dir, 'limited.gpg');
+      const limited = run('python3', [limitedScript, source, limitedOutput, fingerprint]);
+      assert.notEqual(limited.status, 0);
+      assert.match(limited.stderr, message);
+      assert.equal(existsSync(limitedOutput), false);
+    }
     assert.notEqual(run('python3', [script, source, output, fingerprint]).status, 0);
     assert.notEqual(run('python3', [script, source, join(source, 'inside.gpg'), fingerprint]).status, 0);
     assert.notEqual(run('python3', [script, source, join(dir, 'short.gpg'), fingerprint.slice(-16)]).status, 0);
