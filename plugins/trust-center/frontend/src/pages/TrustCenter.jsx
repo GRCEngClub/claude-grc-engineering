@@ -731,6 +731,7 @@ export default function TrustCenter() {
           >
             {config?.description}
           </p>
+          <p><a href="/access" style={{ color: palette.accent }}>Requester access</a></p>
         </header>
 
         {error && <p role="alert" style={{ color: palette.red }}>{error}</p>}

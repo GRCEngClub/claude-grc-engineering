@@ -384,7 +384,10 @@ class AccessTests(unittest.TestCase):
         reference = root / "skills/trust-center/references"
         for source, copy in ((root / "backend/functions/api_handler.py", reference / "api-handler.py"),
                              (root / "infrastructure/template.yaml", reference / "infrastructure-template.yaml"),
+                             (root / "frontend/src/main.jsx", reference / "frontend-files/src/main.jsx"),
                              (root / "frontend/src/pages/TrustCenter.jsx", reference / "frontend-files/src/pages/TrustCenter.jsx"),
+                             (root / "frontend/src/pages/LoginPage.jsx", reference / "frontend-files/src/pages/LoginPage.jsx"),
+                             (root / "frontend/src/pages/RequesterAccess.jsx", reference / "frontend-files/src/pages/RequesterAccess.jsx"),
                              (root / "frontend/src/pages/AdminDashboard.jsx", reference / "frontend-files/src/pages/AdminDashboard.jsx"),
                              (root / "frontend/src/hooks/useAuth.jsx", reference / "frontend-files/src/hooks/useAuth.jsx"),
                              (root / "frontend/src/utils/api.js", reference / "frontend-files/src/utils/api.js")):

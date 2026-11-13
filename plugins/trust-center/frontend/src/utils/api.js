@@ -44,11 +44,25 @@ export async function getDocument(id) {
   return request(`/documents/${id}`)
 }
 
-export async function requestAccess(docId, form) {
-  return request(`/documents/${docId}/request-access`, {
+export async function getAccessibleDocuments(token) {
+  if (!token) throw new Error('Sign-in required.')
+  const data = await request('/private/documents', { token, cache: 'no-store' })
+  if (!Array.isArray(data?.documents)) throw new Error('Invalid document response.')
+  return data.documents
+}
+
+export async function requestAccess(docId, form, token) {
+  if (!token) throw new Error('Sign-in required.')
+  // Restrict IDs to a single unambiguous URL path segment.
+  if (typeof docId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(docId)) throw new Error('Invalid document ID.')
+  const data = await request(`/private/documents/${docId}/request-access`, {
     method: 'POST',
     body: JSON.stringify(form),
+    token,
+    cache: 'no-store',
   })
+  if (data?.status !== 'pending' || typeof data.requestId !== 'string' || !data.requestId) throw new Error('Invalid request response.')
+  return data
 }
 
 export async function downloadDocument(docId, token) {

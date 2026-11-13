@@ -7,6 +7,62 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FrontendTests(unittest.TestCase):
+    def test_requester_api_uses_authenticated_private_routes_and_fails_closed(self):
+        script = r'''
+import { readFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const source = (await readFile(process.argv[1], 'utf8')).replaceAll('import.meta.env', '{}');
+const api = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+let calls = [];
+globalThis.fetch = async (url, options) => {
+  calls.push({url, options});
+  return {ok: true, json: async () => url.endsWith('request-access') ? {status:'pending', requestId:'r1'} : {documents:[{id:'approved'}]}};
+};
+await assert.rejects(api.getAccessibleDocuments(null), /Sign-in/);
+await assert.rejects(api.requestAccess('x', {}, null), /Sign-in/);
+for (const id of ['../admin', 'a/b', '%2f', '.', '', 'x'.repeat(129)])
+  await assert.rejects(api.requestAccess(id, {}, 'secret'), /Invalid document ID/);
+assert.equal(calls.length, 0);
+assert.deepEqual(await api.getAccessibleDocuments('secret'), [{id:'approved'}]);
+await api.requestAccess('doc-1_2', {reason:'review'}, 'secret');
+assert.deepEqual(calls.map(c => c.url), ['/api/private/documents', '/api/private/documents/doc-1_2/request-access']);
+for (const c of calls) { assert.equal(c.options.headers.Authorization, 'Bearer secret'); assert.equal(c.options.cache, 'no-store'); }
+assert.equal(calls[1].options.method, 'POST');
+assert.deepEqual(JSON.parse(calls[1].options.body), {reason:'review'});
+globalThis.fetch = async () => ({ok:true, json:async () => ({})});
+await assert.rejects(api.getAccessibleDocuments('secret'), /Invalid document response/);
+await assert.rejects(api.requestAccess('doc', {}, 'secret'), /Invalid request response/);
+globalThis.fetch = async () => ({ok:false, status:401, json:async () => ({error:'Unauthorized'})});
+await assert.rejects(api.getAccessibleDocuments('secret'), /Unauthorized/);
+'''
+        result = subprocess.run(['node', '--input-type=module', '-e', script,
+                                 str(ROOT / 'frontend/src/utils/api.js')], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_requester_page_auth_states_render_without_download_actions(self):
+        script = r'''
+import { readFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { transformWithOxc } from 'vite';
+let source = await readFile('src/pages/RequesterAccess.jsx', 'utf8');
+source = source.replace(/^import .*$/gm, '').replace('export default function RequesterAccess', 'function RequesterAccess');
+const compiled = await transformWithOxc(source, 'RequesterAccess.jsx', {jsx:{runtime:'classic'}});
+let auth = {};
+const Page = new Function('React', 'useState', 'useAuth', 'getAccessibleDocuments', 'requestAccess', compiled.code + ';return RequesterAccess')(
+  React, React.useState, () => auth, () => {}, () => {});
+const render = () => renderToStaticMarkup(React.createElement(Page));
+auth = {loading:true}; assert.match(render(), /Checking session/);
+auth = {loading:false, user:null}; assert.match(render(), /requester-login/); assert.doesNotMatch(render(), /Submit request/);
+auth = {loading:false, user:{token:'secret'}, logout:()=>{}};
+const html = render();
+assert.match(html, /Submit request/); assert.match(html, /Refresh documents/);
+assert.match(html, /Downloads are unavailable/); assert.doesNotMatch(html, /href="[^"]*download/);
+'''
+        result = subprocess.run(['node', '--input-type=module', '-e', script], cwd=ROOT / 'frontend', capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_api_client_demo_is_explicit_and_isolated(self):
         # Import the actual module with Vite's environment replaced by test values.
         script = r'''
