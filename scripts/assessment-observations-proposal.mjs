@@ -32,6 +32,16 @@ export function validateObservations(data) {
       if (!deficiencyIds.has(ref)) errors.push(`Observation ${o.id}: unknown deficiency reference ${ref}`);
     }
   }
+  const context = data.assessment_context ?? {};
+  for (const field of ['corrected_deficiency_refs', 'remaining_deficiency_refs']) {
+    for (const ref of context[field] ?? []) {
+      if (!deficiencyIds.has(ref)) errors.push(`Assessment context ${field}: unknown deficiency reference ${ref}`);
+    }
+  }
+  const corrected = new Set(context.corrected_deficiency_refs ?? []);
+  for (const ref of context.remaining_deficiency_refs ?? []) {
+    if (corrected.has(ref)) errors.push(`Deficiency ${ref}: classified as both corrected and remaining`);
+  }
   if (!data.observations.length) warnings.push('No observations supplied; coverage is unknown');
   return { valid: errors.length === 0, errors, warnings };
 }
