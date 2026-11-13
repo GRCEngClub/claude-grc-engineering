@@ -20,12 +20,13 @@ globalThis.fetch = async (url, options) => {
 };
 await assert.rejects(api.getAccessibleDocuments(null), /Sign-in/);
 await assert.rejects(api.requestAccess('x', {}, null), /Sign-in/);
-for (const id of ['../admin', 'a/b', '%2f', '.', '', 'x'.repeat(129)])
+for (const id of ['../admin', 'a/b', '.', '..', ''])
   await assert.rejects(api.requestAccess(id, {}, 'secret'), /Invalid document ID/);
 assert.equal(calls.length, 0);
 assert.deepEqual(await api.getAccessibleDocuments('secret'), [{id:'approved'}]);
 await api.requestAccess('doc-1_2', {reason:'review'}, 'secret');
-assert.deepEqual(calls.map(c => c.url), ['/api/private/documents', '/api/private/documents/doc-1_2/request-access']);
+await api.requestAccess('report 2026.v1', {}, 'secret');
+assert.deepEqual(calls.map(c => c.url), ['/api/private/documents', '/api/private/documents/doc-1_2/request-access', '/api/private/documents/report%202026.v1/request-access']);
 for (const c of calls) { assert.equal(c.options.headers.Authorization, 'Bearer secret'); assert.equal(c.options.cache, 'no-store'); }
 assert.equal(calls[1].options.method, 'POST');
 assert.deepEqual(JSON.parse(calls[1].options.body), {reason:'review'});
@@ -81,10 +82,49 @@ assert.deepEqual(calls, []);
 const live = await load({});
 await live.getRequests('token');
 assert.deepEqual(calls, ['/api/admin/requests']);
+const configured = await load({VITE_API_URL:'https://api.example.test/stage/api/'});
+await configured.getConfig(); await configured.getDocuments(); await configured.getRequests('token');
+assert.deepEqual(calls.slice(1), ['https://api.example.test/stage/api/config', 'https://api.example.test/stage/api/documents', 'https://api.example.test/stage/api/admin/requests']);
+await assert.rejects(load({VITE_API_URL:'http://api.example.test/api'}));
+await assert.rejects(load({VITE_API_URL:'https://api.example.test/api?redirect=evil'}));
 '''
         result = subprocess.run(['node', '--input-type=module', '-e', script,
                                  str(ROOT / 'frontend/src/utils/api.js')],
                                 capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_auth_lifecycle_with_browser_and_cognito_mocks(self):
+        script = r'''
+import { readFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import { transformWithOxc } from 'vite';
+let source = await readFile('src/hooks/useAuth.jsx', 'utf8');
+source = source.replace(/import \{[\s\S]*?\} from 'react'/, '').replace(/import \{[\s\S]*?\} from 'amazon-cognito-identity-js'/, '')
+ .replaceAll('import.meta.env', JSON.stringify({VITE_USER_POOL_ID:'us-east-1_pool', VITE_USER_POOL_CLIENT_ID:'client'}))
+ .replaceAll('export function ', 'function ');
+const compiled = await transformWithOxc(source, 'useAuth.jsx', {jsx:{runtime:'classic'}});
+const disk = new Map([['CognitoIdentityServiceProvider.client.old.idToken','old'], ['unrelated','keep']]);
+globalThis.localStorage = {get length(){return disk.size},key:i=>[...disk.keys()][i],removeItem:k=>disk.delete(k),setItem:(k,v)=>disk.set(k,v)};
+let pool, pending, mode = 'valid';
+const session = token => ({isValid:()=>true, getIdToken:()=>({getJwtToken:()=>token,decodePayload:()=>({email:'user', 'cognito:groups':[]})})});
+class Pool { constructor(x){this.storage=x.Storage;pool=this} getCurrentUser(){return this.storage.getItem('user') ? new User({Pool:this,Storage:this.storage}) : null} }
+class User { constructor(x){this.storage=x.Storage} authenticateUser(_,cb){this.storage.setItem('user','yes');this.storage.setItem('refresh','secret');cb.onSuccess(session('initial'))} getSession(cb){if(mode==='pending') pending=cb; else if(mode==='fail') cb(Error('expired')); else cb(null,session('refreshed'))} signOut(){this.storage.clear()} }
+const context = {}; let hooks=[], index=0;
+const React={createElement:(type,props)=>({type,props})};
+const useState=initial=>{const i=index++; if (!(i in hooks)) hooks[i]=initial; return [hooks[i],v=>{hooks[i]=v}]};
+const useRef=initial=>{const i=index++; if (!(i in hooks)) hooks[i]={current:initial}; return hooks[i]};
+const useEffect=()=>{}; const useCallback=f=>f;
+const Provider = new Function('React','createContext','useContext','useState','useRef','useEffect','useCallback','CognitoUserPool','CognitoUser','AuthenticationDetails', compiled.code + ';return AuthProvider')(React,()=>context,()=>null,useState,useRef,useEffect,useCallback,Pool,User,class {});
+const render=()=>{index=0;return Provider({children:null}).props.value};
+assert.deepEqual([...disk.keys()], ['unrelated']);
+let auth=render(); await auth.login('user','password');
+assert.equal(pool.storage.getItem('refresh'),'secret'); assert.deepEqual([...disk.keys()],['unrelated']);
+auth=render(); assert.equal(await auth.getToken(),'refreshed');
+mode='fail'; await assert.rejects(auth.getToken(),/Session expired/); assert.equal(pool.storage.getItem('refresh'),null);
+auth=render(); await auth.login('user','password'); auth=render(); mode='pending'; const waiting=auth.getToken(); auth.logout(); pending(null,session('late'));
+await assert.rejects(waiting,/Session ended/); assert.equal(pool.storage.getItem('refresh'),null);
+'''
+        result = subprocess.run(['node', '--input-type=module', '-e', script], cwd=ROOT / 'frontend', capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_dashboard_does_not_initialize_live_records_with_samples(self):

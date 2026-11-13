@@ -5,3 +5,5 @@
 Only offline evaluation with synthetic data is appropriate. See [security limitations and blockers](docs/ACCESS-SECURITY.md) and [deployment status](docs/DEPLOYMENT.md). Offline tests do not prove AWS security. Existing deployments or modified templates are not protected by these guards.
 
 The repository contains experimental frontend, backend, and AWS reference infrastructure, plus offline tests. The hosting and private-access model remain subject to maintainer selection and independent validation.
+
+For offline frontend evaluation, `VITE_API_URL` defaults to `/api`; if set, it must be a trusted HTTPS API base ending in `/api` (the reference stack's `ApiUrl` includes the gateway stage). This is a build-time setting, not a security boundary. Cognito credentials are held in page memory only: reloads and full-page navigation require signing in again. The client removes credentials persisted by earlier versions for the configured Cognito client. Existing IDs that cannot be represented as a safe single URL path segment, such as `/`, `.` or `..`, cannot be requested in this prototype.

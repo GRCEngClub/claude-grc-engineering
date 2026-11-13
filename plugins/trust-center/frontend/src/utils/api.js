@@ -5,7 +5,14 @@
  * base URL uses the same-origin API, just like the public page.
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+// VITE_API_URL is a trusted deployment setting and must end in /api.
+const configuredBase = import.meta.env.VITE_API_URL || '/api'
+const API_BASE = (() => {
+  if (configuredBase === '/api' || configuredBase === '/api/') return '/api'
+  const url = new URL(configuredBase)
+  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || !/\/api\/?$/.test(url.pathname)) throw new Error('Invalid API URL configuration.')
+  return url.href.replace(/\/$/, '')
+})()
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 
 async function request(path, options = {}) {
@@ -21,7 +28,8 @@ async function request(path, options = {}) {
     headers['Authorization'] = `Bearer ${options.token}`
   }
 
-  const res = await fetch(url, { ...options, headers })
+  const { token, ...fetchOptions } = options
+  const res = await fetch(url, { ...fetchOptions, headers, redirect: 'error' })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }))
     throw new Error(err.error || `API error: ${res.status}`)
@@ -53,9 +61,9 @@ export async function getAccessibleDocuments(token) {
 
 export async function requestAccess(docId, form, token) {
   if (!token) throw new Error('Sign-in required.')
-  // Restrict IDs to a single unambiguous URL path segment.
-  if (typeof docId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(docId)) throw new Error('Invalid document ID.')
-  const data = await request(`/private/documents/${docId}/request-access`, {
+  // Encode API-supported IDs as a single safe path segment.
+  if (typeof docId !== 'string' || !docId || docId === '.' || docId === '..' || docId.includes('/')) throw new Error('Invalid document ID.')
+  const data = await request(`/private/documents/${encodeURIComponent(docId)}/request-access`, {
     method: 'POST',
     body: JSON.stringify(form),
     token,

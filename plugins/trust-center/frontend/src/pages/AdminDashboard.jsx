@@ -144,32 +144,32 @@ export default function AdminDashboard() {
   }, [user, authLoading, navigate, isDemo])
 
   useEffect(() => {
-    if (isDemo) return
-    const token = getToken()
-    if (!token) return
-
-    if (tab === 'requests') {
-      const epoch = ++requestEpoch.current
-      setRequests([])
-      setNextCursor(null)
-      let active = true
-      api.getRequests(token, statusFilter).then(data => {
-        if (active && requestEpoch.current === epoch) { setRequests(data?.requests || []); setNextCursor(data?.nextCursor || null) }
-      }).catch(() => { if (active) setError('Could not load requests.') })
-      return () => { active = false }
-    } else if (tab === 'audit') {
-      api.getAuditLog(token).then(data => setAuditLog(data?.entries || [])).catch(() => setError('Could not load audit log.'))
+    if (isDemo || !user) return
+    const epoch = ++requestEpoch.current
+    let active = true
+    if (tab === 'requests') { setRequests([]); setNextCursor(null) }
+    const load = async () => {
+      try {
+        const token = await getToken()
+        if (!active) return
+        const data = tab === 'requests' ? await api.getRequests(token, statusFilter) : await api.getAuditLog(token)
+        if (!active || requestEpoch.current !== epoch) return
+        if (tab === 'requests') { setRequests(data?.requests || []); setNextCursor(data?.nextCursor || null) }
+        else setAuditLog(data?.entries || [])
+      } catch { if (active) setError(tab === 'requests' ? 'Could not load requests.' : 'Could not load audit log.') }
     }
-  }, [tab, statusFilter, getToken, isDemo, refresh])
+    load()
+    return () => { active = false }
+  }, [tab, statusFilter, getToken, isDemo, refresh, user])
 
   const handleApprove = async (req) => {
     if (isDemo) {
       setRequests(prev => prev.map(r => r.requestId === req.requestId ? { ...r, status: 'approved' } : r))
       return
     }
-    const token = getToken()
     const epoch = ++requestEpoch.current
     try {
+      const token = await getToken()
       await api.updateRequest(req.requestId, req.documentId, 'approved', req.version, token)
       const data = await api.getRequests(token, statusFilter)
       if (requestEpoch.current !== epoch) return
@@ -186,9 +186,9 @@ export default function AdminDashboard() {
       setRequests(prev => prev.map(r => r.requestId === req.requestId ? { ...r, status: 'denied' } : r))
       return
     }
-    const token = getToken()
     const epoch = ++requestEpoch.current
     try {
+      const token = await getToken()
       await api.updateRequest(req.requestId, req.documentId, 'denied', req.version, token)
       const data = await api.getRequests(token, statusFilter)
       if (requestEpoch.current !== epoch) return
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
     const epoch = requestEpoch.current
     setPageLoading(true)
     try {
-      const data = await api.getRequests(getToken(), statusFilter, nextCursor)
+      const data = await api.getRequests(await getToken(), statusFilter, nextCursor)
       if (requestEpoch.current !== epoch) return
       setRequests(prev => [...prev, ...(data?.requests || [])])
       setNextCursor(data?.nextCursor || null)

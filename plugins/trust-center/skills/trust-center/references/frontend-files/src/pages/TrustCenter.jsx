@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { getConfig, getDocuments } from "../utils/api.js";
 
 // ─── Configuration ──────────────────────────────────────────
 // Demo mode is isolated, synthetic, and explicitly enabled for offline preview.
@@ -595,13 +596,8 @@ export default function TrustCenter() {
 
   useEffect(() => {
     if (DEMO_MODE) return;
-    const read = async (url) => {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error();
-      return response.json();
-    };
-    Promise.all([read("/api/config"), read("/api/documents")])
-      .then(([cfg, docs]) => { setConfig(cfg); setDocuments(docs.documents || []); })
+    Promise.all([getConfig(), getDocuments()])
+      .then(([cfg, docs]) => { setConfig(cfg); setDocuments(docs); })
       .catch(() => setError("Unable to load trust center data. Please try again later."))
       .finally(() => setLoading(false));
   }, []);
