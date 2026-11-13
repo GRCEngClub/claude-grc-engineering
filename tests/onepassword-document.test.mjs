@@ -15,7 +15,7 @@ test('document bytes reach only the trusted consumer; failures are closed', () =
     const record = join(dir, 'record');
     const env = { PATH: `${dir}:${process.env.PATH}`, RECORD: record, OP_SERVICE_ACCOUNT_TOKEN: 'fake-token' };
     const invoke = (extra = {}, argv = [vault, item, '--', process.execPath, join(dir, 'child.cjs'), ';literal']) =>
-      spawnSync(process.execPath, [script, ...argv], { encoding: 'utf8', env: { ...env, ...extra } });
+      spawnSync(process.execPath, [script, ...argv], { encoding: 'utf8', timeout: 10_000, env: { ...env, ...extra } });
     let result = invoke();
     assert.equal(result.status, 0);
     assert.equal(result.stdout + result.stderr, '');
@@ -32,5 +32,30 @@ test('document bytes reach only the trusted consumer; failures are closed', () =
     result = invoke({}, [vault, item, '--', join(dir, 'missing')]);
     assert.equal(result.status, 1);
     assert.doesNotMatch(result.stderr, /fake-secret/);
+    writeFileSync(join(dir, 'fail.cjs'), `process.stdout.write('fake-secret');process.stderr.write('fake-secret');process.exit(7);`);
+    result = invoke({}, [vault, item, '--', process.execPath, join(dir, 'fail.cjs')]);
+    assert.equal(result.status, 1);
+    assert.doesNotMatch(result.stdout + result.stderr, /fake-secret/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('provider and consumer timeouts kill direct processes and suppress output', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'op-timeout-'));
+  try {
+    // Shorten deadlines only in the test, while checking the production values.
+    const preload = join(dir, 'preload.cjs');
+    writeFileSync(preload, `const cp=require('node:child_process');const orig=cp.spawnSync;cp.spawnSync=(cmd,args,opts)=>{const expected=cmd==='op'?120000:300000;if(opts.timeout!==expected||opts.killSignal!=='SIGKILL')throw Error('incorrect deadline');return orig(cmd,args,{...opts,timeout:300});};require('node:module').syncBuiltinESMExports();`);
+    const op = join(dir, 'op');
+    writeFileSync(op, `#!${process.execPath}\nif(process.env.HANG_PROVIDER){process.stderr.write('fake-secret');setInterval(()=>{},1000)}else process.stdout.write('synthetic');`, { mode: 0o755 });
+    const child = join(dir, 'hang.cjs');
+    writeFileSync(child, `process.stderr.write('fake-secret');setInterval(()=>{},1000);`);
+    const invoke = (extra, command) => spawnSync(process.execPath, ['--require', preload, script, vault, item, '--', ...command], {
+      encoding: 'utf8', timeout: 3000, env: { ...process.env, PATH: `${dir}:${process.env.PATH}`, ...extra },
+    });
+    for (const [extra, command] of [[{ HANG_PROVIDER: '1' }, [process.execPath, child]], [{}, [process.execPath, child]]]) {
+      const result = invoke(extra, command);
+      assert.equal(result.status, 1);
+      assert.doesNotMatch(result.stdout + result.stderr, /fake-secret/);
+    }
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

@@ -23,6 +23,9 @@ standard input, with no shell interpretation. It suppresses provider and consume
 output. Exit 0 means success, 1 means retrieval or consumer failure, and 2 means
 invalid invocation. The consumer is not started after a failed or oversized
 retrieval. No live-provider authentication behavior has been verified here.
+The provider has a 2-minute deadline and the consumer a 5-minute deadline; the
+direct process is forcibly terminated on timeout. Descendants are not contained
+and can outlive the helper or keep inherited pipes open, delaying its return.
 
 This is not a sandbox: the consumer can write, log, or transmit document contents.
 It inherits environment variables other than `OP_`-prefixed variables; credentials

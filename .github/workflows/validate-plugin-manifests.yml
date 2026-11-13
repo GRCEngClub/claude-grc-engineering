@@ -14,6 +14,8 @@ on:
       - 'plugins/connectors/gcp-secret-metadata/scripts/**'
       - 'scripts/vendor-gcp-secret-metadata.mjs'
       - 'tests/gcp-inspector-secret-evidence.test.mjs'
+      - 'plugins/connectors/onepassword-connector/**'
+      - 'tests/onepassword-document.test.mjs'
       - '.claude-plugin/marketplace.json'
       - 'schemas/plugin.schema.json'
       - 'schemas/marketplace.schema.json'
@@ -58,3 +60,6 @@ jobs:
         run: |
           node scripts/vendor-gcp-secret-metadata.mjs --check
           node --test tests/gcp-inspector-secret-evidence.test.mjs
+
+      - name: Test 1Password document helper
+        run: node --test tests/onepassword-document.test.mjs
