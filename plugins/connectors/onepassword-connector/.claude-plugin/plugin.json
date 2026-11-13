@@ -1,0 +1,9 @@
+{
+  "name": "onepassword-connector",
+  "version": "0.1.0",
+  "description": "Run a trusted local command with 1Password CLI secret references without returning command output to the agent.",
+  "author": { "name": "GRC Engineering Club Contributors" },
+  "license": "MIT",
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "keywords": ["1password", "secrets", "connector"]
+}
