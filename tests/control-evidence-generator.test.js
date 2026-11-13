@@ -8,6 +8,8 @@ import { join } from 'node:path';
 const script = 'plugins/grc-diagrams/scripts/control-evidence.py';
 const example = 'plugins/grc-diagrams/examples/control-evidence-input.json';
 const run = (...args) => spawnSync('python3', [script, ...args], { encoding: 'utf8' });
+const validator = 'plugins/grc-diagrams/examples/validate-control-evidence.py';
+const diagram = 'plugins/grc-diagrams/examples/control-evidence-flow.drawio';
 
 test('CLI produces an editable model with escaped practical labels and valid endpoints', () => {
   const dir = mkdtempSync(join(tmpdir(), 'drawio-test-'));
@@ -40,6 +42,36 @@ assert [(by_id[f'e{i}'].get('source'), by_id[f'e{i}'].get('target')) for i in (1
     assert.equal(validate.status, 0, validate.stderr);
     assert.match(readFileSync(output, 'utf8'), /Security &amp; IT/);
     assert.equal(run(example, join(dir, 'example.drawio')).status, 0);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('example validator checks each edge and rejects DTDs and entities', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'drawio-validator-'));
+  try {
+    const input = join(dir, 'example.drawio');
+    const xml = readFileSync(diagram, 'utf8');
+    const validate = () => spawnSync('python3', [validator, input], { encoding: 'utf8' });
+    writeFileSync(input, xml);
+    assert.equal(validate().status, 0);
+    // Preserve the set of endpoints while swapping their edge identities.
+    const swapped = xml.replace('source="control" target="owner"', 'source="TEMP" target="TEMP"')
+      .replace('source="owner" target="evidence"', 'source="control" target="owner"')
+      .replace('source="TEMP" target="TEMP"', 'source="owner" target="evidence"');
+    writeFileSync(input, swapped);
+    assert.notEqual(validate().status, 0);
+    for (const declaration of [
+      '<!DOCTYPE mxGraphModel>',
+      '<!DOCTYPE mxGraphModel [<!ENTITY x "Security">]>',
+      '<!DOCTYPE mxGraphModel SYSTEM "file:///nonexistent">',
+    ]) {
+      for (const encoding of ['utf8', 'utf16le']) {
+        const payload = `${declaration}\n${xml.replace('Security &amp; IT', '&x; &amp; IT')}`;
+        writeFileSync(input, encoding === 'utf16le' ? Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(payload, encoding)]) : payload);
+        const result = validate();
+        assert.notEqual(result.status, 0, `${declaration} (${encoding})`);
+        assert.match(result.stderr, /DTD and entity declarations are not permitted/);
+      }
+    }
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
