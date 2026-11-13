@@ -1,14 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { cpSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 
-const collector = resolve('plugins/connectors/gcp-inspector/scripts/collect.js');
+const plugin = resolve('plugins/connectors/gcp-inspector');
 function run(mode, args = ['--services=secret-manager'], config = 'project_id: project-one\n') {
   const dir = mkdtempSync(join(tmpdir(), 'inspector-secret-'));
   try {
+    // Model an independently installed marketplace cache: no repository root,
+    // sibling plugin, or root package.json is available to the child process.
+    const installed = join(dir, 'cache', 'marketplace', 'gcp-inspector', '0.1.0');
+    cpSync(plugin, installed, { recursive: true });
+    const collector = join(installed, 'scripts', 'collect.js');
     mkdirSync(join(dir, 'bin')); mkdirSync(join(dir, 'config', 'connectors'), { recursive: true });
     writeFileSync(join(dir, 'config', 'connectors', 'gcp-inspector.yaml'), config);
     writeFileSync(join(dir, 'bin', 'gcloud'), `#!/usr/bin/env node
@@ -28,7 +33,7 @@ else process.exit(1);
     const preload = join(dir, 'clock.cjs');
     writeFileSync(preload, "let n=0; Object.defineProperty(performance, 'now', {value: () => ++n < 3 ? 0 : 300001});\n");
     const nodeOptions = mode === 'deadline' ? `--require=${preload}` : '';
-    const r = spawnSync(process.execPath, [collector, ...args, '--output=json'], { encoding: 'utf8', env: { ...process.env, NODE_OPTIONS: nodeOptions, HOME: dir, CLAUDE_GRC_CONFIG_DIR: join(dir, 'config'), PATH: `${join(dir, 'bin')}:${process.env.PATH}`, RECORD: record, MODE: mode } });
+    const r = spawnSync(process.execPath, [collector, ...args, '--output=json'], { encoding: 'utf8', cwd: dir, env: { ...process.env, NODE_OPTIONS: nodeOptions, HOME: dir, CLAUDE_GRC_CONFIG_DIR: join(dir, 'config'), PATH: `${join(dir, 'bin')}:${process.env.PATH}`, RECORD: record, MODE: mode } });
     const calls = existsSync(record) ? readFileSync(record, 'utf8').trim().split('\n').map(JSON.parse) : [];
     const out = r.stdout ? JSON.parse(r.stdout) : null;
     const evidencePath = out?.summary?.secret_manager_evidence_path;

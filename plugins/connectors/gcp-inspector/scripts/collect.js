@@ -24,7 +24,7 @@ const CONFIG_FILE = path.join(CONFIG_DIR, 'connectors', 'gcp-inspector.yaml');
 const CACHE_DIR = path.join(os.homedir(), '.cache', 'claude-grc', 'findings', 'gcp-inspector');
 const RUNS_LOG = path.join(os.homedir(), '.cache', 'claude-grc', 'runs.log');
 const EVIDENCE_DIR = path.join(os.homedir(), '.cache', 'claude-grc', 'evidence', 'gcp-inspector');
-const SECRET_SCRIPTS = fileURLToPath(new URL('../../gcp-secret-metadata/scripts/', import.meta.url));
+const SECRET_SCRIPTS = fileURLToPath(new URL('./secret-metadata/', import.meta.url));
 const SOURCE = 'gcp-inspector';
 const SOURCE_VERSION = '0.1.0';
 
