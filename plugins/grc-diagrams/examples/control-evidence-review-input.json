@@ -1,0 +1,8 @@
+{
+  "control": "Quarterly access review",
+  "owner": "IT team",
+  "evidence": "Access review report",
+  "cadence": "quarterly",
+  "reviewer": "Internal audit",
+  "review_outcome": "pending"
+}
