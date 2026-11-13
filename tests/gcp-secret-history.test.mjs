@@ -19,8 +19,8 @@ test('collects only validated metadata, never payloads or provider errors', () =
     assert.equal(r.status, 0); assert.doesNotMatch(r.stdout + r.stderr, /sentinel|provider-sensitive/);
     assert.deepEqual(JSON.parse(r.stdout), { project: 'project-one', name, rotation: metadata.rotation, createTime: metadata.createTime, versions: versions.map(({ payload, ...v }) => v) });
     assert.deepEqual(readFileSync(env.RECORD, 'utf8').trim().split('\n').map(JSON.parse), [
-      ['secrets', 'describe', 'sample', '--project=project-one', '--format=json', '--quiet'],
-      ['secrets', 'versions', 'list', 'sample', '--project=project-one', '--format=json', '--quiet'],
+      ['secrets', 'describe', name, '--project=project-one', '--format=json', '--quiet'],
+      ['secrets', 'versions', 'list', name, '--project=project-one', '--format=json', '--quiet'],
     ]);
     for (const overrides of [{ FAIL: '1' }, { SECRET: '{bad' }, { VERSIONS: '{}' }, { VERSIONS: JSON.stringify([{ ...versions[0], name: 'projects/999/secrets/other/versions/1' }]) }, { VERSIONS: JSON.stringify([{ ...versions[0], state: 'sentinel' }]) }, { SECRET: JSON.stringify({ ...metadata, rotation: { rotationPeriod: 'sentinel' } }) }, { PATH: '/nonexistent' }]) {
       r = run(overrides); assert.equal(r.status, 1); assert.equal(r.stdout, ''); assert.doesNotMatch(r.stderr, /sentinel|provider-sensitive/);
@@ -61,6 +61,6 @@ test('collects only validated metadata, never payloads or provider errors', () =
     r = run({ SECRET: JSON.stringify({ name }), VERSIONS: '[]' });
     assert.deepEqual(JSON.parse(r.stdout), { project: 'project-one', name, rotation: null, versions: [] });
     assert.equal(run({}, ['--bad', 'sample']).status, 2);
-    assert.equal(run({}, ['project-one', '--bad']).status, 2);
+    assert.equal(run({}, ['project-one', 'bad/secret']).status, 2);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

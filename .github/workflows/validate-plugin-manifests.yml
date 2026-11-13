@@ -10,6 +10,10 @@ on:
     paths:
       - 'plugins/**/plugin.json'
       - 'plugins/grc-diagrams/**'
+      - 'plugins/connectors/gcp-inspector/**'
+      - 'plugins/connectors/gcp-secret-metadata/scripts/**'
+      - 'scripts/vendor-gcp-secret-metadata.mjs'
+      - 'tests/gcp-inspector-secret-evidence.test.mjs'
       - '.claude-plugin/marketplace.json'
       - 'schemas/plugin.schema.json'
       - 'schemas/marketplace.schema.json'
@@ -49,3 +53,8 @@ jobs:
 
       - name: Validate GRC diagram skills
         run: bash tests/validate-grc-diagram-skills.sh
+
+      - name: Check vendored GCP metadata helpers and isolated plugin
+        run: |
+          node scripts/vendor-gcp-secret-metadata.mjs --check
+          node --test tests/gcp-inspector-secret-evidence.test.mjs

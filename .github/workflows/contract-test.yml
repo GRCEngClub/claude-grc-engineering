@@ -32,6 +32,9 @@ jobs:
       - name: Test schema validator
         run: npm run test:schema-validator
 
+      - name: Test GCP Inspector Secret Manager evidence
+        run: node --test tests/gcp-inspector-secret-evidence.test.mjs
+
       - name: Install pinned OPA
         run: |
           curl --fail --location --retry 3 -o "$RUNNER_TEMP/opa" https://github.com/open-policy-agent/opa/releases/download/v1.22.4/opa_linux_amd64_static

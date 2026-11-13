@@ -10,13 +10,13 @@ Scans a GCP project for compliance-relevant resources and configurations.
 ## How to run
 
 ```bash
-node plugins/connectors/gcp-inspector/scripts/collect.js [options]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" [options]
 ```
 
 ## Arguments
 
 - `--project=<id>` — override the configured project
-- `--services=<csv>` — subset of `iam,storage,logging,kms,compute` (default: all)
+- `--services=<csv>` — subset of `iam,storage,logging,kms,compute,secret-manager` (default: first five only). Secret Manager must be explicitly selected on the command line, not just in config. Duplicate services (including in config defaults) and repeated `--services` flags are usage errors before collection or run artifacts.
 - `--output=<fmt>` — `silent` | `summary` (default) | `json`
 - `--refresh` — ignore any cached data; re-query GCP
 - `--quiet` — no stderr progress
@@ -66,6 +66,7 @@ node plugins/connectors/gcp-inspector/scripts/collect.js [options]
 
 - `~/.cache/claude-grc/findings/gcp-inspector/<run_id>.json` — array of Findings
 - `~/.cache/claude-grc/runs.log` — run manifest appended
+- With explicit `--services=secret-manager`, `~/.cache/claude-grc/evidence/gcp-inspector/<run_id>.json` contains a separate metadata-only inventory and version history. JSON output and the run log include `secret_manager_evidence_path`. This is not a Finding or compliance evaluation; a rotation schedule is not proof a rotation occurred. Names and timestamps can be sensitive; protect and retain the evidence accordingly. New files are mode 0600.
 - stdout summary unless `--quiet`:
 
   ```
@@ -75,7 +76,7 @@ node plugins/connectors/gcp-inspector/scripts/collect.js [options]
 ## Exit codes
 
 - `0` success
-- `2` credentials invalid or project inaccessible
+- `2` usage error or credentials invalid
 - `3` rate-limited (GCP quota exhausted)
 - `4` partial (some services inaccessible; report still written)
 - `5` config missing — run setup
@@ -93,6 +94,12 @@ roles/resourcemanager.folderViewer  # (optional; multi-project)
 
 Alternatively, `roles/viewer` covers the basics.
 
+For opt-in Secret Manager evidence, the required metadata-only helpers are bundled with this plugin; no separate plugin installation is needed. Grant `secretmanager.secrets.list`, `secretmanager.secrets.get`, and `secretmanager.versions.list` on the selected project/resources. Numeric resource names also require permission to describe the selected project to bind its project number to its ID. The collector calls only metadata list/describe commands, never version access. It uses gcloud's automatic pagination without a limit; successful collection reflects what the caller can list, not proof of broader visibility or an atomic snapshot. Permission, malformed-response, project mismatch, or helper errors cause a partial exit (4) and no Secret Manager evidence file. Review other services' results separately.
+
+Secret Manager collection rejects inventories over 100 secrets rather than producing incomplete evidence. It has a five-minute time budget checked before and after each sequential helper; a helper already running can extend the elapsed time beyond five minutes, and is subject to its own 120-second timeout. These limits apply only to Secret Manager collection, not the whole multi-service run. Exceeding either limit causes exit 4 with no Secret Manager evidence; findings and a run manifest may still be written for the run.
+
+Evidence is written to an exclusively created mode-0600 temporary file in the same directory, closed, then published with an atomic hard link that cannot overwrite an existing destination. A filesystem that does not support hard links causes publication to fail with exit 4; there is no unsafe copy or overwrite fallback. Write, close, or publication failures do not publish a partial final file. Cleanup is best effort: interruption or cleanup failure may leave a hidden `.tmp` file containing sensitive metadata, even after successful publication; protect and remove orphaned temporary files before retrying. This is an atomic visibility guarantee, not a power-loss durability guarantee (no fsync).
+
 ## Examples
 
 ```bash
@@ -106,12 +113,19 @@ done
 
 # Storage only
 /gcp-inspector:collect --services=storage
+
+# Metadata-only Secret Manager inventory and version history
+/gcp-inspector:collect --project=example-project --services=secret-manager --output=json
 ```
 
 ## CI/CD usage
 
+Set `CLAUDE_PLUGIN_ROOT` to the installed gcp-inspector plugin directory when
+running outside Claude Code. The gap-assessment command below assumes a
+marketplace checkout as its working directory.
+
 ```bash
 gcloud auth activate-service-account --key-file=sa.json
-node plugins/connectors/gcp-inspector/scripts/collect.js --quiet
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" --quiet
 node plugins/grc-engineer/scripts/gap-assessment.js FedRAMP-Moderate --sources=gcp-inspector --output=sarif --quiet > gcp-gap.sarif
 ```
