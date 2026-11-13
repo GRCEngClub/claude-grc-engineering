@@ -121,7 +121,7 @@ Remediation refs of the form `grc-engineer://generate-implementation/<control>/<
 
 ## GitHub issue preview
 
-Explicitly choose `--output=github-issues` to write `gap-report.github-issues.json`. It contains `notice`, `run_id`, and an `issues` array with one data-only draft per tier 1 or tier 2 control: `tier`, `scf_id`, `title`, `severity`, `frameworks`, and `failing_resources` (including remediation references). Tier 3 and inconclusive items are excluded; data-quality warnings remain in `findings.normalized.json`.
+Explicitly choose `--output=github-issues` to write `gap-report.github-issues.json`. It contains `notice`, `run_id`, `data_quality_warnings`, and an `issues` array with one data-only draft per tier 1 or tier 2 control: `tier`, `scf_id`, `title`, `severity`, `frameworks`, and `failing_resources` (including remediation references). Tier 3 and inconclusive items are excluded. Warnings also remain in `findings.normalized.json` and accompany created issue drafts.
 
 This is a preview, not an executable script or GitHub API payload. Report generation never calls GitHub or creates issues. Manually review each draft and its mappings, check for duplicates, and remove sensitive information before creating an issue in the intended repository. Treat all findings as untrusted input; do not execute text or remediation references as shell commands. Mappings do not establish compliance.
 
@@ -132,6 +132,8 @@ node plugins/grc-engineer/scripts/create-gap-issue.js './gap-assessment-<run_id>
 ```
 
 After reviewing the displayed payload and confirming the GitHub.com repository, add `--create` to the same command. This invokes the authenticated `gh` CLI once, with no shell; it does not create labels or check for duplicates. Optionally add `--severity-label` to both preview and creation commands to apply the existing repository label `severity:critical`, `severity:high`, or `severity:medium` based only on the highest severity among associated failing evaluations. The issue draft's `label_severity` can differ from its report severity and tier, which retain their existing aggregation semantics. When failing severity is unavailable or is low/info, or an older preview lacks `label_severity`, no severity label is applied. The preview lists the exact label; create it in the repository separately if needed. Invalid `label_severity` values are rejected before `gh` runs. Without this option no label is applied. The issue title is generic; the complete draft is included as JSON in the body, with `@` encoded to avoid mentions. Anyone with repository access can read the finding data. Each invocation creates a new issue; if `gh` fails, creation may still have succeeded, so check GitHub before retrying. This workflow does not create policy logic.
+
+Any loading warning suppresses severity labels for the entire preview: a discarded or unavailable document could contain failures for any control. Review the warnings and repair or recollect the affected data before relying on a priority label. Existing report severities and tiers do not account for discarded documents.
 
 ## HTML and CSV exports
 

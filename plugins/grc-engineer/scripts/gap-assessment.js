@@ -201,7 +201,7 @@ async function discoverSources(cacheDir) {
   }
 }
 
-async function loadFindings(cacheDir, sources) {
+export async function loadFindings(cacheDir, sources) {
   const findings = [];
   const errors = [];
   for (const source of sources) {
@@ -490,12 +490,15 @@ export function renderGithubIssuePreview(r) {
   return {
     notice: 'Preview only. Review sensitive data and mappings before manually creating issues; no issues have been created.',
     run_id: r.runId,
+    // Invalid documents may contain failures for any control, including controls
+    // also present in valid documents. Their scope cannot safely be inferred.
+    data_quality_warnings: r.load_errors,
     issues: ['tier1', 'tier2'].flatMap((tier, index) => r.tiers[tier].map(t => ({
       tier: index + 1,
       scf_id: t.scf_id,
       title: t.title,
       severity: t.severity,
-      label_severity: ['critical', 'high', 'medium'].includes(issueSeverities.get(t)) ? issueSeverities.get(t) : null,
+      label_severity: !r.load_errors.length && ['critical', 'high', 'medium'].includes(issueSeverities.get(t)) ? issueSeverities.get(t) : null,
       frameworks: t.frameworks,
       failing_resources: t.failing_resources
     })))

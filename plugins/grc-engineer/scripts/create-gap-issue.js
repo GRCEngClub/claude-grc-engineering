@@ -17,13 +17,15 @@ function main(args) {
   if (!issue || typeof issue !== 'object' || Array.isArray(issue) || ![1, 2].includes(issue.tier) || typeof issue.title !== 'string' || typeof issue.scf_id !== 'string') throw new Error('Invalid or missing tier 1/2 draft');
   const labels = [];
   if (options.includes('--severity-label')) {
+    if (preview.data_quality_warnings != null && !Array.isArray(preview.data_quality_warnings)) throw new Error('Invalid data quality warnings; no issue created');
     // Legacy or ambiguous drafts carry no actionable severity: omit the label.
     if (issue.label_severity != null && !['critical', 'high', 'medium'].includes(issue.label_severity)) throw new Error('Invalid actionable severity; no issue created');
-    if (issue.label_severity != null) labels.push(`severity:${issue.label_severity}`);
+    if (issue.label_severity != null && !preview.data_quality_warnings?.length) labels.push(`severity:${issue.label_severity}`);
   }
   // JSON retains all draft fields. Encode @ to prevent mentions and use a fence
   // longer than any in the untrusted data so it cannot break out of the block.
-  const data = JSON.stringify(issue, null, 2).replaceAll('@', '\\u0040');
+  const data = JSON.stringify(preview.data_quality_warnings?.length
+    ? { ...issue, data_quality_warnings: preview.data_quality_warnings } : issue, null, 2).replaceAll('@', '\\u0040');
   let longest = 2;
   for (const match of data.matchAll(/`+/g)) longest = Math.max(longest, match[0].length);
   const fence = '`'.repeat(longest + 1);
