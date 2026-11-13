@@ -6,7 +6,7 @@ import sys
 import types
 import unittest
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 os.environ.update(AWS_DEFAULT_REGION="us-east-1", AWS_ACCESS_KEY_ID="testing", AWS_SECRET_ACCESS_KEY="testing", AWS_EC2_METADATA_DISABLED="true")
 # The Lambda runtime provides boto3; tests stub it before loading the handler.
@@ -110,6 +110,47 @@ class AccessTests(unittest.TestCase):
         self.assertEqual(self.call('GET', '/api/unrelated/prod/api/admin/requests', sub='alice', groups='admins')[0], 404)
         self.assertEqual(self.call('GET', '/prod/api/documents')[0], 200)
 
+    def test_exact_routes_reject_extra_empty_or_wrong_method_segments(self):
+        cases = [
+            ('GET', '/api/documents/pub/extra'),
+            ('GET', '/api/documents/pub/extra/download'),
+            ('GET', '/api/documents//download'),
+            ('GET', '/api/documents/pub/download/'),
+            ('POST', '/api/private/documents/secret/extra/request-access'),
+            ('POST', '/api/private/documents//request-access'),
+            ('DELETE', '/api/admin/documents/pub/extra'),
+            ('DELETE', '/api/admin/documents/'),
+            ('PUT', '/api/admin/requests/request/extra'),
+            ('PUT', '/api/admin/requests/'),
+            ('POST', '/api/documents/pub/download'),
+            ('GET', '/api/private/admin/requests'),
+        ]
+        handlers = ('get_document', 'download_document', 'request_access', 'delete_document', 'update_request')
+        with patch.multiple(api, **{name: Mock() for name in handlers}) as mocks:
+            for method, path in cases:
+                with self.subTest(method=method, path=path):
+                    self.assertEqual(self.call(method, path, sub='alice', groups='admins')[0], 404)
+            for mock in mocks.values():
+                mock.assert_not_called()
+
+    def test_exact_routes_dispatch_expected_ids_and_preserve_identity_boundary(self):
+        response = api.cors_response(200, {})
+        cases = [
+            ('GET', '/api/documents/pub', 'get_document', 'pub', False),
+            ('GET', '/prod/api/documents/pub/download', 'download_document', 'pub', False),
+            ('POST', '/api/private/documents/secret/request-access', 'request_access', 'secret', True),
+            ('DELETE', '/api/admin/documents/pub', 'delete_document', 'pub', False),
+            ('PUT', '/api/admin/requests/req', 'update_request', 'req', False),
+        ]
+        for method, path, name, identifier, private in cases:
+            with self.subTest(path=path), patch.object(api, name, return_value=response) as target:
+                self.assertEqual(self.call(method, path, sub='alice', groups='admins')[0], 200)
+                event, actual_id = target.call_args.args
+                self.assertEqual(actual_id, identifier)
+                self.assertEqual(event['_private_route'], private)
+                if not private and '/admin/' not in path:
+                    self.assertEqual(event['requestContext'], {})
+
     def test_approval_query_paginates_and_uses_consistent_reads(self):
         api.table.query = Mock(side_effect=[{'Items': [], 'LastEvaluatedKey': {'PK': 'DOC#secret', 'SK': 'REQUEST#1'}},
                                              {'Items': [{'requesterSub': 'alice', 'status': 'approved'}]}])
@@ -141,7 +182,10 @@ class AccessTests(unittest.TestCase):
         reference = root / "skills/trust-center/references"
         for source, copy in ((root / "backend/functions/api_handler.py", reference / "api-handler.py"),
                              (root / "infrastructure/template.yaml", reference / "infrastructure-template.yaml"),
-                             (root / "frontend/src/pages/TrustCenter.jsx", reference / "frontend-files/src/pages/TrustCenter.jsx")):
+                             (root / "frontend/src/pages/TrustCenter.jsx", reference / "frontend-files/src/pages/TrustCenter.jsx"),
+                             (root / "frontend/src/pages/AdminDashboard.jsx", reference / "frontend-files/src/pages/AdminDashboard.jsx"),
+                             (root / "frontend/src/hooks/useAuth.jsx", reference / "frontend-files/src/hooks/useAuth.jsx"),
+                             (root / "frontend/src/utils/api.js", reference / "frontend-files/src/utils/api.js")):
             self.assertEqual(source.read_bytes(), copy.read_bytes(), str(copy))
 
     def test_admin_group_is_exact(self):

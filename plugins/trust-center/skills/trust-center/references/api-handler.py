@@ -19,6 +19,7 @@ Routes:
 
 import json
 import os
+import re
 import uuid
 import time
 import hmac
@@ -692,17 +693,17 @@ def handler(event, context):
         if path == "/api/documents" and http_method == "GET":
             return list_documents(event)
 
-        if path.startswith("/api/documents/") and path.endswith("/request-access") and http_method == "POST":
-            doc_id = path.split("/")[3]
-            return request_access(event, doc_id)
+        match = re.fullmatch(r"/api/documents/([^/]+)/request-access", path)
+        if match and http_method == "POST":
+            return request_access(event, match.group(1))
 
-        if path.startswith("/api/documents/") and path.endswith("/download") and http_method == "GET":
-            doc_id = path.split("/")[3]
-            return download_document(event, doc_id)
+        match = re.fullmatch(r"/api/documents/([^/]+)/download", path)
+        if match and http_method == "GET":
+            return download_document(event, match.group(1))
 
-        if path.startswith("/api/documents/") and http_method == "GET":
-            doc_id = path.split("/")[3]
-            return get_document(event, doc_id)
+        match = re.fullmatch(r"/api/documents/([^/]+)", path)
+        if match and http_method == "GET":
+            return get_document(event, match.group(1))
 
         # --- Admin routes ---
         if path == "/api/admin/config" and http_method == "PUT":
@@ -711,16 +712,16 @@ def handler(event, context):
         if path == "/api/admin/documents" and http_method == "POST":
             return create_document(event)
 
-        if path.startswith("/api/admin/documents/") and http_method == "DELETE":
-            doc_id = path.split("/")[4]
-            return delete_document(event, doc_id)
+        match = re.fullmatch(r"/api/admin/documents/([^/]+)", path)
+        if match and http_method == "DELETE":
+            return delete_document(event, match.group(1))
 
         if path == "/api/admin/requests" and http_method == "GET":
             return list_requests(event)
 
-        if path.startswith("/api/admin/requests/") and http_method == "PUT":
-            req_id = path.split("/")[4]
-            return update_request(event, req_id)
+        match = re.fullmatch(r"/api/admin/requests/([^/]+)", path)
+        if match and http_method == "PUT":
+            return update_request(event, match.group(1))
 
         if path == "/api/admin/audit-log" and http_method == "GET":
             return get_audit_log(event)

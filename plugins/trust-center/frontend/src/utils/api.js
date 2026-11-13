@@ -1,17 +1,17 @@
 /**
  * Trust Center API Client
  *
- * All backend calls go through here. When VITE_API_URL is set,
- * calls hit the real Lambda. Otherwise falls back to demo data.
+ * Demo mode is explicit and never contacts the backend. Otherwise an empty
+ * base URL uses the same-origin API, just like the public page.
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || ''
-const IS_DEMO = !API_BASE
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 
 async function request(path, options = {}) {
   if (IS_DEMO) {
     console.warn(`[DEMO MODE] Skipped API call: ${path}`)
-    return null
+    throw new Error('Demo mode: API calls are disabled.')
   }
 
   const url = `${API_BASE}${path}`

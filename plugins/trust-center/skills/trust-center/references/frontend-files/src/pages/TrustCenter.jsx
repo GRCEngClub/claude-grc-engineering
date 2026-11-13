@@ -1,120 +1,22 @@
 import { useState, useEffect, useCallback } from "react";
 
 // ─── Configuration ──────────────────────────────────────────
-// In production these come from environment variables or the /api/config endpoint.
-// Demo mode uses generic sample data. Replace with your own via the seed script
-// or the /api/admin/config endpoint after deploying.
+// Demo mode is isolated, synthetic, and explicitly enabled for offline preview.
+// Deployment and live seeding are blocked; NDA enforcement is not implemented.
 const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 
 const DEMO_CONFIG = {
-  companyName: "Acme Corp",
-  tagline: "Security & Compliance",
-  description:
-    "Acme Corp is committed to protecting your data. We maintain rigorous compliance standards and undergo independent audits to ensure the security, availability, and confidentiality of our platform.",
+  companyName: "Fictional Demo Only",
+  tagline: "Offline prototype preview",
+  description: "Synthetic example only. No security or compliance claims are made.",
   primaryColor: "#1a56db",
-  contactEmail: "security@acmecorp.example.com",
-  certifications: [
-    {
-      name: "SOC 2 Type II",
-      status: "active",
-      description:
-        "System and Organization Controls — Security trust services criteria",
-      auditPeriod: "Jan 2026 – Jun 2026",
-      auditor: "Example Audit Firm",
-      badge: "soc2",
-    },
-    {
-      name: "SOC 3",
-      status: "active",
-      description:
-        "General use report on Security controls — publicly downloadable",
-      auditPeriod: "Jan 2026 – Jun 2026",
-      auditor: "Example Audit Firm",
-      badge: "soc3",
-    },
-  ],
-  complianceStats: {
-    totalControls: 42,
-    trustServicesCriteria: 30,
-    complianceRate: "97%",
-    currentAuditPeriod: "Jul 1, 2026 – Jun 30, 2027",
-  },
+  contactEmail: "demo@example.invalid",
+  certifications: [],
 };
 
 const DEMO_DOCUMENTS = [
-  {
-    id: "soc3-report",
-    name: "SOC 3 Report",
-    description: "General use report on system controls — publicly available",
-    category: "Audit Reports",
-    accessLevel: "public",
-    fileType: "pdf",
-    downloadable: true,
-  },
-  {
-    id: "soc2-type2",
-    name: "SOC 2 Type II Report",
-    description:
-      "Detailed report on the design and operating effectiveness of security controls",
-    category: "Audit Reports",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-infosec",
-    name: "Information Security Policy",
-    description: "Overarching policy governing information asset protection",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-access",
-    name: "Access Control Policy",
-    description: "User provisioning, role-based access, and offboarding procedures",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-bcdr",
-    name: "Business Continuity & Disaster Recovery Plan",
-    description: "Procedures for maintaining operations during disruptions",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-incident",
-    name: "Incident Response Plan",
-    description: "Detection, response, and recovery procedures for security events",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-privacy",
-    name: "Privacy & Data Protection Policy",
-    description: "Data subject rights and privacy law compliance",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
-  {
-    id: "pol-vendor",
-    name: "Vendor Management Policy",
-    description: "Third-party risk assessment and ongoing monitoring",
-    category: "Policies",
-    accessLevel: "gated",
-    fileType: "pdf",
-    downloadable: false,
-  },
+  { id: "demo-public", name: "Fictional public example", description: "Synthetic preview; no file exists.", category: "Audit Reports", accessLevel: "public", fileType: "pdf", downloadable: false },
+  { id: "demo-gated", name: "Fictional restricted example", description: "Synthetic preview; no file exists.", category: "Policies", accessLevel: "gated", fileType: "pdf", downloadable: false },
 ];
 
 // ─── Styles ─────────────────────────────────────────────────
@@ -420,7 +322,7 @@ function DocumentRow({ doc, onRequestAccess, onDownload }) {
           {doc.fileType}
         </span>
 
-        {isPublic ? (
+        {DEMO_MODE ? <span>Example only — unavailable</span> : isPublic ? (
           <button
             onClick={() => onDownload(doc)}
             style={{
@@ -1017,11 +919,11 @@ export default function TrustCenter() {
           >
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <DownloadIcon size={12} color={palette.green} />
-              <span>Public — download directly</span>
+              <span>{DEMO_MODE ? "Fictional public example" : "Public — download directly"}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <LockIcon size={12} color={palette.accent} />
-              <span>Gated — submit access request</span>
+              <span>{DEMO_MODE ? "Fictional restricted example" : "Restricted — requester access unavailable"}</span>
             </div>
           </div>
         </section>

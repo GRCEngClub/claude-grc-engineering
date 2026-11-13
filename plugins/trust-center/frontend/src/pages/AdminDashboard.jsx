@@ -17,15 +17,11 @@ const monoFont = "'JetBrains Mono', monospace"
 
 // ── Demo data for preview ───────────────────────────────────
 const DEMO_REQUESTS = [
-  { requestId: 'r001', documentName: 'SOC 2 Type II Report', requesterName: 'Sarah Chen', requesterEmail: 'sarah@bigcorp.com', requesterCompany: 'BigCorp', reason: 'Vendor due diligence for enterprise procurement', status: 'pending', ndaSigned: false, createdAt: '2026-05-15T10:30:00Z' },
-  { requestId: 'r002', documentName: 'Information Security Policy', requesterName: 'James Mwangi', requesterEmail: 'james@techpartners.io', requesterCompany: 'TechPartners', reason: 'Security review for integration partnership', status: 'pending', ndaSigned: true, createdAt: '2026-05-16T14:20:00Z' },
-  { requestId: 'r003', documentName: 'SOC 2 Type II Report', requesterName: 'Lisa Park', requesterEmail: 'lisa@acme.com', requesterCompany: 'Acme Corp', reason: 'Annual vendor reassessment', status: 'approved', ndaSigned: true, createdAt: '2026-05-10T09:00:00Z' },
+  { requestId: 'demo-1', documentName: 'Example document (fictional)', requesterName: 'Demo requester', requesterEmail: 'requester@example.invalid', requesterCompany: 'Example only', reason: 'Synthetic demonstration', status: 'pending', createdAt: '2026-05-15T10:30:00Z' },
 ]
 
 const DEMO_AUDIT = [
-  { action: 'access_requested', details: { requesterEmail: 'sarah@bigcorp.com', documentId: 'soc2-type2' }, timestamp: '2026-05-15T10:30:00Z' },
-  { action: 'document_downloaded', details: { downloadedBy: 'lisa@acme.com', documentName: 'SOC 2 Type II Report' }, timestamp: '2026-05-14T16:45:00Z' },
-  { action: 'request_approved', details: { reviewedBy: 'admin@yourcompany.com', requestId: 'r003' }, timestamp: '2026-05-12T11:20:00Z' },
+  { action: 'access_requested', details: { requesterEmail: 'requester@example.invalid', documentId: 'example-only' }, timestamp: '2026-05-15T10:30:00Z' },
 ]
 
 function StatusBadge({ status }) {
@@ -129,11 +125,12 @@ export default function AdminDashboard() {
   const navigate = useNavigate()
 
   const [tab, setTab] = useState('requests')
-  const [requests, setRequests] = useState(DEMO_REQUESTS)
-  const [auditLog, setAuditLog] = useState(DEMO_AUDIT)
+  const isDemo = import.meta.env.VITE_DEMO_MODE === 'true'
+  const [requests, setRequests] = useState(() => isDemo ? DEMO_REQUESTS : [])
+  const [auditLog, setAuditLog] = useState(() => isDemo ? DEMO_AUDIT : [])
+  const [error, setError] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 
-  const isDemo = !import.meta.env.VITE_API_URL
 
   useEffect(() => {
     if (!authLoading && !user && !isDemo) {
@@ -147,9 +144,9 @@ export default function AdminDashboard() {
     if (!token) return
 
     if (tab === 'requests') {
-      api.getRequests(token, statusFilter).then(data => setRequests(data?.requests || []))
+      api.getRequests(token, statusFilter).then(data => setRequests(data?.requests || [])).catch(() => setError('Could not load requests.'))
     } else if (tab === 'audit') {
-      api.getAuditLog(token).then(data => setAuditLog(data?.entries || []))
+      api.getAuditLog(token).then(data => setAuditLog(data?.entries || [])).catch(() => setError('Could not load audit log.'))
     }
   }, [tab, statusFilter, getToken, isDemo])
 
@@ -220,6 +217,8 @@ export default function AdminDashboard() {
       </nav>
 
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 24px' }}>
+        {isDemo && <p style={{ color: p.amber }}>Isolated demo — all records are fictional. Changes are simulated locally and are not submitted. NDA enforcement is not implemented.</p>}
+        {error && <p role="alert" style={{ color: p.red }}>{error}</p>}
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 24 }}>
           {[
