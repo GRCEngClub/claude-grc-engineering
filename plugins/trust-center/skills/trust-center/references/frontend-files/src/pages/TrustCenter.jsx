@@ -919,7 +919,7 @@ export default function TrustCenter() {
           >
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <DownloadIcon size={12} color={palette.green} />
-              <span>{DEMO_MODE ? "Fictional public example" : "Public — download directly"}</span>
+              <span>{DEMO_MODE ? "Fictional public example" : "Public — downloads unavailable pending security review"}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <LockIcon size={12} color={palette.accent} />

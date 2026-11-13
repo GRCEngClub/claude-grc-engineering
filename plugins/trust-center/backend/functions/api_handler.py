@@ -271,7 +271,7 @@ def list_documents(event):
                 "lastUpdated": item.get("lastUpdated", ""),
             }
 
-            doc["downloadable"] = True
+            doc["downloadable"] = False
 
             documents.append(doc)
 
@@ -356,6 +356,7 @@ def request_access(event, doc_id):
         "requesterCompany": requester_company,
         "reason": reason,
         "status": "pending",
+        "version": new_id(),
         "ndaSigned": False,
         "createdAt": now,
         "updatedAt": now,
@@ -393,38 +394,12 @@ def download_document(event, doc_id):
     if not doc:
         return cors_response(404, {"error": "Document not found"})
 
-    access_level = doc.get("accessLevel")
-    s3_key = doc.get("s3Key")
-
-    if access_level != "public":
-        if not event.get("_private_route") or not get_user_from_token(event).get("sub"):
-            return cors_response(404, {"error": "Document not found"})
-        if not approved_for_document(event, doc):
-            return cors_response(404, {"error": "Document not found"})
-
-    if not s3_key:
-        return cors_response(404, {"error": "Document file not found"})
-
-    # Generate presigned URL (valid for 1 hour)
-    try:
-        url = s3.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": DOCUMENTS_BUCKET, "Key": s3_key},
-            ExpiresIn=3600,
-        )
-    except ClientError as e:
-        logger.error(f"Presigned URL error: {e}")
-        return cors_response(500, {"error": "Failed to generate download link"})
-
-    # Audit log
-    user = get_user_from_token(event)
-    _write_audit_log("document_downloaded", {
-        "documentId": doc_id,
-        "documentName": doc.get("name", ""),
-        "downloadedBy": user.get("email", "anonymous"),
-    })
-
-    return cors_response(200, {"downloadUrl": url, "expiresIn": 3600})
+    # All signing is disabled: a formerly public mutable S3 key can later
+    # hold private data, and reads cannot be atomic with signing or revocation.
+    # Do not re-enable without an independently reviewed delivery design.
+    if doc.get("accessLevel") != "public":
+        return cors_response(404, {"error": "Document not found"})
+    return cors_response(503, {"error": "Document downloads are disabled pending security review"})
 
 
 # ---------------------------------------------------------------------------
@@ -438,23 +413,18 @@ def list_requests(event):
     status_filter = (event.get("queryStringParameters") or {}).get("status", "")
 
     try:
-        if status_filter:
-            resp = table.query(
-                IndexName="GSI1",
-                KeyConditionExpression="GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
-                ExpressionAttributeValues={
-                    ":pk": "REQUESTS",
-                    ":sk": f"{status_filter}#",
-                },
-            )
-        else:
-            resp = table.query(
-                IndexName="GSI1",
-                KeyConditionExpression="GSI1PK = :pk",
-                ExpressionAttributeValues={":pk": "REQUESTS"},
-            )
-
-        items = resp.get("Items", [])
+        params = {
+            "IndexName": "GSI1",
+            "KeyConditionExpression": "GSI1PK = :pk" + (" AND begins_with(GSI1SK, :sk)" if status_filter else ""),
+            "ExpressionAttributeValues": {":pk": "REQUESTS", **({":sk": f"{status_filter}#"} if status_filter else {})},
+        }
+        items = []
+        while True:
+            resp = table.query(**params)
+            items.extend(resp.get("Items", []))
+            if not resp.get("LastEvaluatedKey"):
+                break
+            params["ExclusiveStartKey"] = resp["LastEvaluatedKey"]
         requests = [
             {
                 "requestId": item.get("requestId"),
@@ -465,6 +435,7 @@ def list_requests(event):
                 "requesterCompany": item.get("requesterCompany", ""),
                 "reason": item.get("reason", ""),
                 "status": item.get("status"),
+                "version": item.get("version"),
                 "ndaSigned": item.get("ndaSigned", False),
                 "createdAt": item.get("createdAt"),
                 "updatedAt": item.get("updatedAt"),
@@ -489,6 +460,9 @@ def update_request(event, request_id):
     body = parse_body(event)
     new_status = body.get("status")  # "approved" or "denied"
     doc_id = body.get("documentId")
+    expected_version = body.get("expectedVersion")
+    if not isinstance(expected_version, str) or not expected_version:
+        return cors_response(400, {"error": "expectedVersion is required"})
 
     if new_status not in ("approved", "denied"):
         return cors_response(400, {"error": "Status must be 'approved' or 'denied'"})
@@ -504,6 +478,8 @@ def update_request(event, request_id):
         request = table.get_item(Key=key, ConsistentRead=True).get("Item") or {}
         doc = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True).get("Item") or {}
         generation, subject = request.get("generation"), request.get("requesterSub")
+        if request.get("version") != expected_version:
+            return cors_response(409, {"error": "Request changed; refresh before deciding"})
         if (not isinstance(generation, str) or not generation or not isinstance(subject, str) or not subject
                 or doc.get("generation") != generation or doc.get("documentId") != doc_id
                 or request.get("documentId") != doc_id or request.get("requestId") != request_id
@@ -511,10 +487,12 @@ def update_request(event, request_id):
             return cors_response(409, {"error": "Request is legacy, stale, missing or invalid"})
         table.update_item(
             Key=key,
-            ConditionExpression="generation = :generation AND requesterSub = :subject AND requestId = :request AND documentId = :doc",
-            UpdateExpression="SET #s = :s, updatedAt = :now, reviewedBy = :by, GSI1SK = :gsi",
-            ExpressionAttributeNames={"#s": "status"},
+            ConditionExpression="generation = :generation AND requesterSub = :subject AND requestId = :request AND documentId = :doc AND #v = :expected",
+            UpdateExpression="SET #v = :next, #s = :s, updatedAt = :now, reviewedBy = :by, GSI1SK = :gsi",
+            ExpressionAttributeNames={"#s": "status", "#v": "version"},
             ExpressionAttributeValues={
+                ":expected": expected_version,
+                ":next": new_id(),
                 ":generation": generation,
                 ":subject": subject,
                 ":request": request_id,
@@ -536,6 +514,11 @@ def update_request(event, request_id):
             "message": f"Request {new_status}",
             "requestId": request_id,
         })
+    except ClientError as e:
+        if e.response.get("Error", {}).get("Code") == "ConditionalCheckFailedException":
+            return cors_response(409, {"error": "Request changed; refresh before deciding"})
+        logger.error(f"update_request error: {e}")
+        return cors_response(500, {"error": "Failed to update request"})
     except Exception as e:
         logger.error(f"update_request error: {e}")
         return cors_response(500, {"error": "Failed to update request"})

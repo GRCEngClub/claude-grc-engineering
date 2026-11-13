@@ -21,7 +21,7 @@ class FakeClientError(Exception):
 exceptions.ClientError = FakeClientError
 sys.modules["botocore"] = types.ModuleType("botocore")
 sys.modules["botocore.exceptions"] = exceptions
-spec = importlib.util.spec_from_file_location("api_handler", Path(__file__).parent / "functions/api_handler.py")
+spec = importlib.util.spec_from_file_location("api_handler", Path(os.environ.get("TRUST_HANDLER", str(Path(__file__).parent / "functions/api_handler.py"))))
 api = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(api)
 
@@ -62,9 +62,9 @@ class FakeTable:
         item = self.get_item(Key)["Item"]
         values = kwargs["ExpressionAttributeValues"]
         if not item or any(item.get(field) != values[val] for field, val in
-                           (("generation", ":generation"), ("requesterSub", ":subject"), ("requestId", ":request"), ("documentId", ":doc"))):
+                           (("generation", ":generation"), ("requesterSub", ":subject"), ("requestId", ":request"), ("documentId", ":doc"), ("version", ":expected"))):
             raise FakeClientError("ConditionalCheckFailedException")
-        item.update(status=values[":s"], updatedAt=values[":now"], reviewedBy=values[":by"], GSI1SK=values[":gsi"])
+        item.update(version=values[":next"], status=values[":s"], updatedAt=values[":now"], reviewedBy=values[":by"], GSI1SK=values[":gsi"])
 
 
 class AccessTests(unittest.TestCase):
@@ -76,6 +76,9 @@ class AccessTests(unittest.TestCase):
     def call(self, method, path, sub=None, email="a@example.test", groups="", body=None):
         claims = {"sub": sub, "email": email, "cognito:groups": groups} if sub else {}
         event = {"httpMethod": method, "path": path, "requestContext": {"authorizer": {"claims": claims}}, "body": json.dumps(body or {})}
+        if method == "PUT" and path.startswith("/api/admin/requests/") and "expectedVersion" not in (body or {}):
+            req = next((r for r in api.table.requests if r.get("requestId") == path.rsplit("/", 1)[-1]), {})
+            event["body"] = json.dumps({**(body or {}), "expectedVersion": req.get("version", "missing")})
         response = api.handler(event, None)
         return response["statusCode"], json.loads(response.get("body", "{}"))
 
@@ -88,7 +91,7 @@ class AccessTests(unittest.TestCase):
                 status, result = self.call("GET", f"/api/documents/{doc}{suffix}", sub="alice")
                 self.assertEqual(status, 404)
                 self.assertNotIn("SECRET", str(result))
-        self.assertEqual(self.call("GET", "/api/documents/pub/download")[0], 200)
+        self.assertEqual(self.call("GET", "/api/documents/pub/download")[0], 503)
         self.assertNotIn("s3Key", self.call("GET", "/api/documents/pub")[1])
 
     def test_stale_public_index_does_not_expose_private_metadata(self):
@@ -116,7 +119,7 @@ class AccessTests(unittest.TestCase):
         self.assertEqual(self.call("GET", "/api/private/documents/secret/download", sub="bob", email="alice@example.test")[0], 404)
         self.assertEqual(self.call("GET", "/api/private/documents/secret", sub="bob")[0], 404)
         self.assertEqual(self.call("GET", "/api/private/documents/secret", sub="alice")[0], 200)
-        self.assertEqual(self.call("GET", "/api/private/documents/secret/download", sub="alice")[0], 200)
+        self.assertEqual(self.call("GET", "/api/private/documents/secret/download", sub="alice")[0], 404)
         self.assertEqual(self.call("GET", "/api/private/documents/unknown/download", sub="alice")[0], 404)
         request["status"] = "denied"
         self.assertEqual(self.call("GET", "/api/private/documents/secret/download", sub="alice")[0], 404)
@@ -252,6 +255,73 @@ class AccessTests(unittest.TestCase):
             self.assertIn(status, (401, 404))
             self.assertNotIn("SECRET", str(result))
         api.s3.generate_presigned_url.assert_not_called()
+
+    def test_stale_approve_loses_to_interleaved_denial(self):
+        _, result = self.call('POST', '/api/private/documents/secret/request-access', sub='alice')
+        request = api.table.requests[0]
+        old = request['version']
+        original = api.table.update_item
+        def interleave(Key, **kwargs):
+            request.update(status='denied', version='newer')
+            return original(Key, **kwargs)
+        api.table.update_item = interleave
+        status, _ = self.call('PUT', '/api/admin/requests/' + result['requestId'], sub='admin', groups='admins', body={'documentId': 'secret', 'status': 'approved', 'expectedVersion': old})
+        self.assertEqual(status, 409)
+        self.assertEqual((request['status'], request['version']), ('denied', 'newer'))
+
+    def test_no_signing_even_with_public_to_private_interleaving_or_admin(self):
+        original = api.table.get_item
+        def interleave(Key, **kwargs):
+            result = original(Key, **kwargs)
+            if Key['SK'] == 'META' and Key['PK'] == 'DOC#pub':
+                snapshot = dict(result['Item'])
+                api.table.docs['pub'].update(accessLevel='gated', generation='replacement')
+                return {'Item': snapshot}
+            return result
+        api.table.get_item = interleave
+        self.assertEqual(self.call('GET', '/api/documents/pub/download')[0], 503)
+        self.assertEqual(self.call('GET', '/api/private/documents/secret/download', sub='admin', groups='admins')[0], 404)
+        api.s3.generate_presigned_url.assert_not_called()
+
+    def test_no_signing_after_interleaved_denial_or_deletion(self):
+        for action in ('deny', 'delete', 'replace'):
+            with self.subTest(action=action):
+                self.setUp()
+                self.call('POST', '/api/private/documents/secret/request-access', sub='alice')
+                api.table.requests[0]['status'] = 'approved'
+                original = api.table.get_item
+                def interleave(Key, **kwargs):
+                    result = original(Key, **kwargs)
+                    if Key['SK'] == 'META':
+                        snapshot = dict(result['Item'])
+                        if action == 'deny': api.table.requests[0]['status'] = 'denied'
+                        elif action == 'delete': api.table.docs.pop('secret')
+                        else: api.table.docs['secret']['generation'] = 'new-incarnation'
+                        return {'Item': snapshot}
+                    return result
+                api.table.get_item = interleave
+                self.assertEqual(self.call('GET', '/api/private/documents/secret/download', sub='alice')[0], 404)
+                api.s3.generate_presigned_url.assert_not_called()
+
+    def test_old_version_rejected_after_aba_and_missing_version_rejected(self):
+        _, result = self.call('POST', '/api/private/documents/secret/request-access', sub='alice')
+        req = api.table.requests[0]
+        old = req['version']
+        path = '/api/admin/requests/' + result['requestId']
+        for status in ('approved', 'denied', 'approved'):
+            self.assertEqual(self.call('PUT', path, sub='admin', groups='admins', body={'documentId': 'secret', 'status': status})[0], 200)
+        self.assertEqual(self.call('PUT', path, sub='admin', groups='admins', body={'documentId': 'secret', 'status': 'denied', 'expectedVersion': old})[0], 409)
+        event = {'requestContext': {'authorizer': {'claims': {'cognito:groups': 'admins'}}}, 'body': json.dumps({'documentId': 'secret', 'status': 'denied'})}
+        self.assertEqual(api.update_request(event, result['requestId'])['statusCode'], 400)
+
+    def test_request_listing_paginates_filtered_and_unfiltered(self):
+        for status_filter in ('', 'pending'):
+            with self.subTest(status=status_filter):
+                api.table.query = Mock(side_effect=[{'Items': [{'requestId': 'one'}], 'LastEvaluatedKey': {'PK': 'x', 'SK': 'y'}}, {'Items': [{'requestId': 'two'}]}])
+                event = {'requestContext': {'authorizer': {'claims': {'sub': 'admin', 'cognito:groups': 'admins'}}}, 'queryStringParameters': {'status': status_filter}}
+                response = api.list_requests(event)
+                self.assertEqual([r['requestId'] for r in json.loads(response['body'])['requests']], ['one', 'two'])
+                self.assertEqual(api.table.query.call_args_list[1].kwargs['ExclusiveStartKey'], {'PK': 'x', 'SK': 'y'})
 
     def test_reference_artifacts_match_deployed_sources(self):
         root = Path(__file__).resolve().parents[1]

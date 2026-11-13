@@ -85,10 +85,10 @@ export async function getRequests(token, status = '') {
   return request(`/admin/requests${query}`, { token })
 }
 
-export async function updateRequest(requestId, documentId, status, token) {
+export async function updateRequest(requestId, documentId, status, expectedVersion, token) {
   return request(`/admin/requests/${requestId}`, {
     method: 'PUT',
-    body: JSON.stringify({ status, documentId }),
+    body: JSON.stringify({ status, documentId, expectedVersion }),
     token,
   })
 }

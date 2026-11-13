@@ -156,8 +156,13 @@ export default function AdminDashboard() {
       return
     }
     const token = getToken()
-    await api.updateRequest(req.requestId, req.documentId, 'approved', token)
-    setRequests(prev => prev.map(r => r.requestId === req.requestId ? { ...r, status: 'approved' } : r))
+    try {
+      await api.updateRequest(req.requestId, req.documentId, 'approved', req.version, token)
+      setRequests((await api.getRequests(token, statusFilter))?.requests || [])
+      setError('')
+    } catch {
+      setError('Decision failed or changed; refresh requests before retrying.')
+    }
   }
 
   const handleDeny = async (req) => {
@@ -166,8 +171,13 @@ export default function AdminDashboard() {
       return
     }
     const token = getToken()
-    await api.updateRequest(req.requestId, req.documentId, 'denied', token)
-    setRequests(prev => prev.map(r => r.requestId === req.requestId ? { ...r, status: 'denied' } : r))
+    try {
+      await api.updateRequest(req.requestId, req.documentId, 'denied', req.version, token)
+      setRequests((await api.getRequests(token, statusFilter))?.requests || [])
+      setError('')
+    } catch {
+      setError('Decision failed or changed; refresh requests before retrying.')
+    }
   }
 
   const pendingCount = requests.filter(r => r.status === 'pending').length
