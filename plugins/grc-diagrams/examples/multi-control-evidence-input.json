@@ -1,0 +1,16 @@
+[
+  {
+    "control": "Quarterly access review",
+    "owner": "IT operations",
+    "evidence": "Access review report",
+    "cadence": "quarterly",
+    "reviewer": "Security"
+  },
+  {
+    "control": "Restore testing",
+    "owner": "Platform operations",
+    "evidence": "Restore test record",
+    "cadence": "annually",
+    "reviewer": "Risk team"
+  }
+]
