@@ -18,7 +18,21 @@ node /path/to/vault-kv/scripts/run.js 2 secret evidence/service api_key -- /path
 
 Specify the actual mount version (`1` or `2`); do not guess. The helper uses it
 to select the KV v1 or KV v2 JSON data shape, not to verify the mount version.
-This invokes `vault kv get -format=json -mount=secret evidence/service` and
+By default Vault returns the latest version. To request a specific KV v2 secret
+version, place `--version=N` after the field and before `--`, for example:
+
+```bash
+node /path/to/vault-kv/scripts/run.js 2 secret evidence/service api_key --version=7 -- /path/to/trusted-command
+```
+
+The pin must be a canonical positive integer up to 2147483647 and is rejected for
+KV v1. The helper checks that Vault's response metadata reports the requested
+version before starting the child. Provider failures and malformed or mismatched
+versions fail closed. This does not independently authenticate the
+provider response; use a trusted Vault CLI and verify TLS.
+
+The first example invokes `vault kv get -format=json -mount=secret evidence/service`;
+the pinned example adds `-version=7`. The helper
 injects the selected field only as `VAULT_KV_VALUE` into the child. The entire
 secret at that path is retrieved into helper memory, not just the selected field.
 Mount and secret path are separate. The selected field must be a

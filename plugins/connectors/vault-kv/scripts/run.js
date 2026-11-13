@@ -3,16 +3,20 @@
 import { spawnSync } from 'node:child_process';
 import { TextDecoder } from 'node:util';
 
-const [version, mount, path, field, separator, command, ...args] = process.argv.slice(2);
+const [version, mount, path, field, ...rest] = process.argv.slice(2);
+let pinnedVersion;
+if (rest[0]?.startsWith('--version=')) pinnedVersion = rest.shift().slice('--version='.length);
+const [separator, command, ...args] = rest;
 const safePath = value => typeof value === 'string' && value.length <= 512 &&
   /^[A-Za-z0-9_][A-Za-z0-9_./-]*$/.test(value) &&
   value.split('/').every(part => part && part !== '.' && part !== '..');
 if (!['1', '2'].includes(version) || !safePath(mount) || !safePath(path) || !/^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$/.test(field || '') ||
+    (pinnedVersion !== undefined && (version !== '2' || !/^[1-9][0-9]{0,9}$/.test(pinnedVersion) || Number(pinnedVersion) > 2147483647)) ||
     separator !== '--' || !command || command.startsWith('-')) {
-  console.error('Usage: node run.js <kv-version: 1|2> <mount> <path> <field> -- <trusted-command> [args...]');
+  console.error('Usage: node run.js <kv-version: 1|2> <mount> <path> <field> [--version=N] -- <trusted-command> [args...]');
   process.exit(2);
 }
-const result = spawnSync('vault', ['kv', 'get', '-format=json', `-mount=${mount}`, path], {
+const result = spawnSync('vault', ['kv', 'get', '-format=json', `-mount=${mount}`, ...(pinnedVersion === undefined ? [] : [`-version=${pinnedVersion}`]), path], {
   shell: false, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1024 * 1024,
   timeout: 15000, killSignal: 'SIGKILL',
 });
@@ -27,6 +31,7 @@ try {
   if (!isObject(response) || !isObject(response.data)) throw new Error();
   const data = version === '2' ? response.data.data : response.data;
   if (version === '2' && (!isObject(response.data.metadata) || !isObject(data))) throw new Error();
+  if (pinnedVersion !== undefined && response.data.metadata.version !== Number(pinnedVersion)) throw new Error();
   if (!Object.hasOwn(data, field) || typeof data[field] !== 'string') throw new Error();
   value = data[field];
   // JSON can encode unpaired UTF-16 surrogates, which Node would silently
