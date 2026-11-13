@@ -156,26 +156,26 @@ def handle_webhook(event):
 #   GSI1PK = "DOCS"        GSI1SK = <access_level>#<name>  → query docs by access level
 
 
-def approved_for_document(event, doc_id):
-    """Only a request bound to the gateway-verified subject grants access."""
+def authorization_id(generation, subject):
+    # JSON array encoding is unambiguous, even if either value contains delimiters.
+    return hashlib.sha256(json.dumps([generation, subject], ensure_ascii=True, separators=(',', ':')).encode()).hexdigest()
+
+
+def approved_for_document(event, doc):
+    """Read one canonical decision for the exact subject and document incarnation."""
     user = get_user_from_token(event)
     if not user["sub"]:
         return False
     if is_admin(event):
         return True
-    params = {
-        "KeyConditionExpression": "PK = :pk AND begins_with(SK, :sk)",
-        "ExpressionAttributeValues": {":pk": f"DOC#{doc_id}", ":sk": "REQUEST#"},
-        "ConsistentRead": True,
-    }
-    while True:
-        result = table.query(**params)
-        if any(r.get("requesterSub") == user["sub"] and r.get("status") == "approved"
-               for r in result.get("Items", [])):
-            return True
-        if not result.get("LastEvaluatedKey"):
-            return False
-        params["ExclusiveStartKey"] = result["LastEvaluatedKey"]
+    generation, doc_id = doc.get("generation"), doc.get("documentId")
+    if not isinstance(generation, str) or not generation or not isinstance(doc_id, str) or not doc_id:
+        return False  # Legacy records never grant access.
+    req_id = authorization_id(generation, user["sub"])
+    item = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": f"REQUEST#{req_id}"}, ConsistentRead=True).get("Item") or {}
+    return (item.get("requestId") == req_id and item.get("documentId") == doc_id
+            and item.get("generation") == generation and item.get("requesterSub") == user["sub"]
+            and item.get("status") == "approved")
 
 
 # ---------------------------------------------------------------------------
@@ -258,7 +258,7 @@ def list_documents(event):
             if not item:
                 continue
             access_level = item.get("accessLevel")
-            if access_level != "public" and not (event.get("_private_route") and approved_for_document(event, item.get("documentId"))):
+            if access_level != "public" and not (event.get("_private_route") and approved_for_document(event, item)):
                 continue
 
             doc = {
@@ -292,7 +292,7 @@ def get_document(event, doc_id):
         if not item:
             return cors_response(404, {"error": "Document not found"})
 
-        if item.get("accessLevel") != "public" and not (event.get("_private_route") and approved_for_document(event, doc_id)):
+        if item.get("accessLevel") != "public" and not (event.get("_private_route") and approved_for_document(event, item)):
             return cors_response(404, {"error": "Document not found"})
         return cors_response(200, {
             "id": item.get("documentId"),
@@ -318,7 +318,7 @@ def request_access(event, doc_id):
         return cors_response(401, {"error": "Authentication required"})
     body = parse_body(event)
     now = now_iso()
-    req_id = new_id()
+
 
     requester_email = user.get("email", "")
     requester_name = body.get("name", "")
@@ -337,9 +337,14 @@ def request_access(event, doc_id):
     if doc.get("accessLevel") == "public":
         return cors_response(400, {"error": "Document is publicly available, no request needed"})
 
+    generation = doc.get("generation")
+    if not isinstance(generation, str) or not generation:
+        return cors_response(409, {"error": "Document requires secure re-registration"})
+    req_id = authorization_id(generation, user["sub"])
     item = {
         "PK": f"DOC#{doc_id}",
         "SK": f"REQUEST#{req_id}",
+        "generation": generation,
         "GSI1PK": "REQUESTS",
         "GSI1SK": f"pending#{now}",
         "requestId": req_id,
@@ -356,7 +361,12 @@ def request_access(event, doc_id):
         "updatedAt": now,
     }
 
-    table.put_item(Item=item)
+    try:
+        table.put_item(Item=item, ConditionExpression="attribute_not_exists(PK)")
+    except ClientError as e:
+        if e.response.get("Error", {}).get("Code") == "ConditionalCheckFailedException":
+            return cors_response(409, {"error": "A request already exists for this document and identity"})
+        raise
 
     # Log the request in audit trail
     _write_audit_log("access_requested", {
@@ -389,7 +399,7 @@ def download_document(event, doc_id):
     if access_level != "public":
         if not event.get("_private_route") or not get_user_from_token(event).get("sub"):
             return cors_response(404, {"error": "Document not found"})
-        if not approved_for_document(event, doc_id):
+        if not approved_for_document(event, doc):
             return cors_response(404, {"error": "Document not found"})
 
     if not s3_key:
@@ -490,11 +500,25 @@ def update_request(event, request_id):
     admin_user = get_user_from_token(event)
 
     try:
+        key = {"PK": f"DOC#{doc_id}", "SK": f"REQUEST#{request_id}"}
+        request = table.get_item(Key=key, ConsistentRead=True).get("Item") or {}
+        doc = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"}, ConsistentRead=True).get("Item") or {}
+        generation, subject = request.get("generation"), request.get("requesterSub")
+        if (not isinstance(generation, str) or not generation or not isinstance(subject, str) or not subject
+                or doc.get("generation") != generation or doc.get("documentId") != doc_id
+                or request.get("documentId") != doc_id or request.get("requestId") != request_id
+                or authorization_id(generation, subject) != request_id):
+            return cors_response(409, {"error": "Request is legacy, stale, missing or invalid"})
         table.update_item(
-            Key={"PK": f"DOC#{doc_id}", "SK": f"REQUEST#{request_id}"},
+            Key=key,
+            ConditionExpression="generation = :generation AND requesterSub = :subject AND requestId = :request AND documentId = :doc",
             UpdateExpression="SET #s = :s, updatedAt = :now, reviewedBy = :by, GSI1SK = :gsi",
             ExpressionAttributeNames={"#s": "status"},
             ExpressionAttributeValues={
+                ":generation": generation,
+                ":subject": subject,
+                ":request": request_id,
+                ":doc": doc_id,
                 ":s": new_status,
                 ":now": now,
                 ":by": admin_user["email"],
@@ -541,6 +565,7 @@ def create_document(event):
         "GSI1SK": f"{access_level}#{name}",
         "documentId": doc_id,
         "name": name,
+        "generation": new_id(),  # Every save revokes decisions for the prior incarnation.
         "description": body.get("description", ""),
         "category": body.get("category", ""),
         "accessLevel": access_level,

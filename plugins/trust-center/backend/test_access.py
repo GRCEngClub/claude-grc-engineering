@@ -15,7 +15,10 @@ fake.resource = Mock()
 fake.client = Mock()
 sys.modules["boto3"] = fake
 exceptions = types.ModuleType("botocore.exceptions")
-exceptions.ClientError = type("ClientError", (Exception,), {})
+class FakeClientError(Exception):
+    def __init__(self, code):
+        self.response = {"Error": {"Code": code}}
+exceptions.ClientError = FakeClientError
 sys.modules["botocore"] = types.ModuleType("botocore")
 sys.modules["botocore.exceptions"] = exceptions
 spec = importlib.util.spec_from_file_location("api_handler", Path(__file__).parent / "functions/api_handler.py")
@@ -29,11 +32,13 @@ class FakeTable:
                      "secret": {"documentId": "secret", "name": "SECRET NAME", "description": "SECRET TEXT", "accessLevel": "gated", "s3Key": "secret.pdf"},
                      "unknown": {"documentId": "unknown", "name": "UNKNOWN SECRET", "s3Key": "hidden.pdf"}}
         for doc_id, doc in self.docs.items():
-            doc.update(PK=f"DOC#{doc_id}", SK="META")
+            doc.update(PK=f"DOC#{doc_id}", SK="META", generation=f"generation-{doc_id}")
         self.requests = []
 
     def get_item(self, Key, **kwargs):
-        return {"Item": self.docs.get(Key["PK"].removeprefix("DOC#"))}
+        if Key["SK"] == "META":
+            return {"Item": self.docs.get(Key["PK"].removeprefix("DOC#"))}
+        return {"Item": next((r for r in self.requests if r.get("PK") == Key["PK"] and r.get("SK") == Key["SK"]), None)}
 
     def query(self, **kwargs):
         values = kwargs["ExpressionAttributeValues"]
@@ -41,9 +46,25 @@ class FakeTable:
             return {"Items": list(self.docs.values())}
         return {"Items": [r for r in self.requests if r["PK"] == values[":pk"]]}
 
-    def put_item(self, Item):
+    def put_item(self, Item, **kwargs):
         if Item["PK"].startswith("DOC#"):
-            self.requests.append(Item)
+            if Item["SK"] == "META":
+                self.docs[Item["documentId"]] = Item
+            else:
+                if any(r.get("PK") == Item["PK"] and r.get("SK") == Item["SK"] for r in self.requests):
+                    raise FakeClientError("ConditionalCheckFailedException")
+                self.requests.append(Item)
+
+    def delete_item(self, Key):
+        self.docs.pop(Key["PK"].removeprefix("DOC#"), None)
+
+    def update_item(self, Key, **kwargs):
+        item = self.get_item(Key)["Item"]
+        values = kwargs["ExpressionAttributeValues"]
+        if not item or any(item.get(field) != values[val] for field, val in
+                           (("generation", ":generation"), ("requesterSub", ":subject"), ("requestId", ":request"), ("documentId", ":doc"))):
+            raise FakeClientError("ConditionalCheckFailedException")
+        item.update(status=values[":s"], updatedAt=values[":now"], reviewedBy=values[":by"], GSI1SK=values[":gsi"])
 
 
 class AccessTests(unittest.TestCase):
@@ -151,12 +172,67 @@ class AccessTests(unittest.TestCase):
                 if not private and '/admin/' not in path:
                     self.assertEqual(event['requestContext'], {})
 
-    def test_approval_query_paginates_and_uses_consistent_reads(self):
-        api.table.query = Mock(side_effect=[{'Items': [], 'LastEvaluatedKey': {'PK': 'DOC#secret', 'SK': 'REQUEST#1'}},
-                                             {'Items': [{'requesterSub': 'alice', 'status': 'approved'}]}])
-        self.assertEqual(self.call('GET', '/api/private/documents/secret/download', sub='alice')[0], 200)
-        self.assertTrue(all(call.kwargs['ConsistentRead'] for call in api.table.query.call_args_list))
-        self.assertIn('ExclusiveStartKey', api.table.query.call_args_list[1].kwargs)
+    def test_canonical_read_is_consistent_and_legacy_duplicate_never_grants(self):
+        api.table.requests.append({'PK': 'DOC#secret', 'SK': 'REQUEST#old', 'requesterSub': 'alice', 'status': 'approved'})
+        original = api.table.get_item
+        api.table.get_item = Mock(side_effect=original)
+        self.assertEqual(self.call('GET', '/api/private/documents/secret/download', sub='alice')[0], 404)
+        self.assertTrue(all(c.kwargs['ConsistentRead'] for c in api.table.get_item.call_args_list))
+
+    def test_duplicate_revocation_and_recreation(self):
+        path = '/api/private/documents/secret/request-access'
+        status, result = self.call('POST', path, sub='alice')
+        self.assertEqual(status, 201)
+        request_id = result['requestId']
+        admin = '/api/admin/requests/' + request_id
+        decision = lambda status: self.call('PUT', admin, sub='admin', groups='admins', body={'documentId': 'secret', 'status': status})[0]
+        self.assertEqual(decision('approved'), 200)
+        self.assertEqual(self.call('POST', path, sub='alice')[0], 409)
+        api.table.requests.append({'PK': 'DOC#secret', 'SK': 'REQUEST#legacy', 'requesterSub': 'alice', 'status': 'approved'})
+        self.assertEqual(decision('denied'), 200)
+        self.assertEqual(self.call('GET', '/api/private/documents/secret/download', sub='alice')[0], 404)
+        self.assertEqual(self.call('POST', path, sub='alice')[0], 409)
+        self.assertEqual(self.call('DELETE', '/api/admin/documents/secret', sub='admin', groups='admins')[0], 200)
+        self.assertEqual(self.call('POST', '/api/admin/documents', sub='admin', groups='admins', body={'id': 'secret', 'name': 'new', 'accessLevel': 'gated', 's3Key': 'new.pdf'})[0], 201)
+        self.assertEqual(decision('approved'), 409)
+        self.assertEqual(self.call('GET', '/api/private/documents/secret/download', sub='alice')[0], 404)
+        self.assertEqual(self.call('POST', path, sub='alice')[0], 201)
+
+    def test_legacy_and_metadata_save_fail_closed(self):
+        del api.table.docs['secret']['generation']
+        self.assertEqual(self.call('POST', '/api/private/documents/secret/request-access', sub='alice')[0], 409)
+        self.assertEqual(self.call('PUT', '/api/admin/requests/missing', sub='admin', groups='admins', body={'documentId': 'secret', 'status': 'approved'})[0], 409)
+        body = {'id': 'secret', 'name': 'secret', 'accessLevel': 'gated', 's3Key': 'secret.pdf'}
+        self.assertEqual(self.call('POST', '/api/admin/documents', sub='admin', groups='admins', body=body)[0], 201)
+        status, result = self.call('POST', '/api/private/documents/secret/request-access', sub='alice')
+        self.assertEqual(status, 201)
+        self.assertEqual(self.call('PUT', '/api/admin/requests/' + result['requestId'], sub='admin', groups='admins', body={'documentId': 'secret', 'status': 'approved'})[0], 200)
+        self.assertEqual(self.call('POST', '/api/admin/documents', sub='admin', groups='admins', body=body)[0], 201)
+        self.assertEqual(self.call('GET', '/api/private/documents/secret', sub='alice')[0], 404)
+
+    def test_identity_encoding_and_tampered_canonical_record(self):
+        self.assertNotEqual(api.authorization_id('a#b', 'c'), api.authorization_id('a', 'b#c'))
+        self.assertNotEqual(api.authorization_id('g', 'Alice'), api.authorization_id('g', 'alice'))
+        status, result = self.call('POST', '/api/private/documents/secret/request-access', sub='alice')
+        self.assertEqual(status, 201)
+        request = api.table.requests[0]
+        request['status'] = 'approved'
+        for field, value in [('requesterSub', 'bob'), ('documentId', 'pub'), ('generation', 'old'), ('requestId', 'forged')]:
+            old = request[field]
+            request[field] = value
+            self.assertEqual(self.call('GET', '/api/private/documents/secret/download', sub='alice')[0], 404)
+            self.assertEqual(self.call('PUT', '/api/admin/requests/' + result['requestId'], sub='admin', groups='admins', body={'documentId': 'secret', 'status': 'approved'})[0], 409)
+            request[field] = old
+
+    def test_conditional_creation_rejects_losing_concurrent_writer(self):
+        original = api.table.put_item
+        def losing_write(Item, **kwargs):
+            if kwargs.get('ConditionExpression'):
+                raise FakeClientError('ConditionalCheckFailedException')
+            return original(Item, **kwargs)
+        api.table.put_item = losing_write
+        self.assertEqual(self.call('POST', '/api/private/documents/secret/request-access', sub='alice')[0], 409)
+        self.assertEqual(api.table.requests, [])
 
     def test_document_listing_paginates_and_filters_each_page(self):
         docs = api.table.docs
