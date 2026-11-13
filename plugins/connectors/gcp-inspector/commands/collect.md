@@ -98,6 +98,8 @@ For opt-in Secret Manager evidence, install the adjacent `gcp-secret-metadata` p
 
 Secret Manager collection rejects inventories over 100 secrets rather than producing incomplete evidence. It has a five-minute time budget checked before and after each sequential helper; a helper already running can extend the elapsed time beyond five minutes, and is subject to its own 120-second timeout. These limits apply only to Secret Manager collection, not the whole multi-service run. Exceeding either limit causes exit 4 with no Secret Manager evidence; findings and a run manifest may still be written for the run.
 
+Evidence is written to an exclusively created mode-0600 temporary file in the same directory, closed, then published with an atomic hard link that cannot overwrite an existing destination. A filesystem that does not support hard links causes publication to fail with exit 4; there is no unsafe copy or overwrite fallback. Write, close, or publication failures do not publish a partial final file. Cleanup is best effort: interruption or cleanup failure may leave a hidden `.tmp` file containing sensitive metadata, even after successful publication; protect and remove orphaned temporary files before retrying. This is an atomic visibility guarantee, not a power-loss durability guarantee (no fsync).
+
 ## Examples
 
 ```bash

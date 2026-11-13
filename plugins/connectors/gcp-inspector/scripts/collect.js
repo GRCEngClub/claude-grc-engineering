@@ -15,6 +15,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import { fileURLToPath } from 'node:url';
+import { publishEvidence } from './publish-evidence.js';
 
 const execFileP = promisify(execFile);
 
@@ -61,10 +62,7 @@ async function main(argv) {
         const evidence = await collectSecretEvidence(ctx);
         await fs.mkdir(EVIDENCE_DIR, { recursive: true, mode: 0o700 });
         const target = path.join(EVIDENCE_DIR, `${runId}.json`);
-        const file = await fs.open(target, 'wx', 0o600);
-        try { await file.writeFile(JSON.stringify(evidence, null, 2)); }
-        catch { await file.close(); await fs.unlink(target); throw new Error('Secret Manager evidence write failed.'); }
-        await file.close();
+        await publishEvidence(target, evidence);
         secretEvidencePath = target;
         continue;
       }
