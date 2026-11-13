@@ -32,6 +32,16 @@ The source must be a stable, trusted directory, not writable by other users or p
 
 This initial CLI does **not** sign the manifest or authenticate the sender, verify recipient identity, scan or redact secrets, transmit files, create an audit trail, integrate with 1Password, or provide tar.gz, multi-recipient or portal support. A hash obtained over the same untrusted channel is not proof of authenticity. Use an independently verified signer and the organization's approved signature and delivery procedures; do not treat this command as completing those steps. The recipient must authenticate the sender, decrypt in a private workspace, safely inspect archive paths before extraction, and compare extracted files against the manifest. Do not release if verification fails. Do not use where signatures are required until a separately approved signing workflow is completed.
 
+## Offline manifest verification (optional)
+
+After GnuPG reports successful decryption to a private, access-controlled ZIP file, the recipient can check the archive without extracting it:
+
+```bash
+python3 plugins/grc-engineer/scripts/verify-evidence.py /private/workspace/decrypted.zip
+```
+
+Use only a completed, successfully decrypted input: do not pipe unauthenticated or partially decrypted output into this check, and discard failed GnuPG output. The verifier requires the packaging CLI's exact manifest format, checks every regular file's SHA-256 and size, rejects missing, extra, duplicate and unsafe paths, and extracts nothing. It accepts at most 10,000 entries and 100 MiB total uncompressed data, including a manifest of at most 4 MiB. It is intended for the trusted host and stable input described above, not as a sandbox for hostile archives. Successful verification establishes **internal consistency only**: anyone with the public encryption key can create a new encrypted package with matching hashes. GnuPG encryption and its integrity protection do not identify the sender. Independently authenticate the sender and verify an approved signature using a separately verified signing key; this verifier performs neither operation. Before any extraction, continue to use an approved safe extraction procedure in a private workspace, and apply retention and cleanup policy to the plaintext ZIP.
+
 ## Output
 
 Return a concise checklist with known inputs, open questions, owner approvals, planned verification and delivery, and limitations. Never claim that anything was packaged, encrypted, signed, delivered, or verified unless an authorized operator actually performed and confirmed that action. This command does not itself create manifests, archives, signatures, logs or encrypted bundles and does not integrate with 1Password, SFTP or auditor portals.
