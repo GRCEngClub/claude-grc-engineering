@@ -7,6 +7,7 @@ import re
 import stat
 import sys
 import zipfile
+import zlib
 from pathlib import PurePosixPath
 
 # Bound decompression and manifest parsing on the operator's trusted host.
@@ -54,7 +55,45 @@ def verify(path):
             entries[name] = info
         if 'MANIFEST.json' not in entries or entries['MANIFEST.json'].file_size > MAX_MANIFEST:
             raise ValueError('missing or oversized manifest')
-        manifest = json.loads(archive.read(entries['MANIFEST.json']), object_pairs_hook=unique_object)
+        actual_total = 0
+
+        def chunks(info, limit):
+            nonlocal actual_total
+            count = 0
+            crc = 0
+            if info.compress_type not in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED):
+                raise ValueError('unsupported compression method')
+            decompressor = zlib.decompressobj(-15) if info.compress_type == zipfile.ZIP_DEFLATED else None
+            # ZipExtFile truncates output at the untrusted declared size. Read the
+            # validated entry's compressed stream directly so extra output cannot
+            # be hidden by a forged size and CRC for a prefix.
+            with archive.open(info) as source:
+                remaining = info.compress_size
+                while remaining:
+                    compressed = source._fileobj.read(min(65536, remaining))
+                    if not compressed:
+                        raise ValueError('truncated compressed entry')
+                    remaining -= len(compressed)
+                    while compressed:
+                        if decompressor:
+                            chunk = decompressor.decompress(compressed, 65536)
+                            compressed = decompressor.unconsumed_tail
+                        else:
+                            chunk, compressed = compressed, b''
+                        count += len(chunk)
+                        actual_total += len(chunk)
+                        if count > limit or actual_total > MAX_TOTAL:
+                            raise ValueError('archive exceeds verification size limit')
+                        crc = zlib.crc32(chunk, crc)
+                        yield chunk
+                if decompressor and (not decompressor.eof or decompressor.unused_data):
+                    raise ValueError('invalid compressed entry')
+            if count != info.file_size:
+                raise ValueError('file size mismatch')
+            if crc != info.CRC:
+                raise ValueError('file CRC mismatch')
+
+        manifest = json.loads(b''.join(chunks(entries['MANIFEST.json'], MAX_MANIFEST)), object_pairs_hook=unique_object)
         if not isinstance(manifest, dict) or set(manifest) != {'algorithm', 'files'} or manifest['algorithm'] != 'sha256' or not isinstance(manifest['files'], list):
             raise ValueError('invalid manifest')
         expected = {}
@@ -81,9 +120,8 @@ def verify(path):
             if info.file_size != item['size']:
                 raise ValueError('file size mismatch')
             digest = hashlib.sha256()
-            with archive.open(info) as source:
-                for chunk in iter(lambda: source.read(65536), b''):
-                    digest.update(chunk)
+            for chunk in chunks(info, item['size']):
+                digest.update(chunk)
             if digest.hexdigest() != item['sha256']:
                 raise ValueError('file digest mismatch')
         return len(expected)
@@ -95,7 +133,7 @@ def main():
     args = parser.parse_args()
     try:
         count = verify(args.archive)
-    except (OSError, ValueError, TypeError, RuntimeError, EOFError, zipfile.BadZipFile, NotImplementedError) as exc:
+    except (OSError, ValueError, TypeError, RuntimeError, EOFError, zipfile.BadZipFile, NotImplementedError, zlib.error) as exc:
         print(f'Verification failed: {exc}', file=sys.stderr)
         return 1
     print(f'Manifest matches {count} files. Sender authenticity is NOT verified.')
