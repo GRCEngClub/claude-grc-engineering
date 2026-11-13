@@ -2,7 +2,7 @@
 
 Generate a proposed PCI DSS v4.0.1 evidence collection checklist for a requirement or requirement family. This is assessment preparation, not a determination of compliance or SAQ eligibility.
 
-> **Never commit evidence artifacts to source control.** The outputs below include real usernames, credential reports, MFA device states, and privileged-account inventories. For GDPR workflows, raw exports may carry personal data subject to Art. 5 minimization and storage-limitation rules. Keep only what you need and delete on a retention schedule. `.gitignore` covers `evidence/` by default so `git add -A` will not sweep it up, but durable storage is your responsibility. Use an encrypted, access-controlled evidence locker (encrypted S3 with least-privilege IAM, a GRC platform, or a shared drive with full-disk encryption and MFA-gated access).
+> **Never commit evidence artifacts to source control.** The outputs below include real usernames, credential reports, MFA device states, and privileged-account inventories. For GDPR workflows, raw exports may carry personal data subject to Art. 5 minimization and storage-limitation rules. Keep only what you need and delete on a retention schedule. Keep evidence outside any Git checkout. This marketplace repository ignores `evidence/`, but those rules do not transfer to projects where the plugin is installed; verify your own repository's ignore rules and staging area, and do not rely on ignore rules as a security boundary. Use an encrypted, access-controlled evidence locker (encrypted S3 with least-privilege IAM, a GRC platform, or a shared drive with full-disk encryption and MFA-gated access).
 
 ## Payment data handling
 
