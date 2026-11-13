@@ -11,6 +11,12 @@
   },
   "plugins": [
     {
+      "name": "vault-kv",
+      "source": "./plugins/connectors/vault-kv",
+      "description": "Operator-only Vault KV runtime injection into a trusted local process.",
+      "version": "0.1.0"
+    },
+    {
       "name": "gcp-secret-metadata",
       "source": "./plugins/connectors/gcp-secret-metadata",
       "description": "GCP Secret Manager name inventory and operator-only runtime injection.",
@@ -215,6 +221,12 @@
       "name": "aws-inspector",
       "source": "./plugins/connectors/aws-inspector",
       "description": "GRC connector for AWS: IAM, S3, CloudTrail, EBS compliance checks \u2192 v1 finding contract",
+      "version": "0.1.0"
+    },
+    {
+      "name": "onepassword-connector",
+      "source": "./plugins/connectors/onepassword-connector",
+      "description": "Run trusted local commands with 1Password secret references and suppressed output.",
       "version": "0.1.0"
     },
     {
