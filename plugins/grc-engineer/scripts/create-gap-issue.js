@@ -4,29 +4,38 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
 function main(args) {
-  if (args.length < 3 || args.length > 4 || (args[3] && args[3] !== '--create')) {
-    throw new Error('Usage: node create-gap-issue.js PREVIEW.json OWNER/REPO INDEX [--create]');
+  const [file, repo, indexText, ...options] = args;
+  if (args.length < 3 || options.some(option => !['--create', '--severity-label'].includes(option)) || new Set(options).size !== options.length) {
+    throw new Error('Usage: node create-gap-issue.js PREVIEW.json OWNER/REPO INDEX [--severity-label] [--create]');
   }
-  const [file, repo, indexText, create] = args;
+  const create = options.includes('--create');
   if (!/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})\/[A-Za-z0-9_.-]+$/.test(repo) || /\/(?:\.|\.\.)$/.test(repo)) throw new Error('Repository must be an explicit GitHub.com OWNER/REPO');
   if (!/^(0|[1-9][0-9]*)$/.test(indexText) || !Number.isSafeInteger(Number(indexText))) throw new Error('INDEX must be a zero-based integer');
   const preview = JSON.parse(fs.readFileSync(file, 'utf8'));
   if (!preview || !Array.isArray(preview.issues)) throw new Error('Invalid preview: missing issues array');
   const issue = preview.issues[Number(indexText)];
   if (!issue || typeof issue !== 'object' || Array.isArray(issue) || ![1, 2].includes(issue.tier) || typeof issue.title !== 'string' || typeof issue.scf_id !== 'string') throw new Error('Invalid or missing tier 1/2 draft');
+  const labels = [];
+  if (options.includes('--severity-label')) {
+    if (preview.data_quality_warnings != null && !Array.isArray(preview.data_quality_warnings)) throw new Error('Invalid data quality warnings; no issue created');
+    // Legacy or ambiguous drafts carry no actionable severity: omit the label.
+    if (issue.label_severity != null && !['critical', 'high', 'medium'].includes(issue.label_severity)) throw new Error('Invalid actionable severity; no issue created');
+    if (issue.label_severity != null && !preview.data_quality_warnings?.length) labels.push(`severity:${issue.label_severity}`);
+  }
   // JSON retains all draft fields. Encode @ to prevent mentions and use a fence
   // longer than any in the untrusted data so it cannot break out of the block.
-  const data = JSON.stringify(issue, null, 2).replaceAll('@', '\\u0040');
+  const data = JSON.stringify(preview.data_quality_warnings?.length
+    ? { ...issue, data_quality_warnings: preview.data_quality_warnings } : issue, null, 2).replaceAll('@', '\\u0040');
   let longest = 2;
   for (const match of data.matchAll(/`+/g)) longest = Math.max(longest, match[0].length);
   const fence = '`'.repeat(longest + 1);
   const title = `Gap assessment finding (tier ${issue.tier})`;
   const body = `Review this untrusted finding and its mappings before remediation.\n\n${fence}json\n${data}\n${fence}\n`;
   if (!create) {
-    process.stdout.write(JSON.stringify({ repository: `github.com/${repo}`, index: Number(indexText), title, body, notice: 'Preview only; no issue created.' }, null, 2) + '\n');
+    process.stdout.write(JSON.stringify({ repository: `github.com/${repo}`, index: Number(indexText), title, body, labels, notice: 'Preview only; no issue created.' }, null, 2) + '\n');
     return;
   }
-  const result = spawnSync('gh', ['issue', 'create', '--repo', `github.com/${repo}`, '--title', title, '--body-file', '-'], { input: body, encoding: 'utf8', shell: false });
+  const result = spawnSync('gh', ['issue', 'create', '--repo', `github.com/${repo}`, '--title', title, '--body-file', '-', ...labels.flatMap(label => ['--label', label])], { input: body, encoding: 'utf8', shell: false });
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
   if (result.error || result.status !== 0) throw new Error(`gh failed (${result.error?.message || result.status}); creation may be ambiguous, check GitHub before retrying`);

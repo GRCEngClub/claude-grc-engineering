@@ -201,7 +201,7 @@ async function discoverSources(cacheDir) {
   }
 }
 
-async function loadFindings(cacheDir, sources) {
+export async function loadFindings(cacheDir, sources) {
   const findings = [];
   const errors = [];
   for (const source of sources) {
@@ -216,14 +216,28 @@ async function loadFindings(cacheDir, sources) {
       }
       throw err;
     }
-    for (const f of files.filter(n => n.endsWith('.json'))) {
+    const jsonFiles = files.filter(n => n.endsWith('.json'));
+    if (!jsonFiles.length) {
+      errors.push({ source, kind: 'coverage-unverified', message: `No JSON findings files under ${srcDir}; coverage cannot be verified` });
+    }
+    for (const f of jsonFiles) {
       const full = path.join(srcDir, f);
       let doc;
+      let content;
       try {
-        doc = JSON.parse(await fs.readFile(full, 'utf8'));
+        content = await fs.readFile(full, 'utf8');
+      } catch (err) {
+        errors.push({ source, file: f, kind: 'read-error', message: err.message });
+        continue;
+      }
+      try {
+        doc = JSON.parse(content);
       } catch (err) {
         errors.push({ source, file: f, kind: 'invalid-json', message: err.message });
         continue;
+      }
+      if (Array.isArray(doc) && doc.length === 0) {
+        errors.push({ source, file: f, kind: 'coverage-unverified', message: 'Empty findings array; this may mean no findings, but coverage cannot be verified' });
       }
       // Single-document or array shape
       const docs = Array.isArray(doc) ? doc : [doc];
@@ -242,6 +256,7 @@ async function loadFindings(cacheDir, sources) {
 
 function validateFinding(d) {
   const errs = [];
+  if (d === null || typeof d !== 'object' || Array.isArray(d)) return ['finding must be an object'];
   const required = ['schema_version', 'source', 'source_version', 'run_id', 'collected_at', 'resource', 'evaluations'];
   for (const k of required) if (!(k in d)) errs.push(`missing ${k}`);
   if (d.schema_version && !/^1\./.test(String(d.schema_version))) {
@@ -251,6 +266,10 @@ function validateFinding(d) {
   if (!Array.isArray(d.evaluations) || !d.evaluations.length) errs.push('evaluations must be a non-empty array');
   else {
     d.evaluations.forEach((e, i) => {
+      if (e === null || typeof e !== 'object' || Array.isArray(e)) {
+        errs.push(`evaluations[${i}] must be an object`);
+        return;
+      }
       if (!e.control_framework) errs.push(`evaluations[${i}].control_framework missing`);
       if (!e.control_id)        errs.push(`evaluations[${i}].control_id missing`);
       if (!['pass','fail','not_applicable','inconclusive','skipped'].includes(e.status)) {
@@ -267,7 +286,12 @@ function validateFinding(d) {
   return errs;
 }
 
+// Kept out of serialized reports so issue labeling cannot change report semantics.
+const issueSeverities = new WeakMap();
+
 export async function buildReport({ runId, frameworks, sources, findings, scf, loadErrors, log }) {
+  // Do not mutate the caller's loader errors when adding resolution warnings.
+  loadErrors = [...loadErrors];
   // Normalize every evaluation into (scfId, frameworkProjection) rows.
   // We anchor on SCF controls; non-SCF evaluations are reverse-mapped.
   const scfHits = new Map();  // scfId → { control, evaluations: [{source, resource, evaluation}] }
@@ -280,8 +304,14 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
       if (resolutions === undefined) {
         try {
           resolutions = await scf.resolve(ev.control_framework, ev.control_id);
+          if (!resolutions.length) {
+            const message = `No SCF mapping for ${key}; evaluations were omitted`;
+            log(message);
+            loadErrors.push({ source: doc.source, kind: 'scf-unmapped', message });
+          }
         } catch (err) {
           log(`resolve failed for ${key}: ${err.message}`);
+          loadErrors.push({ source: doc.source, kind: 'scf-resolution-failed', message: `Could not resolve ${key}: ${err.message}` });
           resolutions = [];
         }
         resolveCache.set(key, resolutions);
@@ -310,6 +340,7 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
       expansionCache.set(scfId, await scf.expand(scfId, frameworks));
     } catch (err) {
       log(`expand failed for ${scfId}: ${err.message}`);
+      loadErrors.push({ source: 'SCF', kind: 'scf-expansion-failed', message: `Could not expand ${scfId}: ${err.message}` });
       expansionCache.set(scfId, new Map(frameworks.map(f => [f, []])));
     }
   }
@@ -385,6 +416,10 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
       inconclusive_resources_count: entry.evaluations.filter(e => e.evaluation.status === 'inconclusive').length,
       total_resources_evaluated: entry.evaluations.length
     };
+    const failures = entry.evaluations.filter(e => e.evaluation.status === 'fail');
+    const severities = failures.map(e => e.evaluation.severity);
+    issueSeverities.set(item, failures.length && severities.every(s => ['critical', 'high', 'medium', 'low', 'info'].includes(s))
+      ? worstSeverityOf(severities) : null);
 
     if (worstStatus === 'fail') {
       if (worstSeverity === 'critical' || worstSeverity === 'high') tier1.push(item);
@@ -445,6 +480,7 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
       scf_version: scf.version(),
       frameworks,
       sources,
+      load_errors: loadErrors,
       stats: frameworkStats,
       totals: {
         tier1: tier1.length, tier2: tier2.length, tier3: tier3.length,
@@ -483,11 +519,15 @@ export function renderGithubIssuePreview(r) {
   return {
     notice: 'Preview only. Review sensitive data and mappings before manually creating issues; no issues have been created.',
     run_id: r.runId,
+    // Invalid documents may contain failures for any control, including controls
+    // also present in valid documents. Their scope cannot safely be inferred.
+    data_quality_warnings: r.load_errors,
     issues: ['tier1', 'tier2'].flatMap((tier, index) => r.tiers[tier].map(t => ({
       tier: index + 1,
       scf_id: t.scf_id,
       title: t.title,
       severity: t.severity,
+      label_severity: !r.load_errors.length && ['critical', 'high', 'medium'].includes(issueSeverities.get(t)) ? issueSeverities.get(t) : null,
       frameworks: t.frameworks,
       failing_resources: t.failing_resources
     })))

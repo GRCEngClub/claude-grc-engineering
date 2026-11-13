@@ -94,6 +94,7 @@ test('offline CLI previews nonempty hostile tier 1 and 2 data without executing 
     const preview = JSON.parse(output);
     assert.match(preview.notice, /no issues have been created/i);
     assert.deepEqual(preview.issues.map(({ tier, scf_id }) => [tier, scf_id]), [[1, 'SCF-1'], [2, 'SCF-2']]);
+    assert.deepEqual(preview.issues.map(issue => issue.label_severity), ['high', 'medium']);
     assert.equal(preview.issues[0].title, payload);
     assert.equal(preview.issues[0].failing_resources[0].resource_id, payload);
     assert.equal(preview.issues[0].failing_resources[0].message, payload);
@@ -141,10 +142,12 @@ test('offline CLI writes the correct extension for every supported output', asyn
       normalized.load_errors.sort((a, b) => a.file.localeCompare(b.file));
       assert.deepEqual(normalized.load_errors.map(({ source, file, kind }) => ({ source, file, kind })), [
         { source: 'fixture', file: 'broken.json', kind: 'invalid-json' },
+        { source: 'fixture', file: 'empty.json', kind: 'coverage-unverified' },
         { source: 'fixture', file: 'invalid.json', kind: 'schema-violation' }
       ]);
       assert.ok(normalized.load_errors[0].message);
-      assert.ok(normalized.load_errors[1].violations.includes('missing schema_version'));
+      assert.match(normalized.load_errors[1].message, /coverage cannot be verified/);
+      assert.ok(normalized.load_errors[2].violations.includes('missing schema_version'));
       assert.deepEqual(normalized.inconclusive, []);
       if (format === 'html') assert.match(result.stdout, /broken\.json.*invalid-json/);
       if (format === 'csv') assert.doesNotMatch(result.stdout, /broken\.json|invalid\.json/);
