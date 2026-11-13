@@ -14,6 +14,8 @@ import crypto from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
+import { publishEvidence } from './publish-evidence.js';
 
 const execFileP = promisify(execFile);
 
@@ -21,6 +23,8 @@ const CONFIG_DIR = process.env.CLAUDE_GRC_CONFIG_DIR || path.join(os.homedir(), 
 const CONFIG_FILE = path.join(CONFIG_DIR, 'connectors', 'gcp-inspector.yaml');
 const CACHE_DIR = path.join(os.homedir(), '.cache', 'claude-grc', 'findings', 'gcp-inspector');
 const RUNS_LOG = path.join(os.homedir(), '.cache', 'claude-grc', 'runs.log');
+const EVIDENCE_DIR = path.join(os.homedir(), '.cache', 'claude-grc', 'evidence', 'gcp-inspector');
+const SECRET_SCRIPTS = fileURLToPath(new URL('./secret-metadata/', import.meta.url));
 const SOURCE = 'gcp-inspector';
 const SOURCE_VERSION = '0.1.0';
 
@@ -37,6 +41,10 @@ async function main(argv) {
   const project = args.project || config.project_id;
   const services = args.services?.length ? args.services : (config.defaults?.services || ['iam', 'storage', 'logging', 'kms', 'compute']);
   if (!project) fail(EXIT.NOT_CONFIGURED, 'project_id missing. Re-run /gcp-inspector:setup.');
+  if (new Set(services).size !== services.length) fail(EXIT.USAGE, 'Duplicate services are not allowed.');
+  if (services.includes('secret-manager') && !args.services.includes('secret-manager')) {
+    fail(EXIT.USAGE, 'Secret Manager requires explicit --services=secret-manager opt-in.');
+  }
 
   await fs.mkdir(CACHE_DIR, { recursive: true });
   const runId = makeRunId();
@@ -46,9 +54,18 @@ async function main(argv) {
   const findings = [];
   const errors = [];
   const ctx = { project, runId };
+  let secretEvidencePath;
 
   for (const svc of services) {
     try {
+      if (svc === 'secret-manager') {
+        const evidence = await collectSecretEvidence(ctx);
+        await fs.mkdir(EVIDENCE_DIR, { recursive: true, mode: 0o700 });
+        const target = path.join(EVIDENCE_DIR, `${runId}.json`);
+        await publishEvidence(target, evidence);
+        secretEvidencePath = target;
+        continue;
+      }
       const results = await serviceHandlers[svc](ctx, log);
       findings.push(...results);
     } catch (err) {
@@ -76,6 +93,7 @@ async function main(argv) {
     evaluations: findings.reduce((n, d) => n + d.evaluations.length, 0),
     counters, severities: sev, errors: errors.length
   };
+  if (secretEvidencePath) manifest.secret_manager_evidence_path = secretEvidencePath;
   await fs.appendFile(RUNS_LOG, JSON.stringify(manifest) + '\n');
 
   const summary = `${SOURCE}: ${findings.length} resources, ${manifest.evaluations} evaluations, ${counters.fail || 0} failing (${sev.critical || 0} critical, ${sev.high || 0} high, ${sev.medium || 0} medium).`;
@@ -90,6 +108,44 @@ async function main(argv) {
 
 // ---------------------------------------------------------------------------
 // Service handlers
+
+// Keep metadata outside the Finding cache: the Finding contract requires a
+// control evaluation, and inventory alone is not a compliance determination.
+async function collectSecretEvidence(ctx) {
+  const deadline = performance.now() + 5 * 60 * 1000;
+  const checkDeadline = () => {
+    if (performance.now() >= deadline) throw new Error('Secret Manager collection time budget exceeded.');
+  };
+  async function helper(script, args) {
+    checkDeadline();
+    let stdout;
+    try {
+      ({ stdout } = await execFileP(process.execPath, [path.join(SECRET_SCRIPTS, script), ...args], {
+        maxBuffer: 16 * 1024 * 1024, timeout: 120000
+      }));
+    } catch {
+      throw new Error('Secret Manager metadata collection failed; provider output suppressed.');
+    }
+    checkDeadline();
+    try { return JSON.parse(stdout); }
+    catch { throw new Error('Invalid Secret Manager metadata response.'); }
+  }
+  const inventory = await helper('list.js', [ctx.project]);
+  if (inventory.project !== ctx.project || !Array.isArray(inventory.secrets)) throw new Error('Invalid Secret Manager inventory.');
+  if (inventory.secrets.length > 100) throw new Error('Secret Manager inventory exceeds the 100-secret safety limit.');
+  const seen = new Set();
+  const secrets = [];
+  for (const item of inventory.secrets) {
+    const name = item?.name;
+    if (typeof name !== 'string' || seen.has(name)) throw new Error('Invalid Secret Manager inventory.');
+    seen.add(name);
+    const id = name.split('/').pop();
+    const history = await helper('history.js', [ctx.project, id]);
+    if (history.project !== ctx.project || history.name !== name) throw new Error('Secret Manager inventory changed or project scope mismatch.');
+    secrets.push(history);
+  }
+  return { source: SOURCE, run_id: ctx.runId, collected_at: new Date().toISOString(), project_id: ctx.project, secrets };
+}
 
 const serviceHandlers = {
   async iam(ctx, log) {
@@ -383,12 +439,16 @@ async function gcloud(args, opts = {}) {
 
 function parseArgs(argv) {
   const out = { project: '', services: [], output: 'summary', quiet: false };
+  let servicesSeen = false;
   for (const tok of argv) {
     if (!tok.startsWith('--')) continue;
     const [k, v] = tok.slice(2).split('=');
     switch (k) {
       case 'project':  out.project = v || ''; break;
-      case 'services': out.services = String(v || '').split(',').map(s => s.trim()).filter(Boolean); break;
+      case 'services':
+        if (servicesSeen) fail(EXIT.USAGE, 'Repeated --services flag is not allowed.');
+        servicesSeen = true;
+        out.services = String(v || '').split(',').map(s => s.trim()).filter(Boolean); break;
       case 'output':   out.output = v || 'summary'; break;
       case 'refresh':  break;
       case 'quiet':    out.quiet = true; break;

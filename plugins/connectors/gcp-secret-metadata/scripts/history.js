@@ -5,7 +5,7 @@ import { projectScope } from './project-scope.js';
 
 const [project, secret, ...extra] = process.argv.slice(2);
 if (!/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/.test(project || '') ||
-    !/^[A-Za-z0-9_-]{1,255}$/.test(secret || '') || secret.startsWith('-') || extra.length) {
+    !/^[A-Za-z0-9_-]{1,255}$/.test(secret || '') || extra.length) {
   console.error('Usage: node history.js <project-id> <secret-id>');
   process.exit(2);
 }
@@ -32,8 +32,10 @@ function optionalTime(source, dest, key) {
   if (source[key] !== undefined) dest[key] = timestamp(source[key]);
 }
 try {
-  const data = query(['secrets', 'describe', secret]);
-  const versions = query(['secrets', 'versions', 'list', secret]);
+  // A resource name cannot be mistaken for a flag even when the ID starts with '-'.
+  const resource = `projects/${project}/secrets/${secret}`;
+  const data = query(['secrets', 'describe', resource]);
+  const versions = query(['secrets', 'versions', 'list', resource]);
   if (!data || typeof data !== 'object' || Array.isArray(data) || typeof data.name !== 'string' || !Array.isArray(versions)) throw new Error();
   const parts = data.name.split('/');
   if (parts.length !== 4 || parts[0] !== 'projects' || !/^(?:[a-z][a-z0-9-]{4,28}[a-z0-9]|[0-9]+)$/.test(parts[1]) || parts[2] !== 'secrets' || parts[3] !== secret) throw new Error();
