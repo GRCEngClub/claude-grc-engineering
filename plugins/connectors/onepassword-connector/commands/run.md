@@ -45,6 +45,6 @@ environment. Protect the terminal, host and CI logs; do not put secret values in
 arguments, shell history, tickets, findings, or agent conversations. Arguments are
 passed literally without a shell; pipes and redirects are not interpreted.
 The helper cannot control files or network calls made by the selected program.
-Use a secure collector that writes sanitized evidence itself. Document retrieval,
-metadata discovery, finding generation, and automatic integration with
-`collect-evidence` are not implemented.
+Use a secure collector that writes sanitized evidence itself. For Document items,
+see `/onepassword-connector:document`. Metadata discovery, finding generation,
+and automatic integration with `collect-evidence` are not implemented.
