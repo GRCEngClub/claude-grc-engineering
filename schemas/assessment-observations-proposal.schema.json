@@ -10,6 +10,18 @@
     "schema_version": { "const": "0.1-proposal" },
     "assessment_id": { "$ref": "#/definitions/text" },
     "source": { "$ref": "#/definitions/text" },
+    "assessment_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scope": { "$ref": "#/definitions/text" },
+        "process": { "$ref": "#/definitions/text" },
+        "procedures": { "$ref": "#/definitions/text" },
+        "methodology": { "$ref": "#/definitions/text" },
+        "corrected_deficiency_refs": { "$ref": "#/definitions/refs" },
+        "remaining_deficiency_refs": { "$ref": "#/definitions/refs" }
+      }
+    },
     "observations": {
       "type": "array",
       "items": {

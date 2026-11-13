@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1-proposal",
+  "assessment_id": "synthetic-context-example",
+  "source": "synthetic test data",
+  "assessment_context": {
+    "scope": "Synthetic scoped service",
+    "process": "Synthetic assessment process",
+    "procedures": "Synthetic test procedure",
+    "methodology": "Synthetic methodology",
+    "corrected_deficiency_refs": [],
+    "remaining_deficiency_refs": ["example-deficiency-1"]
+  },
+  "observations": [
+    {
+      "id": "observation-1",
+      "control_id": "AC-1",
+      "test_result": "synthetic result, not an assessment",
+      "evidence_refs": ["example-evidence-1"],
+      "deficiency_refs": ["example-deficiency-1"]
+    }
+  ],
+  "deficiencies": [
+    { "id": "example-deficiency-1", "description": "Synthetic placeholder, not a real finding" }
+  ]
+}
