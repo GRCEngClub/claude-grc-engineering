@@ -16,33 +16,42 @@ def valid_xml_text(text):
 
 
 def generate(data):
-    if not isinstance(data, dict) or set(data) != set(FIELDS):
-        raise ValueError('input must be an object with exactly: ' + ', '.join(FIELDS))
-    for field in FIELDS:
-        value = data[field]
-        if not isinstance(value, str) or not value.strip() or not valid_xml_text(value):
-            raise ValueError(f'{field} must be a non-empty string containing valid XML characters')
+    is_batch = isinstance(data, list)
+    rows = data if is_batch else [data]
+    if not 1 <= len(rows) <= 10:
+        raise ValueError('input array must contain between 1 and 10 controls')
+    for row in rows:
+        if not isinstance(row, dict) or set(row) != set(FIELDS):
+            raise ValueError('each control must be an object with exactly: ' + ', '.join(FIELDS))
+        for field in FIELDS:
+            value = row[field]
+            if not isinstance(value, str) or not value.strip() or not valid_xml_text(value):
+                raise ValueError(f'{field} must be a non-empty string containing valid XML characters')
     model = ET.Element('mxGraphModel', {'dx': '1000', 'dy': '500', 'grid': '1',
-                                        'gridSize': '10', 'page': '1', 'pageWidth': '1169', 'pageHeight': '827'})
+                                        'gridSize': '10', 'page': '1', 'pageWidth': '1169',
+                                        'pageHeight': str(max(827, 220 + 120 * len(rows)))})
     root = ET.SubElement(model, 'root')
     ET.SubElement(root, 'mxCell', id='0')
     ET.SubElement(root, 'mxCell', id='1', parent='0')
-    for index, (field, color) in enumerate((('control', '#d5e8d4'), ('owner', '#f5f5f5'),
-                                            ('evidence', '#dae8fc'), ('reviewer', '#f5f5f5'))):
-        cell = ET.SubElement(root, 'mxCell', id=field, value=f'{field.title()}: {data[field]}',
-                             style=f'rounded=1;whiteSpace=wrap;html=0;fillColor={color};', vertex='1', parent='1')
-        ET.SubElement(cell, 'mxGeometry', x=str(40 + index * 240), y='100', width='170', height='70', **{'as': 'geometry'})
-    for index, (source, target, label, dashed) in enumerate((
-        ('control', 'owner', 'assigned to', False),
-        ('owner', 'evidence', f'produces: {data["cadence"]}', True),
-        ('evidence', 'reviewer', 'reviewed by', True)), 1):
-        cell = ET.SubElement(root, 'mxCell', id=f'e{index}', value=label,
-                             style='edgeStyle=orthogonalEdgeStyle;endArrow=block;html=0;' + ('dashed=1;' if dashed else ''),
-                             edge='1', parent='1', source=source, target=target)
-        ET.SubElement(cell, 'mxGeometry', relative='1', **{'as': 'geometry'})
+    for row_index, row in enumerate(rows):
+        prefix = f'r{row_index + 1}-' if is_batch else ''
+        for index, (field, color) in enumerate((('control', '#d5e8d4'), ('owner', '#f5f5f5'),
+                                                ('evidence', '#dae8fc'), ('reviewer', '#f5f5f5'))):
+            cell = ET.SubElement(root, 'mxCell', id=prefix + field, value=f'{field.title()}: {row[field]}',
+                                 style=f'rounded=1;whiteSpace=wrap;html=0;fillColor={color};', vertex='1', parent='1')
+            ET.SubElement(cell, 'mxGeometry', x=str(40 + index * 240), y=str(100 + row_index * 120),
+                          width='170', height='70', **{'as': 'geometry'})
+        for index, (source, target, label, dashed) in enumerate((
+            ('control', 'owner', 'assigned to', False),
+            ('owner', 'evidence', f'produces: {row["cadence"]}', True),
+            ('evidence', 'reviewer', 'reviewed by', True)), 1):
+            cell = ET.SubElement(root, 'mxCell', id=f'{prefix}e{index}', value=label,
+                                 style='edgeStyle=orthogonalEdgeStyle;endArrow=block;html=0;' + ('dashed=1;' if dashed else ''),
+                                 edge='1', parent='1', source=prefix + source, target=prefix + target)
+            ET.SubElement(cell, 'mxGeometry', relative='1', **{'as': 'geometry'})
     cell = ET.SubElement(root, 'mxCell', id='legend', value='Legend: solid = responsibility; dashed = evidence flow',
                          style='text;whiteSpace=wrap;html=0;', vertex='1', parent='1')
-    ET.SubElement(cell, 'mxGeometry', x='40', y='220', width='500', height='30', **{'as': 'geometry'})
+    ET.SubElement(cell, 'mxGeometry', x='40', y=str(100 + 120 * len(rows)), width='500', height='30', **{'as': 'geometry'})
     ET.indent(model)
     return ET.tostring(model, encoding='unicode') + '\n'
 
