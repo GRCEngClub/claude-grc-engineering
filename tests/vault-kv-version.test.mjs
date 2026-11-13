@@ -21,6 +21,12 @@ test('KV v2 pinned version is sent to Vault and verified before injection', () =
     assert.deepEqual(JSON.parse(readFileSync(provider)), ['kv','get','-format=json','-mount=secret','-version=7','app/path']);
     assert.equal(readFileSync(child, 'utf8'), 'synthetic-value');
     rmSync(child);
+    for (const pin of ['1', '2147483647']) {
+      const boundary = invoke('2', `--version=${pin}`, {PAYLOAD: JSON.stringify({data:{data:{key:'synthetic-value'},metadata:{version:Number(pin)}}})});
+      assert.equal(boundary.status, 0, boundary.stderr);
+      assert.equal(readFileSync(child, 'utf8'), 'synthetic-value');
+      rmSync(child);
+    }
     for (const metadata of [{version:8}, {}, {version:'7'}, {version:7.5}]) {
       const r = invoke('2', '--version=7', {PAYLOAD:JSON.stringify({data:{data:{key:'provider-secret'},metadata}})});
       assert.equal(r.status, 1); assert.doesNotMatch(r.stdout + r.stderr, /provider-secret/); assert.equal(existsSync(child), false);
