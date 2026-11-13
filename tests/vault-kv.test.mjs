@@ -33,7 +33,7 @@ test('rejects invalid inputs and all non-string or malformed payloads without ou
       const r = spawnSync(process.execPath,[script,...input],{env:base,encoding:'utf8'}); assert.equal(r.status,2); assert.equal(existsSync(marker),false);
     }
     for (const version of ['1', '2']) {
-      for (const value of [12, false, null, {}, [], '', 'bad\0secret']) {
+      for (const value of [12, false, null, {}, [], '', 'bad\0secret', '\ud800', '\udc00']) {
         const data = {key:value, other:'provider-secret'};
         const payload = version === '1' ? {data} : {data:{data,metadata:{version:1}}};
         const r = spawnSync(process.execPath,[script,version,'secret','app','key','--',...child],{env:{...base,PAYLOAD:JSON.stringify(payload)},encoding:'utf8'});

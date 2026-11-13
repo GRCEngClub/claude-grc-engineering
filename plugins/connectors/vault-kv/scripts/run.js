@@ -29,7 +29,9 @@ try {
   if (version === '2' && (!isObject(response.data.metadata) || !isObject(data))) throw new Error();
   if (!Object.hasOwn(data, field) || typeof data[field] !== 'string') throw new Error();
   value = data[field];
-  if (!value || value.includes('\0')) throw new Error();
+  // JSON can encode unpaired UTF-16 surrogates, which Node would silently
+  // replace with U+FFFD when passing the value through the environment.
+  if (!value || value.includes('\0') || Buffer.from(value, 'utf8').toString('utf8') !== value) throw new Error();
 } catch {
   console.error('Vault returned an unsupported payload; provider output suppressed.');
   process.exit(1);
