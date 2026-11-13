@@ -17,11 +17,13 @@ Input is the [experimental observations contract](assessment-observations-propos
 ## Experimental CSV exports
 
 ```sh
-node scripts/assessment-review-csv.mjs traceability tests/fixtures/assessment-observations/synthetic.json > traceability.csv
-node scripts/assessment-review-csv.mjs risks input.json > risks.csv
+node scripts/assessment-review-csv.mjs traceability tests/fixtures/assessment-observations/synthetic.json traceability.csv
+node scripts/assessment-review-csv.mjs risks input.json risks.csv
 ```
 
-The CSVs are program-neutral review aids, not official templates. They repeat a draft notice and carry references as JSON arrays in cells. As a conservative prototype restriction, either export refuses empty observations or deficiencies, observations without evidence or deficiency links, and deficiencies without linked observations. This is a tool limitation, **not** a requirement that every observation has a deficiency. Risk export also refuses missing risk-review fields; it does not validate their substance. It writes no CSV on validation failure. The bundled fixture intentionally lacks risk fields, so the risks example needs a complete synthetic input.
+The CSVs are program-neutral review aids, not official templates. They repeat a draft notice and carry references as JSON arrays in cells. As a conservative prototype restriction, either export refuses empty observations or deficiencies, observations without evidence or deficiency links, and deficiencies without linked observations. This is a tool limitation, **not** a requirement that every observation has a deficiency. Risk export also refuses missing risk-review fields; it does not validate their substance. The bundled fixture intentionally lacks risk fields, so the risks example needs a complete synthetic input.
+
+The output path is required and must not exist: the program validates and renders the entire input before exclusively creating the file, refusing to overwrite existing paths (including symlinks). New files are created with restrictive permissions, subject to the system umask. Do not use shell output redirection to name the CSV: the shell can truncate files before validation. An I/O failure while writing can leave a partial new file; remove it before retrying. Successful exports report all input/review warnings on stderr, not in the CSV; in particular, traceability can succeed with missing risk fields, so retain and review those warnings separately. The programmatic `generateReviewCsvWithWarnings` returns both `csv` and `warnings`; `generateReviewCsv` returns only CSV. Protect warnings as sensitive assessment data too.
 
 CSV cells starting with formula characters, including after whitespace, are prefixed with an apostrophe; tabs and line breaks at the start are also prefixed. Spreadsheet behavior varies: import all columns as text and verify handling; use JSON if literal-text handling cannot be guaranteed. Prefixes alter raw values. Never open untrusted exports in a spreadsheet without appropriate precautions.
 

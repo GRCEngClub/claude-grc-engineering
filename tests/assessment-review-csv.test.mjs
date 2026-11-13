@@ -1,8 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync, symlinkSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { generateReviewCsv } from '../scripts/assessment-review-csv.mjs';
+import { generateReviewCsv, generateReviewCsvWithWarnings } from '../scripts/assessment-review-csv.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('./fixtures/assessment-observations/synthetic.json', import.meta.url)));
 const complete = () => {
@@ -57,14 +59,42 @@ test('fails closed for missing risks, links, evidence, duplicate IDs and danglin
   assert.throws(() => generateReviewCsv(complete(), 'bad'), /Export type/);
 });
 
-test('CLI emits no partial CSV when incomplete', () => {
-  const args = ['scripts/assessment-review-csv.mjs', 'risks', 'tests/fixtures/assessment-observations/synthetic.json'];
-  const result = spawnSync(process.execPath, args, { encoding: 'utf8' });
-  assert.notEqual(result.status, 0);
-  assert.equal(result.stdout, '');
-  assert.match(result.stderr, /missing likelihood/);
-  args[1] = 'traceability';
-  const ok = spawnSync(process.execPath, args, { encoding: 'utf8' });
-  assert.equal(ok.status, 0, ok.stderr);
-  assert.equal(parse(ok.stdout)[0].control_id, 'AC-1');
+test('CLI validates before exclusive creation and reports warnings separately', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'review-csv-'));
+  try {
+    const output = join(dir, 'output.csv');
+    const args = ['scripts/assessment-review-csv.mjs', 'risks', 'tests/fixtures/assessment-observations/synthetic.json', output];
+    const run = () => spawnSync(process.execPath, args, { encoding: 'utf8' });
+    let result = run();
+    assert.notEqual(result.status, 0);
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, /missing likelihood/);
+    assert.equal(existsSync(output), false);
+    writeFileSync(output, 'preserve me');
+    result = run();
+    assert.notEqual(result.status, 0);
+    assert.equal(readFileSync(output, 'utf8'), 'preserve me');
+    args[1] = 'traceability';
+    result = run();
+    assert.notEqual(result.status, 0);
+    assert.equal(readFileSync(output, 'utf8'), 'preserve me');
+    rmSync(output);
+    symlinkSync(join(dir, 'missing-target'), output);
+    assert.notEqual(run().status, 0);
+    assert.equal(existsSync(join(dir, 'missing-target')), false);
+    rmSync(output);
+    result = run();
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, /missing likelihood/);
+    const csv = readFileSync(output, 'utf8');
+    assert.equal(parse(csv)[0].control_id, 'AC-1');
+    assert.doesNotMatch(csv, /missing likelihood/);
+    assert.equal(statSync(output).mode & 0o077, 0);
+    const withWarnings = generateReviewCsvWithWarnings(fixture, 'traceability');
+    assert.equal(withWarnings.csv, csv);
+    assert.ok(withWarnings.warnings.some(w => w.includes('missing likelihood')));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

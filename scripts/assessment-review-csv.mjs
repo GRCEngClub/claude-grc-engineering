@@ -1,5 +1,5 @@
 // Experimental CSV review aids, not FedRAMP templates or assessment conclusions.
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { generateReview } from './assessment-review-draft.mjs';
 
@@ -18,7 +18,7 @@ function csvCell(value) {
   return `"${text.replaceAll('"', '""')}"`;
 }
 
-export function generateReviewCsv(input, type) {
+export function generateReviewCsvWithWarnings(input, type) {
   if (!Object.hasOwn(headers, type)) throw new Error('Export type must be traceability or risks');
   const review = generateReview(input); // validates the entire input, including all references
   const problems = [];
@@ -37,14 +37,22 @@ export function generateReviewCsv(input, type) {
   const rows = type === 'traceability'
     ? review.traceability.map(o => [...common, o.observation_id, o.control_id, o.test_result, JSON.stringify(o.evidence_refs), JSON.stringify(o.deficiency_refs)])
     : review.risks.map(r => [...common, r.id, r.description, ...riskFields.map(f => r[f]), JSON.stringify(r.observation_ids), JSON.stringify(r.control_ids)]);
-  return [headers[type], ...rows].map(row => row.map(csvCell).join(',')).join('\r\n') + '\r\n';
+  const csv = [headers[type], ...rows].map(row => row.map(csvCell).join(',')).join('\r\n') + '\r\n';
+  return { csv, warnings: review.warnings };
+}
+
+export function generateReviewCsv(input, type) {
+  return generateReviewCsvWithWarnings(input, type).csv;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    if (process.argv.length !== 4) throw new Error('Usage: node scripts/assessment-review-csv.mjs <traceability|risks> <input.json>');
+    if (process.argv.length !== 5) throw new Error('Usage: node scripts/assessment-review-csv.mjs <traceability|risks> <input.json> <new-output.csv>');
     const data = JSON.parse(readFileSync(process.argv[3], 'utf8'));
-    process.stdout.write(generateReviewCsv(data, process.argv[2]));
+    const { csv, warnings } = generateReviewCsvWithWarnings(data, process.argv[2]);
+    // Exclusive creation prevents overwriting files, including the input or symlinks.
+    writeFileSync(process.argv[4], csv, { flag: 'wx', mode: 0o600 });
+    for (const warning of warnings) console.error(`Warning: ${warning}`);
   } catch (error) {
     console.error(error.message);
     process.exitCode = 1;
