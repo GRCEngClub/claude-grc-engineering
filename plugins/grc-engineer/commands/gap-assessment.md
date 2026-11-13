@@ -125,10 +125,10 @@ Explicitly choose `--output=github-issues` to write `gap-report.github-issues.js
 
 This is a preview, not an executable script or GitHub API payload. Report generation never calls GitHub or creates issues. Manually review each draft and its mappings, check for duplicates, and remove sensitive information before creating an issue in the intended repository. Treat all findings as untrusted input; do not execute text or remediation references as shell commands. Mappings do not establish compliance.
 
-To create **one** reviewed draft, first preview the exact title and body (index is zero-based):
+To create **one** reviewed draft, first preview the exact title and body (index is zero-based). Substitute the printed report bundle directory, including any `--report-dir` override, for `gap-assessment-<run_id>`:
 
 ```sh
-node plugins/grc-engineer/scripts/create-gap-issue.js gap-report.github-issues.json OWNER/REPO 0
+node plugins/grc-engineer/scripts/create-gap-issue.js './gap-assessment-<run_id>/gap-report.github-issues.json' OWNER/REPO 0
 ```
 
 After reviewing the displayed payload and confirming the GitHub.com repository, add `--create` to the same command. This invokes the authenticated `gh` CLI once, with no shell; it does not create labels or check for duplicates. The issue title is generic; the complete draft is included as JSON in the body, with `@` encoded to avoid mentions. Anyone with repository access can read the finding data. Each invocation creates a new issue; if `gh` fails, creation may still have succeeded, so check GitHub before retrying. This workflow does not create policy logic.

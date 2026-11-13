@@ -39,6 +39,34 @@ test('one explicitly selected draft is previewed and created only by opt-in, wit
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
+test('failed or missing gh warns before retrying and is never retried automatically', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gap-issue-failure-'));
+  try {
+    const file = path.join(dir, 'preview.json');
+    fs.writeFileSync(file, JSON.stringify({ issues: [{ tier: 1, title: 'x', scf_id: 'x' }] }));
+    const bin = path.join(dir, 'bin'); fs.mkdirSync(bin);
+    const record = path.join(dir, 'calls');
+    const gh = path.join(bin, 'gh');
+    // Use an absolute interpreter and an isolated PATH so the real gh cannot run.
+    fs.writeFileSync(gh, '#!/bin/sh\nprintf "call\\n" >> "$RECORD"\nprintf "simulated gh failure\\n" >&2\nexit 1\n', { mode: 0o755 });
+    const run = () => spawnSync(process.execPath, [script, file, 'owner/repo', '0', '--create'], {
+      encoding: 'utf8', env: { ...process.env, PATH: bin, RECORD: record }
+    });
+    const failed = run();
+    assert.notEqual(failed.status, 0);
+    assert.match(failed.stderr, /simulated gh failure/);
+    assert.match(failed.stderr, /creation may be ambiguous, check GitHub before retrying/i);
+    assert.equal(fs.readFileSync(record, 'utf8'), 'call\n');
+
+    fs.unlinkSync(gh);
+    const missing = run();
+    assert.notEqual(missing.status, 0);
+    assert.match(missing.stderr, /ENOENT/);
+    assert.match(missing.stderr, /creation may be ambiguous, check GitHub before retrying/i);
+    assert.equal(fs.readFileSync(record, 'utf8'), 'call\n');
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('rejects malformed and non-tier-1/2 previews before invoking gh', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gap-issue-invalid-'));
   try {
