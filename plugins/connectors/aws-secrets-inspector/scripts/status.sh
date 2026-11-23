@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# aws-secrets-inspector:status
 set -uo pipefail
 
 CONFIG_FILE="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors/aws-secrets-inspector.yaml"
@@ -22,7 +21,6 @@ fi
 AWS_VERSION=$(aws --version 2>&1 | awk '{print $1}' | sed 's|aws-cli/||')
 printf '  aws:           %s %s\n' "$(command -v aws)" "$AWS_VERSION"
 
-# Extract profile from config
 PROFILE=$(awk -F'"' '/^profile:/ {print $2; exit}' "$CONFIG_FILE" 2>/dev/null || true)
 AWSENV=()
 [[ -n "${PROFILE:-}" ]] && AWSENV+=("AWS_PROFILE=$PROFILE")
@@ -48,7 +46,6 @@ printf '  profile:       %s\n' "${PROFILE:-<default>}"
 printf '  config:        %s\n' "$CONFIG_FILE"
 printf '  secrets dir:   %s (mode %s)\n' "$SECRETS_DIR" "$(stat -c%a "$SECRETS_DIR" 2>/dev/null || stat -f%Lp "$SECRETS_DIR" 2>/dev/null || echo '?')"
 
-# Health probe: does secretsmanager:ListSecrets resolve in this account?
 if LIST_OUT=$(aws_ secretsmanager list-secrets --max-results 1 --output json 2>/tmp/aws-status.err); then
   COUNT=$(echo "$LIST_OUT" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{console.log((JSON.parse(d).SecretList||[]).length)}catch{console.log('?')}})")
   printf '  list-secrets:  ok (sample %s secret(s) visible)\n' "$COUNT"
@@ -57,8 +54,6 @@ else
   printf '  note:          retrieve mode (--retrieve=) may still work if the role has GetSecretValue\n'
 fi
 
-# Last run freshness — use `find` so filenames with whitespace or shell
-# metacharacters are handled correctly (Shellcheck SC2012).
 LATEST=$(find "$CACHE_DIR" -maxdepth 1 -name '*.json' -type f -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)
 if [[ -z "$LATEST" ]]; then
   printf '  status:        ready (no runs yet)\n'

@@ -34,14 +34,14 @@ classification_levels:
 
 canadian_regions:
   aws:
-    - ca-central-1    # Montreal
-    - ca-west-1       # Calgary
+    - ca-central-1
+    - ca-west-1
   azure:
-    - canadacentral   # Toronto
-    - canadaeast      # Quebec City
+    - canadacentral
+    - canadaeast
   gcp:
-    - northamerica-northeast1  # Montreal
-    - northamerica-northeast2  # Toronto
+    - northamerica-northeast1
+    - northamerica-northeast2
 
 controls:
   PBMM-DATA-1:

@@ -138,9 +138,6 @@ function parseArgs(argv) {
 function pass(controlId, message) { return { control_framework: 'SCF', control_id: controlId, status: 'pass', severity: 'info', message }; }
 function inconclusive(controlId, message) { return { control_framework: 'SCF', control_id: controlId, status: 'inconclusive', severity: 'info', message }; }
 function failHigh(controlId, message, summary) { return { control_framework: 'SCF', control_id: controlId, status: 'fail', severity: 'high', message, remediation: { summary, ref: 'grc-engineer://generate-implementation/crowdstrike_sensor_coverage', effort_hours: 1, automation: 'manual' } }; }
-// Indentation-aware so nested blocks survive. The previous flat matcher only
-// accepted unindented keys, so setup.sh's `defaults:\n  limit: 100` parsed as
-// the string "" and every configured default was silently ignored.
 function parseYaml(text) {
   const out = {};
   const stack = [{ indent: -1, obj: out }];
@@ -154,16 +151,12 @@ function parseYaml(text) {
     if (!m) continue;
     const key = m[1];
     let val = m[2];
-    // A value that is only a comment ("key: # note") opens a nested block,
-    // same as a bare "key:".
     if (val.startsWith('#')) val = '';
     if (val === '') {
       const child = {};
       parent[key] = child;
       stack.push({ indent, obj: child });
     } else {
-      // Quoted scalars (either quote style) are taken verbatim; anything
-      // after the closing quote (e.g. an inline comment) is dropped.
       const quoted = val.match(/^(["'])(.*?)\1/);
       if (quoted) val = quoted[2];
       else {

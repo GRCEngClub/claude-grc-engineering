@@ -11,7 +11,6 @@ applicable_to:
   - Non-sensitive, non-confidential workloads
 
 controls:
-  # Access Control (AC)
   AC-1: { required: true, notes: "Policy and Procedures" }
   AC-2: { required: true, notes: "Account Management" }
   AC-3: { required: true, notes: "Access Enforcement" }
@@ -24,13 +23,11 @@ controls:
   AC-20: { required: true, notes: "Use of External Systems" }
   AC-22: { required: true, notes: "Publicly Accessible Content" }
 
-  # Awareness and Training (AT)
   AT-1: { required: true, notes: "Policy and Procedures" }
   AT-2: { required: true, notes: "Literacy Training and Awareness" }
   AT-3: { required: true, notes: "Role-Based Training" }
   AT-4: { required: true, notes: "Training Records" }
 
-  # Audit and Accountability (AU)
   AU-1: { required: true, notes: "Policy and Procedures" }
   AU-2: { required: true, notes: "Event Logging" }
   AU-3: { required: true, notes: "Content of Audit Records" }
@@ -42,7 +39,6 @@ controls:
   AU-11: { required: true, notes: "Audit Record Retention" }
   AU-12: { required: true, notes: "Audit Record Generation" }
 
-  # Security Assessment and Authorization (CA)
   CA-1: { required: true, notes: "Policy and Procedures" }
   CA-2: { required: true, notes: "Control Assessments" }
   CA-3: { required: true, notes: "Information Exchange" }
@@ -51,7 +47,6 @@ controls:
   CA-7: { required: true, notes: "Continuous Monitoring" }
   CA-9: { required: true, notes: "Internal System Connections" }
 
-  # Configuration Management (CM)
   CM-1: { required: true, notes: "Policy and Procedures" }
   CM-2: { required: true, notes: "Baseline Configuration" }
   CM-4: { required: true, notes: "Impact Analyses" }
@@ -62,7 +57,6 @@ controls:
   CM-10: { required: true, notes: "Software Usage Restrictions" }
   CM-11: { required: true, notes: "User-Installed Software" }
 
-  # Contingency Planning (CP)
   CP-1: { required: true, notes: "Policy and Procedures" }
   CP-2: { required: true, notes: "Contingency Plan" }
   CP-3: { required: true, notes: "Contingency Training" }
@@ -70,7 +64,6 @@ controls:
   CP-9: { required: true, notes: "System Backup" }
   CP-10: { required: true, notes: "System Recovery and Reconstitution" }
 
-  # Identification and Authentication (IA)
   IA-1: { required: true, notes: "Policy and Procedures" }
   IA-2: { required: true, notes: "Identification and Authentication" }
   IA-2(1): { required: true, notes: "MFA for Privileged Accounts" }
@@ -82,7 +75,6 @@ controls:
   IA-7: { required: true, notes: "Cryptographic Module Authentication" }
   IA-8: { required: true, notes: "Identification and Authentication (Non-Org Users)" }
 
-  # Incident Response (IR)
   IR-1: { required: true, notes: "Policy and Procedures" }
   IR-2: { required: true, notes: "Incident Response Training" }
   IR-4: { required: true, notes: "Incident Handling" }
@@ -91,19 +83,16 @@ controls:
   IR-7: { required: true, notes: "Incident Response Assistance" }
   IR-8: { required: true, notes: "Incident Response Plan" }
 
-  # Maintenance (MA)
   MA-1: { required: true, notes: "Policy and Procedures" }
   MA-2: { required: true, notes: "Controlled Maintenance" }
   MA-4: { required: true, notes: "Nonlocal Maintenance" }
   MA-5: { required: true, notes: "Maintenance Personnel" }
 
-  # Media Protection (MP)
   MP-1: { required: true, notes: "Policy and Procedures" }
   MP-2: { required: true, notes: "Media Access" }
   MP-6: { required: true, notes: "Media Sanitization" }
   MP-7: { required: true, notes: "Media Use" }
 
-  # Physical and Environmental Protection (PE)
   PE-1: { required: true, notes: "Policy and Procedures" }
   PE-2: { required: true, notes: "Physical Access Authorizations" }
   PE-3: { required: true, notes: "Physical Access Control" }
@@ -115,13 +104,11 @@ controls:
   PE-15: { required: true, notes: "Water Damage Protection" }
   PE-16: { required: true, notes: "Delivery and Removal" }
 
-  # Planning (PL)
   PL-1: { required: true, notes: "Policy and Procedures" }
   PL-2: { required: true, notes: "System Security and Privacy Plans" }
   PL-4: { required: true, notes: "Rules of Behavior" }
   PL-10: { required: true, notes: "Baseline Selection" }
 
-  # Program Management (PM)
   PM-1: { required: true, notes: "Information Security Program Plan" }
   PM-2: { required: true, notes: "Information Security Program Leadership Role" }
   PM-3: { required: true, notes: "Information Security and Privacy Resources" }
@@ -132,7 +119,6 @@ controls:
   PM-10: { required: true, notes: "Authorization Process" }
   PM-14: { required: true, notes: "Testing, Training, and Monitoring" }
 
-  # Personnel Security (PS)
   PS-1: { required: true, notes: "Policy and Procedures" }
   PS-2: { required: true, notes: "Position Risk Designation" }
   PS-3: { required: true, notes: "Personnel Screening" }
@@ -142,13 +128,11 @@ controls:
   PS-7: { required: true, notes: "External Personnel Security" }
   PS-8: { required: true, notes: "Personnel Sanctions" }
 
-  # Risk Assessment (RA)
   RA-1: { required: true, notes: "Policy and Procedures" }
   RA-2: { required: true, notes: "Security Categorization" }
   RA-3: { required: true, notes: "Risk Assessment" }
   RA-5: { required: true, notes: "Vulnerability Monitoring and Scanning" }
 
-  # System and Services Acquisition (SA)
   SA-1: { required: true, notes: "Policy and Procedures" }
   SA-2: { required: true, notes: "Allocation of Resources" }
   SA-3: { required: true, notes: "System Development Life Cycle" }
@@ -156,7 +140,6 @@ controls:
   SA-5: { required: true, notes: "System Documentation" }
   SA-9: { required: true, notes: "External System Services" }
 
-  # System and Communications Protection (SC)
   SC-1: { required: true, notes: "Policy and Procedures" }
   SC-5: { required: true, notes: "Denial-of-Service Protection" }
   SC-7: { required: true, notes: "Boundary Protection" }
@@ -168,7 +151,6 @@ controls:
   SC-22: { required: true, notes: "Name/Address Resolution Architecture" }
   SC-39: { required: true, notes: "Process Isolation" }
 
-  # System and Information Integrity (SI)
   SI-1: { required: true, notes: "Policy and Procedures" }
   SI-2: { required: true, notes: "Flaw Remediation" }
   SI-3: { required: true, notes: "Malicious Code Protection" }

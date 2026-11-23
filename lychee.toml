@@ -1,16 +1,10 @@
-# lychee config: link checker for the toolkit's Markdown corpus.
-
-# Accept 2xx and redirect codes. Redirects get followed; we check the final status.
-# 403/429 tolerated because regulator sites and rate-limited APIs otherwise noise this up.
 accept = ["200..=299", "301", "302", "307", "308", "403", "429"]
 max_concurrency = 8
 timeout = 20
 retry_wait_time = 4
 max_retries = 2
 
-# Skip links that lychee consistently false-flags or that are intentional.
 exclude = [
-  # Localhost / placeholder URLs in examples
   "^http://localhost",
   "^https://localhost",
   "^http://127\\.0\\.0\\.1",
@@ -18,27 +12,13 @@ exclude = [
   "^https://hooks\\.slack\\.com/\\.\\.\\.",
   # LinkedIn gates most profile URLs behind auth
   "^https://(www\\.)?linkedin\\.com",
-  # Shields.io badges are decorative and can time out independently of docs link health
   "^https://img\\.shields\\.io/coderabbit/prs/",
   # GitHub org pages that require auth (teams, private projects) bounce to login or 404
   "^https://github\\.com/orgs/.*/teams/",
   "^https://github\\.com/orgs/.*/projects/",
-  # Some regulator sites return 5xx to scrapers but render fine in browsers
-  "^https://www\\.ecfr\\.gov",
-  "^https://pcaobus\\.org/oversight/standards/auditing-standards$",
-  # aicpa-cima.com intermittently returns 502 to lychee's client (bot protection)
-  # while returning 200 to curl and browsers; was failing link-check on unrelated PRs
-  "^https://www\\.aicpa-cima\\.com(?:[/?#]|$)",
   # canada.ca returns HTTP/2 protocol errors to lychee's client; renders fine in browsers
   "^https://www\\.canada\\.ca",
-  # Upstream external repo was transferred to hackIDLE; both URLs should be updated in a docs pass
   "^https://github\\.com/ethanolivertroy/frdocx-to-froscal-ssp$",
-  # FedRAMP reorganized /resources/templates; dedicated docs pass needed to update affected links
-  "^https://www\\.fedramp\\.gov/resources/templates",
-  # Anthropic renamed/moved the Claude Cowork support article; docs pass needed to update refs in docs/CLAUDE-COWORK.md and README.md
-  "^https://support\\.claude\\.com/en/articles/14680729-use-claude-cowork-with-third-party-platforms$",
-  # star-history.com redirects to lowercase URL-encoded path and then 404s to lychee's client while rendering fine in browsers (decorative chart badges only)
-  "^https://api\\.star-history\\.com/chart",
 ]
 
 exclude_all_private = true

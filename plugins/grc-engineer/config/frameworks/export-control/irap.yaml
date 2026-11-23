@@ -314,13 +314,13 @@ controls:
 
 australian_regions:
   aws:
-    - ap-southeast-2  # Sydney
+    - ap-southeast-2
   azure:
-    - australiaeast   # NSW
-    - australiasoutheast  # Victoria
+    - australiaeast
+    - australiasoutheast
   gcp:
-    - australia-southeast1  # Sydney
-    - australia-southeast2  # Melbourne
+    - australia-southeast1
+    - australia-southeast2
 
 certified_providers:
   description: Cloud providers with IRAP assessments

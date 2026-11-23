@@ -1,22 +1,3 @@
-"""
-GRC Trust Center — API Handler (Lambda)
-
-Routes:
-  GET    /api/config              → Public site config (company name, certifications)
-  GET    /api/documents           → List public + gated document metadata
-  GET    /api/documents/:id       → Get single document details
-  POST   /api/documents/:id/request-access → Request gated document access (triggers NDA)
-  GET    /api/documents/:id/download       → Get presigned download URL (if authorized)
-
-  # Admin routes (require Cognito admin group)
-  GET    /api/admin/requests      → List all access requests
-  PUT    /api/admin/requests/:id  → Approve/deny an access request
-  POST   /api/admin/documents     → Create/update document metadata
-  DELETE /api/admin/documents/:id → Remove a document
-  GET    /api/admin/audit-log     → View download/access audit log
-  PUT    /api/admin/config        → Update site configuration
-"""
-
 import json
 import os
 import uuid
@@ -30,9 +11,6 @@ from decimal import Decimal
 import boto3
 from botocore.exceptions import ClientError
 
-# ---------------------------------------------------------------------------
-# Setup
-# ---------------------------------------------------------------------------
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -49,12 +27,7 @@ WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "")
 
 table = dynamodb.Table(TABLE_NAME)
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
 def cors_response(status_code, body=None, headers=None):
-    """Return a properly formatted API Gateway response with CORS headers."""
     resp = {
         "statusCode": status_code,
         "headers": {
@@ -71,7 +44,6 @@ def cors_response(status_code, body=None, headers=None):
 
 
 def parse_body(event):
-    """Parse JSON body from API Gateway event."""
     body = event.get("body", "{}")
     if body is None:
         return {}
@@ -81,7 +53,6 @@ def parse_body(event):
 
 
 def get_user_from_token(event):
-    """Extract user info from Cognito JWT (passed by API Gateway)."""
     claims = (event.get("requestContext", {})
                    .get("authorizer", {})
                    .get("claims", {}))
@@ -93,7 +64,6 @@ def get_user_from_token(event):
 
 
 def is_admin(event):
-    """Check if the caller belongs to the 'admins' Cognito group."""
     user = get_user_from_token(event)
     groups = user.get("groups", "")
     return "admins" in groups
@@ -108,7 +78,6 @@ def new_id():
 
 
 def verify_webhook_signature(event):
-    """Return True only if the X-Webhook-Signature header matches HMAC-SHA256(body, WEBHOOK_SECRET)."""
     if not WEBHOOK_SECRET:
         logger.error("WEBHOOK_SECRET not configured")
         return False
@@ -122,11 +91,7 @@ def verify_webhook_signature(event):
     return hmac.compare_digest(expected, received)
 
 
-# ---------------------------------------------------------------------------
-# Route: POST /api/webhook
-# ---------------------------------------------------------------------------
 def handle_webhook(event):
-    """Process an inbound webhook after verifying its HMAC-SHA256 signature."""
     if not verify_webhook_signature(event):
         logger.warning("Webhook signature verification failed")
         return cors_response(401, {"error": "Invalid webhook signature"})
@@ -139,26 +104,7 @@ def handle_webhook(event):
     return cors_response(200, {"message": "Webhook processed"})
 
 
-# ---------------------------------------------------------------------------
-# DynamoDB single-table design
-# ---------------------------------------------------------------------------
-# PK / SK patterns:
-#   CONFIG                / CONFIG              → site configuration
-#   DOC#<id>              / META                → document metadata
-#   DOC#<id>              / REQUEST#<req_id>    → access request for a doc
-#   AUDIT#<date>          / <timestamp>#<id>    → audit log entry
-#   CERT#<id>             / META                → certification entry
-#
-# GSI1:
-#   GSI1PK = "REQUESTS"   GSI1SK = <status>#<timestamp>   → query requests by status
-#   GSI1PK = "DOCS"        GSI1SK = <access_level>#<name>  → query docs by access level
-
-
-# ---------------------------------------------------------------------------
-# Route: GET /api/config
-# ---------------------------------------------------------------------------
 def get_config(event):
-    """Return public trust center configuration."""
     try:
         resp = table.get_item(Key={"PK": "CONFIG", "SK": "CONFIG"})
         item = resp.get("Item", {})
@@ -179,11 +125,7 @@ def get_config(event):
         return cors_response(500, {"error": "Failed to load configuration"})
 
 
-# ---------------------------------------------------------------------------
-# Route: PUT /api/admin/config
-# ---------------------------------------------------------------------------
 def update_config(event):
-    """Update trust center configuration (admin only)."""
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
@@ -208,11 +150,7 @@ def update_config(event):
     return cors_response(200, {"message": "Configuration updated", "lastUpdated": now})
 
 
-# ---------------------------------------------------------------------------
-# Route: GET /api/documents
-# ---------------------------------------------------------------------------
 def list_documents(event):
-    """List all documents. Public users see public docs; authed users see gated too."""
     try:
         resp = table.query(
             IndexName="GSI1",
@@ -238,8 +176,6 @@ def list_documents(event):
                 "lastUpdated": item.get("lastUpdated", ""),
             }
 
-            # Public docs visible to everyone
-            # Gated docs: metadata visible but download requires access request
             if access_level == "public" or is_authenticated:
                 doc["downloadable"] = access_level == "public"
             else:
@@ -253,11 +189,7 @@ def list_documents(event):
         return cors_response(500, {"error": "Failed to list documents"})
 
 
-# ---------------------------------------------------------------------------
-# Route: GET /api/documents/:id
-# ---------------------------------------------------------------------------
 def get_document(event, doc_id):
-    """Get single document details."""
     try:
         resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
         item = resp.get("Item")
@@ -279,11 +211,7 @@ def get_document(event, doc_id):
         return cors_response(500, {"error": "Failed to get document"})
 
 
-# ---------------------------------------------------------------------------
-# Route: POST /api/documents/:id/request-access
-# ---------------------------------------------------------------------------
 def request_access(event, doc_id):
-    """Request access to a gated document. Creates a pending request."""
     body = parse_body(event)
     now = now_iso()
     req_id = new_id()
@@ -296,7 +224,6 @@ def request_access(event, doc_id):
     if not requester_email:
         return cors_response(400, {"error": "Email is required"})
 
-    # Check document exists and is gated
     doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
     doc = doc_resp.get("Item")
     if not doc:
@@ -325,7 +252,6 @@ def request_access(event, doc_id):
 
     table.put_item(Item=item)
 
-    # Log the request in audit trail
     _write_audit_log("access_requested", {
         "documentId": doc_id,
         "requestId": req_id,
@@ -339,12 +265,7 @@ def request_access(event, doc_id):
     })
 
 
-# ---------------------------------------------------------------------------
-# Route: GET /api/documents/:id/download
-# ---------------------------------------------------------------------------
 def download_document(event, doc_id):
-    """Generate a presigned S3 URL for downloading a document."""
-    # Get document metadata
     doc_resp = table.get_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
     doc = doc_resp.get("Item")
     if not doc:
@@ -356,14 +277,11 @@ def download_document(event, doc_id):
     if not s3_key:
         return cors_response(404, {"error": "Document file not found"})
 
-    # Public docs: anyone can download
-    # Gated docs: check if requester has an approved request
     if access_level != "public":
         user = get_user_from_token(event)
         email = user.get("email", "")
 
         if not is_admin(event):
-            # Check for approved access request
             resp = table.query(
                 KeyConditionExpression="PK = :pk AND begins_with(SK, :sk)",
                 ExpressionAttributeValues={
@@ -379,7 +297,6 @@ def download_document(event, doc_id):
             if not approved:
                 return cors_response(403, {"error": "Access not approved for this document"})
 
-    # Generate presigned URL (valid for 1 hour)
     try:
         url = s3.generate_presigned_url(
             "get_object",
@@ -390,7 +307,6 @@ def download_document(event, doc_id):
         logger.error(f"Presigned URL error: {e}")
         return cors_response(500, {"error": "Failed to generate download link"})
 
-    # Audit log
     user = get_user_from_token(event)
     _write_audit_log("document_downloaded", {
         "documentId": doc_id,
@@ -401,11 +317,7 @@ def download_document(event, doc_id):
     return cors_response(200, {"downloadUrl": url, "expiresIn": 3600})
 
 
-# ---------------------------------------------------------------------------
-# Route: GET /api/admin/requests
-# ---------------------------------------------------------------------------
 def list_requests(event):
-    """List all access requests (admin only)."""
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
@@ -452,16 +364,12 @@ def list_requests(event):
         return cors_response(500, {"error": "Failed to list requests"})
 
 
-# ---------------------------------------------------------------------------
-# Route: PUT /api/admin/requests/:id
-# ---------------------------------------------------------------------------
 def update_request(event, request_id):
-    """Approve or deny an access request (admin only)."""
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
     body = parse_body(event)
-    new_status = body.get("status")  # "approved" or "denied"
+    new_status = body.get("status")
     doc_id = body.get("documentId")
 
     if new_status not in ("approved", "denied"):
@@ -501,11 +409,7 @@ def update_request(event, request_id):
         return cors_response(500, {"error": "Failed to update request"})
 
 
-# ---------------------------------------------------------------------------
-# Route: POST /api/admin/documents
-# ---------------------------------------------------------------------------
 def create_document(event):
-    """Create or update document metadata (admin only)."""
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
@@ -538,15 +442,15 @@ def create_document(event):
     return cors_response(201, {"message": "Document saved", "documentId": doc_id})
 
 
-# ---------------------------------------------------------------------------
-# Route: DELETE /api/admin/documents/:id
-# ---------------------------------------------------------------------------
 def delete_document(event, doc_id):
-    """Delete document metadata (admin only). Does NOT delete the S3 file."""
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
-    table.delete_item(Key={"PK": f"DOC#{doc_id}", "SK": "META"})
+    key = {"PK": f"DOC#{doc_id}", "SK": "META"}
+    s3_key = table.get_item(Key=key).get("Item", {}).get("s3Key")
+    if s3_key:
+        s3.delete_object(Bucket=DOCUMENTS_BUCKET, Key=s3_key)
+    table.delete_item(Key=key)
 
     _write_audit_log("document_deleted", {
         "documentId": doc_id,
@@ -556,17 +460,7 @@ def delete_document(event, doc_id):
     return cors_response(200, {"message": "Document deleted", "documentId": doc_id})
 
 
-# ---------------------------------------------------------------------------
-# Route: GET /api/admin/audit-log
-# ---------------------------------------------------------------------------
 def get_audit_log(event):
-    """Return audit log entries for a date range (admin only).
-
-    Query params:
-      start_date  YYYY-MM-DD  (default: today)
-      end_date    YYYY-MM-DD  (default: today)
-      limit       int per-day (default: 50)
-    """
     if not is_admin(event):
         return cors_response(403, {"error": "Admin access required"})
 
@@ -617,11 +511,7 @@ def get_audit_log(event):
         return cors_response(500, {"error": "Failed to get audit log"})
 
 
-# ---------------------------------------------------------------------------
-# Audit log writer
-# ---------------------------------------------------------------------------
 def _write_audit_log(action, details):
-    """Write an entry to the audit log partition."""
     now = now_iso()
     today = datetime.utcnow().strftime("%Y-%m-%d")
     entry_id = new_id()
@@ -638,26 +528,19 @@ def _write_audit_log(action, details):
         logger.error(f"Audit log write failed: {e}")
 
 
-# ---------------------------------------------------------------------------
-# Router
-# ---------------------------------------------------------------------------
 def handler(event, context):
-    """Main Lambda handler — routes requests by path and method."""
     http_method = event.get("httpMethod", "GET")
     path = event.get("path", "")
 
-    # Strip stage prefix if present (e.g., /prod/api/... → /api/...)
     if f"/{STAGE}/" in path:
         path = path.split(f"/{STAGE}", 1)[1]
 
     logger.info(f"{http_method} {path}")
 
     try:
-        # --- Webhook (signature-verified, no Cognito auth) ---
         if path == "/api/webhook" and http_method == "POST":
             return handle_webhook(event)
 
-        # --- Public routes ---
         if path == "/api/config" and http_method == "GET":
             return get_config(event)
 
@@ -676,7 +559,6 @@ def handler(event, context):
             doc_id = path.split("/")[3]
             return get_document(event, doc_id)
 
-        # --- Admin routes ---
         if path == "/api/admin/config" and http_method == "PUT":
             return update_config(event)
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# datadog-inspector:status
 set -uo pipefail
 
 CONFIG_FILE="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors/datadog-inspector.yaml"

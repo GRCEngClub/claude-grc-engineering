@@ -1,15 +1,5 @@
-/**
- * Risk-to-Jira Transformer
- * Converts unstructured risk assessments into structured Jira tickets
- *
- * Custom field IDs are configurable via:
- * - Environment variables (JIRA_FIELD_LIKELIHOOD, JIRA_FIELD_IMPACT, etc.)
- * - Config file (config/jira/fields.yaml)
- */
-
 import { loadConfig } from './config-loader.js';
 
-// Default risk keywords (can be overridden by config)
 const DEFAULT_RISK_KEYWORDS = {
   likelihood: {
     critical: ['critical', 'very high', 'extremely likely', 'guaranteed'],
@@ -26,13 +16,8 @@ const DEFAULT_RISK_KEYWORDS = {
   mitigation: ['mitigation', 'fix', 'solution', 'remediation', 'address', 'implement', 'deploy', 'enable']
 };
 
-// Cache for loaded config
 let jiraConfig = null;
 
-/**
- * Load Jira configuration from YAML or environment variables
- * @returns {Promise<Object>} Jira configuration
- */
 async function getJiraConfig() {
   if (jiraConfig) {
     return jiraConfig;
@@ -41,7 +26,6 @@ async function getJiraConfig() {
   try {
     jiraConfig = await loadConfig('jira', 'fields');
   } catch (error) {
-    // Use defaults if config not found
     jiraConfig = {
       custom_fields: {
         likelihood: { id: process.env.JIRA_FIELD_LIKELIHOOD || 'customfield_10001' },
@@ -58,10 +42,6 @@ async function getJiraConfig() {
   return jiraConfig;
 }
 
-/**
- * Get risk keywords from config or defaults
- * @returns {Object} Risk keywords configuration
- */
 function getRiskKeywords(config) {
   if (config?.risk_keywords) {
     return {
@@ -84,34 +64,24 @@ export async function transformRisk(riskDescription, projectKey) {
   const riskKeywords = getRiskKeywords(config);
   const normalized = riskDescription.toLowerCase();
 
-  // Use provided project key or config default
   const project = projectKey || config.default_project || 'SEC';
 
-  // Extract likelihood
   const likelihood = extractLikelihood(normalized, riskKeywords);
 
-  // Extract impact
   const impact = extractImpact(normalized, riskKeywords);
 
-  // Extract mitigation
   const mitigation = extractMitigation(riskDescription, riskKeywords);
 
-  // Calculate risk score and priority
   const { riskScore, priority } = calculateRiskScore(likelihood, impact, config);
 
-  // Generate summary
   const summary = generateSummary(riskDescription, mitigation);
 
-  // Generate description
   const description = generateDescription(riskDescription, likelihood, impact, mitigation);
 
-  // Generate labels
   const labels = generateLabels(riskDescription, likelihood, impact, config);
 
-  // Generate definition of done
   const definitionOfDone = generateDefinitionOfDone(mitigation);
 
-  // Create Jira ticket structure with configurable custom field IDs
   const customFields = config.custom_fields || {};
 
   const jiraTicket = {
@@ -122,14 +92,12 @@ export async function transformRisk(riskDescription, projectKey) {
       issuetype: { name: determineIssueType(riskDescription, config) },
       priority: { name: priority },
       labels: labels,
-      // Include custom fields with their actual IDs
       ...(customFields.likelihood?.id && { [customFields.likelihood.id]: likelihood }),
       ...(customFields.impact?.id && { [customFields.impact.id]: impact }),
       ...(customFields.risk_score?.id && { [customFields.risk_score.id]: riskScore }),
       ...(customFields.mitigation?.id && { [customFields.mitigation.id]: mitigation }),
       ...(customFields.definition_of_done?.id && { [customFields.definition_of_done.id]: definitionOfDone })
     },
-    // Also include in a readable format for reference
     customFieldsReadable: {
       likelihood: likelihood,
       impact: impact,
@@ -171,7 +139,7 @@ function extractLikelihood(text, riskKeywords = DEFAULT_RISK_KEYWORDS) {
       }
     }
   }
-  return 'Medium'; // Default
+  return 'Medium';
 }
 
 function extractImpact(text, riskKeywords = DEFAULT_RISK_KEYWORDS) {
@@ -183,7 +151,7 @@ function extractImpact(text, riskKeywords = DEFAULT_RISK_KEYWORDS) {
       }
     }
   }
-  return 'Medium'; // Default
+  return 'Medium';
 }
 
 function extractMitigation(description, riskKeywords = DEFAULT_RISK_KEYWORDS) {
@@ -193,7 +161,6 @@ function extractMitigation(description, riskKeywords = DEFAULT_RISK_KEYWORDS) {
   for (const sentence of sentences) {
     const lower = sentence.toLowerCase();
     if (mitigationKeywords.some(keyword => lower.includes(keyword))) {
-      // Extract the mitigation part
       const mitigationIndex = lower.search(new RegExp(mitigationKeywords.join('|')));
       if (mitigationIndex !== -1) {
         return sentence.substring(mitigationIndex).trim();
@@ -201,7 +168,6 @@ function extractMitigation(description, riskKeywords = DEFAULT_RISK_KEYWORDS) {
     }
   }
 
-  // Try to find colon-separated mitigation
   if (description.includes('Mitigation:') || description.includes('mitigation:')) {
     const parts = description.split(/[Mm]itigation:/);
     if (parts.length > 1) {
@@ -224,7 +190,6 @@ function calculateRiskScore(likelihood, impact, config = {}) {
   const impactScore = scores[impact] || 2;
   const riskScore = likelihoodScore * impactScore;
 
-  // Use configurable thresholds or defaults
   const mapping = config.priority_mapping || {};
   const criticalThreshold = mapping.critical_threshold || 12;
   const highThreshold = mapping.high_threshold || 6;
@@ -245,11 +210,9 @@ function calculateRiskScore(likelihood, impact, config = {}) {
 }
 
 function generateSummary(description, mitigation) {
-  // Try to extract a concise summary
   const sentences = description.split(/[.!?]+/).filter(s => s.trim().length > 0);
   
   if (sentences.length > 0) {
-    // Use first sentence, but limit length
     let summary = sentences[0].trim();
     if (summary.length > 100) {
       summary = summary.substring(0, 97) + '...';
@@ -257,7 +220,6 @@ function generateSummary(description, mitigation) {
     return summary;
   }
   
-  // Fallback: create from mitigation
   if (mitigation && mitigation !== 'Review and implement appropriate controls') {
     return `Implement: ${mitigation.substring(0, 80)}`;
   }
@@ -290,11 +252,9 @@ ${generateDefinitionOfDone(mitigation)}
 }
 
 function generateLabels(description, likelihood, impact, config = {}) {
-  // Start with default labels from config or fallback
   const defaultLabels = config.default_labels || ['security', 'risk-mitigation'];
   const labels = [...defaultLabels, `likelihood-${likelihood.toLowerCase()}`, `impact-${impact.toLowerCase()}`];
 
-  // Add technology-specific labels from config or use defaults
   const techKeywords = config.technology_keywords || {
     aws: ['aws', 's3', 'ec2', 'lambda', 'iam'],
     azure: ['azure', 'blob', 'ad'],
@@ -312,7 +272,7 @@ function generateLabels(description, likelihood, impact, config = {}) {
     }
   }
 
-  return [...new Set(labels)]; // Remove duplicates
+  return [...new Set(labels)];
 }
 
 function generateDefinitionOfDone(mitigation) {

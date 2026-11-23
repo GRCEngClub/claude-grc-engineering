@@ -1,18 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Record automation coverage metrics in grc-data/metrics/.
- *
- * Supports two modes:
- *   1. Single snapshot mode for one framework/provider pair
- *   2. Batch mode from a YAML/JSON config file for scheduler-friendly runs
- *
- * Usage:
- *   node plugins/grc-engineer/scripts/record-automation-metrics.js fedramp-moderate aws --window-label=2026-W16
- *   node plugins/grc-engineer/scripts/record-automation-metrics.js soc2 --controls-total=64 --controls-automated=22 --window-label=2026-W16
- *   node plugins/grc-engineer/scripts/record-automation-metrics.js --config=plugins/grc-engineer/examples/automation-metrics.yaml --window-label=current-week
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import yaml from 'js-yaml';

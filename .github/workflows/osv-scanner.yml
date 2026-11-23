@@ -1,11 +1,5 @@
 name: OSV-Scanner
 
-# Dependency vulnerability scanning via Google's OSV-Scanner against the
-# OSV.dev database. Runs on PRs (only flags newly introduced vulns), on
-# pushes to main, and weekly to surface newly disclosed CVEs in pinned deps.
-#
-# Closes https://github.com/GRCEngClub/claude-grc-engineering/issues/75
-
 on:
   pull_request:
     branches: [main]
@@ -14,10 +8,8 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '0 7 * * MON'  # Monday 07:00 UTC, between scorecard (06:00) and lychee (08:00)
+    - cron: '0 7 * * MON'
 
-# security-events: write is granted only at the job scope so the reusable
-# scanner can upload SARIF results; the workflow-level token is minimal.
 permissions:
   contents: read
 

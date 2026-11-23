@@ -4,9 +4,6 @@ Description: >
   compliance trust center. Deploys S3, CloudFront, WAF, API Gateway,
   Lambda, DynamoDB, and Cognito.
 
-# ============================================================
-# PARAMETERS — what the deployer customizes
-# ============================================================
 Parameters:
   CompanyName:
     Type: String
@@ -45,20 +42,11 @@ Parameters:
       Secret used to verify HMAC-SHA256 signatures on inbound webhooks
       (X-Webhook-Signature header). Generate with: openssl rand -hex 32
 
-# ============================================================
-# CONDITIONS
-# ============================================================
 Conditions:
   HasCustomDomain: !Not [!Equals [!Ref DomainName, ""]]
 
-# ============================================================
-# RESOURCES
-# ============================================================
 Resources:
 
-  # ----------------------------------------------------------
-  # S3 — Static website hosting (React SPA)
-  # ----------------------------------------------------------
   WebsiteBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -92,9 +80,6 @@ Resources:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
 
-  # ----------------------------------------------------------
-  # S3 — Private document storage (SOC 2 reports, policies)
-  # ----------------------------------------------------------
   DocumentsBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -114,9 +99,6 @@ Resources:
         - Key: Project
           Value: trust-center
 
-  # ----------------------------------------------------------
-  # CloudFront — CDN with OAC for S3
-  # ----------------------------------------------------------
   CloudFrontOAC:
     Type: AWS::CloudFront::OriginAccessControl
     Properties:
@@ -153,14 +135,12 @@ Resources:
         WebACLId: !GetAtt WAFWebACL.Arn
 
         Origins:
-          # S3 origin for React SPA
           - Id: S3WebsiteOrigin
             DomainName: !GetAtt WebsiteBucket.RegionalDomainName
             OriginAccessControlId: !Ref CloudFrontOAC
             S3OriginConfig:
               OriginAccessIdentity: ""
 
-          # API Gateway origin
           - Id: ApiGatewayOrigin
             DomainName: !Sub "${TrustCenterApi}.execute-api.${AWS::Region}.amazonaws.com"
             CustomOriginConfig:
@@ -175,7 +155,6 @@ Resources:
           Compress: true
 
         CacheBehaviors:
-          # Route /api/* to API Gateway
           - PathPattern: "/api/*"
             TargetOriginId: ApiGatewayOrigin
             ViewerProtocolPolicy: https-only
@@ -183,7 +162,6 @@ Resources:
             OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac  # AllViewerExceptHostHeader
             AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
 
-        # SPA routing — return index.html for all 404s
         CustomErrorResponses:
           - ErrorCode: 403
             ResponseCode: 200
@@ -196,9 +174,6 @@ Resources:
         - Key: Project
           Value: trust-center
 
-  # ----------------------------------------------------------
-  # WAF — Rate limiting + basic bot protection
-  # ----------------------------------------------------------
   WAFWebACL:
     Type: AWS::WAFv2::WebACL
     Properties:
@@ -225,7 +200,6 @@ Resources:
               Limit: 1000
               AggregateKeyType: IP
 
-        # AWS Managed — Common threats
         - Name: AWSManagedCommonRuleSet
           Priority: 2
           OverrideAction:
@@ -239,7 +213,6 @@ Resources:
               VendorName: AWS
               Name: AWSManagedRulesCommonRuleSet
 
-        # AWS Managed — Known bad inputs
         - Name: AWSManagedKnownBadInputs
           Priority: 3
           OverrideAction:
@@ -253,9 +226,6 @@ Resources:
               VendorName: AWS
               Name: AWSManagedRulesKnownBadInputsRuleSet
 
-  # ----------------------------------------------------------
-  # DynamoDB — Tables for documents, access requests, audit log
-  # ----------------------------------------------------------
   DocumentsTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -292,9 +262,6 @@ Resources:
         - Key: Project
           Value: trust-center
 
-  # ----------------------------------------------------------
-  # Cognito — User pool for admin + gated access
-  # ----------------------------------------------------------
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -343,7 +310,6 @@ Resources:
         IdToken: hours
         RefreshToken: days
 
-  # Admin user group
   AdminGroup:
     Type: AWS::Cognito::UserPoolGroup
     Properties:
@@ -351,7 +317,6 @@ Resources:
       UserPoolId: !Ref UserPool
       Description: Trust center administrators
 
-  # Initial admin user
   AdminUser:
     Type: AWS::Cognito::UserPoolUser
     Properties:
@@ -371,9 +336,6 @@ Resources:
       UserPoolId: !Ref UserPool
       Username: !Ref AdminEmail
 
-  # ----------------------------------------------------------
-  # IAM — Lambda execution role
-  # ----------------------------------------------------------
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -392,7 +354,6 @@ Resources:
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              # DynamoDB access
               - Effect: Allow
                 Action:
                   - dynamodb:GetItem
@@ -404,7 +365,6 @@ Resources:
                 Resource:
                   - !GetAtt DocumentsTable.Arn
                   - !Sub "${DocumentsTable.Arn}/index/*"
-              # S3 documents bucket
               - Effect: Allow
                 Action:
                   - s3:GetObject
@@ -414,13 +374,11 @@ Resources:
                 Resource:
                   - !GetAtt DocumentsBucket.Arn
                   - !Sub "${DocumentsBucket.Arn}/*"
-              # Generate presigned URLs
               - Effect: Allow
                 Action:
                   - s3:GetObject
                 Resource:
                   - !Sub "${DocumentsBucket.Arn}/*"
-              # Cognito user management
               - Effect: Allow
                 Action:
                   - cognito-idp:AdminGetUser
@@ -428,9 +386,6 @@ Resources:
                 Resource:
                   - !GetAtt UserPool.Arn
 
-  # ----------------------------------------------------------
-  # Lambda — API handler
-  # ----------------------------------------------------------
   ApiFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -465,9 +420,6 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${TrustCenterApi}/*"
 
-  # ----------------------------------------------------------
-  # API Gateway — REST API
-  # ----------------------------------------------------------
   TrustCenterApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
@@ -476,7 +428,6 @@ Resources:
       EndpointConfiguration:
         Types: [REGIONAL]
 
-  # /api resource
   ApiResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -484,7 +435,6 @@ Resources:
       ParentId: !GetAtt TrustCenterApi.RootResourceId
       PathPart: api
 
-  # Cognito authorizer — validates JWT from the user pool
   CognitoAuthorizer:
     Type: AWS::ApiGateway::Authorizer
     Properties:
@@ -495,7 +445,6 @@ Resources:
       ProviderARNs:
         - !GetAtt UserPool.Arn
 
-  # /api/{proxy+} — catch-all for Lambda routing
   ApiProxyResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -516,7 +465,6 @@ Resources:
         IntegrationHttpMethod: POST
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiFunction.Arn}/invocations"
 
-  # CORS preflight on proxy
   ApiProxyOptionsMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -562,9 +510,6 @@ Resources:
           ThrottlingBurstLimit: 50
           ThrottlingRateLimit: 100
 
-# ============================================================
-# OUTPUTS — what the deployer needs after deployment
-# ============================================================
 Outputs:
   WebsiteBucket:
     Description: S3 bucket for the React frontend

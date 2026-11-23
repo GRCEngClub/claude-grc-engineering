@@ -1,6 +1,3 @@
-// Regression tests for connector evaluation defects that produced wrong
-// compliance verdicts rather than errors. Each case below failed against the
-// pre-fix code, so a false pass cannot quietly come back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 

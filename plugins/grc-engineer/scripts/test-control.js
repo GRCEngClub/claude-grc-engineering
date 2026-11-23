@@ -1,15 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Control Testing Framework
- *
- * Automatically tests security control effectiveness:
- * - Configuration tests (properly configured)
- * - Functionality tests (actually working)
- * - Compliance tests (meets framework requirements)
- * - Integration tests (works with other controls)
- */
-
 import { exec } from 'node:child_process';
 import util from 'node:util';
 import fs from 'node:fs';
@@ -42,11 +32,9 @@ class ControlTester {
       }
     };
 
-    // Load control crosswalk
     const crosswalkPath = path.join(__dirname, '../config/control-crosswalk.yaml');
     this.crosswalk = yaml.load(fs.readFileSync(crosswalkPath, 'utf8'));
 
-    // Load control definition
     this.controlDef = Object.hasOwn(this.crosswalk.controls, controlId) ? this.crosswalk.controls[controlId] : null;
     if (!this.controlDef) {
       throw new Error(`Control not found: ${controlId}`);
@@ -56,9 +44,6 @@ class ControlTester {
     this.results.frameworks = this.extractFrameworks();
   }
 
-  /**
-   * Extract frameworks from control definition
-   */
   extractFrameworks() {
     const frameworks = [];
     const frameworkKeys = ['nist_800_53', 'iso_27001', 'soc2', 'pci_dss', 'cis_controls'];
@@ -72,9 +57,6 @@ class ControlTester {
     return frameworks;
   }
 
-  /**
-   * Run all tests for the control
-   */
   async runTests() {
     const startTime = Date.now();
 
@@ -85,19 +67,15 @@ class ControlTester {
     try {
       if (this.cloudProvider !== 'aws') throw new Error(`Unsupported cloud provider: ${this.cloudProvider}`);
       if (this.controlId !== 'access_control_account_management') throw new Error(`Control testing not implemented: ${this.controlId}`);
-      // Run test suites
       await this.runConfigurationTests();
       await this.runFunctionalityTests();
       await this.runComplianceTests();
       await this.runIntegrationTests();
 
-      // Calculate summary
       this.calculateSummary();
 
-      // Determine overall status
       this.results.status = this.determineStatus();
 
-      // Calculate framework compliance
       this.results.framework_compliance = this.calculateFrameworkCompliance();
 
     } catch (error) {
@@ -114,9 +92,6 @@ class ControlTester {
     return this.results;
   }
 
-  /**
-   * Configuration tests
-   */
   async runConfigurationTests() {
     (this.options.output === 'json' ? console.error : console.log)('Running configuration tests...');
 
@@ -139,9 +114,6 @@ class ControlTester {
     }
   }
 
-  /**
-   * Functionality tests
-   */
   async runFunctionalityTests() {
     (this.options.output === 'json' ? console.error : console.log)('Running functionality tests...');
 
@@ -154,9 +126,6 @@ class ControlTester {
     }
   }
 
-  /**
-   * Compliance tests
-   */
   async runComplianceTests() {
     (this.options.output === 'json' ? console.error : console.log)('Running compliance tests...');
 
@@ -168,9 +137,6 @@ class ControlTester {
     }
   }
 
-  /**
-   * Integration tests
-   */
   async runIntegrationTests() {
     (this.options.output === 'json' ? console.error : console.log)('Running integration tests...');
 
@@ -178,8 +144,6 @@ class ControlTester {
       await this.testEndToEndLifecycle();
     }
   }
-
-  // Individual test implementations
 
   async testUniqueUserIds() {
     const test = {
@@ -205,7 +169,6 @@ class ControlTester {
       frameworks: ['PCI']
     };
 
-    // A schedule alone does not establish when a review was performed.
     test.status = 'NOT_IMPLEMENTED';
     test.message = 'Access review execution evidence is not collected';
 
@@ -272,7 +235,6 @@ class ControlTester {
       if (!Array.isArray(trails)) throw new Error('Invalid CloudTrail response');
       const multiRegion = trails.filter(t => t.IsMultiRegionTrail === true);
       test.result = { total_trails: trails.length, multi_region_trails: multiRegion.length };
-      // Trail configuration alone establishes neither logging nor event coverage.
       test.status = 'NOT_IMPLEMENTED';
       test.message = `${multiRegion.length} multi-region trail(s) observed; active logging and account management event coverage are not verified`;
     } catch (error) {
@@ -327,7 +289,6 @@ class ControlTester {
       const summary = JSON.parse(stdout).SummaryMap;
       if (!summary || ![0, 1].includes(summary.AccountMFAEnabled)) throw new Error('Invalid root MFA summary');
       test.result = { root_account_mfa: summary.AccountMFAEnabled === 1 };
-      // Enrollment status alone does not establish whether MFA is enforced.
       test.status = 'NOT_IMPLEMENTED';
       test.message = `Root MFA is ${summary.AccountMFAEnabled === 1 ? 'enabled' : 'not enabled'}; MFA enforcement is not verified`;
     } catch (error) {
@@ -428,9 +389,6 @@ class ControlTester {
     this.recordTest(test);
   }
 
-  /**
-   * Record test result
-   */
   recordTest(test) {
     if (!['PASS', 'FAIL', 'WARNING', 'ERROR', 'NOT_IMPLEMENTED'].includes(test.status)) {
       test.status = 'ERROR';
@@ -452,19 +410,12 @@ class ControlTester {
     }
   }
 
-  /**
-   * Calculate summary statistics
-   */
   calculateSummary() {
     const summary = this.results.summary;
-    // Warnings are assessed outcomes but are not passes. Unknowns are excluded.
     summary.assessed = summary.passed + summary.failed + summary.warnings;
     summary.pass_rate = summary.assessed > 0 ? summary.passed / summary.assessed : null;
   }
 
-  /**
-   * Determine overall control status
-   */
   determineStatus() {
     if (!this.results.tests.length || this.results.summary.errors || this.results.summary.not_implemented) return 'INDETERMINATE';
     const passRate = this.results.summary.pass_rate;
@@ -481,9 +432,6 @@ class ControlTester {
     }
   }
 
-  /**
-   * Calculate compliance per framework
-   */
   calculateFrameworkCompliance() {
     const compliance = {};
     const frameworks = ['NIST', 'ISO', 'SOC2', 'PCI'];
@@ -520,15 +468,11 @@ class ControlTester {
     return compliance;
   }
 
-  /**
-   * Generate detailed report
-   */
   generateReport() {
     if (this.options.output === 'json') {
       return JSON.stringify(this.results, null, 2);
     }
 
-    // Text report
     let report = '\n' + '='.repeat(60) + '\n';
     report += 'CONTROL TEST RESULTS\n';
     report += '='.repeat(60) + '\n\n';
@@ -549,7 +493,6 @@ class ControlTester {
 
     report += `Status: ${this.results.status}\n\n`;
 
-    // List failures
     const failures = this.results.tests.filter(t => t.status === 'FAIL');
     if (failures.length > 0) {
       report += 'FAILURES:\n';
@@ -562,7 +505,6 @@ class ControlTester {
       });
     }
 
-    // Unknown checks are observations, not control verdicts.
     const unknowns = this.results.tests.filter(t => t.status === 'NOT_IMPLEMENTED' || t.status === 'ERROR');
     if (unknowns.length > 0) {
       report += '\nUNASSESSED CHECKS (not control verdicts):\n';
@@ -577,7 +519,6 @@ class ControlTester {
   }
 }
 
-// CLI Interface
 // `process.argv[1]` is undefined under `node --eval` and some embedders, where
 // pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -604,7 +545,6 @@ if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.a
   }).then(results => {
     console.log(tester.generateReport());
 
-    // Exit with error code if tests failed
     if (results.error || results.summary.failed > 0 || results.summary.errors > 0 || results.summary.not_implemented > 0 || results.summary.warnings > 0) {
       process.exitCode = 1;
     }

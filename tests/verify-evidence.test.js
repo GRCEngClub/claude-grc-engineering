@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
-// Python creates adversarial ZIPs and exercises the public verifier CLI.
 test('offline verifier rejects malformed and unsafe archives without extraction', () => {
   const fixture = String.raw`
 import hashlib, json, os, stat, struct, subprocess, sys, tempfile, warnings, zipfile, zlib

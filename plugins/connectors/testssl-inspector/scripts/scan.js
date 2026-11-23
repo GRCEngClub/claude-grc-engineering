@@ -1,18 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * testssl-inspector:scan
- *
- * Wraps testssl.sh and emits findings conforming to schemas/finding.schema.json v1.
- *
- * Resource type is `tls_endpoint`. Each testssl finding is mapped first to one
- * or more SCF (Secure Controls Framework) control IDs, then fanned out to
- * SOC 2 / NIST 800-53 r5 / PCI DSS 4.0.1 / ISO 27002:2022 via the SCF
- * crosswalk at https://grcengclub.github.io/scf-api/. If the crosswalk is
- * unreachable, the script falls back to a curated hardcoded mapping table
- * (the same controls the v0 of this connector emitted directly).
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -63,7 +50,7 @@ async function main(argv) {
 
   let config = {};
   try { config = parseYaml(await fs.readFile(CONFIG_FILE, 'utf8')); }
-  catch { /* config is optional; targets can come from CLI */ }
+  catch { }
 
   const targets = args.targets.length ? args.targets : (config.targets || []);
   if (!targets.length) {
@@ -75,8 +62,6 @@ async function main(argv) {
   const runner = await resolveRunner({ useDocker, configBinary: config.testssl_path, starttls: args.starttls });
   log(`runner=${runner.label} mode=${mode} targets=${targets.length}`);
 
-  // Pre-fetch SCF crosswalks for the frameworks we expand to. Done once per run.
-  // If --scf-only is passed, or fetching fails, we skip expansion.
   let expansion = null;
   if (!args.scfOnly) {
     try {
@@ -191,7 +176,6 @@ function parseArgs(argv) {
   return args;
 }
 
-/** Resolve which testssl invocation we'll use. */
 async function resolveRunner({ useDocker, configBinary, starttls }) {
   if (useDocker) {
     if (!await commandExists('docker')) fail(EXIT.TOOL_UNAVAILABLE, 'docker not on PATH — drop --docker or install Docker.');
@@ -289,7 +273,7 @@ async function runTestssl(runner, target, mode, log) {
   let raw;
   try { raw = JSON.parse(await fs.readFile(jsonPath, 'utf8')); }
   catch (err) { throw new Error(`testssl produced no parseable JSON at ${jsonPath}: ${err.message}`); }
-  fs.rm(jsonPath, { force: true }).catch(() => {}); // best-effort cleanup
+  fs.rm(jsonPath, { force: true }).catch(() => {});
   return raw;
 }
 
@@ -312,16 +296,6 @@ function commandExists(cmd) {
     .then(() => true).catch(() => false);
 }
 
-/** ---- SCF crosswalk expansion ----
- *
- * Maps testssl finding families to SCF control IDs (FAMILY_TO_SCF), then at
- * scan-startup time fetches per-framework crosswalk JSON from the SCF mirror
- * and builds a lookup: scf_id -> { framework_label: [framework_control_ids] }.
- *
- * Cache: ~/.cache/claude-grc/scf/<version>/api/crosswalks/<framework-id>.json
- * Shared with grc-engineer's scf-client.js cache layout.
- */
-
 // ISO 27002:2022 is used rather than 27001:2022 because the latter (the ISMS
 // management standard) is mapped sparsely in SCF's public crosswalk and
 // covers almost none of the technical anchors we care about. 27002:2022 holds
@@ -335,11 +309,9 @@ const EXPAND_FRAMEWORKS = [
 ];
 
 async function loadCrosswalkExpansion(scfIds, { offline, log }) {
-  // First: load the SCF summary to discover the current version (for the cache dir).
   const summary = await fetchScfFile('api/summary.json', { offline });
   const scfVersion = (summary && (summary.scf_version || summary.version)) || 'unknown';
 
-  // Fetch crosswalks in parallel.
   const crosswalks = await Promise.all(
     EXPAND_FRAMEWORKS.map(async fw => {
       try {
@@ -352,7 +324,6 @@ async function loadCrosswalkExpansion(scfIds, { offline, log }) {
     })
   );
 
-  // Build: scf_id -> { framework_label: [framework_control_ids] }
   const scfIdSet = new Set(scfIds);
   const lookup = new Map();
   let frameworkCount = 0;
@@ -389,7 +360,6 @@ async function fetchScfFile(relativePath, { offline = false, scfVersion = null }
   try {
     res = await fetch(url, { headers: { 'accept': 'application/json', 'user-agent': 'claude-grc-engineering/0.1' } });
   } catch (networkErr) {
-    // Fall back to stale cache if it exists.
     try { return JSON.parse(await fs.readFile(cachePath, 'utf8')); }
     catch { throw new Error(`SCF fetch failed for ${relativePath}: ${networkErr.message}`); }
   }
@@ -400,15 +370,6 @@ async function fetchScfFile(relativePath, { offline = false, scfVersion = null }
   return JSON.parse(body);
 }
 
-/** ---- Mapping tables ---- */
-
-/**
- * testssl finding family → SCF control IDs.
- * Each family represents a class of TLS posture issues; the SCF controls are
- * chosen as the canonical anchors that fan out to the relevant downstream
- * framework controls via SCF crosswalks. Spot-verified against
- * grcengclub.github.io/scf-api crosswalks for NIST 800-53 r5 v2026.1.
- */
 const FAMILY_TO_SCF = {
   protocolWeak: ['CRY-01', 'CRY-03', 'NET-09'],
   cipherWeak:   ['CRY-01.2', 'CRY-05'],
@@ -417,26 +378,18 @@ const FAMILY_TO_SCF = {
   headers:      ['CRY-03', 'WEB-03', 'NET-09'],
 };
 
-/**
- * testssl finding id (exact or prefix) → family name.
- * Longest prefix wins for ambiguous ids.
- */
 const TESTSSL_ID_TO_FAMILY = {
-  // protocols
   'SSLv2': 'protocolWeak', 'SSLv3': 'protocolWeak',
   'TLS1': 'protocolWeak', 'TLS1_1': 'protocolWeak',
   'TLS1_2': 'protocolWeak', 'TLS1_3': 'protocolWeak',
-  // ciphers
   'cipher_negotiated': 'cipherWeak', 'cipher_order': 'cipherWeak',
   'cipherlist_': 'cipherWeak',
   'std_NULL': 'cipherWeak', 'std_aNULL': 'cipherWeak',
   'std_EXPORT': 'cipherWeak', 'std_LOW': 'cipherWeak',
   'std_3DES_IDEA': 'cipherWeak', 'std_OBSOLETED': 'cipherWeak',
   'std_STRONG_NOFS': 'cipherWeak', 'std_STRONG_FS': 'cipherWeak',
-  // certificate
   'cert_': 'certificate', 'OCSP_': 'certificate',
   'CT': 'certificate', 'DNS_CAArecord': 'certificate',
-  // known CVEs
   'heartbleed': 'cve', 'CCS': 'cve', 'ticketbleed': 'cve',
   'ROBOT': 'cve', 'secure_renego': 'cve', 'secure_client_renego': 'cve',
   'CRIME_TLS': 'cve', 'BREACH': 'cve', 'POODLE_SSL': 'cve',
@@ -444,19 +397,12 @@ const TESTSSL_ID_TO_FAMILY = {
   'LOGJAM': 'cve', 'LOGJAM-common_primes': 'cve',
   'BEAST_CBC_TLS1': 'cve', 'BEAST': 'cve', 'LUCKY13': 'cve',
   'winshock': 'cve', 'RC4': 'cve',
-  // headers
   'HSTS': 'headers', 'HSTS_preload': 'headers', 'HSTS_time': 'headers',
   'HPKP': 'headers', 'cookie_secure': 'headers', 'cookie_httponly': 'headers',
   'banner_server': 'headers', 'banner_application': 'headers',
   'security_headers': 'headers',
 };
 
-/**
- * Hardcoded fallback used when the SCF mirror is unreachable. Same shape and
- * intent as the v0 of this connector — one curated control per framework
- * per family. Less rich than the SCF-driven expansion but enough to keep
- * the gap-assessment story coherent offline.
- */
 const FALLBACK_FRAMEWORKS = {
   protocolWeak: [
     { framework: 'SOC2-TSC-2017',  control_id: 'CC6.7' },
@@ -509,8 +455,6 @@ function familyForTestsslId(id) {
   return bestKey ? TESTSSL_ID_TO_FAMILY[bestKey] : null;
 }
 
-/** ---- Normalization: testssl JSON → v1 Finding doc ---- */
-
 function normalizeTargetFindings(raw, target, runId, sourceVersion, expansion, starttls = null, originalTarget = target) {
   const entries = extractEntries(raw);
   const { host, port } = parseTarget(target);
@@ -530,7 +474,6 @@ function normalizeTargetFindings(raw, target, runId, sourceVersion, expansion, s
     const message = (status === 'fail' || status === 'inconclusive') ? formatMessage(entry, id) : undefined;
     const scfIds = FAMILY_TO_SCF[family] || [];
 
-    // Always emit one SCF evaluation per (scf_id, finding-id) tuple.
     for (const scfId of scfIds) {
       addEvaluation(evaluations, seen, {
         framework: 'SCF', control_id: scfId, status, severity, message,
@@ -538,8 +481,6 @@ function normalizeTargetFindings(raw, target, runId, sourceVersion, expansion, s
       });
     }
 
-    // Fan out to other frameworks: either via SCF crosswalk expansion, or via
-    // the hardcoded fallback when no expansion is available.
     if (expansion && expansion.lookup) {
       for (const scfId of scfIds) {
         const perFw = expansion.lookup.get(scfId) || {};
@@ -683,8 +624,6 @@ function formatMessage(entry, id) {
 function truncate(s, n) {
   return s.length <= n ? s : s.slice(0, n - 1) + '…';
 }
-
-/** ---- Utils ---- */
 
 function makeRunId() {
   return `tssl-${new Date().toISOString().replace(/[:.]/g, '').slice(0, 15)}-${crypto.randomBytes(3).toString('hex')}`;

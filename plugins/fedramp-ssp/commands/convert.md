@@ -38,13 +38,13 @@ bash plugins/fedramp-ssp/scripts/convert.sh \
 
 ```bash
 # Main SSP template (High/Moderate/Low/LI-SaaS)
-curl -sLO "https://www.fedramp.gov/resources/templates/FedRAMP-High-Moderate-Low-LI-SaaS-Baseline-System-Security-Plan-%28SSP%29.docx"
+curl -sLO "https://www.fedramp.gov/legacy/assets/LEGACY_FedRAMP-High-Moderate-Low-LI-SaaS-Baseline-System-Security-Plan-(SSP).docx"
 
 # Appendix A Moderate
-curl -sLO "https://www.fedramp.gov/resources/templates/FedRAMP-SSP-Appendix-A-Moderate-FedRAMP-Security-Controls.docx"
+curl -sLO "https://www.fedramp.gov/legacy/assets/LEGACY%20SSP-Appendix-A-Moderate-FedRAMP-Security-Controls.docx"
 ```
 
-Both are published by [fedramp.gov/resources/templates](https://www.fedramp.gov/resources/templates/).
+Both are published on the [FedRAMP legacy documentation page](https://www.fedramp.gov/legacy/).
 
 ## Typical output
 

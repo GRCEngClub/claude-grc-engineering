@@ -1,14 +1,3 @@
-/**
- * AWS Lambda function to handle contact form submissions via SES
- * This function is deployed to Lambda and exposed via API Gateway
- *
- * Required environment variables (no defaults — the function fails fast if
- * either is missing, so a misconfigured deploy cannot silently route mail
- * to an unintended inbox):
- *   - SES_FROM_EMAIL: verified SES sender identity
- *   - SES_TO_EMAIL:   recipient inbox for submissions
- */
-
 const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
 
 const sesClient = new SESClient({

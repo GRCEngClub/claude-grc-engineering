@@ -1,11 +1,5 @@
 name: Socket Basics
 
-# SAST, secret, dependency, and container-aware security scanning through
-# Socket Basics. The scanner is secret-gated so public PRs and local forks do
-# not fail when the repository has not configured Socket Enterprise credentials.
-#
-# Closes https://github.com/GRCEngClub/claude-grc-engineering/issues/76
-
 on:
   pull_request:
     branches: [main]

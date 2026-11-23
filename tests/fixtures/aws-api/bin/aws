@@ -1,0 +1,61 @@
+#!/usr/bin/env node
+
+import fs from 'node:fs';
+import path from 'node:path';
+
+const fixtureDir = process.env.FAKE_AWS_FIXTURE_DIR;
+const args = process.argv.slice(2);
+
+function die(message) {
+  process.stderr.write(`\n${message}\n`.trimStart());
+  process.exit(254);
+}
+
+function argValue(flag) {
+  const i = args.indexOf(flag);
+  return i < 0 || i === args.length - 1 ? null : args[i + 1];
+}
+
+function respond(file) {
+  process.stdout.write(fs.readFileSync(file, 'utf8'));
+  process.exit(0);
+}
+
+if (!fixtureDir) die('fake aws: FAKE_AWS_FIXTURE_DIR is not set');
+
+const [service, subcommand] = args;
+if (service !== 'secretsmanager') die(`fake aws does not handle service '${service}'`);
+
+const region = argValue('--region') || 'us-east-1';
+const arn = argValue('--secret-id') || '';
+const encodedArn = arn.replace(/[:*?"<>|]/g, '_');
+
+if (subcommand === 'list-secrets') {
+  respond(path.join(fixtureDir, 'list-secrets', `${region}.json`));
+}
+
+if (subcommand === 'describe-secret') {
+  respond(path.join(fixtureDir, 'describe-secret', region, `${encodedArn}.json`));
+}
+
+if (subcommand === 'get-resource-policy') {
+  const dir = path.join(fixtureDir, 'get-resource-policy', region);
+  if (fs.existsSync(path.join(dir, `${encodedArn}.denied`))) {
+    die(`An error occurred (AccessDeniedException) when calling the GetResourcePolicy operation: User: arn:aws:iam::123456789012:role/SecurityAudit is not authorized to perform: secretsmanager:GetResourcePolicy on resource: ${arn}`);
+  }
+  const file = path.join(dir, `${encodedArn}.json`);
+  if (!fs.existsSync(file)) {
+    die(`An error occurred (ResourcePolicyNotFoundException) when calling the GetResourcePolicy operation: Secrets Manager can't find the specified resource policy for secret ${arn}`);
+  }
+  respond(file);
+}
+
+if (subcommand === 'get-secret-value') {
+  const file = path.join(fixtureDir, 'get-secret-value', `${encodedArn}.json`);
+  if (!fs.existsSync(file)) {
+    die("An error occurred (ResourceNotFoundException) when calling the GetSecretValue operation: Secrets Manager can't find the specified secret.");
+  }
+  respond(file);
+}
+
+die(`fake aws does not handle secretsmanager ${subcommand}`);

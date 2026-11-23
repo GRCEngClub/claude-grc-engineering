@@ -38,7 +38,6 @@ test('loader warnings prevent definitive issue labels and follow drafts to creat
     assert.deepEqual(clean.data_quality_warnings, []);
     assert.deepEqual(clean.issues.map(i => [i.scf_id, i.label_severity]), [['A', 'medium'], ['B', 'high']]);
     for (const invalid of [doc('A', 'fail', 'unknown'), doc('A', 'fail', undefined), doc('C', 'fail', 'invalid')]) {
-      // The entire invalid document is discarded even when it contains a valid failure.
       invalid.evaluations.push({ control_framework: 'SCF', control_id: 'B', status: 'fail', severity: 'critical', message: 'discarded' });
       const preview = await render([...valid, invalid]);
       assert.equal(preview.data_quality_warnings.length, 1);
@@ -50,7 +49,6 @@ test('loader warnings prevent definitive issue labels and follow drafts to creat
       assert.equal(shown.status, 0, shown.stderr);
       assert.deepEqual(JSON.parse(shown.stdout).labels, []);
       assert.match(JSON.parse(shown.stdout).body, /schema-violation/);
-      // Even a contradictory manually modified draft must not get a priority label.
       preview.issues[0].label_severity = 'medium';
       fs.writeFileSync(previewFile, JSON.stringify(preview));
       const created = run('--severity-label', '--create');

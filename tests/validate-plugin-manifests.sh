@@ -1,16 +1,4 @@
 #!/usr/bin/env bash
-# Validate every plugin.json and the marketplace.json against the
-# Claude Code plugin schemas in schemas/.
-#
-# This guards against the common failure mode where a manifest looks
-# fine to the contributor but is rejected at install time by
-# `claude plugin install`. The most frequent offender is the `author`
-# field — Claude Code requires an object form `{ "name": "..." }`,
-# not a bare string.
-#
-# Run locally:
-#   npm install
-#   bash tests/validate-plugin-manifests.sh
 
 set -uo pipefail
 

@@ -10,7 +10,6 @@ import zipfile
 import zlib
 from pathlib import PurePosixPath
 
-# Bound decompression and manifest parsing on the operator's trusted host.
 MAX_TOTAL = 100 * 1024 * 1024
 MAX_MANIFEST = 4 * 1024 * 1024
 MAX_ENTRIES = 10000
@@ -111,7 +110,6 @@ def verify(path):
             expected[name] = item
         if set(expected) != set(entries) - {'MANIFEST.json'}:
             raise ValueError('manifest and archive entries differ')
-        # Reject file/directory prefix collisions even though no extraction occurs.
         for name in entries:
             if any(str(parent) in entries for parent in PurePosixPath(name).parents if str(parent) != '.'):
                 raise ValueError('archive path collision')

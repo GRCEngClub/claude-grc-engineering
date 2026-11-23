@@ -22,8 +22,6 @@ export async function publishEvidence(target, evidence, io = fs) {
     if (file) { try { await file.close(); } catch {} }
     throw new Error('Secret Manager evidence publication failed.');
   } finally {
-    // Only remove our exclusive temp file, never the final destination. Cleanup
-    // is best effort, including after publication has already succeeded.
     if (ownsTemp) { try { await io.unlink(temp); } catch {} }
   }
 }

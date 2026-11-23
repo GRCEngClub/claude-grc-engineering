@@ -1,32 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * /grc-engineer:gap-assessment
- *
- * Aggregates findings from connector plugins, maps to the requested frameworks
- * via SCF crosswalks, and emits a prioritized gap report.
- *
- * Pipeline:
- *   1. Load cached findings from ~/.cache/claude-grc/findings/<source>/*.json
- *   2. Validate each against schemas/finding.schema.json (v1)
- *   3. For each evaluation, resolve to SCF control(s) and expand to requested frameworks
- *   4. Aggregate coverage, failures, severities, tiers
- *   5. Emit in the requested format: markdown | json | sarif | oscal-ar | html | csv
- *
- * Usage:
- *   node scripts/gap-assessment.js <frameworks> [options]
- *   node scripts/gap-assessment.js SOC2,FedRAMP-Moderate --sources=aws-inspector,github-inspector
- *
- * Options:
- *   --sources=<csv>          Connectors to include (default: all with cached findings)
- *   --refresh                Skip cache; re-collect each source (emits guidance; this script does not re-run connectors)
- *   --output=<fmt>           markdown (default) | json | sarif | oscal-ar | html | csv | github-issues
- *   --cache-dir=<path>       Override ~/.cache/claude-grc/findings
- *   --report-dir=<path>      Where to write the report bundle (default: ./gap-assessment-<date>/)
- *   --offline                Use cached SCF data only
- *   --quiet                  Suppress progress output
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -54,12 +27,6 @@ async function main(argv) {
   });
   log(`SCF v${scf.version()} loaded`);
 
-  // Resolve every requested framework before any other work. A framework
-  // that does not resolve in the crosswalk has no denominator, and a report
-  // for it would be indistinguishable from a genuine clean pass — the most
-  // dangerous failure mode for a compliance tool. This runs even before
-  // source discovery: an unresolvable framework can never succeed, so the
-  // user should not be sent off to collect findings first.
   const resolution = await resolveRequestedFrameworks(scf, args.frameworks);
   if (resolution.unresolved.length) {
     const lines = resolution.unresolved.map(u => `  - ${u.label}: ${u.reason}`);
@@ -239,7 +206,6 @@ export async function loadFindings(cacheDir, sources) {
       if (Array.isArray(doc) && doc.length === 0) {
         errors.push({ source, file: f, kind: 'coverage-unverified', message: 'Empty findings array; this may mean no findings, but coverage cannot be verified' });
       }
-      // Single-document or array shape
       const docs = Array.isArray(doc) ? doc : [doc];
       for (const d of docs) {
         const errs = validateFinding(d);
@@ -286,16 +252,12 @@ function validateFinding(d) {
   return errs;
 }
 
-// Kept out of serialized reports so issue labeling cannot change report semantics.
 const issueSeverities = new WeakMap();
 
 export async function buildReport({ runId, frameworks, sources, findings, scf, loadErrors, log }) {
-  // Do not mutate the caller's loader errors when adding resolution warnings.
   loadErrors = [...loadErrors];
-  // Normalize every evaluation into (scfId, frameworkProjection) rows.
-  // We anchor on SCF controls; non-SCF evaluations are reverse-mapped.
-  const scfHits = new Map();  // scfId → { control, evaluations: [{source, resource, evaluation}] }
-  const resolveCache = new Map(); // "fw:id" → Array<{scf_id, scf_control}>
+  const scfHits = new Map();
+  const resolveCache = new Map();
 
   for (const doc of findings) {
     for (const ev of doc.evaluations) {
@@ -333,8 +295,7 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
     }
   }
 
-  // Expand every SCF hit into each requested framework.
-  const expansionCache = new Map();  // scfId → Map<frameworkLabel, Array<controlId>>
+  const expansionCache = new Map();
   for (const scfId of scfHits.keys()) {
     try {
       expansionCache.set(scfId, await scf.expand(scfId, frameworks));
@@ -345,7 +306,6 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
     }
   }
 
-  // Compute per-framework coverage.
   const frameworkStats = frameworks.map(fw => ({
     framework: fw,
     total_controls: 0,
@@ -360,10 +320,9 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
   }));
   const frameworkItems = new Map(frameworks.map(fw => [fw, new Map()]));
 
-  // Gap tiers
-  const tier1 = []; // critical and high severity connector findings
-  const tier2 = []; // medium severity connector findings
-  const tier3 = []; // recommendation (low)
+  const tier1 = [];
+  const tier2 = [];
+  const tier3 = [];
   const passes = [];
   const inconclusive = [];
 
@@ -380,9 +339,8 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
       if (controlIds.length) anyMapped = true;
       perFrameworkControlIds[fw] = controlIds;
     }
-    if (!anyMapped) continue;  // SCF control doesn't map to any requested framework; skip
+    if (!anyMapped) continue;
 
-    // Aggregate by distinct framework item: multiple SCF controls can map to it.
     for (const stat of frameworkStats) {
       const controlIds = perFrameworkControlIds[stat.framework] || [];
       const items = frameworkItems.get(stat.framework);
@@ -432,7 +390,6 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
     }
   }
 
-  // Compute per-framework totals using the SCF summary (authoritative control count).
   for (const stat of frameworkStats) {
     for (const item of frameworkItems.get(stat.framework).values()) {
       stat.evaluated++;
@@ -496,7 +453,6 @@ export async function buildReport({ runId, frameworks, sources, findings, scf, l
 }
 
 function worstOf(statuses) {
-  // Rank: fail > inconclusive > skipped > not_applicable > pass
   const rank = { fail: 5, inconclusive: 4, skipped: 3, not_applicable: 2, pass: 1 };
   let worst = 'pass';
   for (const s of statuses) {
@@ -514,13 +470,10 @@ function worstSeverityOf(sevs) {
   return worst;
 }
 
-/** Produce data-only drafts; no shell commands, GitHub calls, or issue creation. */
 export function renderGithubIssuePreview(r) {
   return {
     notice: 'Preview only. Review sensitive data and mappings before manually creating issues; no issues have been created.',
     run_id: r.runId,
-    // Invalid documents may contain failures for any control, including controls
-    // also present in valid documents. Their scope cannot safely be inferred.
     data_quality_warnings: r.load_errors,
     issues: ['tier1', 'tier2'].flatMap((tier, index) => r.tiers[tier].map(t => ({
       tier: index + 1,
@@ -534,12 +487,10 @@ export function renderGithubIssuePreview(r) {
   };
 }
 
-/** Escape untrusted values for HTML text, not markup or URL attributes. */
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 }
 
-/** Render coverage, findings, and loading warnings as a standalone HTML report. */
 export function renderHtml(r) {
   const e = escapeHtml;
   const coverage = r.stats.map(s => `<tr><td>${e(s.framework)}</td><td>${e(s.evaluated)}/${e(s.total_controls)} (${e(s.coverage_pct)}%)<br><progress max="100" value="${Math.max(0, Math.min(100, Number(s.coverage_pct) || 0))}"></progress></td><td>${e(s.passing)}</td><td>${e(s.failing)}</td><td>${e(s.inconclusive)}</td></tr>`).join('');
@@ -553,14 +504,12 @@ export function renderHtml(r) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Gap assessment</title><style>body{font-family:system-ui,sans-serif;margin:2em}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:.4em;text-align:left}progress{width:100%}</style></head><body><h1>Gap assessment</h1><p>Run: ${e(r.runId)}; generated: ${e(r.generated_at)}; SCF: ${e(r.scf_version)}; sources: ${e(r.sources.join(', '))}</p><h2>Coverage</h2><p>Counts are distinct crosswalk items with connector observations; they do not establish applicability, control effectiveness, compliance, or certification readiness.</p><table><thead><tr><th>Framework</th><th>Evaluated</th><th>Passing</th><th>Failing</th><th>Inconclusive</th></tr></thead><tbody>${coverage}</tbody></table>${tiers}<h2>Inconclusive</h2><ul>${inconclusive}</ul><h2>Remediation detail</h2>${details}<h2>Data quality warnings</h2><ul>${warnings}</ul><p>Control mappings provided by the Secure Controls Framework, licensed under CC BY-ND 4.0.</p></body></html>`;
 }
 
-/** Quote a CSV cell and neutralize spreadsheet formulas even after whitespace. */
 function csvCell(value) {
   let s = String(value ?? '');
   if (/^[\s\u0000-\u001f]*[=+@-]/u.test(s) || /^[\t\r\n]/u.test(s)) s = "'" + s;
   return `"${s.replace(/"/g, '""')}"`;
 }
 
-/** Render failing controls as a quoted CSV register; warnings remain in the bundle. */
 export function renderCsv(r) {
   const header = ['run_id', 'tier', 'scf_id', 'title', 'severity', ...r.frameworks.map(f => `${f}_controls`), 'failing_resources', 'remediation_ref', 'effort_hours'];
   const rows = [header];
@@ -703,8 +652,6 @@ function severityToSarifLevel(sev) {
 }
 
 function toOscalAssessmentResults(r) {
-  // Minimal OSCAL 1.2.0 Assessment Results skeleton. Full SAR construction
-  // lives in the `oscal` plugin; this is the gap-assessment export.
   return {
     'assessment-results': {
       uuid: r.runId,
@@ -737,7 +684,6 @@ function toOscalAssessmentResults(r) {
 }
 
 function makeRunId() {
-  // Sortable, unique enough, short. Date + random.
   const d = new Date();
   const date = d.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
   const rand = crypto.randomBytes(4).toString('hex');

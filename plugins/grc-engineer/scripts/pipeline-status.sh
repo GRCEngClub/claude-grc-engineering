@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
-# /grc-engineer:pipeline-status
-# Aggregate health check across every configured connector.
 set -uo pipefail
 
 CONFIG_DIR="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors"
 FINDINGS_DIR="$HOME/.cache/claude-grc/findings"
 SCF_CACHE="$HOME/.cache/claude-grc/scf"
-# Plugin roots — the connectors scripts/ directories are found relative to this repo.
-# Allow an env override so users who installed the marketplace in a non-standard dir can override.
 REPO_ROOT="${CLAUDE_GRC_REPO_ROOT:-}"
 if [[ -z "$REPO_ROOT" ]]; then
-  # Infer from this script's own location
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 fi
@@ -50,7 +45,6 @@ for cfg in "$CONFIG_DIR"/*.yaml; do
   fi
   printf '\n'
 
-  # Aggregate cache stats
   src_dir="$FINDINGS_DIR/$name"
   if [[ -d "$src_dir" ]]; then
     latest=$(ls -t "$src_dir"/*.json 2>/dev/null | head -1 || true)
@@ -66,7 +60,6 @@ for cfg in "$CONFIG_DIR"/*.yaml; do
   fi
 done
 
-# SCF
 printf 'SCF\n'
 if [[ -d "$SCF_CACHE" ]]; then
   latest_ver=$(ls -t "$SCF_CACHE" 2>/dev/null | head -1 || true)

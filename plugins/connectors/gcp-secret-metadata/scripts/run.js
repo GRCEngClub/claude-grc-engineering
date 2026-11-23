@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// Operator-only helper: provider and child output may contain secrets.
 import { spawnSync } from 'node:child_process';
 import { TextDecoder } from 'node:util';
 
@@ -24,7 +23,6 @@ if (projectArg === '--configured-project') {
   }
   project = configured;
 }
-// Ask gcloud for the encoded payload, never allowing provider diagnostics through.
 const result = spawnSync('gcloud', ['secrets', 'versions', 'access', version, `--secret=${secret}`, `--project=${project}`, '--format=get(payload.data)', '--quiet'], {
   encoding: 'utf8', shell: false, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1024 * 1024, timeout: 15000, killSignal: 'SIGKILL',
 });

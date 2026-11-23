@@ -1,16 +1,7 @@
-/**
- * Code-to-Control Mapper
- * Maps infrastructure code to compliance framework controls
- *
- * Supported frameworks: SOC 2, ISO 27001, NIST 800-53
- * Supported IaC: Terraform, Kubernetes, CloudFormation
- */
-
 import fs from 'fs/promises';
 import path from 'path';
 import { loadFramework, listFrameworks } from './config-loader.js';
 
-// Legacy frameworks for backward compatibility (will be deprecated)
 const LEGACY_FRAMEWORKS = {
   SOC2: {
     name: 'SOC 2',
@@ -61,15 +52,9 @@ const LEGACY_FRAMEWORKS = {
   }
 };
 
-/**
- * Get framework configuration (from YAML or legacy)
- * @param {string} framework - Framework name
- * @returns {Promise<Object>} Framework configuration
- */
 async function getFrameworkConfig(framework) {
   const normalizedName = framework.toUpperCase().replace(/-/g, '');
 
-  // Map common names to YAML file names
   const nameMap = {
     'SOC2': 'soc2',
     'ISO27001': 'iso27001',
@@ -83,7 +68,6 @@ async function getFrameworkConfig(framework) {
     const config = await loadFramework(yamlName);
     return config;
   } catch (error) {
-    // Fall back to legacy frameworks
     if (LEGACY_FRAMEWORKS[normalizedName]) {
       return LEGACY_FRAMEWORKS[normalizedName];
     }
@@ -132,12 +116,10 @@ export async function mapControl(iacFilePath, framework = 'SOC2') {
   const fileExt = path.extname(iacFilePath).toLowerCase();
   const fileName = path.basename(iacFilePath);
 
-  // Detect IaC type
   let iacType = 'unknown';
   if (fileExt === '.tf' || fileExt === '.tfvars') {
     iacType = 'terraform';
   } else if (fileExt === '.yaml' || fileExt === '.yml') {
-    // Try to detect Kubernetes vs CloudFormation
     if (fileContent.includes('apiVersion:') || fileContent.includes('kind:')) {
       iacType = 'kubernetes';
     }
@@ -147,7 +129,6 @@ export async function mapControl(iacFilePath, framework = 'SOC2') {
   const mappings = [];
   const lines = fileContent.split('\n');
 
-  // Scan for patterns
   for (const [category, patternList] of Object.entries(patterns)) {
     for (const { pattern, control, negative } of patternList) {
       lines.forEach((line, index) => {
@@ -171,7 +152,6 @@ export async function mapControl(iacFilePath, framework = 'SOC2') {
     }
   }
 
-  // Generate report
   const report = generateReport(frameworkConfig, fileName, mappings, iacFilePath);
 
   return {

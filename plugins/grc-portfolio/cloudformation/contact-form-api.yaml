@@ -15,7 +15,6 @@ Parameters:
     ConstraintDescription: Must be a valid email address.
 
 Resources:
-  # IAM Role for Lambda
   ContactFormLambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -39,7 +38,6 @@ Resources:
                   - ses:SendRawEmail
                 Resource: '*'
 
-  # Lambda Function
   ContactFormFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -62,7 +60,6 @@ Resources:
             };
           };
 
-  # API Gateway HTTP API
   ContactFormApi:
     Type: AWS::ApiGatewayV2::Api
     Properties:
@@ -78,7 +75,6 @@ Resources:
           - Content-Type
         MaxAge: 300
 
-  # API Gateway Integration
   ContactFormIntegration:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
@@ -87,7 +83,6 @@ Resources:
       IntegrationUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ContactFormFunction.Arn}/invocations'
       PayloadFormatVersion: '2.0'
 
-  # API Gateway Route
   ContactFormRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -95,7 +90,6 @@ Resources:
       RouteKey: 'POST /contact'
       Target: !Sub 'integrations/${ContactFormIntegration}'
 
-  # API Gateway Stage
   ContactFormStage:
     Type: AWS::ApiGatewayV2::Stage
     Properties:
@@ -103,7 +97,6 @@ Resources:
       StageName: prod
       AutoDeploy: true
 
-  # Lambda Permission for API Gateway
   ApiGatewayInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:

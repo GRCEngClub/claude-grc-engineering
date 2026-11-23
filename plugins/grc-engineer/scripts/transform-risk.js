@@ -1,16 +1,3 @@
-/**
- * Risk-to-Jira Transformer CLI
- *
- * Usage: node scripts/transform-risk.js "<risk-description>" [project-key]
- *
- * Custom field IDs can be configured via:
- * - Environment variables: JIRA_FIELD_LIKELIHOOD, JIRA_FIELD_IMPACT, etc.
- * - Config file: config/jira/fields.yaml
- *
- * Examples:
- *   node scripts/transform-risk.js "Vulnerability in auth service. High likelihood, critical impact. Mitigation: Implement OAuth2 with PKCE." SEC
- */
-
 import { transformRisk } from '../src/risk-transformer.js';
 import fs from 'fs/promises';
 
@@ -32,7 +19,6 @@ async function main() {
   try {
     const result = await transformRisk(riskDescription, projectKey);
     
-    // Generate JSON for Jira API
     const jiraJson = JSON.stringify(result.jiraTicket, null, 2);
     const jsonFile = `jira_ticket_${Date.now()}.json`;
     await fs.writeFile(jsonFile, jiraJson, 'utf-8');
