@@ -1,17 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * github-inspector:collect
- *
- * Queries GitHub via `gh api`, evaluates each repo in scope against SCF
- * controls, and writes a Findings array to the shared cache.
- *
- * Usage:
- *   node collect.js [--scope=@me|org:<name>|repo:<owner/name>]
- *                   [--refresh] [--output=silent|summary|json]
- *                   [--limit=<n>] [--concurrency=<n>] [--quiet]
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -52,7 +40,6 @@ async function main(argv) {
 
   log(`scope=${scope} concurrency=${concurrency}`);
 
-  // 1. Enumerate repos
   let repos;
   try {
     repos = await enumerateRepos(scope, { includeArchived, includeForks, limit: args.limit });
@@ -62,7 +49,6 @@ async function main(argv) {
   }
   log(`repos to scan: ${repos.length}`);
 
-  // 2. Evaluate each repo (bounded concurrency)
   const findings = [];
   const errors = [];
   let rateLimitRemaining = null;
@@ -84,17 +70,14 @@ async function main(argv) {
     }
   });
 
-  // 3. Rate limit snapshot
   try {
     const { stdout } = await gh(['api', '/rate_limit', '--jq', '.rate.remaining']);
     rateLimitRemaining = parseInt(stdout.trim(), 10);
-  } catch { /* ignore */ }
+  } catch { }
 
-  // 4. Write cache
   const cachePath = path.join(CACHE_DIR, `${runId}.json`);
   await fs.writeFile(cachePath, JSON.stringify(findings, null, 2));
 
-  // 5. Append run manifest
   const durationMs = Date.now() - startedAt;
   const manifest = {
     source: SOURCE,
@@ -111,7 +94,6 @@ async function main(argv) {
   };
   await fs.appendFile(RUNS_LOG, JSON.stringify(manifest) + '\n');
 
-  // 6. Summary
   const summary = `${SOURCE}: ${findings.length} resources, ${manifest.evaluations} evaluations, ${counters.fail || 0} failing (${sevCounters.high || 0} high, ${sevCounters.medium || 0} medium, ${sevCounters.low || 0} low).`;
   if (args.output === 'json') {
     process.stdout.write(JSON.stringify({ run_id: runId, cache_path: cachePath, summary: manifest }, null, 2) + '\n');
@@ -145,10 +127,6 @@ function parseArgs(argv) {
 }
 
 async function enumerateRepos(scope, { includeArchived, includeForks, limit }) {
-  // scope variants:
-  //   @me        → /user/repos?per_page=100&affiliation=owner
-  //   org:<n>    → /orgs/<n>/repos?per_page=100
-  //   repo:<o/r> → /repos/<o>/<r> (single)
   if (scope.startsWith('repo:')) {
     const slug = scope.slice(5);
     const { stdout } = await gh(['api', `/repos/${slug}`]);
@@ -159,9 +137,7 @@ async function enumerateRepos(scope, { includeArchived, includeForks, limit }) {
   else if (scope.startsWith('org:')) endpoint = `/orgs/${scope.slice(4)}/repos?per_page=100`;
   else fail(EXIT.USAGE, `Unknown scope format: ${scope}`);
 
-  // Paginate via gh api --paginate
   const { stdout } = await gh(['api', '--paginate', endpoint]);
-  // --paginate emits concatenated JSON arrays; parse each line defensively
   const repos = parseConcatenatedJsonArrays(stdout);
   return repos.filter(r => {
     if (!includeArchived && r.archived) return false;
@@ -181,7 +157,7 @@ function parseConcatenatedJsonArrays(s) {
     else if (ch === ']') {
       depth--;
       if (depth === 0 && start !== -1) {
-        try { out.push(...JSON.parse(s.slice(start, i + 1))); } catch { /* skip malformed */ }
+        try { out.push(...JSON.parse(s.slice(start, i + 1))); } catch { }
         start = -1;
       }
     }
@@ -197,7 +173,6 @@ async function evaluateRepo(repo, runId) {
   const evaluations = [];
   const rawAttributes = { owner: repo.owner?.login, visibility: repo.visibility, default_branch: defaultBranch, pushed_at: repo.pushed_at };
 
-  // CHG-02: Configuration Change Control — branch protection on default branch
   try {
     const { stdout, branchNotProtected } = await gh(['api', `/repos/${fullName}/branches/${defaultBranch}/protection`], { okIf404: true, recognizeBranchNotProtected: true });
     if (branchNotProtected || stdout.trim() === '' || stdout.includes('"message":"Branch not protected"')) {
@@ -212,7 +187,6 @@ async function evaluateRepo(repo, runId) {
           automation: 'auto_fixable'
         }
       });
-      // CHG-02.1 cannot be evaluated without a protection rule; mark not_applicable.
       evaluations.push({ control_framework: 'SCF', control_id: 'CHG-02.1', status: 'not_applicable', severity: 'info', message: 'No branch protection exists; required-status-checks cannot be evaluated.' });
     } else {
       const protection = JSON.parse(stdout);
@@ -227,7 +201,6 @@ async function evaluateRepo(repo, runId) {
       } else {
         evaluations.push({ control_framework: 'SCF', control_id: 'CHG-02', status: 'pass', severity: 'info' });
       }
-      // CHG-02.1: required status checks
       if (protection.required_status_checks?.checks?.length) {
         evaluations.push({ control_framework: 'SCF', control_id: 'CHG-02.1', status: 'pass', severity: 'info' });
       } else {
@@ -247,7 +220,6 @@ async function evaluateRepo(repo, runId) {
     });
   }
 
-  // MON-01: secret scanning enabled
   const secretScanning = repo.security_and_analysis?.secret_scanning?.status;
   if (secretScanning === 'enabled') {
     evaluations.push({ control_framework: 'SCF', control_id: 'MON-01', status: 'pass', severity: 'info' });
@@ -262,7 +234,6 @@ async function evaluateRepo(repo, runId) {
     evaluations.push({ control_framework: 'SCF', control_id: 'MON-01', status: 'inconclusive', severity: 'low', message: 'Secret scanning status unknown — requires admin:repo or security_events scope.' });
   }
 
-  // MON-01.4: Dependabot alerts
   try {
     const { stdout } = await gh(['api', `/repos/${fullName}/vulnerability-alerts`, '-i'], { okIf404: true, okIf204: true });
     if (stdout.includes('204') || stdout.includes('Status: 204')) {
@@ -281,7 +252,6 @@ async function evaluateRepo(repo, runId) {
     evaluations.push({ control_framework: 'SCF', control_id: 'MON-01.4', status: 'inconclusive', severity: 'low', message: 'Dependabot check failed.' });
   }
 
-  // IAO-04: code scanning / CodeQL
   try {
     const { stdout } = await gh(['api', `/repos/${fullName}/code-scanning/alerts?per_page=1`], { okIf404: true });
     if (stdout.includes('"message":"Code scanning is not enabled"') || stdout.includes('"message":"no analysis found"')) {
@@ -363,11 +333,6 @@ function makeRunId() {
   return `${date}-${rand}`;
 }
 
-/**
- * Minimal single-doc YAML parser for the flat config files this connector writes.
- * Supports: scalar key/value, nested one-level maps, quoted strings, booleans, numbers.
- * Not a full YAML parser; sufficient for our known shape.
- */
 function parseYaml(src) {
   const out = {};
   const stack = [{ indent: -1, obj: out }];

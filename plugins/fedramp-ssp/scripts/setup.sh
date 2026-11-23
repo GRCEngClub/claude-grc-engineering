@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# fedramp-ssp:setup — install frdocx-to-froscal-ssp tool
 set -euo pipefail
 
 CONFIG_DIR="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors"
@@ -15,7 +14,6 @@ for arg in "$@"; do
   esac
 done
 
-# 1. Find a Python >= 3.10
 if [[ -z "$PYTHON_BIN" ]]; then
   for candidate in python3.12 python3.11 python3.10 python3 python; do
     if command -v "$candidate" >/dev/null 2>&1; then
@@ -40,7 +38,6 @@ EOF
 fi
 PYTHON_VERSION=$("$PYTHON_BIN" --version 2>&1 | awk '{print $2}')
 
-# 2. Clone/update the tool
 TOOL_DIR="$HOME/.local/share/claude-grc/tools/frdocx-to-froscal-ssp"
 if [[ ! -d "$TOOL_DIR/.git" ]]; then
   mkdir -p "$(dirname "$TOOL_DIR")"
@@ -49,9 +46,6 @@ else
   (cd "$TOOL_DIR" && git pull --ff-only >/dev/null 2>&1 || true)
 fi
 
-# 3. venv + pip install — tolerant: if venv creation or pip install fails, fall back
-#    to checking whether python-docx is already importable from the chosen Python,
-#    and warn the user if manual install is needed.
 VENV="$TOOL_DIR/.venv"
 VENV_PYTHON=""
 VENV_STATUS="pending"
@@ -73,8 +67,6 @@ if "$PYTHON_BIN" -m venv "$VENV" >/tmp/fedramp-venv.err 2>&1; then
     fi
   fi
 else
-  # venv creation failed (common on some Homebrew/macOS configs). Try to run the
-  # tool with the system Python if python-docx is already importable.
   if "$PYTHON_BIN" -c 'import docx' 2>/dev/null; then
     VENV_PYTHON="$PYTHON_BIN"
     VENV_STATUS="using system Python (python-docx already importable)"
@@ -97,7 +89,6 @@ EOF
   fi
 fi
 
-# 4. Java check (optional)
 JAVA_STATUS="not-installed"
 if command -v java >/dev/null 2>&1; then
   JAVA_VERSION=$(java -version 2>&1 | head -1 | awk -F'"' '{print $2}')
@@ -106,7 +97,6 @@ if command -v java >/dev/null 2>&1; then
   fi
 fi
 
-# 5. Write config — record the python that /fedramp-ssp:convert should actually invoke.
 EFFECTIVE_PYTHON="${VENV_PYTHON:-$PYTHON_BIN}"
 mkdir -p "$CONFIG_DIR"
 cat > "$CONFIG_FILE" <<EOF

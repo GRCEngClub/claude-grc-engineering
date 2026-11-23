@@ -19,8 +19,6 @@ PROMPT=""
 MAX_ITERATIONS=0
 COMPLETION_PROMISE="null"
 
-# Guard `${2:-}` on every flag so a missing value reports a clear error
-# instead of crashing with `unbound variable` under `set -u`.
 require_value() {
   local flag="$1"
   local value="${2:-__MISSING__}"

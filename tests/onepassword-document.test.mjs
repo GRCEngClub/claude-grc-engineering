@@ -42,7 +42,6 @@ test('document bytes reach only the trusted consumer; failures are closed', () =
 test('provider and consumer timeouts kill direct processes and suppress output', () => {
   const dir = mkdtempSync(join(tmpdir(), 'op-timeout-'));
   try {
-    // Shorten deadlines only in the test, while checking the production values.
     const preload = join(dir, 'preload.cjs');
     writeFileSync(preload, `const cp=require('node:child_process');const orig=cp.spawnSync;cp.spawnSync=(cmd,args,opts)=>{const expected=cmd==='op'?120000:300000;if(opts.timeout!==expected||opts.killSignal!=='SIGKILL')throw Error('incorrect deadline');return orig(cmd,args,{...opts,timeout:300});};require('node:module').syncBuiltinESMExports();`);
     const op = join(dir, 'op');

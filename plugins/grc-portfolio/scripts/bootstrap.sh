@@ -1,18 +1,13 @@
 #!/bin/bash
 
-# AWS Website Deployment - Bootstrap Script
-# This script sets up your local environment for deploying websites to AWS
+set -e
 
-set -e  # Exit on any error
-
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Print functions
 print_header() {
     echo -e "\n${BLUE}========================================${NC}"
     echo -e "${BLUE}$1${NC}"
@@ -35,7 +30,6 @@ print_info() {
     echo -e "${BLUE}ℹ $1${NC}"
 }
 
-# Check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
@@ -45,7 +39,6 @@ print_header "AWS Website Deployment - Environment Setup"
 echo "This script will check and install the necessary tools for deploying your website to AWS."
 echo ""
 
-# Check Operating System
 print_info "Detecting operating system..."
 OS="$(uname -s)"
 case "${OS}" in
@@ -56,7 +49,6 @@ case "${OS}" in
 esac
 print_success "Operating System: ${MACHINE}"
 
-# Check for Homebrew (Mac only)
 if [ "$MACHINE" = "Mac" ]; then
     print_info "Checking for Homebrew..."
     if ! command_exists brew; then
@@ -68,7 +60,6 @@ if [ "$MACHINE" = "Mac" ]; then
     fi
 fi
 
-# Check for AWS CLI
 print_info "Checking for AWS CLI..."
 if ! command_exists aws; then
     print_warning "AWS CLI not found. Installing..."
@@ -90,7 +81,6 @@ else
     print_success "AWS CLI is already installed ($(aws --version))"
 fi
 
-# Check for Node.js
 print_info "Checking for Node.js..."
 if ! command_exists node; then
     print_warning "Node.js not found. Installing..."
@@ -110,7 +100,6 @@ else
     print_success "Node.js is already installed ($(node --version))"
 fi
 
-# Check for npm
 print_info "Checking for npm..."
 if ! command_exists npm; then
     print_error "npm not found. Please reinstall Node.js"
@@ -119,7 +108,6 @@ else
     print_success "npm is already installed ($(npm --version))"
 fi
 
-# Configure AWS CLI
 print_header "AWS Configuration"
 
 if [ ! -f ~/.aws/credentials ]; then
@@ -146,7 +134,6 @@ else
     aws sts get-caller-identity 2>/dev/null || print_warning "Could not verify AWS credentials. You may need to run 'aws configure'"
 fi
 
-# Verify deployment scripts exist
 print_header "Verifying Deployment Scripts"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -169,7 +156,6 @@ print_info "Run these from your project directory (point at the plugin's scripts
 echo "  <plugin-root>/scripts/deploy.sh <bucket> <distribution-id> [profile]"
 echo "  <plugin-root>/scripts/validate-stack.sh [template-file] [profile]"
 
-# Summary
 print_header "Setup Complete!"
 
 echo "✓ All required tools are installed"

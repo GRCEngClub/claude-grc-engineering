@@ -1,13 +1,6 @@
 import { useState } from 'react'
 import './App.css'
 
-/**
- * Example React App
- * 
- * This is a simple starter app that you can customize.
- * Replace this with your own components and logic!
- */
-
 function App() {
   const [count, setCount] = useState(0)
 

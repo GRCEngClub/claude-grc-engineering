@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# okta-inspector:setup
 set -euo pipefail
 
 CONFIG_DIR="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors"
@@ -19,7 +18,6 @@ for arg in "$@"; do
   esac
 done
 
-# Normalize domain — strip scheme + trailing slash
 DOMAIN=$(echo "$DOMAIN" | sed -E 's|^https?://||; s|/$||')
 
 if [[ -z "$DOMAIN" ]]; then
@@ -38,7 +36,6 @@ if ! command -v curl >/dev/null 2>&1; then
   exit 5
 fi
 
-# Resolve token
 if [[ -z "$TOKEN" ]]; then
   TOKEN="${!TOKEN_ENV:-}"
 fi
@@ -57,7 +54,6 @@ EOF
   exit 2
 fi
 
-# Verify token — GET /api/v1/users/me
 HTTP_CODE=$(curl -sS -o /tmp/okta-me.json -w '%{http_code}' \
   -H "Authorization: SSWS $TOKEN" -H 'Accept: application/json' \
   "https://$DOMAIN/api/v1/users/me" || echo "000")
@@ -73,7 +69,6 @@ esac
 
 CALLER=$(node -e "try{const d=JSON.parse(require('fs').readFileSync('/tmp/okta-me.json','utf8'));console.log(d.profile?.login||d.profile?.email||d.id||'unknown')}catch{console.log('unknown')}")
 
-# Org details
 HTTP_CODE=$(curl -sS -o /tmp/okta-org.json -w '%{http_code}' \
   -H "Authorization: SSWS $TOKEN" -H 'Accept: application/json' \
   "https://$DOMAIN/api/v1/org" || echo "000")
@@ -83,7 +78,6 @@ if [[ "$HTTP_CODE" == "200" ]]; then
 fi
 rm -f /tmp/okta-me.json /tmp/okta-org.json
 
-# Write config — NEVER the token, only the env-var name
 mkdir -p "$CONFIG_DIR"
 cat > "$CONFIG_FILE" <<EOF
 version: 1

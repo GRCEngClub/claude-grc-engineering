@@ -47,7 +47,6 @@ test('failed or missing gh warns before retrying and is never retried automatica
     const bin = path.join(dir, 'bin'); fs.mkdirSync(bin);
     const record = path.join(dir, 'calls');
     const gh = path.join(bin, 'gh');
-    // Use an absolute interpreter and an isolated PATH so the real gh cannot run.
     fs.writeFileSync(gh, '#!/bin/sh\nprintf "call\\n" >> "$RECORD"\nprintf "simulated gh failure\\n" >&2\nexit 1\n', { mode: 0o755 });
     const run = () => spawnSync(process.execPath, [script, file, 'owner/repo', '0', '--create'], {
       encoding: 'utf8', env: { ...process.env, PATH: bin, RECORD: record }

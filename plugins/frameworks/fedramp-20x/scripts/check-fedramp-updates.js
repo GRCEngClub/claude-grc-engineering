@@ -1,14 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * FedRAMP 20X Policy Auto-Sync Script
- *
- * Checks the official FedRAMP/docs GitHub repository for updates
- * to machine-readable policy files and syncs them locally.
- *
- * Repository: https://github.com/FedRAMP/docs
- */
-
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -20,7 +11,6 @@ const FEDRAMP_REPO = 'FedRAMP/docs';
 const GITHUB_API = 'https://api.github.com';
 const RAW_GITHUB = 'https://raw.githubusercontent.com';
 
-// Policy files to sync
 const POLICY_FILES = [
   'FRMR.KSI.key-security-indicators.json',
   'FRMR.VDR.vulnerability-detection-and-response.json',
@@ -60,7 +50,6 @@ function getLastSync() {
       return JSON.parse(fs.readFileSync(LAST_SYNC_FILE, 'utf8'));
     }
   } catch (error) {
-    // Ignore errors
   }
   return null;
 }
@@ -147,19 +136,13 @@ async function checkOnly() {
   }
 }
 
-// Main
 const args = process.argv.slice(2);
 const quiet = args.includes('--quiet');
 const force = args.includes('--force');
 const check = args.includes('--check');
 
-if (quiet) {
-  // Quiet mode: only notify if updates available
-  checkOnly();
-} else if (check) {
-  // Check mode: show status without downloading
+if (quiet || check) {
   checkOnly();
 } else {
-  // Full sync
   syncPolicies(force);
 }

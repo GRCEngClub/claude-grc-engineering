@@ -1,31 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Framework discovery command.
- *
- * Lists every SCF-mapped framework (249) and shows which have a dedicated
- * plugin in this repo vs which are currently crosswalk-only (available today
- * via /grc-engineer:gap-assessment but without a dedicated namespace).
- *
- * Data sources:
- *   - SCF API crosswalks.json (via scf-client.js + local cache)
- *   - .claude-plugin/marketplace.json (which plugins are registered)
- *   - each framework plugin's plugin.json framework_metadata block (if present)
- *
- * Usage: node scripts/frameworks.js [options]
- *
- * Options:
- *   --region=americas|apac|emea|global
- *   --depth=stub|reference|full|unknown
- *   --status=shipped|not-started
- *   --installed       shorthand for --status=shipped
- *   --not-installed   shorthand for --status=not-started
- *   --format=text|json|table    (default: text)
- *   --offline         use cached SCF data only
- *   --limit=N         cap the result set
- *   --search=<term>   substring match against display name or SCF ID
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -36,18 +10,6 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 const FRAMEWORKS_DIR = path.join(REPO_ROOT, 'plugins', 'frameworks');
 const MARKETPLACE_FILE = path.join(REPO_ROOT, '.claude-plugin', 'marketplace.json');
-
-// Every shipped framework plugin is expected to carry a `framework_metadata`
-// block in its plugin.json with `scf_framework_id`. Plugins without one show
-// up as "(no SCF mapping recorded)" so contributors can add the block.
-//
-// Deliberately unmapped plugins (no direct SCF entry or ambiguous crosswalk):
-//   fedramp-20x  (no dedicated SCF entry; 20X KSI is an authorization process)
-//   hitrust      (HITRUST CSF licensing may exclude it from SCF)
-//   stateramp    (no dedicated SCF entry)
-//   pbmm         (no dedicated SCF entry; Canada ITSG-33 exists as sibling)
-//   irap         (Australian IRAP uses the ISM; mapping arguable)
-//   us-export    (spans ITAR + EAR; no single SCF entry)
 
 function parseArgs(argv) {
   const args = argv.slice(2);
@@ -137,7 +99,6 @@ async function listShippedPlugins() {
 }
 
 function buildCoverageRows(scfFrameworks, shipped) {
-  // Index shipped plugins by SCF framework_id (if known) and by slug.
   const byScfId = new Map();
   for (const p of shipped) {
     if (p.scf_framework_id) byScfId.set(p.scf_framework_id, p);
@@ -159,8 +120,6 @@ function buildCoverageRows(scfFrameworks, shipped) {
     };
   });
 
-  // Also surface any shipped plugins that are NOT matched to an SCF id
-  // (legacy plugins without framework_metadata AND no legacy mapping).
   const matchedSlugs = new Set(rows.filter(r => r.plugin_slug).map(r => r.plugin_slug));
   const unmatched = shipped.filter(p => !matchedSlugs.has(p.slug));
   for (const p of unmatched) {

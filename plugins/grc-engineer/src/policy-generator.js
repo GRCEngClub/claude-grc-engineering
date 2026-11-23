@@ -1,8 +1,3 @@
-/**
- * Policy-as-Code Generator
- * Converts natural language requirements to executable policies
- */
-
 const POLICY_TEMPLATES = {
   rego: {
     s3_public: `package s3.public
@@ -103,8 +98,6 @@ export function generatePolicy(requirement, format = 'rego') {
   if (!Object.hasOwn(POLICY_TEMPLATES, format)) {
     throw new Error(`Unsupported format: ${format}. Supported: ${Object.keys(POLICY_TEMPLATES).join(', ')}`);
   }
-  // Deliberately accept only complete, reviewed phrases. Keyword matching can
-  // mistake opposite or unrelated requirements for a supported template.
   const supportedRequirements = {
     'ensure no s3 buckets are public': 's3_public',
     'all ec2 instances must have encryption enabled': 'ec2_encryption'
@@ -121,7 +114,6 @@ export function generatePolicy(requirement, format = 'rego') {
     throw new Error(`No policy template available for this requirement in format: ${format}. No policy was generated.`);
   }
 
-  // Generate policy with requirement context
   const policy = {
     requirement,
     format,
@@ -132,7 +124,6 @@ export function generatePolicy(requirement, format = 'rego') {
     }
   };
 
-  // Add format-specific documentation
   if (format === 'rego') {
     policy.documentation = generateRegoDocs(requirement);
   } else if (format === 'sentinel') {

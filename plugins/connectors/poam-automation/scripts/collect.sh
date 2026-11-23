@@ -75,9 +75,6 @@ collected_at = "${COLLECTED_AT}"
 
 n_to_severity = {"N5": "critical", "N4": "high", "N3": "medium", "N2": "low", "N1": "info"}
 
-# All POA&M vulnerability findings map to NIST 800-53 SI-2 (Flaw Remediation),
-# the canonical control for vulnerability/patch lifecycle. Related controls
-# (RA-5 vulnerability scanning, etc.) are captured in `related_control_ids`.
 for v in vdr.get("active_vulnerabilities", []):
     sev = n_to_severity.get(v.get("adverse_impact", "N2"), "medium")
     cve = v.get("cve", "")

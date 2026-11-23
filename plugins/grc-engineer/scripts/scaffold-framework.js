@@ -1,25 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Scaffold a new framework plugin from the SCF crosswalk.
- *
- * Usage:
- *   node scripts/scaffold-framework.js <scf-framework-id-or-label> [options]
- *
- * Options:
- *   --depth=stub|reference     Template depth. Default: stub.
- *   --slug=<name>              Override auto-derived plugin slug (directory name).
- *   --no-register              Skip writing to marketplace.json.
- *   --force                    Overwrite an existing plugin directory.
- *   --offline                  Use cached SCF data only (fail if cache miss).
- *   --dry-run                  Print what would happen; don't touch the filesystem.
- *
- * Examples:
- *   node scripts/scaffold-framework.js apac-sgp-pdpa-2012
- *   node scripts/scaffold-framework.js "Singapore PDPA" --depth=reference
- *   node scripts/scaffold-framework.js americas-bra-lgpd-2018 --slug=brazil-lgpd
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -94,25 +74,15 @@ Examples:
 `;
 }
 
-/**
- * Derive a human-friendly plugin slug from the SCF framework_id.
- * SCF IDs look like "americas-bra-lgpd-2018" or "apac-sgp-pdpa-2012" —
- * we strip the region prefix and trailing year to get "bra-lgpd" / "sgp-pdpa".
- * Caller can override with --slug.
- */
 function deriveSlug(frameworkId) {
   let slug = frameworkId.toLowerCase();
-  // Drop known region prefixes
   slug = slug.replace(/^(americas|amaericas|apac|emea|general)-/, '');
-  // Drop trailing -YYYY (year)
   slug = slug.replace(/-\d{4}$/, '');
-  // Collapse duplicate dashes just in case
   slug = slug.replace(/-+/g, '-').replace(/^-|-$/g, '');
   return slug;
 }
 
 function deriveNamespace(slug) {
-  // Namespace = slug. Claude Code command namespace is the plugin name.
   return slug;
 }
 
@@ -124,7 +94,6 @@ function deriveRegion(frameworkId) {
 }
 
 function deriveCountry(frameworkId) {
-  // After region, the next segment is typically a 3-letter ISO-3166-1 alpha-3 code.
   const parts = frameworkId.toLowerCase().split('-');
   if (parts.length < 2) return '';
   const candidate = parts[1];
@@ -145,7 +114,6 @@ function fillTemplate(template, vars) {
 }
 
 async function walkTemplate(depth) {
-  // Return a list of relative paths of all *.tmpl files in the template dir.
   const root = path.join(TEMPLATES_DIR, depth);
   const out = [];
   async function walk(dir, prefix) {
@@ -160,9 +128,7 @@ async function walkTemplate(depth) {
   return out;
 }
 
-/** Map a template path → output path inside the plugin directory. */
 function targetForTemplate(tmplRelPath, slug) {
-  // Strip .tmpl suffix. SKILL.md.tmpl lives under skills/; it becomes skills/<slug>-expert/SKILL.md.
   const withoutTmpl = tmplRelPath.replace(/\.tmpl$/, '');
   const parts = withoutTmpl.split(path.sep);
   if (parts[0] === 'skills' && parts[parts.length - 1] === 'SKILL.md') {
@@ -212,7 +178,6 @@ async function main() {
 
   const rawLabel = opts.positional[0];
 
-  // 1) Resolve the label to a real SCF framework_id.
   const scf = await initSCF({ offline: opts.offline });
   const frameworks = await scf.frameworks();
   let resolvedId = frameworks.find(f => f.framework_id === rawLabel)?.framework_id;
@@ -233,7 +198,6 @@ async function main() {
 
   const summary = frameworks.find(f => f.framework_id === resolvedId);
 
-  // 2) Derive slug, namespace, region, country.
   const slug = (opts.slug || deriveSlug(resolvedId));
   if (!/^[a-z][a-z0-9-]*$/.test(slug)) {
     console.error(`✗ Derived slug "${slug}" is invalid. Use --slug=<name> to override.`);
@@ -245,19 +209,17 @@ async function main() {
   const pluginDir = path.join(PLUGINS_DIR, slug);
   const marketplaceSource = `./plugins/frameworks/${slug}`;
 
-  // 3) Check for collisions.
   let alreadyExists = false;
   try {
     await fs.access(pluginDir);
     alreadyExists = true;
-  } catch { /* doesn't exist, good */ }
+  } catch {}
   if (alreadyExists && !opts.force) {
     console.error(`✗ Plugin directory already exists: ${path.relative(REPO_ROOT, pluginDir)}`);
     console.error('  Use --force to overwrite, or --slug=<other> to pick a different name.');
     process.exit(3);
   }
 
-  // 4) Build template variables.
   const vars = {
     SLUG: slug,
     NAMESPACE: namespace,
@@ -269,10 +231,8 @@ async function main() {
     COUNTRY: country || 'TBD',
   };
 
-  // 5) Enumerate templates.
   const templateFiles = await walkTemplate(opts.depth);
 
-  // 6) Plan output.
   console.log(`Scaffolding framework plugin "${slug}" at ${opts.depth} depth`);
   console.log(`  SCF framework:   ${resolvedId}`);
   console.log(`  Display name:    ${summary.display_name}`);
@@ -294,7 +254,6 @@ async function main() {
     return;
   }
 
-  // 7) Render and write.
   await fs.mkdir(pluginDir, { recursive: true });
   const written = [];
   for (const tmpl of templateFiles) {
@@ -311,7 +270,6 @@ async function main() {
 
   for (const w of written) console.log(`  ✓ ${w}`);
 
-  // 8) Register in marketplace.json.
   if (opts.register) {
     const description = `${summary.display_name} — ${opts.depth}-depth plugin backed by the SCF crosswalk (${summary.scf_controls_mapped} SCF → ${summary.framework_controls_mapped} framework controls).`;
     const { alreadyRegistered } = await registerInMarketplace({ slug, description, source: marketplaceSource });
@@ -327,7 +285,6 @@ async function main() {
   console.log(`  - Commit and open a PR; CI will validate markdown and CODEOWNERS will route review.`);
 }
 
-// Only run main when invoked directly (not when imported).
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch(err => {
     console.error('✗ scaffold-framework failed:', err.message);

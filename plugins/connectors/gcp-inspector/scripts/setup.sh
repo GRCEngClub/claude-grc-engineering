@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# gcp-inspector:setup
-# Idempotent setup for the gcp-inspector connector.
 set -euo pipefail
 
 CONFIG_DIR="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors"
@@ -18,7 +16,6 @@ for arg in "$@"; do
   esac
 done
 
-# 1. gcloud binary
 if ! command -v gcloud >/dev/null 2>&1; then
   cat <<'EOF' >&2
 [gcp-inspector:setup] gcloud CLI not found on PATH.
@@ -35,7 +32,6 @@ fi
 
 GCLOUD_VERSION=$(gcloud --version 2>/dev/null | head -1 | awk '{print $NF}')
 
-# 2. Active account
 ACTIVE_ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format='value(account)' 2>/dev/null | head -1 || true)
 if [[ -z "$ACTIVE_ACCOUNT" ]]; then
   cat <<'EOF' >&2
@@ -50,7 +46,6 @@ EOF
   exit 2
 fi
 
-# 3. Project resolution
 if [[ -z "$PROJECT" ]]; then
   PROJECT="${CLOUDSDK_CORE_PROJECT:-$(gcloud config get-value project 2>/dev/null || true)}"
 fi
@@ -65,7 +60,6 @@ EOF
   exit 2
 fi
 
-# 4. Verify access — describe project (requires resourcemanager.projects.get)
 if ! PROJ_JSON=$(gcloud projects describe "$PROJECT" --format=json 2>/tmp/gcp-setup.err); then
   cat >&2 <<EOF
 [gcp-inspector:setup] Cannot describe project '$PROJECT'.
@@ -80,13 +74,11 @@ fi
 
 PROJECT_NUMBER=$(echo "$PROJ_JSON" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).projectNumber))")
 
-# 5. Region
 if [[ -z "$REGION" ]]; then
   REGION=$(gcloud config get-value compute/region 2>/dev/null || true)
   [[ -z "$REGION" || "$REGION" == "(unset)" ]] && REGION="us-central1"
 fi
 
-# 6. Write config
 mkdir -p "$CONFIG_DIR"
 cat > "$CONFIG_FILE" <<EOF
 version: 1
@@ -100,7 +92,6 @@ defaults:
   services: ["iam", "storage", "logging", "kms", "compute"]
 EOF
 
-# 7. Prepare cache dirs
 CACHE_DIR="$HOME/.cache/claude-grc/findings/gcp-inspector"
 mkdir -p "$CACHE_DIR"
 touch "$HOME/.cache/claude-grc/runs.log"

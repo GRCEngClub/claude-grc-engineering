@@ -70,8 +70,6 @@ try {
   const ajv = new Ajv2020({
     allErrors: true,
     strict: true,
-    // Repository schemas intentionally place `required` in conditional/union
-    // branches while defining the corresponding properties in a parent schema.
     strictRequired: false,
   });
   addFormats(ajv);

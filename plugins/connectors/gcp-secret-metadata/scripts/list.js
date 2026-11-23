@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// Metadata inventory only. Never access secret versions or print provider errors.
 import { spawnSync } from 'node:child_process';
 import { projectScope } from './project-scope.js';
 

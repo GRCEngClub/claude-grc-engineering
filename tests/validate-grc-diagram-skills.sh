@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Validate the GRC draw.io diagram plugin has the expected command/skill surface.
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

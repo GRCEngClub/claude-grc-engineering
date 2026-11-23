@@ -1,19 +1,3 @@
-/**
- * Evidence Artifact Collector CLI
- *
- * Usage: node scripts/collect-evidence.js "<control>" [provider] [format]
- *
- * Supported providers: aws, azure, gcp, kubernetes
- * Supported formats: python, bash
- *
- * Examples:
- *   node scripts/collect-evidence.js "MFA for all root users" aws python
- *   node scripts/collect-evidence.js "All S3 buckets encrypted" aws bash
- *   node scripts/collect-evidence.js "Storage accounts encrypted" azure bash
- *   node scripts/collect-evidence.js "2-step verification" gcp python
- *   node scripts/collect-evidence.js "RBAC roles configured" kubernetes bash
- */
-
 import { generateEvidenceScript, getAvailableProviders } from '../src/evidence-collector.js';
 import fs from 'fs/promises';
 
@@ -41,14 +25,11 @@ async function main() {
   try {
     const result = await generateEvidenceScript(control, provider, format);
     
-    // Determine file extension
     const ext = format === 'python' ? '.py' : '.sh';
     const filename = `evidence_${Date.now()}${ext}`;
     
-    // Write script
     await fs.writeFile(filename, result.script, 'utf-8');
     
-    // Make executable if bash
     if (format === 'bash') {
       await fs.chmod(filename, 0o755);
     }
@@ -59,7 +40,6 @@ async function main() {
     console.log(result.script);
     console.log('---');
     
-    // Write instructions
     if (result.instructions) {
       const instructionsFile = filename.replace(ext, '_instructions.md');
       await fs.writeFile(instructionsFile, result.instructions, 'utf-8');

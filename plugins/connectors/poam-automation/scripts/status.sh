@@ -6,7 +6,6 @@ CONFIG_FILE="${HOME}/.config/claude-grc/connectors/poam-automation.yaml"
 
 echo "=== poam-automation status ==="
 
-# Check config
 if [[ ! -f "${CONFIG_FILE}" ]]; then
   echo "  config:   NOT CONFIGURED (run setup.sh)" >&2
   exit 2
@@ -23,7 +22,6 @@ echo "  tool:     ${TOOL_PATH}"
 BASELINE=$(grep 'default_baseline:' "${CONFIG_FILE}" | awk '{print $2}')
 echo "  baseline: ${BASELINE}"
 
-# Check python + openpyxl
 if python3 -c "import openpyxl" &>/dev/null; then
   echo "  openpyxl: ok"
 else
@@ -31,7 +29,6 @@ else
   exit 2
 fi
 
-# Cache status
 if [[ ! -d "${CACHE_DIR}" ]]; then
   echo "  cache:    no findings yet (run collect.sh)"
   exit 0
@@ -43,7 +40,6 @@ if [[ -z "${LATEST}" ]]; then
   exit 0
 fi
 
-# File age
 if [[ "$(uname)" == "Darwin" ]]; then
   MTIME=$(stat -f%m "${LATEST}")
 else

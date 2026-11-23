@@ -1,19 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Cross-Framework Analyzer
- *
- * Analyzes security controls across multiple compliance frameworks to identify:
- * - Control mappings (which controls are equivalent)
- * - Conflicting requirements (different thresholds, frequencies)
- * - Optimization opportunities (implement once, satisfy many)
- *
- * Used by:
- * - /grc-engineer:map-controls-unified
- * - /grc-engineer:find-conflicts
- * - /grc-engineer:optimize-multi-framework
- */
-
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -29,9 +15,6 @@ class CrossFrameworkAnalyzer {
     this.load();
   }
 
-  /**
-   * Load the control crosswalk database
-   */
   load() {
     try {
       const fileContents = fs.readFileSync(this.crosswalkPath, 'utf8');
@@ -48,7 +31,6 @@ class CrossFrameworkAnalyzer {
    * @returns {object} - Control mapping details
    */
   mapControlUnified(controlQuery) {
-    // Find matching control
     const control = this.findControl(controlQuery);
 
     if (!control) {
@@ -80,11 +62,9 @@ class CrossFrameworkAnalyzer {
     const normalizedFrameworks = frameworks.map(f => this.normalizeFrameworkCode(f));
     const conflicts = [];
 
-    // Iterate through all controls
     for (const [controlId, control] of Object.entries(this.crosswalk.controls)) {
       if (!control.conflicts) continue;
 
-      // Check if any selected frameworks are involved in conflicts
       for (const conflict of control.conflicts) {
         const involvedFrameworks = this.getConflictFrameworks(conflict);
         const relevantFrameworks = involvedFrameworks.filter(f =>
@@ -104,7 +84,6 @@ class CrossFrameworkAnalyzer {
       }
     }
 
-    // Sort by severity
     conflicts.sort((a, b) => {
       const severityOrder = { high: 0, medium: 1, low: 2 };
       return severityOrder[a.severity] - severityOrder[b.severity];
@@ -128,12 +107,11 @@ class CrossFrameworkAnalyzer {
   optimizeMultiFramework(frameworks, outputFormat = 'roadmap') {
     const normalizedFrameworks = frameworks.map(f => this.normalizeFrameworkCode(f));
 
-    // Categorize controls by tier (how many frameworks they satisfy)
     const tiers = {
-      tier1: [], // Satisfies 4+ frameworks
-      tier2: [], // Satisfies 3 frameworks
-      tier3: [], // Satisfies 2 frameworks
-      tier4: []  // Framework-specific (1 framework)
+      tier1: [],
+      tier2: [],
+      tier3: [],
+      tier4: []
     };
 
     for (const [controlId, control] of Object.entries(this.crosswalk.controls)) {
@@ -168,20 +146,15 @@ class CrossFrameworkAnalyzer {
     return optimization;
   }
 
-  /**
-   * Find a control by query (name, ID, or search term)
-   */
   findControl(query) {
     const lowerQuery = query.toLowerCase();
 
-    // First try exact match by control ID
     for (const [controlId, control] of Object.entries(this.crosswalk.controls)) {
       if (controlId.toLowerCase() === lowerQuery) {
         return control;
       }
     }
 
-    // Try matching against framework control IDs
     for (const [controlId, control] of Object.entries(this.crosswalk.controls)) {
       for (const framework of Object.keys(control)) {
         if (Array.isArray(control[framework])) {
@@ -194,7 +167,6 @@ class CrossFrameworkAnalyzer {
       }
     }
 
-    // Try fuzzy match on control name
     for (const [controlId, control] of Object.entries(this.crosswalk.controls)) {
       if (control.name && control.name.toLowerCase().includes(lowerQuery)) {
         return control;
@@ -207,9 +179,6 @@ class CrossFrameworkAnalyzer {
     return null;
   }
 
-  /**
-   * Suggest similar controls
-   */
   suggestControls(query) {
     const suggestions = [];
     const lowerQuery = query.toLowerCase();
@@ -223,9 +192,6 @@ class CrossFrameworkAnalyzer {
     return suggestions.slice(0, 5);
   }
 
-  /**
-   * Extract framework mappings from a control
-   */
   extractFrameworkMappings(control) {
     const mappings = {};
     const frameworkFields = ['nist_800_53', 'iso_27001', 'soc2', 'pci_dss', 'cis_controls', 'cmmc', 'fedramp'];
@@ -239,9 +205,6 @@ class CrossFrameworkAnalyzer {
     return mappings;
   }
 
-  /**
-   * Get optimization tier for a control
-   */
   getOptimizationTier(control) {
     const frameworks = this.extractFrameworkMappings(control);
     const count = Object.keys(frameworks).length;
@@ -252,11 +215,7 @@ class CrossFrameworkAnalyzer {
     return 'tier4';
   }
 
-  /**
-   * Get effort estimate for a control
-   */
   getEffortEstimate(control) {
-    // Check if estimate exists in crosswalk
     if (this.crosswalk.effort_estimates) {
       for (const [controlId, estimate] of Object.entries(this.crosswalk.effort_estimates)) {
         if (control.name && control.name.toLowerCase().includes(controlId.toLowerCase())) {
@@ -265,13 +224,9 @@ class CrossFrameworkAnalyzer {
       }
     }
 
-    // Default estimate: 8 hours per control
     return { hours: 8, complexity: 'Medium', dependencies: [] };
   }
 
-  /**
-   * Normalize framework code to standard format
-   */
   normalizeFrameworkCode(code) {
     const mapping = {
       'soc2': 'SOC2',
@@ -297,9 +252,6 @@ class CrossFrameworkAnalyzer {
     return mapping[code.toLowerCase()] || code.toUpperCase();
   }
 
-  /**
-   * Get frameworks involved in a conflict
-   */
   getConflictFrameworks(conflict) {
     const frameworks = [];
     for (const key of Object.keys(conflict)) {
@@ -310,11 +262,7 @@ class CrossFrameworkAnalyzer {
     return frameworks;
   }
 
-  /**
-   * Assess conflict severity
-   */
   assessConflictSeverity(conflict) {
-    // Check for mandatory requirements (e.g., PCI-DSS)
     const conflictStr = JSON.stringify(conflict).toLowerCase();
 
     if (conflictStr.includes('mandatory') || conflictStr.includes('required')) {
@@ -332,9 +280,6 @@ class CrossFrameworkAnalyzer {
     return 'low';
   }
 
-  /**
-   * Group conflicts by severity
-   */
   groupBySeverity(conflicts) {
     return {
       high: conflicts.filter(c => c.severity === 'high').length,
@@ -343,9 +288,6 @@ class CrossFrameworkAnalyzer {
     };
   }
 
-  /**
-   * Generate conflict summary
-   */
   generateConflictSummary(conflicts) {
     return {
       mostCommon: this.getMostCommonConflict(conflicts),
@@ -354,9 +296,6 @@ class CrossFrameworkAnalyzer {
     };
   }
 
-  /**
-   * Get most common conflict type
-   */
   getMostCommonConflict(conflicts) {
     const types = {};
     for (const conflict of conflicts) {
@@ -368,9 +307,6 @@ class CrossFrameworkAnalyzer {
     return sorted[0] ? sorted[0][0] : 'None';
   }
 
-  /**
-   * Count how many selected frameworks a control satisfies
-   */
   countSatisfiedFrameworks(control, selectedFrameworks) {
     const mappings = this.extractFrameworkMappings(control);
     let count = 0;
@@ -378,7 +314,6 @@ class CrossFrameworkAnalyzer {
     for (const framework of selectedFrameworks) {
       const normalized = this.normalizeFrameworkCode(framework);
 
-      // Check direct matches
       for (const key of Object.keys(mappings)) {
         if (this.normalizeFrameworkCode(key) === normalized) {
           count++;
@@ -390,16 +325,11 @@ class CrossFrameworkAnalyzer {
     return count;
   }
 
-  /**
-   * Calculate effort savings from optimization
-   */
   calculateEffortSavings(tiers, frameworks) {
-    // Effort without optimization (implement each framework separately)
     const avgControlsPerFramework = 200;
     const hoursPerControl = 8;
     const withoutOptimization = frameworks.length * avgControlsPerFramework * hoursPerControl;
 
-    // Effort with optimization
     const withOptimization =
       (tiers.tier1.length * hoursPerControl) +
       (tiers.tier2.length * hoursPerControl) +
@@ -414,9 +344,6 @@ class CrossFrameworkAnalyzer {
     };
   }
 
-  /**
-   * Identify quick wins (high value, low effort)
-   */
   identifyQuickWins(tier1Controls) {
     return tier1Controls
       .filter(c => {
@@ -426,13 +353,9 @@ class CrossFrameworkAnalyzer {
       .slice(0, 5);
   }
 
-  /**
-   * Generate implementation roadmap
-   */
   generateRoadmap(tiers) {
     const phases = [];
 
-    // Phase 1: Top 20 Tier 1 controls
     phases.push({
       name: 'Foundation',
       duration: '8 weeks',
@@ -440,7 +363,6 @@ class CrossFrameworkAnalyzer {
       effort: tiers.tier1.slice(0, 20).reduce((sum, c) => sum + this.getEffortEstimate(c.control).hours, 0)
     });
 
-    // Phase 2: Remaining Tier 1 + High-priority Tier 2
     phases.push({
       name: 'Core Security',
       duration: '8 weeks',
@@ -448,7 +370,6 @@ class CrossFrameworkAnalyzer {
       effort: 800
     });
 
-    // Phase 3: Tier 2 + Tier 3
     phases.push({
       name: 'Comprehensive',
       duration: '8 weeks',
@@ -456,7 +377,6 @@ class CrossFrameworkAnalyzer {
       effort: 1200
     });
 
-    // Phase 4: Tier 4
     phases.push({
       name: 'Framework-Specific',
       duration: '6 weeks',
@@ -467,9 +387,6 @@ class CrossFrameworkAnalyzer {
     return phases;
   }
 
-  /**
-   * Calculate coverage by phase
-   */
   calculateCoverageByPhase(tiers) {
     const totalControls =
       tiers.tier1.length + tiers.tier2.length +
@@ -483,9 +400,6 @@ class CrossFrameworkAnalyzer {
     };
   }
 
-  /**
-   * Generate control matrix (CSV format)
-   */
   generateControlMatrix(optimization) {
     const matrix = [];
     matrix.push(['Control', 'Category', ...optimization.frameworks, 'Tier', 'Effort']);
@@ -506,9 +420,6 @@ class CrossFrameworkAnalyzer {
     return matrix;
   }
 
-  /**
-   * Check if control has framework mapping
-   */
   hasFramework(control, framework) {
     const normalized = this.normalizeFrameworkCode(framework);
     const mappings = this.extractFrameworkMappings(control);
@@ -521,9 +432,6 @@ class CrossFrameworkAnalyzer {
     return false;
   }
 
-  /**
-   * Generate optimization summary
-   */
   generateOptimizationSummary(optimization) {
     return {
       frameworks: optimization.frameworks,
@@ -542,7 +450,6 @@ class CrossFrameworkAnalyzer {
   }
 }
 
-// CLI interface
 // `process.argv[1]` is undefined under `node --eval` and some embedders, where
 // pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {

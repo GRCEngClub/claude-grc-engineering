@@ -1,4 +1,3 @@
-// Resolve numeric resource names only when needed. Never expose provider output.
 import { spawnSync } from 'node:child_process';
 
 export function projectScope(project) {

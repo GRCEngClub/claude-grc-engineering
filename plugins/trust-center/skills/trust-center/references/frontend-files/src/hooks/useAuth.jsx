@@ -17,7 +17,6 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Check for existing session on mount
   useEffect(() => {
     const cognitoUser = userPool.getCurrentUser()
     if (cognitoUser) {
@@ -63,8 +62,6 @@ export function AuthProvider({ children }) {
           reject(err)
         },
         newPasswordRequired: (userAttributes) => {
-          // First login — Cognito requires a password change
-          // Return a function the UI can call with the new password
           resolve({
             challengeName: 'NEW_PASSWORD_REQUIRED',
             completeChallenge: (newPassword) => {

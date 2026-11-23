@@ -36,8 +36,6 @@ async function main(argv) {
     const rows = vulns.raw?.vulnerabilities || [];
     const ages = rows.map(v => ageDays(v.last_seen || v.last_found || v.first_found));
     const old = ages.filter(a => a !== null && a > maxAgeDays);
-    // Rows with no parseable timestamp used to age as 0 and silently count as
-    // fresh. They are unknown, not compliant, so they are reported separately.
     const undated = ages.filter(a => a === null).length;
     const evaluation = old.length
       ? failHigh('VPM-04', `${old.length} Tenable vulnerability group(s) are older than ${maxAgeDays} days.`, 'Prioritize aged vulnerabilities and document remediation or accepted risk.')
@@ -69,16 +67,11 @@ function tenant(ctx, evaluations, raw, metadata = {}) { return doc(ctx, 'tenable
 function doc(ctx, type, id, evaluations, raw, metadata) { return { schema_version: '1.0.0', source: SOURCE, source_version: SOURCE_VERSION, run_id: ctx.runId, collected_at: ctx.collectedAt, resource: { type, id: String(id), uri: ctx.baseUrl, region: null, account_id: ctx.baseUrl }, evaluations, raw_attributes: raw, metadata }; }
 async function probe(baseUrl, endpoint, access, secret) { try { const r = await fetch(`${baseUrl.replace(/\/$/, '')}${endpoint}`, { headers: { Accept: 'application/json', 'X-ApiKeys': `accessKey=${access}; secretKey=${secret}` } }); const raw = await r.json().catch(() => ({})); if (!r.ok) throw new Error(raw.error_msg || raw.error || `http_${r.status}`); return { ok: true, raw }; } catch (e) { return { ok: false, raw: null, error: e.message }; } }
 async function loadEnv() { try { return Object.fromEntries((await fs.readFile(ENV_FILE, 'utf8')).split(/\r?\n/).map(l => l.match(/^([A-Z0-9_]+)="?(.*?)"?$/)).filter(Boolean).map(m => [m[1], m[2]])); } catch { return {}; } }
-// Returns null, not 0, when the timestamp is missing or unparseable: an
-// unknown age must not be indistinguishable from a brand-new finding.
 function ageDays(v) { const t = Date.parse(v || ''); return Number.isFinite(t) ? (Date.now() - t) / 86400000 : null; }
 function parseArgs(argv) { const out = { output: 'summary', quiet: false, limit: 0 }; for (const tok of argv) { if (!tok.startsWith('--')) continue; const [k, v] = tok.slice(2).split('='); if (k === 'output' && ['summary', 'json', 'silent'].includes(v)) out.output = v; else if (k === 'quiet') out.quiet = true; else if (k === 'limit') out.limit = parseInt(v, 10); else fail(EXIT.USAGE, `Unknown flag: --${k}`); } return out; }
 function pass(id, message) { return { control_framework: 'SCF', control_id: id, status: 'pass', severity: 'info', message }; }
 function inconclusive(id, message) { return { control_framework: 'SCF', control_id: id, status: 'inconclusive', severity: 'info', message }; }
 function failHigh(id, message, summary) { return { control_framework: 'SCF', control_id: id, status: 'fail', severity: 'high', message, remediation: { summary, ref: 'grc-engineer://generate-implementation/tenable_vulnerability_management', effort_hours: 1, automation: 'manual' } }; }
-// Indentation-aware so nested blocks survive. The previous flat matcher only
-// accepted unindented keys, so setup.sh's `defaults:\n  limit: 100` parsed as
-// the string "" and every configured default was silently ignored.
 function parseYaml(text) {
   const out = {};
   const stack = [{ indent: -1, obj: out }];
@@ -92,16 +85,12 @@ function parseYaml(text) {
     if (!m) continue;
     const key = m[1];
     let val = m[2];
-    // A value that is only a comment ("key: # note") opens a nested block,
-    // same as a bare "key:".
     if (val.startsWith('#')) val = '';
     if (val === '') {
       const child = {};
       parent[key] = child;
       stack.push({ indent, obj: child });
     } else {
-      // Quoted scalars (either quote style) are taken verbatim; anything
-      // after the closing quote (e.g. an inline comment) is dropped.
       const quoted = val.match(/^(["'])(.*?)\1/);
       if (quoted) val = quoted[2];
       else {

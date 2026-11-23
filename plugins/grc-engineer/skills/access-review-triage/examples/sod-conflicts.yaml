@@ -1,8 +1,3 @@
-# Separation-of-duty conflict pairs.
-# If a single user has BOTH roles in a pair on the same system, rule 2 fires
-# (Investigate, P0). Extend this file per your org's policy. Pairs are
-# unordered: ["a", "b"] and ["b", "a"] both match.
-
 conflicts:
   - roles: ["ap-creator", "ap-approver"]
     reason: "Accounts payable separation of duties. Whoever creates an invoice cannot approve it."

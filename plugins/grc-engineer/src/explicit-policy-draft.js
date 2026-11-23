@@ -1,4 +1,3 @@
-/** Generate a narrowly scoped draft from an explicitly supplied policy source. */
 export function generateExplicitPolicyDraft(spec) {
   const invalid = () => { throw new Error('Invalid policy specification; no policy was generated. See the policy-as-code-generator skill.'); };
   if (!spec || typeof spec !== 'object' || Array.isArray(spec)) invalid();
@@ -11,7 +10,6 @@ export function generateExplicitPolicyDraft(spec) {
       typeof source.reference !== 'string' || !source.reference.trim() || source.reference.length > 2048 ||
       typeof source.excerpt !== 'string' || !source.excerpt.trim() || source.excerpt.length > 8192) invalid();
 
-  // Only the tag is embedded in code; JSON string escaping also escapes Rego literals.
   const code = `# DRAFT ONLY - do not enforce without independent review and testing.
 # Checks only whether a tag key exists on planned aws_s3_bucket resources.
 package draft.required_tag
@@ -122,8 +120,6 @@ warning contains msg if {
 }
 
 `;
-  // Standalone starter tests exercise both decisions; they do not certify coverage.
-  // Tag is encoded as a Rego string literal, never interpolated as source.
   const testCode = `# DRAFT starter tests — expand and independently review before use.
 package draft.required_tag
 
@@ -149,7 +145,6 @@ test_unknown_tag_warns if {
     count(warning) == 1 with input as example({}, {"tags": true})
 }
 `;
-  // Keep untrusted source as JSON data, not executable code or Markdown markup.
   const provenance = JSON.stringify({ reference: source.reference, excerpt: source.excerpt, required_tag: tag }, null, 2);
   return {
     format, code, testCode,

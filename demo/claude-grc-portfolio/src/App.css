@@ -1,6 +1,3 @@
-/* Component styles */
-
-/* ── Navbar ── */
 .navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -63,7 +60,6 @@
   .navbar-toggle { display: block; }
 }
 
-/* ── Hero ── */
 .hero {
   padding: 8rem 0 5rem;
   background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);
@@ -107,7 +103,6 @@
 }
 .hero-link:hover { background: rgba(147,197,253,0.1); color: #bfdbfe; border-color: rgba(147,197,253,0.5); }
 
-/* ── About ── */
 .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
 .about-photo-placeholder {
   aspect-ratio: 4/5; border-radius: 12px;
@@ -124,7 +119,6 @@
 .about-meta-item strong { color: var(--color-text); }
 @media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; } .about-photo-placeholder { max-width: 280px; } }
 
-/* ── Frameworks ── */
 .frameworks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
 .framework-card {
   padding: 1.25rem; border-radius: var(--radius);
@@ -136,14 +130,12 @@
 .framework-card .fw-type { font-size: 0.75rem; color: var(--color-text-light); }
 .framework-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
 
-/* ── Skills ── */
 .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
 .skill-category { padding: 1.5rem; background: #fff; border-radius: var(--radius); border: 1px solid var(--color-border); }
 .skill-category h3 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-accent); margin-bottom: 1rem; }
 .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .skill-tag { padding: 0.3rem 0.7rem; background: var(--color-bg-alt); border-radius: 99px; font-size: 0.8rem; color: var(--color-text); border: 1px solid var(--color-border); }
 
-/* ── Certifications ── */
 .certs-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
 .cert-badge {
   display: flex; align-items: center; gap: 0.75rem;
@@ -156,7 +148,6 @@
 .cert-name { font-weight: 700; font-size: 0.95rem; color: var(--color-primary); }
 .cert-status { font-size: 0.75rem; color: var(--color-success); font-weight: 600; }
 
-/* ── Projects ── */
 .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
 .project-card {
   border: 1px solid var(--color-border); border-radius: var(--radius);
@@ -176,7 +167,6 @@
 .project-link { font-size: 0.85rem; font-weight: 600; color: var(--color-accent); display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
 .project-link:hover { color: var(--color-primary); }
 
-/* ── Writing ── */
 .writing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
 .writing-card {
   padding: 1.5rem; border: 1px solid var(--color-border);
@@ -188,7 +178,6 @@
 .writing-card h3 { font-size: 1rem; color: var(--color-primary); margin-bottom: 0.5rem; line-height: 1.4; }
 .writing-meta { font-size: 0.8rem; color: var(--color-text-light); margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; }
 
-/* ── Footer ── */
 .footer {
   background: var(--color-bg-dark);
   color: #94a3b8; padding: 3rem 0;

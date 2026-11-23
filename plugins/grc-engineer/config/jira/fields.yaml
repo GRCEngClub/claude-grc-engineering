@@ -1,14 +1,8 @@
 name: Jira Field Configuration
 description: Configurable Jira custom field mappings and defaults
 
-# Default project key for security tickets
 default_project: SEC
 
-# Custom field IDs - update these to match your Jira instance
-# To find your custom field IDs:
-# 1. Go to Jira Admin > Issues > Custom Fields
-# 2. Click on the field name to view its configuration
-# 3. The field ID is in the URL (e.g., customfield_10001)
 custom_fields:
   likelihood:
     id: customfield_10001
@@ -35,26 +29,21 @@ custom_fields:
     name: Definition of Done
     description: Acceptance criteria for the ticket
 
-# Issue type mappings
 issue_types:
   vulnerability: Bug
   missing_control: Task
   improvement: Story
   default: Security Task
 
-# Priority mappings based on risk score
 priority_mapping:
-  critical_threshold: 12  # Risk score >= 12 = Critical
-  high_threshold: 6       # Risk score >= 6 = High
-  medium_threshold: 3     # Risk score >= 3 = Medium
-  # Below medium_threshold = Low
+  critical_threshold: 12
+  high_threshold: 6
+  medium_threshold: 3
 
-# Default labels to add to all risk tickets
 default_labels:
   - security
   - risk-mitigation
 
-# Technology detection keywords for auto-labeling
 technology_keywords:
   aws:
     - aws
@@ -100,7 +89,6 @@ technology_keywords:
     - tls
     - ssl
 
-# Risk keywords for extraction
 risk_keywords:
   likelihood:
     critical:

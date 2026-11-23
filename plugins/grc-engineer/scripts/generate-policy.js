@@ -1,13 +1,3 @@
-/**
- * Policy-as-Code Generator CLI
- *
- * Usage: node scripts/generate-policy.js "<requirement>" [format]
- *
- * Examples:
- *   node scripts/generate-policy.js "Ensure no S3 buckets are public" rego
- *   node scripts/generate-policy.js "All EC2 instances must have encryption enabled" rego
- */
-
 import { generatePolicy } from '../src/policy-generator.js';
 import { generateExplicitPolicyDraft } from '../src/explicit-policy-draft.js';
 import fs from 'fs/promises';
@@ -39,7 +29,6 @@ async function main() {
       : generatePolicy(requirement, format);
     const outputFormat = policy.format;
     
-    // Determine file extension
     const extensions = {
       rego: '.rego',
       sentinel: '.sentinel',
@@ -49,7 +38,6 @@ async function main() {
     const ext = extensions[outputFormat] || '.txt';
     const filename = `policy_${Date.now()}${ext}`;
     
-    // Write policy code
     await fs.writeFile(filename, policy.code, 'utf-8');
     console.log(`Policy generated: ${filename}`);
     console.log('');
@@ -64,7 +52,6 @@ async function main() {
       console.log(`Run: opa test ${filename} ${testFile}`);
     }
 
-    // Write documentation if available
     if (policy.documentation) {
       const docFile = filename.replace(ext, '.md');
       await fs.writeFile(docFile, policy.documentation, 'utf-8');

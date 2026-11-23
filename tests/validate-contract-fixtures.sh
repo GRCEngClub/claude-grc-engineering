@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Kept in contract-test path filters so required checks can be triggered.
 set -eo pipefail
 
 validator="tests/validate-json-schema.cjs"

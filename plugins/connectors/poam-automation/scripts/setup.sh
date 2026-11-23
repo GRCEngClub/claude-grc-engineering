@@ -10,7 +10,6 @@ TOOL_REPO="https://github.com/networkbm/POAM-Automation-Tool.git"
 
 echo "=== poam-automation setup ==="
 
-# Check Python 3
 if ! command -v python3 &>/dev/null; then
   echo "ERROR: python3 not found. Install Python 3.8 or later." >&2
   exit 5
@@ -19,7 +18,6 @@ fi
 PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
 echo "  python3: ${PYTHON_VERSION}"
 
-# Clone or update the upstream tool into the standard claude-grc tools dir.
 mkdir -p "${TOOL_BASE}"
 if [[ ! -d "${TOOL_DIR}/.git" ]]; then
   echo "  cloning ${TOOL_REPO} → ${TOOL_DIR}"
@@ -47,7 +45,6 @@ fi
 "${VENV_DIR}/bin/python" -m pip install --quiet openpyxl
 echo "  openpyxl: installed in venv"
 
-# Create config
 mkdir -p "${CONFIG_DIR}"
 cat > "${CONFIG_FILE}" <<YAML
 tool_path: "${TOOL_PATH}"
@@ -56,7 +53,6 @@ default_baseline: moderate
 YAML
 echo "  config: ${CONFIG_FILE}"
 
-# Create cache dirs
 mkdir -p "${CACHE_DIR}"
 echo "  cache: ${CACHE_DIR}"
 

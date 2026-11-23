@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# testssl-inspector:status — quick health view.
 set -euo pipefail
 
 CONFIG_DIR="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors"

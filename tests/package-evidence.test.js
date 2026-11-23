@@ -89,7 +89,6 @@ with zipfile.ZipFile(sys.argv[1]) as z:
       assert.equal(existsSync(invalidOutput), false);
       rmSync(invalid);
     }
-    // Exercise verifier limits with a test-only lowered limit in an isolated copy.
     const limitedDir = join(dir, 'limited'); mkdirSync(limitedDir);
     const limitedScript = join(limitedDir, 'package-evidence.py');
     writeFileSync(limitedScript, readFileSync(script));

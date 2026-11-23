@@ -3,8 +3,6 @@ import assert from 'node:assert/strict';
 
 import { resolveRequestedFrameworks, EXIT } from '../plugins/grc-engineer/scripts/gap-assessment.js';
 
-// Stub SCF client: only HIPAA and SOC2 resolve, everything else returns null,
-// mirroring frameworkSummary() behaviour for labels absent from the crosswalk.
 const stubScf = {
   async frameworkSummary(label) {
     const known = {

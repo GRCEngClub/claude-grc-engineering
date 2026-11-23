@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# fedramp-ssp:convert — DOCX → OSCAL SSP JSON
 set -uo pipefail
 
 CONFIG_FILE="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors/fedramp-ssp.yaml"
@@ -49,13 +48,11 @@ EOF
   exit 5
 fi
 
-# Find the pipeline entry point — the upstream tool's layout may vary; try common names.
 ENTRYPOINT=""
 for candidate in "$TOOL_DIR/cli.py" "$TOOL_DIR/main.py" "$TOOL_DIR/frdocx_to_froscal.py" "$TOOL_DIR/convert.py" "$TOOL_DIR/src/main.py"; do
   if [[ -f "$candidate" ]]; then ENTRYPOINT="$candidate"; break; fi
 done
 if [[ -z "$ENTRYPOINT" ]]; then
-  # Last resort: look for a __main__ module in a package
   ENTRYPOINT=$(find "$TOOL_DIR" -maxdepth 3 -name "__main__.py" 2>/dev/null | head -1)
 fi
 if [[ -z "$ENTRYPOINT" ]]; then
@@ -73,8 +70,6 @@ EOF
   exit 5
 fi
 
-# Call the pipeline. We pass inputs as positional args and/or --ssp / --appendix
-# flags; upstream accepts flag-style in recent versions. Try both in order.
 set +e
 "$PYTHON" "$ENTRYPOINT" \
   --ssp "$SSP_DOCX" \
@@ -82,7 +77,6 @@ set +e
   --output "$OUTPUT" 2>/tmp/frdocx.err
 STATUS=$?
 if (( STATUS != 0 )); then
-  # Fallback: positional args
   "$PYTHON" "$ENTRYPOINT" "$SSP_DOCX" "$APPA_DOCX" "$OUTPUT" 2>>/tmp/frdocx.err
   STATUS=$?
 fi
@@ -99,7 +93,6 @@ if [[ ! -s "$OUTPUT" ]]; then
   exit 3
 fi
 
-# Quick summary
 SIZE=$(wc -c < "$OUTPUT" | awk '{print $1}')
 IMPL_COUNT=$(node -e "
 const fs=require('fs');

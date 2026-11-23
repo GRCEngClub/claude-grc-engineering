@@ -1,12 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * gcp-inspector:collect
- *
- * Runs gcloud read-only queries and emits findings conforming to
- * schemas/finding.schema.json v1.
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -106,11 +99,6 @@ async function main(argv) {
   process.exit(errors.length ? EXIT.PARTIAL : EXIT.OK);
 }
 
-// ---------------------------------------------------------------------------
-// Service handlers
-
-// Keep metadata outside the Finding cache: the Finding contract requires a
-// control evaluation, and inventory alone is not a compliance determination.
 async function collectSecretEvidence(ctx) {
   const deadline = performance.now() + 5 * 60 * 1000;
   const checkDeadline = () => {
@@ -154,7 +142,6 @@ const serviceHandlers = {
     const resource = { type: 'gcp_project_iam', id: project, uri: `//cloudresourcemanager.googleapis.com/projects/${project}`, account_id: project };
     const evaluations = [];
 
-    // IAC-07.2: No user accounts with primitive roles (owner, editor)
     try {
       const { stdout } = await gcloud(['projects', 'get-iam-policy', project, '--format=json']);
       const policy = JSON.parse(stdout);
@@ -185,7 +172,6 @@ const serviceHandlers = {
       evaluations.push({ control_framework: 'SCF', control_id: 'IAC-07.2', status: 'inconclusive', severity: 'medium', message: `IAM policy fetch failed: ${err.message}` });
     }
 
-    // IAC-15.1: Service account key age
     try {
       const { stdout } = await gcloud(['iam', 'service-accounts', 'list', `--project=${project}`, '--format=json']);
       const sas = JSON.parse(stdout);
@@ -201,13 +187,11 @@ const serviceHandlers = {
             const ageDays = Math.floor((now - Date.parse(k.validAfterTime)) / 86400000);
             if (ageDays > 90) staleKeys.push({ sa: sa.email, key_id: k.name.split('/').pop(), age_days: ageDays });
           }
-        } catch { /* ignore per-SA errors */ }
+        } catch { }
       }
       if (!staleKeys.length) {
         evaluations.push({ control_framework: 'SCF', control_id: 'IAC-15.1', status: 'pass', severity: 'info' });
       } else {
-        // staleKeys is in service-account iteration order, so element 0 is
-        // just the first one found, not the oldest one.
         const oldestKey = staleKeys.reduce((a, b) => (b.age_days > a.age_days ? b : a));
         evaluations.push({
           control_framework: 'SCF', control_id: 'IAC-15.1',
@@ -231,7 +215,6 @@ const serviceHandlers = {
       const { stdout } = await gcloud(['storage', 'buckets', 'list', `--project=${ctx.project}`, '--format=json']);
       buckets = JSON.parse(stdout || '[]');
     } catch (err) {
-      // Return single inconclusive document at project level
       return [buildDoc(ctx,
         { type: 'gcp_storage_project', id: ctx.project, uri: `//cloudresourcemanager.googleapis.com/projects/${ctx.project}`, account_id: ctx.project },
         [{ control_framework: 'SCF', control_id: 'CRY-05', status: 'inconclusive', severity: 'medium', message: `Bucket enumeration failed: ${err.message}` }])];
@@ -243,7 +226,6 @@ const serviceHandlers = {
       const resource = { type: 'gcp_storage_bucket', id: name, uri: `//storage.googleapis.com/${name}`, region: (b.location || '').toLowerCase(), account_id: ctx.project };
       const evaluations = [];
 
-      // DCH-01.2: Public access prevention
       const pap = b.iamConfiguration?.publicAccessPrevention;
       if (pap === 'enforced') {
         evaluations.push({ control_framework: 'SCF', control_id: 'DCH-01.2', status: 'pass', severity: 'info' });
@@ -255,7 +237,6 @@ const serviceHandlers = {
         });
       }
 
-      // DCH-01.2: Uniform bucket-level access
       const uba = b.iamConfiguration?.uniformBucketLevelAccess?.enabled;
       if (uba) evaluations.push({ control_framework: 'SCF', control_id: 'IAC-10', status: 'pass', severity: 'info' });
       else evaluations.push({
@@ -264,7 +245,6 @@ const serviceHandlers = {
         remediation: { summary: 'Enable uniformBucketLevelAccess to force IAM-only access control.', ref: 'grc-engineer://generate-implementation/storage_uniform_access/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
       });
 
-      // CRY-05: Encryption — GCS always encrypts at rest, but CMEK is the FedRAMP/high-sensitivity bar
       if (b.encryption?.defaultKmsKeyName) {
         evaluations.push({ control_framework: 'SCF', control_id: 'CRY-05', status: 'pass', severity: 'info' });
       } else {
@@ -274,7 +254,6 @@ const serviceHandlers = {
         });
       }
 
-      // MON-01.2: Access logging
       const logging = b.logging?.logBucket;
       if (logging) evaluations.push({ control_framework: 'SCF', control_id: 'MON-01.2', status: 'pass', severity: 'info' });
       else evaluations.push({
@@ -296,7 +275,6 @@ const serviceHandlers = {
       const sinks = JSON.parse(stdout || '[]');
       if (sinks.length) {
         evaluations.push({ control_framework: 'SCF', control_id: 'MON-02', status: 'pass', severity: 'info' });
-        // MON-02.1: destination isn't a public bucket
         const publicSinks = sinks.filter(s => (s.destination || '').includes('publicly-readable'));
         if (publicSinks.length) {
           evaluations.push({
@@ -322,11 +300,8 @@ const serviceHandlers = {
 
   async kms(ctx, log) {
     const findings = [];
-    // KMS keyrings are regional; enumerate via `gcloud kms keyrings list --location=global`
-    // and then for each keyring, fetch keys and their rotationPeriod.
     let keyrings;
     try {
-      // Discover locations by scanning a standard set; gcloud doesn't have "list all locations" on the free tier.
       const locations = ['global', 'us', 'us-central1', 'us-east1', 'us-west1', 'europe', 'europe-west1', 'asia'];
       keyrings = [];
       for (const loc of locations) {
@@ -334,7 +309,7 @@ const serviceHandlers = {
           const { stdout } = await gcloud(['kms', 'keyrings', 'list', `--location=${loc}`, `--project=${ctx.project}`, '--format=json'], { tolerateFailure: true });
           const krs = JSON.parse(stdout || '[]');
           for (const kr of krs) keyrings.push({ ...kr, location: loc });
-        } catch { /* skip unavailable locations */ }
+        } catch { }
       }
     } catch (err) {
       return [buildDoc(ctx, { type: 'gcp_kms', id: `kms-${ctx.project}`, uri: `//cloudresourcemanager.googleapis.com/projects/${ctx.project}`, account_id: ctx.project },
@@ -406,9 +381,6 @@ const serviceHandlers = {
     return [buildDoc(ctx, resource, evaluations)];
   }
 };
-
-// ---------------------------------------------------------------------------
-// Utilities
 
 function buildDoc(ctx, resource, evaluations) {
   return {

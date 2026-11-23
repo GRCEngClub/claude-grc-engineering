@@ -1,31 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * /grc-engineer:monitor-continuous
- *
- * Scheduler-friendly runner for recurring compliance checks. Wraps
- * gap-assessment.js, applies warn/critical thresholds per framework, and
- * optionally chains record-automation-metrics.js so a single cron/Actions
- * invocation keeps both gap reporting and automation-history snapshots fresh.
- *
- * Pipeline:
- *   1. Resolve frameworks + options from CLI args and/or --config=<yaml|json>.
- *   2. Spawn gap-assessment.js with --output=json and capture the summary.
- *   3. Evaluate per-framework pass rates against configured thresholds.
- *   4. Optionally spawn record-automation-metrics.js for the same period.
- *   5. Emit a structured JSON summary (stdout) + a human summary (stderr).
- *   6. Exit non-zero when any framework breaches a threshold, unless
- *      --no-exit-code is set. This is what makes the command useful to cron
- *      and GitHub Actions without extra glue.
- *
- * Usage:
- *   node plugins/grc-engineer/scripts/monitor-continuous.js SOC2,PCI-DSS,NIST-800-53
- *   node plugins/grc-engineer/scripts/monitor-continuous.js --config=./monitor-continuous.yaml
- *
- * The JSON output is the contract downstream alerting tools should read. See
- * plugins/grc-engineer/commands/monitor-continuous.md for the shape.
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -43,9 +17,6 @@ const RECORD_METRICS_SCRIPT = path.join(__dirname, 'record-automation-metrics.js
 const DEFAULT_WARN = 0.90;
 const DEFAULT_CRITICAL = 0.80;
 
-// Exit-code contract — keep aligned with usage() text and the command doc.
-// USAGE and ERROR intentionally share code 1 so CI can distinguish a true
-// compliance warning (exit 2) from a user/config mistake (exit 1).
 const EXIT = { OK: 0, ERROR: 1, USAGE: 1, WARNING: 2, CRITICAL: 3 };
 
 function usage() {
@@ -228,8 +199,6 @@ function resolveConfigPath(baseDir, value) {
   return path.isAbsolute(asString) ? asString : path.resolve(baseDir, asString);
 }
 
-// Accept either an array of strings or a comma-separated string. Anything
-// else (object, number, nested arrays) is a config mistake.
 function coerceStringList(value, fieldName) {
   if (value === undefined || value === null) return null;
   if (Array.isArray(value)) {
@@ -254,7 +223,6 @@ function coerceThreshold(value, fieldName) {
 }
 
 function mergeConfigWithCli(cliOpts, configData, configPath) {
-  // CLI flags override config values. Start from config, then overlay CLI.
   const baseDir = configPath ? path.dirname(configPath) : process.cwd();
   const merged = {
     frameworks: coerceStringList(configData.frameworks, 'frameworks') || [],
@@ -403,18 +371,11 @@ function classifyFramework(stat, resolved) {
 }
 
 function rollupStatus(frameworkResults) {
-  // no_data ranks between ok and warning-from-threshold: a framework the
-  // connectors didn't evaluate is a real problem (nothing to attest from),
-  // but not a compliance breach. Treat it as warning-severity so alerts,
-  // overall_status, and exit code all agree.
   const order = { ok: 0, no_data: 1, warning: 1, critical: 2 };
   let worst = 'ok';
   for (const f of frameworkResults) {
     if ((order[f.status] ?? 0) > (order[worst] ?? 0)) worst = f.status;
   }
-  // Surface no_data as "warning" at the top level so downstream tooling
-  // keying off overall_status sees a non-ok state; framework_results[i].status
-  // still distinguishes no_data from a threshold-driven warning.
   return worst === 'no_data' ? 'warning' : worst;
 }
 
@@ -616,4 +577,4 @@ if (invokedFromCLI) {
   });
 }
 
-export { parseArgs, mergeConfigWithCli, classifyFramework, rollupStatus, buildAlerts };
+export { EXIT, usage, parseArgs, mergeConfigWithCli, classifyFramework, rollupStatus, buildAlerts };
