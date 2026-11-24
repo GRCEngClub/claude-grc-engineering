@@ -137,7 +137,8 @@ function statements(code, start, end) {
       const bodyStart = pos + block[0].length;
       const bodyEnd = closingBraceIndex(code, bodyStart);
       if (bodyEnd === -1 || bodyEnd > end) return null;
-      blocks.push({ name: block[1], bodyStart, bodyEnd });
+      const dynamicLabel = block[1] === 'dynamic' ? /"([^"\n]*)"/.exec(block[0])?.[1] : undefined;
+      blocks.push({ name: dynamicLabel ?? block[1], bodyStart, bodyEnd });
       pos = bodyEnd + 1;
       continue;
     }

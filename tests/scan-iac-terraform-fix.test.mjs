@@ -521,3 +521,34 @@ resource "aws_s3_bucket_versioning" "maybe" {
   await scanner.applyFixes();
   assert.equal(fs.readFileSync(file, 'utf8').match(/resource "aws_s3_bucket_versioning"/g).length, 2);
 });
+
+test('dynamic inline blocks count as inline configuration and get no competing resource', async (t) => {
+  const content = `resource "aws_s3_bucket" "data" {
+  bucket = "example-data"
+
+  dynamic "versioning" {
+    for_each = var.versioned ? [1] : []
+    content {
+      enabled = true
+    }
+  }
+
+  dynamic "server_side_encryption_configuration" {
+    for_each = [1]
+    content {
+      rule {
+        apply_server_side_encryption_by_default {
+          sse_algorithm = "AES256"
+        }
+      }
+    }
+  }
+}
+${BLOCKED}`;
+  const { dir, file } = workspace(t, content);
+
+  const scanner = await scan(dir);
+  assert.deepEqual(scanner.violations, []);
+  assert.equal(await scanner.applyFixes(), 0);
+  assert.equal(fs.readFileSync(file, 'utf8'), content);
+});
