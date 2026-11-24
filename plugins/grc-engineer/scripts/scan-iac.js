@@ -6,7 +6,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import yaml from 'js-yaml';
 import {
   appendResource,
-  hasCompanionResource,
+  companionResources,
+  resourceAttribute,
   setTopLevelAttribute,
   terraformResources
 } from '../src/terraform-blocks.js';
@@ -21,6 +22,7 @@ class IaCScanner {
     this.options = options;
     this.violations = [];
     this.pendingFixes = [];
+    this.terraformByDir = new Map();
     this.satisfied = [];
     this.partial = [];
     this.recommendations = [];
@@ -159,11 +161,12 @@ class IaCScanner {
   }
 
   scanTerraform(filePath, content) {
+    const moduleContent = [content, ...this.siblingTerraform(filePath)].join('\n');
     for (const resource of terraformResources(content)) {
       for (const [controlId, rule] of Object.entries(this.rules)) {
         for (const check of rule.checks) {
           if (check.type === 'terraform' && check.resources.includes(resource.type)) {
-            const result = check.validator(resource.type, resource.name, resource.body, filePath, resource.line, content);
+            const result = check.validator(resource.type, resource.name, resource.body, filePath, resource.line, moduleContent);
 
             if (result) {
               this.recordFinding(controlId, rule, result, filePath, resource.line, resource.type, resource.name);
@@ -172,6 +175,14 @@ class IaCScanner {
         }
       }
     }
+  }
+
+  siblingTerraform(filePath) {
+    const dir = path.dirname(filePath);
+    if (!this.terraformByDir.has(dir)) {
+      this.terraformByDir.set(dir, terraformFilesIn(dir));
+    }
+    return this.terraformByDir.get(dir).filter(f => f.file !== filePath).map(f => f.content);
   }
 
   scanYaml(filePath, content) {
@@ -229,14 +240,24 @@ class IaCScanner {
     const issues = [];
 
     if (resourceType === 'aws_s3_bucket') {
-      if (!resourceBody.includes('server_side_encryption_configuration')
-        && !hasCompanionResource(fileContent, 'aws_s3_bucket_server_side_encryption_configuration', resourceName)) {
+      const companions = companionResources(fileContent, 'aws_s3_bucket_server_side_encryption_configuration', resourceName);
+      if (resourceBody.includes('server_side_encryption_configuration')) {
+        return null;
+      }
+      if (companions.length === 0) {
         issues.push({
           severity: 'HIGH',
           issue: 'S3 bucket does not have server-side encryption enabled',
           remediation: 'Add an aws_s3_bucket_server_side_encryption_configuration resource with AES256 or aws:kms algorithm',
           autoFixable: true,
           fix: { companion: 'aws_s3_bucket_server_side_encryption_configuration' }
+        });
+      } else if (!companions.some(c => /\bsse_algorithm\s*=\s*"(AES256|aws:kms|aws:kms:dsse)"/.test(c.body))) {
+        issues.push({
+          severity: 'HIGH',
+          issue: 'S3 bucket encryption configuration does not set a recognised sse_algorithm; encryption is unverified',
+          remediation: `Set sse_algorithm to AES256 or aws:kms in ${addresses(companions)}`,
+          autoFixable: false
         });
       }
     }
@@ -393,8 +414,8 @@ class IaCScanner {
     const issues = [];
 
     if (resourceType === 'aws_s3_bucket') {
-      if (!resourceBody.includes('versioning')
-        && !hasCompanionResource(fileContent, 'aws_s3_bucket_versioning', resourceName)) {
+      const versioning = companionResources(fileContent, 'aws_s3_bucket_versioning', resourceName);
+      if (!resourceBody.includes('versioning') && versioning.length === 0) {
         issues.push({
           severity: 'MEDIUM',
           issue: 'S3 bucket versioning is not enabled',
@@ -402,15 +423,30 @@ class IaCScanner {
           autoFixable: true,
           fix: { companion: 'aws_s3_bucket_versioning' }
         });
+      } else if (versioning.length > 0 && !versioning.some(c => /\bstatus\s*=\s*"Enabled"/.test(c.body))) {
+        issues.push({
+          severity: 'MEDIUM',
+          issue: 'S3 bucket versioning is configured but its status is not "Enabled"',
+          remediation: `Set status = "Enabled" in ${addresses(versioning)}`,
+          autoFixable: false
+        });
       }
 
-      if (!hasCompanionResource(fileContent, 'aws_s3_bucket_public_access_block', resourceName)) {
+      const accessBlocks = companionResources(fileContent, 'aws_s3_bucket_public_access_block', resourceName);
+      if (accessBlocks.length === 0) {
         issues.push({
           severity: 'HIGH',
           issue: 'S3 bucket does not have public access blocks configured',
           remediation: 'Add aws_s3_bucket_public_access_block resource',
           autoFixable: true,
           fix: { companion: 'aws_s3_bucket_public_access_block' }
+        });
+      } else if (!accessBlocks.some(c => PUBLIC_ACCESS_FLAGS.every(flag => new RegExp(`\\b${flag}\\s*=\\s*true\\b`).test(c.body)))) {
+        issues.push({
+          severity: 'HIGH',
+          issue: 'S3 bucket public access block does not set all four flags to true',
+          remediation: `Set ${PUBLIC_ACCESS_FLAGS.join(', ')} to true in ${addresses(accessBlocks)}`,
+          autoFixable: false
         });
       }
     }
@@ -503,8 +539,10 @@ class IaCScanner {
       const original = fs.readFileSync(file, 'utf8');
       let content = original;
 
+      const siblings = terraformFilesIn(path.dirname(file)).filter(f => f.file !== file).map(f => f.content);
+
       for (const fix of fixes) {
-        const fixed = applyTerraformFix(content, fix);
+        const fixed = applyTerraformFix(content, fix, siblings);
         if (fixed !== content) fixCount++;
         content = fixed;
       }
@@ -589,39 +627,76 @@ if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.a
   });
 }
 
-function applyTerraformFix(content, fix) {
+function applyTerraformFix(content, fix, siblings) {
   if (fix.attribute) {
     return setTopLevelAttribute(content, fix.resourceType, fix.resourceName, fix.attribute, fix.value);
   }
-  if (hasCompanionResource(content, fix.companion, fix.resourceName)) return content;
-  return appendResource(content, S3_COMPANION_RESOURCES[fix.companion](fix.resourceName));
+  const moduleContent = [content, ...siblings].join('\n');
+  if (companionResources(moduleContent, fix.companion, fix.resourceName).length > 0) return content;
+  const bucket = terraformResources(content).find(r => r.type === 'aws_s3_bucket' && r.name === fix.resourceName);
+  if (!bucket) return content;
+
+  const taken = new Set(terraformResources(moduleContent).filter(r => r.type === fix.companion).map(r => r.name));
+  const block = [
+    `resource "${fix.companion}" "${unusedLabel(fix.resourceName, taken)}" {`,
+    ...bucketReference(content, bucket),
+    '',
+    ...S3_COMPANION_SETTINGS[fix.companion],
+    '}'
+  ].join('\n');
+  return appendResource(content, block);
 }
 
-const S3_COMPANION_RESOURCES = {
-  aws_s3_bucket_server_side_encryption_configuration: name => `resource "aws_s3_bucket_server_side_encryption_configuration" "${name}" {
-  bucket = aws_s3_bucket.${name}.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
+function bucketReference(content, bucket) {
+  if (resourceAttribute(content, bucket, 'for_each') !== null) {
+    return [`  for_each = aws_s3_bucket.${bucket.name}`, '  bucket   = each.value.id'];
   }
-}`,
-  aws_s3_bucket_versioning: name => `resource "aws_s3_bucket_versioning" "${name}" {
-  bucket = aws_s3_bucket.${name}.id
-
-  versioning_configuration {
-    status = "Enabled"
+  if (resourceAttribute(content, bucket, 'count') !== null) {
+    return [`  count  = length(aws_s3_bucket.${bucket.name})`, `  bucket = aws_s3_bucket.${bucket.name}[count.index].id`];
   }
-}`,
-  aws_s3_bucket_public_access_block: name => `resource "aws_s3_bucket_public_access_block" "${name}" {
-  bucket = aws_s3_bucket.${name}.id
+  return [`  bucket = aws_s3_bucket.${bucket.name}.id`];
+}
 
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}`
+function unusedLabel(preferred, taken) {
+  if (!taken.has(preferred)) return preferred;
+  let suffix = 2;
+  while (taken.has(`${preferred}_${suffix}`)) suffix++;
+  return `${preferred}_${suffix}`;
+}
+
+function terraformFilesIn(dir) {
+  return fs.readdirSync(dir)
+    .filter(name => name.endsWith('.tf'))
+    .map(name => path.join(dir, name))
+    .filter(file => fs.statSync(file).isFile())
+    .map(file => ({ file, content: fs.readFileSync(file, 'utf8') }));
+}
+
+function addresses(resources) {
+  return resources.map(r => `${r.type}.${r.name}`).join(', ');
+}
+
+const PUBLIC_ACCESS_FLAGS = ['block_public_acls', 'block_public_policy', 'ignore_public_acls', 'restrict_public_buckets'];
+
+const S3_COMPANION_SETTINGS = {
+  aws_s3_bucket_server_side_encryption_configuration: [
+    '  rule {',
+    '    apply_server_side_encryption_by_default {',
+    '      sse_algorithm = "AES256"',
+    '    }',
+    '  }'
+  ],
+  aws_s3_bucket_versioning: [
+    '  versioning_configuration {',
+    '    status = "Enabled"',
+    '  }'
+  ],
+  aws_s3_bucket_public_access_block: [
+    '  block_public_acls       = true',
+    '  block_public_policy     = true',
+    '  ignore_public_acls      = true',
+    '  restrict_public_buckets = true'
+  ]
 };
 
 export default IaCScanner;

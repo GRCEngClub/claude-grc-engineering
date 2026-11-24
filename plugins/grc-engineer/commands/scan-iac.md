@@ -426,14 +426,16 @@ Outputs SARIF 2.1.0 format compatible with:
 **Auto-fixes:**
 
 - ✓ Add missing S3 bucket encryption
-- ✓ Enable S3 versioning
-- ✓ Add S3 public access blocks
-- ✓ Enable KMS key rotation
-- ✓ Update log retention periods
-- ✓ Add missing resource tags
-- ✓ Enable EBS encryption by default
+- ✓ Add missing S3 versioning
+- ✓ Add missing S3 public access blocks
+- ✓ Enable EBS volume encryption
+- ✓ Enable RDS storage encryption
+- ✓ Enable CloudTrail multi-region and log file validation
+- ✗ Cannot auto-fix: S3 protection that exists but is switched off, such as suspended versioning (requires manual review)
 - ✗ Cannot auto-fix: Security group rules (requires manual review)
 - ✗ Cannot auto-fix: IAM policies (security sensitive)
+
+Auto-fix applies to Terraform only. Generated S3 resources follow the bucket's `count` or `for_each`.
 
 **Backup:** Creates `.tf.backup` files before modifications
 

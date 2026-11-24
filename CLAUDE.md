@@ -408,10 +408,11 @@ Scans existing infrastructure code for compliance violations:
 Automatically remediates:
 
 - ✓ Missing S3 bucket encryption
-- ✓ Disabled S3 versioning
+- ✓ Missing S3 versioning
 - ✓ Missing S3 public access blocks
-- ✓ Disabled KMS key rotation
-- ✓ Short log retention periods
+- ✓ Unencrypted EBS volumes and RDS storage
+- ✓ CloudTrail multi-region and log file validation
+- ✗ S3 protection that exists but is switched off (requires manual review)
 - ✗ Security group rules (requires manual review)
 - ✗ IAM policies (security sensitive)
 

@@ -1,39 +1,54 @@
 const RESOURCE_HEADER = /^[ \t]*resource\s+"([^"]+)"\s+"([^"]+)"\s*\{/gm;
+const ASSIGNMENT = /([A-Za-z_][\w-]*)[ \t]*=(?![=>])[ \t]*/y;
 
 export function terraformResources(content) {
+  const { inert, withoutComments } = classify(content);
   const resources = [];
   for (const header of content.matchAll(RESOURCE_HEADER)) {
+    const indent = header[0].match(/^[ \t]*/)[0];
+    if (inert[header.index + indent.length]) continue;
     const bodyStart = header.index + header[0].length;
     const bodyEnd = closingBraceIndex(content, bodyStart);
     if (bodyEnd === -1) continue;
     resources.push({
       type: header[1],
       name: header[2],
-      body: content.slice(bodyStart, bodyEnd),
+      body: withoutComments.slice(bodyStart, bodyEnd),
       bodyStart,
       bodyEnd,
       line: content.slice(0, header.index).split('\n').length,
-      indent: header[0].match(/^[ \t]*/)[0]
+      indent
     });
   }
   return resources;
 }
 
-export function hasCompanionResource(content, companionType, bucketName) {
-  const reference = new RegExp(`\\baws_s3_bucket\\.${escapeRegExp(bucketName)}\\.`);
-  return terraformResources(content).some(r => r.type === companionType && reference.test(r.body));
+export function resourceAttribute(content, resource, attribute) {
+  const found = topLevelAttributes(content, resource)?.find(a => a.name === attribute);
+  return found ? content.slice(found.valueStart, found.valueEnd) : null;
+}
+
+export function companionResources(content, companionType, bucketName) {
+  const reference = new RegExp(`\\baws_s3_bucket\\.${escapeRegExp(bucketName)}(?![\\w-])`);
+  return terraformResources(content).filter(resource => {
+    if (resource.type !== companionType) return false;
+    const bucket = resourceAttribute(content, resource, 'bucket');
+    if (bucket === null) return false;
+    if (reference.test(bucket)) return true;
+    const forEach = resourceAttribute(content, resource, 'for_each');
+    return /^each\./.test(bucket) && forEach !== null && reference.test(forEach);
+  });
 }
 
 export function setTopLevelAttribute(content, resourceType, resourceName, attribute, value) {
   const resource = terraformResources(content).find(r => r.type === resourceType && r.name === resourceName);
   if (!resource) return content;
+  const attributes = topLevelAttributes(content, resource);
+  if (!attributes) return content;
 
-  const assignment = new RegExp(`^([ \\t]*${escapeRegExp(attribute)}[ \\t]*=[ \\t]*).*$`);
-  for (const line of topLevelLines(content, resource)) {
-    const text = content.slice(line.start, line.end);
-    if (assignment.test(text)) {
-      return content.slice(0, line.start) + text.replace(assignment, `$1${value}`) + content.slice(line.end);
-    }
+  const existing = attributes.find(a => a.name === attribute);
+  if (existing) {
+    return content.slice(0, existing.valueStart) + value + content.slice(existing.valueEnd);
   }
 
   const inserted = `\n${resource.indent}  ${attribute} = ${value}`;
@@ -45,46 +60,99 @@ export function appendResource(content, block) {
   return `${content}${separator}${block}\n`;
 }
 
-function topLevelLines(content, resource) {
-  const braces = [...codeBraces(content, resource.bodyStart, resource.bodyEnd)];
-  const lines = [];
-  let start = resource.bodyStart;
-  while (start < resource.bodyEnd) {
-    let end = content.indexOf('\n', start);
-    if (end === -1 || end > resource.bodyEnd) end = resource.bodyEnd;
-    const depth = braces.reduce((d, b) => (b.index < start ? d + (b.char === '{' ? 1 : -1) : d), 0);
-    if (depth === 0) lines.push({ start, end });
-    start = end + 1;
+function classify(content) {
+  const inert = new Uint8Array(content.length);
+  let withoutComments = '';
+  let copied = 0;
+  for (const token of tokens(content, 0, content.length)) {
+    if (token.kind === 'bracket' || token.kind === 'newline') continue;
+    inert.fill(1, token.start, token.end);
+    if (token.kind === 'comment') {
+      withoutComments += content.slice(copied, token.start) + content.slice(token.start, token.end).replace(/[^\n]/g, ' ');
+      copied = token.end;
+    }
   }
-  return lines;
+  return { inert, withoutComments: withoutComments + content.slice(copied) };
+}
+
+function topLevelAttributes(content, resource) {
+  const attributes = [];
+  let pos = resource.bodyStart;
+  while (pos < resource.bodyEnd) {
+    if (/\s/.test(content[pos])) {
+      pos++;
+      continue;
+    }
+    if (content[pos] === '#' || content.startsWith('//', pos)) {
+      const newline = content.indexOf('\n', pos);
+      pos = newline === -1 ? resource.bodyEnd : newline;
+      continue;
+    }
+    ASSIGNMENT.lastIndex = pos;
+    const assignment = ASSIGNMENT.exec(content);
+    const valueStart = assignment ? pos + assignment[0].length : pos;
+    const end = expressionEnd(content, valueStart, resource.bodyEnd);
+    if (end === null) return null;
+    if (assignment) {
+      const valueEnd = valueStart + content.slice(valueStart, end).trimEnd().length;
+      attributes.push({ name: assignment[1], valueStart, valueEnd });
+    }
+    pos = Math.max(end, pos + 1);
+  }
+  return attributes;
+}
+
+function expressionEnd(content, start, limit) {
+  let depth = 0;
+  for (const token of tokens(content, start, limit)) {
+    if (token.kind === 'bracket') {
+      depth += '{[('.includes(token.char) ? 1 : -1;
+      if (depth < 0) return null;
+    } else if (depth === 0 && (token.kind === 'newline' || token.lineComment)) {
+      return token.start;
+    }
+  }
+  return depth === 0 ? limit : null;
 }
 
 function closingBraceIndex(content, bodyStart) {
   let depth = 1;
-  for (const brace of codeBraces(content, bodyStart, content.length)) {
-    depth += brace.char === '{' ? 1 : -1;
-    if (depth === 0) return brace.index;
+  for (const token of tokens(content, bodyStart, content.length)) {
+    if (token.char !== '{' && token.char !== '}') continue;
+    depth += token.char === '{' ? 1 : -1;
+    if (depth === 0) return token.start;
   }
   return -1;
 }
 
-function* codeBraces(content, from, to) {
+function* tokens(content, from, to) {
   let i = from;
   while (i < to) {
     const char = content[i];
-    if (char === '{' || char === '}') {
-      yield { index: i, char };
+    if ('{}[]()'.includes(char)) {
+      yield { kind: 'bracket', start: i, end: i + 1, char };
+      i++;
+    } else if (char === '\n') {
+      yield { kind: 'newline', start: i, end: i + 1 };
       i++;
     } else if (char === '"') {
-      i = endOfString(content, i + 1);
+      const end = endOfString(content, i + 1);
+      yield { kind: 'string', start: i, end };
+      i = end;
     } else if (char === '#' || content.startsWith('//', i)) {
       const newline = content.indexOf('\n', i);
-      i = newline === -1 ? to : newline;
+      const end = newline === -1 ? content.length : newline;
+      yield { kind: 'comment', lineComment: true, start: i, end };
+      i = end;
     } else if (content.startsWith('/*', i)) {
       const close = content.indexOf('*/', i + 2);
-      i = close === -1 ? to : close + 2;
+      const end = close === -1 ? content.length : close + 2;
+      yield { kind: 'comment', start: i, end };
+      i = end;
     } else if (content.startsWith('<<', i)) {
-      i = endOfHeredoc(content, i);
+      const end = endOfHeredoc(content, i);
+      yield { kind: 'heredoc', start: i, end };
+      i = end;
     } else {
       i++;
     }
