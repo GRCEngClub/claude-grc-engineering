@@ -7,28 +7,17 @@
 
 https://github.com/user-attachments/assets/a83aa297-9fba-4a7d-b56c-06f962d1ec6b
 
-Open-source GRC Engineering resource for Claude.
+Open-source GRC engineering toolkit for Claude.
 
-`claude-grc-engineering` turns technical evidence from cloud, SaaS, code, and security tools into framework-aligned findings, gap reports, remediation guidance, evidence packages, and OSCAL workflows.
+`claude-grc-engineering` collects evidence from cloud, SaaS, code, and security tools and maps it to compliance frameworks. It produces gap reports, remediation guidance, evidence packages, and OSCAL documents.
 
-It is built for the Claude ecosystem: Claude Code plugin installs first, with Claude Desktop and Claude Cowork usage supported through the same Markdown skills, command runbooks, schemas, and repository files.
+It is a Claude Code plugin marketplace. The same skills, command runbooks, and schemas also work in Claude Desktop and Claude Cowork when you add this repository as project context.
 
-It is maintained by the [GRC Engineering Club](https://grcengclub.com) for people who want compliance work to behave more like engineering work: repeatable, testable, versioned, and easy to extend.
+It is maintained by the [GRC Engineering Club](https://grcengclub.com) for teams that keep compliance work in version control and test it like code.
 
 > Not affiliated with Anthropic. Claude, Anthropic, and related marks are property of their respective owners.
 
-## What it does
-
-The toolkit is a Claude Code plugin marketplace. The same plugin skills and command runbooks are also useful in Claude Desktop and Claude Cowork when you add this repository as project context or a shared workspace. Install the pieces you need:
-
-- `grc-engineer`: the core automation hub for gap assessment, IaC scanning, evidence collection, remediation generation, policy generation, PR review, continuous monitoring, and multi-framework optimization.
-- Persona plugins: workflows for auditors, internal GRC teams, third-party risk, reporting, learning, and iterative GRC automation.
-- Framework plugins: reference guidance for SOC 2, NIST 800-53, ISO 27001, FedRAMP, PCI DSS, CMMC, HITRUST, CIS Controls, GDPR, DORA, HIPAA Security, regional privacy/security regimes, and more.
-- Connector plugins: thin wrappers around tools such as AWS CLI, GitHub CLI, gcloud, Azure CLI, Okta, Slack, Datadog, CrowdStrike, Drata, Splunk, Tenable, Snowflake, and POA&M automation.
-- Diagram plugins: editable draw.io system boundaries, evidence flows, control maps, risk treatment, audit workflows, framework crosswalks, TPRM, POA&M, data flows, RACI, and operating model visuals.
-- OSCAL and bridge plugins: tooling for FedRAMP/OSCAL workflows and integrations with external GRC systems.
-
-The common path is:
+## How it works
 
 ```text
 connectors collect evidence
@@ -40,9 +29,9 @@ grc-engineer maps findings through SCF
 reports, remediation, evidence packages, OSCAL outputs
 ```
 
-The Secure Controls Framework (SCF) crosswalk is used as the control backbone: 1,468 controls mapped to 249 frameworks. The toolkit references control IDs and implementation guidance; it does not reproduce copyrighted standards text.
+Controls are mapped through the Secure Controls Framework (SCF) crosswalk, which links 1,468 controls to 249 frameworks. The toolkit references control IDs and implementation guidance; it does not reproduce copyrighted standards text.
 
-## Install in 60 seconds
+## Install
 
 Inside Claude Code:
 
@@ -61,9 +50,7 @@ For a first run without cloud credentials, use GitHub as the evidence source:
 /grc-engineer:gap-assessment SOC2 --sources=github-inspector
 ```
 
-Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
-
-Using Claude Desktop or Claude Cowork instead of Claude Code? Start with [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md). Anthropic's security and compliance posture is documented at [trust.anthropic.com](https://trust.anthropic.com/), and the Claude Cowork third-party platform guide is here: [Claude Desktop on third-party platforms](https://claude.com/docs/cowork/3p/overview).
+Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md). For Claude Desktop or Claude Cowork, start with [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md).
 
 ## Common workflows
 
@@ -76,39 +63,37 @@ Using Claude Desktop or Claude Cowork instead of Claude Code? Start with [docs/C
 | Map one control across frameworks | `/grc-engineer:map-controls-unified` |
 | Find conflicting requirements across frameworks | `/grc-engineer:find-conflicts` |
 | Optimize a multi-framework control plan | `/grc-engineer:optimize-multi-framework` |
-| Collect evidence from cloud/SaaS/code systems | connector-specific setup, collect, and status commands |
+| Collect evidence from cloud, SaaS, and code systems | each connector's `setup`, `collect`, and `status` commands |
 | Build audit workpapers or evidence packages | `/grc-auditor:generate-workpaper`, `/grc-engineer:collect-evidence` |
-| Generate OSCAL SSP/SAP/SAR/POA&M outputs | `/oscal:*`, `/fedramp-ssp:*` |
+| Generate OSCAL SSP, SAP, SAR, and POA&M outputs | `/oscal:*`, `/fedramp-ssp:*` |
 | Draft leadership updates and automation coverage reports | `/report:exec-summary`, `/report:automation-coverage` |
 | Create editable GRC diagrams | `/grc-diagrams:drawio`, `/grc-diagrams:system-boundary`, `/grc-diagrams:evidence-flow`, `/grc-diagrams:control-map` |
 | Learn a framework, control, or GRC role | `/teach-me:framework`, `/teach-me:control`, `/teach-me:role`, `/teach-me:quiz` |
-| Run an academic research project end-to-end | `/academic-research-companion:research` |
+| Run an academic research project from idea to publication | `/academic-research-companion:research` |
 
 Every command has a reference page in its plugin's `commands/` directory.
 
-## Plugin map
+## Plugins
 
-Use `/grc-engineer:frameworks` to discover framework coverage and plugin depth.
+Install only the plugins you need. The full list is in [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json), and `/grc-engineer:frameworks` shows framework coverage and plugin depth.
 
-High-level categories:
-
-| Category | Examples |
+| Category | Plugins |
 |---|---|
-| Engineering hub | `grc-engineer` |
-| Persona/workflow plugins | `grc-auditor`, `grc-internal`, `grc-tprm`, `grc-reporter`, `grc-loop`, `teach-me`, `academic-research-companion` |
-| Diagram plugin | `grc-diagrams` for editable draw.io GRC diagrams |
-| Framework plugins | `soc2`, `nist-800-53`, `iso27001`, `fedramp-rev5`, `fedramp-20x`, `pci-dss`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `dora`, `us-hipaa-security`, and others |
-| Connector plugins | `aws-inspector`, `github-inspector`, `gcp-inspector`, `azure-inspector`, `okta-inspector`, `slack-inspector`, `datadog-inspector`, `crowdstrike-inspector`, `drata-inspector`, `splunk-inspector`, `tenable-inspector`, `snowflake-inspector` |
-| Dashboards, knowledge sources | `compliance-posture-dashboard`, `gcp-docs` |
-| OSCAL/FedRAMP tooling | `oscal`, `fedramp-ssp`, POA&M automation plugins |
-
-The marketplace manifest lives at [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json).
+| Engineering hub | `grc-engineer`: gap assessment, IaC scanning, evidence collection, remediation and policy generation, PR review, continuous monitoring, multi-framework optimization |
+| Personas and workflows | `grc-auditor`, `grc-internal`, `grc-tprm`, `grc-reporter`, `grc-loop`, `teach-me`, `academic-research-companion` |
+| Frameworks | `soc2`, `nist-800-53`, `iso27001`, `fedramp-rev5`, `fedramp-20x`, `pci-dss`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `dora`, `us-hipaa-security`, and more; see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) |
+| Connectors | `aws-inspector`, `github-inspector`, `gcp-inspector`, `azure-inspector`, `okta-inspector`, `slack-inspector`, `datadog-inspector`, `crowdstrike-inspector`, `drata-inspector`, `splunk-inspector`, `tenable-inspector`, `snowflake-inspector`, `wiz-inspector`, `testssl-inspector`, `poam-automation` |
+| Secrets connectors | `aws-secrets-inspector`, `gcp-secret-metadata`, `onepassword-connector`, `vault-kv` |
+| OSCAL and FedRAMP tooling | `oscal`, `fedramp-ssp` |
+| Diagrams | `grc-diagrams`: editable draw.io system boundaries, evidence flows, control maps, crosswalks, and more |
+| Dashboards and knowledge sources | `compliance-posture-dashboard`, `gcp-docs` |
+| Site builders | `trust-center`, `grc-portfolio` |
 
 ## Data contract
 
 Every connector emits Findings that match [schemas/finding.schema.json](schemas/finding.schema.json). A Finding is one resource with one or more control evaluations.
 
-That contract keeps connectors small: each connector only needs to collect and normalize evidence. `grc-engineer` handles framework expansion, reporting, remediation, and downstream workflows.
+A connector only collects and normalizes evidence. `grc-engineer` does the framework mapping, reporting, and remediation.
 
 For the full architecture and schema example, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -117,26 +102,27 @@ For the full architecture and schema example, see [docs/ARCHITECTURE.md](docs/AR
 - [docs/QUICKSTART.md](docs/QUICKSTART.md): first gap assessment in about 10 minutes
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): pipeline model, data contract, plugin categories, extensibility
 - [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md): generated coverage for SCF-mapped frameworks
-- [docs/FRAMEWORK-PLUGIN-GUIDE.md](docs/FRAMEWORK-PLUGIN-GUIDE.md): scaffold and level up framework plugins
+- [docs/FRAMEWORK-PLUGIN-GUIDE.md](docs/FRAMEWORK-PLUGIN-GUIDE.md): create and extend framework plugins
 - [docs/GRC-DATA.md](docs/GRC-DATA.md): user-owned `grc-data/` contracts for metrics, risks, vendors, exceptions, and policies
 - [docs/ENTERPRISE-DEPLOYMENT.md](docs/ENTERPRISE-DEPLOYMENT.md): AWS Bedrock, Claude Platform on AWS, and Google Vertex AI guidance
 - [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md): Claude Desktop and Claude Cowork file-oriented usage, including third-party platform handoff notes
-- [Anthropic Trust Center](https://trust.anthropic.com/): Anthropic security, compliance, and trust resources
-- [Claude Desktop on third-party platforms](https://claude.com/docs/cowork/3p/overview): official Cowork platform guidance
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md): how to contribute connectors, framework guidance, and docs
 - [docs/SCF-ATTRIBUTION.md](docs/SCF-ATTRIBUTION.md): SCF licensing and attribution
 
+External references:
+
+- [Anthropic Trust Center](https://trust.anthropic.com/): Anthropic security, compliance, and trust resources
+- [Claude Desktop on third-party platforms](https://claude.com/docs/cowork/3p/overview): official Cowork platform guidance
+
 ## Contributing
 
-Contributions are welcome from GRC practitioners, auditors, security engineers, platform teams, framework experts, and commercial GRC vendors.
-
-The highest-value contributions are:
+Contributions are welcome, including from commercial GRC vendors. The most useful are:
 
 - New connector plugins
 - Improvements to existing connectors
 - Framework plugin guidance and evidence patterns
-- Real-world remediation examples
-- Documentation that helps practitioners learn GRC engineering
+- Remediation examples from real environments
+- Documentation
 
 First-time contributors follow the issue → vouch → PR flow described in [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) and [GOVERNANCE.md](GOVERNANCE.md).
 
