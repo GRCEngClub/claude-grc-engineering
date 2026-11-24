@@ -1,5 +1,6 @@
 const RESOURCE_HEADER = /^[ \t]*resource\s+"([^"]+)"\s+"([^"]+)"\s*\{/gm;
 const ASSIGNMENT = /([A-Za-z_][\w-]*)[ \t]*=(?![=>])[ \t]*/y;
+const BLOCK_HEADER = /([A-Za-z_][\w-]*)(?:[ \t]+(?:"[^"\n]*"|[A-Za-z_][\w-]*))*[ \t]*\{/y;
 
 export function terraformResources(content) {
   const { inert, withoutComments } = classify(content);
@@ -24,24 +25,51 @@ export function terraformResources(content) {
 }
 
 export function resourceAttribute(content, resource, attribute) {
-  const found = topLevelAttributes(content, resource)?.find(a => a.name === attribute);
-  return found ? classify(content).withoutComments.slice(found.valueStart, found.valueEnd).trim() : null;
+  return blockAttributeValues(content, resource, [], attribute)[0] ?? null;
+}
+
+export function blockAttributeValues(content, resource, blockPath, attribute) {
+  const code = classify(content).withoutComments;
+  let ranges = [{ bodyStart: resource.bodyStart, bodyEnd: resource.bodyEnd }];
+  for (const blockName of blockPath) {
+    ranges = ranges.flatMap(range => (statements(code, range.bodyStart, range.bodyEnd)?.blocks ?? []).filter(b => b.name === blockName));
+  }
+  return ranges.flatMap(range => (statements(code, range.bodyStart, range.bodyEnd)?.attributes ?? [])
+    .filter(a => a.name === attribute)
+    .map(a => code.slice(a.valueStart, a.valueEnd).trim()));
+}
+
+export function hasBlock(content, resource, blockName) {
+  const parsed = statements(classify(content).withoutComments, resource.bodyStart, resource.bodyEnd);
+  return parsed !== null && parsed.blocks.some(b => b.name === blockName);
 }
 
 export function companionCoverage(content, companionType, bucketName) {
-  const address = `aws_s3_bucket\\.${escapeRegExp(bucketName)}`;
-  const direct = new RegExp(`^(?:"\\$\\{)?${address}(?:\\[[^\\]]*\\])?\\.(?:id|bucket)(?:\\}")?$`);
-  const whole = new RegExp(`^${address}$`);
-  const mention = new RegExp(`\\b${address}(?![\\w-])`);
+  const all = terraformResources(content);
+  const bucket = all.find(r => r.type === 'aws_s3_bucket' && r.name === bucketName);
+  const compact = (resource, attribute) => (resourceAttribute(content, resource, attribute) ?? '').replace(/\s+/g, '');
+  const bucketCount = bucket ? compact(bucket, 'count') : '';
+  const bucketForEach = bucket ? compact(bucket, 'for_each') : '';
+
+  const address = `aws_s3_bucket.${bucketName}`;
+  const mention = new RegExp(`\\b${escapeRegExp(address)}(?![\\w-])`);
   const coverage = { resources: [], unresolved: [] };
 
-  for (const resource of terraformResources(content)) {
+  for (const resource of all) {
     if (resource.type !== companionType) continue;
-    const bucket = resourceAttribute(content, resource, 'bucket') ?? '';
-    const forEach = resourceAttribute(content, resource, 'for_each') ?? '';
-    if (direct.test(bucket) || (whole.test(forEach) && /^each\.value\.(?:id|bucket)$/.test(bucket))) {
+    const count = compact(resource, 'count');
+    const forEach = compact(resource, 'for_each');
+    const reference = compact(resource, 'bucket').replace(/^"\$\{(.*)\}"$/, '$1').replace(/\.(?:id|bucket)$/, '');
+
+    const covers =
+      (reference === address && !bucketCount && !bucketForEach && !count && !forEach)
+      || (reference === `${address}[count.index]` && (count === `length(${address})` || (count !== '' && count === bucketCount)))
+      || (reference === `${address}[each.key]` && (forEach === address || (forEach !== '' && forEach === bucketForEach)))
+      || (reference === 'each.value' && forEach === address);
+
+    if (covers) {
       coverage.resources.push(resource);
-    } else if (mention.test(bucket) || mention.test(forEach)) {
+    } else if (mention.test(reference) || mention.test(forEach) || mention.test(count)) {
       coverage.unresolved.push(resource);
     }
   }
@@ -51,10 +79,10 @@ export function companionCoverage(content, companionType, bucketName) {
 export function setTopLevelAttribute(content, resourceType, resourceName, attribute, value) {
   const resource = terraformResources(content).find(r => r.type === resourceType && r.name === resourceName);
   if (!resource) return content;
-  const attributes = topLevelAttributes(content, resource);
-  if (!attributes) return content;
+  const parsed = statements(classify(content).withoutComments, resource.bodyStart, resource.bodyEnd);
+  if (!parsed) return content;
 
-  const existing = attributes.find(a => a.name === attribute);
+  const existing = parsed.attributes.find(a => a.name === attribute);
   if (existing) {
     return content.slice(0, existing.valueStart) + value + content.slice(existing.valueEnd);
   }
@@ -92,45 +120,46 @@ function classifyUncached(content) {
   return { inert, withoutComments: withoutComments + content.slice(copied) };
 }
 
-function topLevelAttributes(content, resource) {
+function statements(code, start, end) {
   const attributes = [];
-  let pos = resource.bodyStart;
-  while (pos < resource.bodyEnd) {
-    if (/\s/.test(content[pos])) {
+  const blocks = [];
+  let pos = start;
+  while (pos < end) {
+    if (/\s/.test(code[pos])) {
       pos++;
       continue;
     }
-    if (content[pos] === '#' || content.startsWith('//', pos)) {
-      const newline = content.indexOf('\n', pos);
-      pos = newline === -1 ? resource.bodyEnd : newline;
-      continue;
-    }
-    if (content.startsWith('/*', pos)) {
-      const close = content.indexOf('*/', pos + 2);
-      pos = close === -1 ? resource.bodyEnd : close + 2;
-      continue;
-    }
     ASSIGNMENT.lastIndex = pos;
-    const assignment = ASSIGNMENT.exec(content);
+    const assignment = ASSIGNMENT.exec(code);
+    BLOCK_HEADER.lastIndex = pos;
+    const block = assignment ? null : BLOCK_HEADER.exec(code);
+    if (block) {
+      const bodyStart = pos + block[0].length;
+      const bodyEnd = closingBraceIndex(code, bodyStart);
+      if (bodyEnd === -1 || bodyEnd > end) return null;
+      blocks.push({ name: block[1], bodyStart, bodyEnd });
+      pos = bodyEnd + 1;
+      continue;
+    }
     const valueStart = assignment ? pos + assignment[0].length : pos;
-    const end = expressionEnd(content, valueStart, resource.bodyEnd);
-    if (end === null) return null;
+    const stop = expressionEnd(code, valueStart, end);
+    if (stop === null) return null;
     if (assignment) {
-      const valueEnd = valueStart + content.slice(valueStart, end).trimEnd().length;
+      const valueEnd = valueStart + code.slice(valueStart, stop).trimEnd().length;
       attributes.push({ name: assignment[1], valueStart, valueEnd });
     }
-    pos = Math.max(end, pos + 1);
+    pos = Math.max(stop, pos + 1);
   }
-  return attributes;
+  return { attributes, blocks };
 }
 
-function expressionEnd(content, start, limit) {
+function expressionEnd(code, start, limit) {
   let depth = 0;
-  for (const token of tokens(content, start, limit)) {
+  for (const token of tokens(code, start, limit)) {
     if (token.kind === 'bracket') {
       depth += '{[('.includes(token.char) ? 1 : -1;
       if (depth < 0) return null;
-    } else if (depth === 0 && (token.kind === 'newline' || token.lineComment)) {
+    } else if (depth === 0 && token.kind === 'newline') {
       return token.start;
     }
   }
@@ -164,7 +193,7 @@ function* tokens(content, from, to) {
     } else if (char === '#' || content.startsWith('//', i)) {
       const newline = content.indexOf('\n', i);
       const end = newline === -1 ? content.length : newline;
-      yield { kind: 'comment', lineComment: true, start: i, end };
+      yield { kind: 'comment', start: i, end };
       i = end;
     } else if (content.startsWith('/*', i)) {
       const close = content.indexOf('*/', i + 2);

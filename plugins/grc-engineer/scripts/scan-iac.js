@@ -6,7 +6,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import yaml from 'js-yaml';
 import {
   appendResource,
+  blockAttributeValues,
   companionCoverage,
+  hasBlock,
   resourceAttribute,
   setTopLevelAttribute,
   terraformResources
@@ -166,7 +168,10 @@ class IaCScanner {
       for (const [controlId, rule] of Object.entries(this.rules)) {
         for (const check of rule.checks) {
           if (check.type === 'terraform' && check.resources.includes(resource.type)) {
-            const result = check.validator(resource.type, resource.name, resource.body, filePath, resource.line, moduleContent, attribute => resourceAttribute(content, resource, attribute));
+            const result = check.validator(resource.type, resource.name, resource.body, filePath, resource.line, moduleContent, {
+              attribute: attribute => resourceAttribute(content, resource, attribute),
+              hasBlock: blockName => hasBlock(content, resource, blockName)
+            });
 
             if (result) {
               this.recordFinding(controlId, rule, result, filePath, resource.line, resource.type, resource.name);
@@ -236,16 +241,16 @@ class IaCScanner {
     }
   }
 
-  checkEncryption(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '', attributeOf = () => null) {
+  checkEncryption(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '', own = UNPARSED_RESOURCE) {
     const issues = [];
 
-    if (resourceType === 'aws_s3_bucket' && !resourceBody.includes('server_side_encryption_configuration')) {
+    if (resourceType === 'aws_s3_bucket' && !own.hasBlock('server_side_encryption_configuration')) {
       const issue = s3ProtectionIssue(fileContent, 'aws_s3_bucket_server_side_encryption_configuration', resourceName);
       if (issue) issues.push(issue);
     }
 
     if (resourceType === 'aws_ebs_volume') {
-      const issue = booleanSettingIssue(attributeOf, 'encrypted', {
+      const issue = booleanSettingIssue(own.attribute, 'encrypted', {
         severity: 'HIGH',
         issue: 'EBS volume is not encrypted',
         remediation: 'Set encrypted = true and optionally specify kms_key_id'
@@ -254,7 +259,7 @@ class IaCScanner {
     }
 
     if (resourceType === 'aws_rds_cluster' || resourceType === 'aws_rds_instance') {
-      const issue = booleanSettingIssue(attributeOf, 'storage_encrypted', {
+      const issue = booleanSettingIssue(own.attribute, 'storage_encrypted', {
         severity: 'HIGH',
         issue: 'RDS database storage is not encrypted',
         remediation: 'Set storage_encrypted = true and specify kms_key_id'
@@ -294,17 +299,17 @@ class IaCScanner {
     return issues.length > 0 ? issues : null;
   }
 
-  checkLogging(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '', attributeOf = () => null) {
+  checkLogging(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '', own = UNPARSED_RESOURCE) {
     const issues = [];
 
     if (resourceType === 'aws_cloudtrail') {
       const settings = [
-        booleanSettingIssue(attributeOf, 'is_multi_region_trail', {
+        booleanSettingIssue(own.attribute, 'is_multi_region_trail', {
           severity: 'MEDIUM',
           issue: 'CloudTrail is not configured for all regions',
           remediation: 'Set is_multi_region_trail = true'
         }),
-        booleanSettingIssue(attributeOf, 'enable_log_file_validation', {
+        booleanSettingIssue(own.attribute, 'enable_log_file_validation', {
           severity: 'MEDIUM',
           issue: 'CloudTrail log file validation is not enabled',
           remediation: 'Set enable_log_file_validation = true'
@@ -380,12 +385,12 @@ class IaCScanner {
     return issues.length > 0 ? issues : null;
   }
 
-  checkDataProtection(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '') {
+  checkDataProtection(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '', own = UNPARSED_RESOURCE) {
     const issues = [];
 
     if (resourceType === 'aws_s3_bucket') {
       const protections = [
-        resourceBody.includes('versioning') ? null : s3ProtectionIssue(fileContent, 'aws_s3_bucket_versioning', resourceName),
+        own.hasBlock('versioning') ? null : s3ProtectionIssue(fileContent, 'aws_s3_bucket_versioning', resourceName),
         s3ProtectionIssue(fileContent, 'aws_s3_bucket_public_access_block', resourceName)
       ];
       issues.push(...protections.filter(Boolean));
@@ -669,9 +674,7 @@ function s3ProtectionIssue(moduleContent, companionType, bucketName) {
   };
 }
 
-function setsLiteral(body, attribute, values) {
-  return new RegExp(`^[ \\t]*${attribute}[ \\t]*=[ \\t]*"(?:${values.join('|')})"[ \\t\\r]*$`, 'm').test(body);
-}
+const UNPARSED_RESOURCE = { attribute: () => null, hasBlock: () => false };
 
 const PUBLIC_ACCESS_FLAGS = ['block_public_acls', 'block_public_policy', 'ignore_public_acls', 'restrict_public_buckets'];
 
@@ -682,7 +685,8 @@ const S3_PROTECTIONS = {
     missingRemediation: 'Add an aws_s3_bucket_server_side_encryption_configuration resource with AES256 or aws:kms algorithm',
     disabledIssue: 'S3 bucket encryption configuration does not set a recognised sse_algorithm; encryption is unverified',
     disabledRemediation: 'Set sse_algorithm to AES256 or aws:kms',
-    enabled: (content, resource) => setsLiteral(resource.body, 'sse_algorithm', ['AES256', 'aws:kms', 'aws:kms:dsse'])
+    enabled: (content, resource) => blockAttributeValues(content, resource, ['rule', 'apply_server_side_encryption_by_default'], 'sse_algorithm')
+      .some(value => ['"AES256"', '"aws:kms"', '"aws:kms:dsse"'].includes(value))
   },
   aws_s3_bucket_versioning: {
     severity: 'MEDIUM',
@@ -690,7 +694,8 @@ const S3_PROTECTIONS = {
     missingRemediation: 'Add an aws_s3_bucket_versioning resource for data protection and recovery',
     disabledIssue: 'S3 bucket versioning is configured but its status is not "Enabled"',
     disabledRemediation: 'Set status = "Enabled"',
-    enabled: (content, resource) => setsLiteral(resource.body, 'status', ['Enabled'])
+    enabled: (content, resource) => blockAttributeValues(content, resource, ['versioning_configuration'], 'status')
+      .some(value => value === '"Enabled"')
   },
   aws_s3_bucket_public_access_block: {
     severity: 'HIGH',

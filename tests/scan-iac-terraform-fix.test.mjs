@@ -433,3 +433,91 @@ test('a setting given as an expression is reported but never overwritten', async
   assert.equal(await scanner.applyFixes(), 1);
   assert.equal(fs.readFileSync(file, 'utf8'), content.replace('= false', '= true'));
 });
+
+test('single-line blocks and comments between tokens are read as written', async (t) => {
+  const { dir, file } = workspace(t, `resource "aws_s3_bucket" "data" {
+  bucket = "example-data"
+  tags   = { versioning = "managed", server_side_encryption_configuration = "see below" }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "data" {
+  bucket = aws_s3_bucket /* identity */ .data.id
+  rule { apply_server_side_encryption_by_default { sse_algorithm = "AES256" } }
+}
+
+resource "aws_s3_bucket_versioning" "data" {
+  bucket = aws_s3_bucket.data.id
+  versioning_configuration { status = "Enabled" }
+}
+${BLOCKED}
+resource "aws_ebs_volume" "scratch" {
+  size = 40
+  encrypted /* note */ = true
+}
+`);
+  const original = fs.readFileSync(file, 'utf8');
+
+  const scanner = await scan(dir);
+  assert.deepEqual(scanner.violations, []);
+  assert.equal(await scanner.applyFixes(), 0);
+  assert.equal(fs.readFileSync(file, 'utf8'), original);
+});
+
+test('an enabled setting inside a heredoc does not count', async (t) => {
+  const { dir } = workspace(t, BUCKET + ENCRYPTED + BLOCKED + `
+resource "aws_s3_bucket_versioning" "data" {
+  bucket = aws_s3_bucket.data.id
+
+  versioning_configuration {
+    status = "Suspended"
+  }
+
+  lifecycle {
+    precondition {
+      condition     = true
+      error_message = <<EOT
+  status = "Enabled"
+EOT
+    }
+  }
+}
+`);
+  assert.deepEqual(issuesFor(await scan(dir), 'aws_s3_bucket.data'), [
+    'S3 bucket versioning is configured but its status is not "Enabled"'
+  ]);
+});
+
+test('a companion that covers one instance, or may have none, is unresolved rather than coverage', async (t) => {
+  const content = `resource "aws_s3_bucket" "counted" {
+  count  = 2
+  bucket = "example-\${count.index}"
+}
+
+resource "aws_s3_bucket_versioning" "first_only" {
+  bucket = aws_s3_bucket.counted[0].id
+  versioning_configuration { status = "Enabled" }
+}
+
+resource "aws_s3_bucket" "data" {
+  bucket = "example-data"
+}
+
+resource "aws_s3_bucket_versioning" "maybe" {
+  count  = 0
+  bucket = aws_s3_bucket.data.id
+  versioning_configuration { status = "Enabled" }
+}
+`;
+  const { dir, file } = workspace(t, content);
+
+  const scanner = await scan(dir);
+  for (const [bucket, companion] of [['counted', 'first_only'], ['data', 'maybe']]) {
+    const versioning = scanner.violations.filter(v => v.resource === `aws_s3_bucket.${bucket}` && v.issue.includes('versioning'));
+    assert.deepEqual(versioning.map(v => [v.issue, v.autoFixable]), [
+      [`S3 bucket versioning is not enabled: aws_s3_bucket_versioning.${companion} refers to this bucket through an expression this scanner cannot resolve`, false]
+    ]);
+  }
+
+  await scanner.applyFixes();
+  assert.equal(fs.readFileSync(file, 'utf8').match(/resource "aws_s3_bucket_versioning"/g).length, 2);
+});
