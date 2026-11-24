@@ -412,7 +412,7 @@ Automatically remediates:
 - ✓ Missing S3 public access blocks
 - ✓ Unencrypted EBS volumes and RDS storage
 - ✓ CloudTrail multi-region and log file validation
-- ✗ S3 protection that exists but is switched off (requires manual review)
+- ✗ S3 protection that exists but is switched off, and settings given as expressions (requires manual review)
 - ✗ Security group rules (requires manual review)
 - ✗ IAM policies (security sensitive)
 

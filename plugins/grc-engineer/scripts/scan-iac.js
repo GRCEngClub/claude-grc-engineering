@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import yaml from 'js-yaml';
 import {
   appendResource,
-  companionResources,
+  companionCoverage,
   resourceAttribute,
   setTopLevelAttribute,
   terraformResources
@@ -166,7 +166,7 @@ class IaCScanner {
       for (const [controlId, rule] of Object.entries(this.rules)) {
         for (const check of rule.checks) {
           if (check.type === 'terraform' && check.resources.includes(resource.type)) {
-            const result = check.validator(resource.type, resource.name, resource.body, filePath, resource.line, moduleContent);
+            const result = check.validator(resource.type, resource.name, resource.body, filePath, resource.line, moduleContent, attribute => resourceAttribute(content, resource, attribute));
 
             if (result) {
               this.recordFinding(controlId, rule, result, filePath, resource.line, resource.type, resource.name);
@@ -236,54 +236,30 @@ class IaCScanner {
     }
   }
 
-  checkEncryption(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '') {
+  checkEncryption(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '', attributeOf = () => null) {
     const issues = [];
 
-    if (resourceType === 'aws_s3_bucket') {
-      const companions = companionResources(fileContent, 'aws_s3_bucket_server_side_encryption_configuration', resourceName);
-      if (resourceBody.includes('server_side_encryption_configuration')) {
-        return null;
-      }
-      if (companions.length === 0) {
-        issues.push({
-          severity: 'HIGH',
-          issue: 'S3 bucket does not have server-side encryption enabled',
-          remediation: 'Add an aws_s3_bucket_server_side_encryption_configuration resource with AES256 or aws:kms algorithm',
-          autoFixable: true,
-          fix: { companion: 'aws_s3_bucket_server_side_encryption_configuration' }
-        });
-      } else if (!companions.some(c => /\bsse_algorithm\s*=\s*"(AES256|aws:kms|aws:kms:dsse)"/.test(c.body))) {
-        issues.push({
-          severity: 'HIGH',
-          issue: 'S3 bucket encryption configuration does not set a recognised sse_algorithm; encryption is unverified',
-          remediation: `Set sse_algorithm to AES256 or aws:kms in ${addresses(companions)}`,
-          autoFixable: false
-        });
-      }
+    if (resourceType === 'aws_s3_bucket' && !resourceBody.includes('server_side_encryption_configuration')) {
+      const issue = s3ProtectionIssue(fileContent, 'aws_s3_bucket_server_side_encryption_configuration', resourceName);
+      if (issue) issues.push(issue);
     }
 
     if (resourceType === 'aws_ebs_volume') {
-      if (!resourceBody.includes('encrypted') || /\bencrypted\s*=\s*false\b/.test(resourceBody)) {
-        issues.push({
-          severity: 'HIGH',
-          issue: 'EBS volume is not encrypted',
-          remediation: 'Set encrypted = true and optionally specify kms_key_id',
-          autoFixable: true,
-          fix: { attribute: 'encrypted', value: 'true' }
-        });
-      }
+      const issue = booleanSettingIssue(attributeOf, 'encrypted', {
+        severity: 'HIGH',
+        issue: 'EBS volume is not encrypted',
+        remediation: 'Set encrypted = true and optionally specify kms_key_id'
+      });
+      if (issue) issues.push(issue);
     }
 
     if (resourceType === 'aws_rds_cluster' || resourceType === 'aws_rds_instance') {
-      if (!resourceBody.includes('storage_encrypted') || /\bstorage_encrypted\s*=\s*false\b/.test(resourceBody)) {
-        issues.push({
-          severity: 'HIGH',
-          issue: 'RDS database storage is not encrypted',
-          remediation: 'Set storage_encrypted = true and specify kms_key_id',
-          autoFixable: true,
-          fix: { attribute: 'storage_encrypted', value: 'true' }
-        });
-      }
+      const issue = booleanSettingIssue(attributeOf, 'storage_encrypted', {
+        severity: 'HIGH',
+        issue: 'RDS database storage is not encrypted',
+        remediation: 'Set storage_encrypted = true and specify kms_key_id'
+      });
+      if (issue) issues.push(issue);
     }
 
     return issues.length > 0 ? issues : null;
@@ -318,29 +294,23 @@ class IaCScanner {
     return issues.length > 0 ? issues : null;
   }
 
-  checkLogging(resourceType, resourceName, resourceBody, filePath, lineNumber) {
+  checkLogging(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '', attributeOf = () => null) {
     const issues = [];
 
     if (resourceType === 'aws_cloudtrail') {
-      if (!/\bis_multi_region_trail\s*=\s*true\b/.test(resourceBody)) {
-        issues.push({
+      const settings = [
+        booleanSettingIssue(attributeOf, 'is_multi_region_trail', {
           severity: 'MEDIUM',
           issue: 'CloudTrail is not configured for all regions',
-          remediation: 'Set is_multi_region_trail = true',
-          autoFixable: true,
-          fix: { attribute: 'is_multi_region_trail', value: 'true' }
-        });
-      }
-
-      if (!resourceBody.includes('enable_log_file_validation')) {
-        issues.push({
+          remediation: 'Set is_multi_region_trail = true'
+        }),
+        booleanSettingIssue(attributeOf, 'enable_log_file_validation', {
           severity: 'MEDIUM',
           issue: 'CloudTrail log file validation is not enabled',
-          remediation: 'Set enable_log_file_validation = true',
-          autoFixable: true,
-          fix: { attribute: 'enable_log_file_validation', value: 'true' }
-        });
-      }
+          remediation: 'Set enable_log_file_validation = true'
+        })
+      ];
+      issues.push(...settings.filter(Boolean));
 
       issues.push({
         severity: 'INFO',
@@ -414,41 +384,11 @@ class IaCScanner {
     const issues = [];
 
     if (resourceType === 'aws_s3_bucket') {
-      const versioning = companionResources(fileContent, 'aws_s3_bucket_versioning', resourceName);
-      if (!resourceBody.includes('versioning') && versioning.length === 0) {
-        issues.push({
-          severity: 'MEDIUM',
-          issue: 'S3 bucket versioning is not enabled',
-          remediation: 'Add an aws_s3_bucket_versioning resource for data protection and recovery',
-          autoFixable: true,
-          fix: { companion: 'aws_s3_bucket_versioning' }
-        });
-      } else if (versioning.length > 0 && !versioning.some(c => /\bstatus\s*=\s*"Enabled"/.test(c.body))) {
-        issues.push({
-          severity: 'MEDIUM',
-          issue: 'S3 bucket versioning is configured but its status is not "Enabled"',
-          remediation: `Set status = "Enabled" in ${addresses(versioning)}`,
-          autoFixable: false
-        });
-      }
-
-      const accessBlocks = companionResources(fileContent, 'aws_s3_bucket_public_access_block', resourceName);
-      if (accessBlocks.length === 0) {
-        issues.push({
-          severity: 'HIGH',
-          issue: 'S3 bucket does not have public access blocks configured',
-          remediation: 'Add aws_s3_bucket_public_access_block resource',
-          autoFixable: true,
-          fix: { companion: 'aws_s3_bucket_public_access_block' }
-        });
-      } else if (!accessBlocks.some(c => PUBLIC_ACCESS_FLAGS.every(flag => new RegExp(`\\b${flag}\\s*=\\s*true\\b`).test(c.body)))) {
-        issues.push({
-          severity: 'HIGH',
-          issue: 'S3 bucket public access block does not set all four flags to true',
-          remediation: `Set ${PUBLIC_ACCESS_FLAGS.join(', ')} to true in ${addresses(accessBlocks)}`,
-          autoFixable: false
-        });
-      }
+      const protections = [
+        resourceBody.includes('versioning') ? null : s3ProtectionIssue(fileContent, 'aws_s3_bucket_versioning', resourceName),
+        s3ProtectionIssue(fileContent, 'aws_s3_bucket_public_access_block', resourceName)
+      ];
+      issues.push(...protections.filter(Boolean));
     }
 
     return issues.length > 0 ? issues : null;
@@ -632,7 +572,8 @@ function applyTerraformFix(content, fix, siblings) {
     return setTopLevelAttribute(content, fix.resourceType, fix.resourceName, fix.attribute, fix.value);
   }
   const moduleContent = [content, ...siblings].join('\n');
-  if (companionResources(moduleContent, fix.companion, fix.resourceName).length > 0) return content;
+  const coverage = companionCoverage(moduleContent, fix.companion, fix.resourceName);
+  if (coverage.resources.length > 0 || coverage.unresolved.length > 0) return content;
   const bucket = terraformResources(content).find(r => r.type === 'aws_s3_bucket' && r.name === fix.resourceName);
   if (!bucket) return content;
 
@@ -676,7 +617,90 @@ function addresses(resources) {
   return resources.map(r => `${r.type}.${r.name}`).join(', ');
 }
 
+function booleanSettingIssue(attributeOf, attribute, { severity, issue, remediation }) {
+  const value = withoutWrappingParentheses(attributeOf(attribute));
+  if (value === 'true') return null;
+  if (value === null || value === 'false') {
+    return { severity, issue, remediation, autoFixable: true, fix: { attribute, value: 'true' } };
+  }
+  return {
+    severity,
+    issue: `${issue}: ${attribute} is set by an expression this scanner cannot resolve`,
+    remediation: `Confirm ${attribute} evaluates to true`,
+    autoFixable: false
+  };
+}
+
+function withoutWrappingParentheses(value) {
+  let inner = value;
+  while (inner !== null && /^\([^()]*\)$/.test(inner)) {
+    inner = inner.slice(1, -1).trim();
+  }
+  return inner;
+}
+
+function s3ProtectionIssue(moduleContent, companionType, bucketName) {
+  const protection = S3_PROTECTIONS[companionType];
+  const { resources, unresolved } = companionCoverage(moduleContent, companionType, bucketName);
+
+  if (resources.some(resource => protection.enabled(moduleContent, resource))) return null;
+  if (resources.length > 0) {
+    return {
+      severity: protection.severity,
+      issue: protection.disabledIssue,
+      remediation: `${protection.disabledRemediation} in ${addresses(resources)}`,
+      autoFixable: false
+    };
+  }
+  if (unresolved.length > 0) {
+    return {
+      severity: protection.severity,
+      issue: `${protection.missingIssue}: ${addresses(unresolved)} refers to this bucket through an expression this scanner cannot resolve`,
+      remediation: `Confirm ${addresses(unresolved)} targets this bucket, or reference it directly`,
+      autoFixable: false
+    };
+  }
+  return {
+    severity: protection.severity,
+    issue: protection.missingIssue,
+    remediation: protection.missingRemediation,
+    autoFixable: true,
+    fix: { companion: companionType }
+  };
+}
+
+function setsLiteral(body, attribute, values) {
+  return new RegExp(`^[ \\t]*${attribute}[ \\t]*=[ \\t]*"(?:${values.join('|')})"[ \\t\\r]*$`, 'm').test(body);
+}
+
 const PUBLIC_ACCESS_FLAGS = ['block_public_acls', 'block_public_policy', 'ignore_public_acls', 'restrict_public_buckets'];
+
+const S3_PROTECTIONS = {
+  aws_s3_bucket_server_side_encryption_configuration: {
+    severity: 'HIGH',
+    missingIssue: 'S3 bucket does not have server-side encryption enabled',
+    missingRemediation: 'Add an aws_s3_bucket_server_side_encryption_configuration resource with AES256 or aws:kms algorithm',
+    disabledIssue: 'S3 bucket encryption configuration does not set a recognised sse_algorithm; encryption is unverified',
+    disabledRemediation: 'Set sse_algorithm to AES256 or aws:kms',
+    enabled: (content, resource) => setsLiteral(resource.body, 'sse_algorithm', ['AES256', 'aws:kms', 'aws:kms:dsse'])
+  },
+  aws_s3_bucket_versioning: {
+    severity: 'MEDIUM',
+    missingIssue: 'S3 bucket versioning is not enabled',
+    missingRemediation: 'Add an aws_s3_bucket_versioning resource for data protection and recovery',
+    disabledIssue: 'S3 bucket versioning is configured but its status is not "Enabled"',
+    disabledRemediation: 'Set status = "Enabled"',
+    enabled: (content, resource) => setsLiteral(resource.body, 'status', ['Enabled'])
+  },
+  aws_s3_bucket_public_access_block: {
+    severity: 'HIGH',
+    missingIssue: 'S3 bucket does not have public access blocks configured',
+    missingRemediation: 'Add aws_s3_bucket_public_access_block resource',
+    disabledIssue: 'S3 bucket public access block does not set all four flags to true',
+    disabledRemediation: `Set ${PUBLIC_ACCESS_FLAGS.join(', ')} to true`,
+    enabled: (content, resource) => PUBLIC_ACCESS_FLAGS.every(flag => resourceAttribute(content, resource, flag) === 'true')
+  }
+};
 
 const S3_COMPANION_SETTINGS = {
   aws_s3_bucket_server_side_encryption_configuration: [

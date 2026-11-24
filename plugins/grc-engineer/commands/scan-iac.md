@@ -432,6 +432,7 @@ Outputs SARIF 2.1.0 format compatible with:
 - ✓ Enable RDS storage encryption
 - ✓ Enable CloudTrail multi-region and log file validation
 - ✗ Cannot auto-fix: S3 protection that exists but is switched off, such as suspended versioning (requires manual review)
+- ✗ Cannot auto-fix: Settings given as expressions rather than literals, such as `encrypted = var.encrypt` (requires manual review)
 - ✗ Cannot auto-fix: Security group rules (requires manual review)
 - ✗ Cannot auto-fix: IAM policies (security sensitive)
 

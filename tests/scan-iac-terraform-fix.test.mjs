@@ -323,3 +323,113 @@ test('a companion in a sibling file of the same module covers the bucket', async
   assert.equal(await scanner.applyFixes(), 0);
   assert.equal(fs.readFileSync(file, 'utf8'), BUCKET);
 });
+
+test('a value that only starts with an enabled literal is not treated as enabled', async (t) => {
+  const { dir } = workspace(t, BUCKET
+    + ENCRYPTED.replace('"AES256"', 'var.kms ? "aws:kms" : "AES256"')
+    + VERSIONED.replace('"Enabled"', '"Enabled" == "Enabled" ? "Suspended" : "Enabled"')
+    + BLOCKED.replace('block_public_acls       = true', 'block_public_acls       = true && var.block_public_acls'));
+
+  const scanner = await scan(dir);
+  assert.deepEqual(issuesFor(scanner, 'aws_s3_bucket.data').sort(), [
+    'S3 bucket encryption configuration does not set a recognised sse_algorithm; encryption is unverified',
+    'S3 bucket public access block does not set all four flags to true',
+    'S3 bucket versioning is configured but its status is not "Enabled"'
+  ]);
+  assert.equal(await scanner.applyFixes(), 0);
+});
+
+test('a bucket reference in a block comment or an unused branch does not cover the bucket', async (t) => {
+  const others = `
+resource "aws_s3_bucket" "other" {
+  bucket = "example-other"
+}
+
+resource "aws_s3_bucket_versioning" "other" {
+  bucket = aws_s3_bucket.other.id /* replaces aws_s3_bucket.data.id */
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "either" {
+  bucket = var.primary ? aws_s3_bucket.data.id : aws_s3_bucket.other.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+`;
+  const { dir, file } = workspace(t, BUCKET + ENCRYPTED + others);
+
+  const scanner = await scan(dir);
+  const data = scanner.violations.filter(v => v.resource === 'aws_s3_bucket.data');
+  assert.deepEqual(data.map(v => [v.issue, v.autoFixable]).sort(), [
+    ['S3 bucket does not have public access blocks configured: aws_s3_bucket_public_access_block.either refers to this bucket through an expression this scanner cannot resolve', false],
+    ['S3 bucket versioning is not enabled', true]
+  ]);
+
+  await scanner.applyFixes();
+  const fixed = fs.readFileSync(file, 'utf8');
+  assert.match(fixed, /resource "aws_s3_bucket_versioning" "data" \{/);
+  assert.equal(fixed.match(/resource "aws_s3_bucket_public_access_block"/g).length, 1);
+});
+
+test('each.key is not accepted as the identity of a for_each bucket', async (t) => {
+  const { dir } = workspace(t, `resource "aws_s3_bucket" "keyed" {
+  for_each = toset(["a"])
+  bucket   = each.key
+}
+
+resource "aws_s3_bucket_versioning" "keyed" {
+  for_each = aws_s3_bucket.keyed
+  bucket   = each.key
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+`);
+  const issues = issuesFor(await scan(dir), 'aws_s3_bucket.keyed');
+  assert.ok(issues.some(issue => issue.startsWith('S3 bucket versioning is not enabled: aws_s3_bucket_versioning.keyed refers to this bucket through an expression')));
+});
+
+test('attributes after a block comment are still seen', async (t) => {
+  const { dir, file } = workspace(t, `resource "aws_s3_bucket" "counted" {
+  /* optional bucket */ count = var.create_bucket ? 1 : 0
+  bucket = "example"
+}
+
+resource "aws_ebs_volume" "scratch" {
+  size = 40
+  /* temporary */ encrypted = false
+}
+`);
+
+  const after = await fixAndRescan(dir);
+  const fixed = fs.readFileSync(file, 'utf8');
+  assert.doesNotMatch(fixed, /aws_s3_bucket\.counted\.id/);
+  assert.equal(fixed.match(/bucket = aws_s3_bucket\.counted\[count\.index\]\.id/g).length, 3);
+  assert.match(fixed, /\n  \/\* temporary \*\/ encrypted = true\n/);
+  assert.deepEqual(after.violations, []);
+});
+
+test('a setting given as an expression is reported but never overwritten', async (t) => {
+  const content = `resource "aws_cloudtrail" "main" {
+  name                       = "main"
+  is_multi_region_trail      = var.multi_region
+  enable_log_file_validation = false
+}
+`;
+  const { dir, file } = workspace(t, content);
+
+  const scanner = await scan(dir);
+  assert.deepEqual(scanner.violations.map(v => [v.issue, v.autoFixable]).sort(), [
+    ['CloudTrail is not configured for all regions: is_multi_region_trail is set by an expression this scanner cannot resolve', false],
+    ['CloudTrail log file validation is not enabled', true]
+  ]);
+  assert.equal(await scanner.applyFixes(), 1);
+  assert.equal(fs.readFileSync(file, 'utf8'), content.replace('= false', '= true'));
+});
