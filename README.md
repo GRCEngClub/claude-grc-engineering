@@ -63,7 +63,7 @@ Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md). For Claude Desktop o
 | Map one control across frameworks | `/grc-engineer:map-controls-unified` |
 | Find conflicting requirements across frameworks | `/grc-engineer:find-conflicts` |
 | Optimize a multi-framework control plan | `/grc-engineer:optimize-multi-framework` |
-| Collect evidence from cloud, SaaS, and code systems | each connector's `setup`, `collect`, and `status` commands |
+| Collect evidence from cloud, SaaS, and code systems | each connector's `setup`, `collect`, and `status` commands (`scan` for `testssl-inspector`) |
 | Build audit workpapers or evidence packages | `/grc-auditor:generate-workpaper`, `/grc-engineer:collect-evidence` |
 | Generate OSCAL SSP, SAP, SAR, and POA&M outputs | `/oscal:*`, `/fedramp-ssp:*` |
 | Draft leadership updates and automation coverage reports | `/report:exec-summary`, `/report:automation-coverage` |
@@ -91,9 +91,9 @@ Install only the plugins you need. The full list is in [.claude-plugin/marketpla
 
 ## Data contract
 
-Every connector emits Findings that match [schemas/finding.schema.json](schemas/finding.schema.json). A Finding is one resource with one or more control evaluations.
+Evidence connectors emit Findings that match [schemas/finding.schema.json](schemas/finding.schema.json). A Finding is one resource with one or more control evaluations.
 
-A connector only collects and normalizes evidence. `grc-engineer` does the framework mapping, reporting, and remediation.
+A connector collects and normalizes evidence, and `grc-engineer` uses the Findings for framework mapping, reporting, and remediation. `onepassword-connector`, `vault-kv`, and `gcp-secret-metadata` are the exception: they handle secrets or secret metadata for a local operator and emit no Findings.
 
 For the full architecture and schema example, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
