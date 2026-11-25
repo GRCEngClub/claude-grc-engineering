@@ -167,16 +167,16 @@ OPTIMIZATION INSIGHT
 
    Frameworks covered:
    ✓ NIST 800-53 (5 controls)
-   ✓ ISO 27001 (4 controls)
+   ✓ ISO 27001 (3 controls)
    ✓ SOC 2 (3 controls)
    ✓ PCI-DSS (4 controls)
    ✓ CIS Controls (5 controls)
    ✓ CMMC (4 controls)
    ✓ FedRAMP (1 control)
 
-   Total: 26 controls satisfied
+   Total: 25 controls satisfied
    Estimated effort: 40 hours
-   ROI: 650% (26 controls / 40 hours = 0.65 controls/hour)
+   ROI: 625% (25 controls / 40 hours = 0.625 controls/hour)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RECOMMENDED NEXT STEPS

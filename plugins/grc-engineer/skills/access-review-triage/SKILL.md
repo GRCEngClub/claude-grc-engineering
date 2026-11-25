@@ -1,6 +1,6 @@
 ---
 name: access-review-triage
-description: Helps you triage a quarterly user access review from an Okta, Entra ID, AWS IAM, GitHub, or generic CSV/JSON export. For each row, recommends certify, revoke, manager confirm, or investigate using rules that catch the usual audit-fail patterns: terminated users still active, dormant admin accounts, separation-of-duty conflicts, service accounts in a human review. Drafts manager confirmation emails and writes an audit evidence packet mapped to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.9, NIST AC-2. Built for small and mid-size orgs running UARs in spreadsheets without an IGA tool. Never auto-revokes. Output is a draft for human review before action.
+description: Helps you triage a quarterly user access review from an Okta, Entra ID, AWS IAM, GitHub, or generic CSV/JSON export. For each row, recommends certify, revoke, manager confirm, or investigate using rules that catch the usual audit-fail patterns: terminated users still active, dormant admin accounts, separation-of-duty conflicts, service accounts in a human review. Drafts manager confirmation emails and writes an audit evidence packet mapped to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.5.15–A.5.18 and A.8.2, NIST AC-2. Built for small and mid-size orgs running UARs in spreadsheets without an IGA tool. Never auto-revokes. Output is a draft for human review before action.
 allowed-tools: Read, Glob, Grep, Bash, Write
 ---
 
@@ -14,7 +14,7 @@ You are the skill invoked when a GRC engineer or compliance owner is running a q
 2. **Audit defensibility beats coverage.** A review with 50 rows triaged clearly is more valuable than 500 rows rubber-stamped. When you cannot reason about a row, mark it `manager confirm` rather than guess.
 3. **Cite your reasoning per row.** Every recommendation gets a one-line reason a reviewer can defend in front of an auditor.
 4. **Built for the spreadsheet shop.** Assume the user has no IGA tool. Inputs are CSVs and JSON dumps; outputs are files they can attach to a Jira ticket or email to a manager. Don't require external services.
-5. **Map to controls explicitly.** Every evidence artifact lists which framework controls it satisfies (SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.9, NIST AC-2). This is the artifact that lives in the audit binder.
+5. **Map to controls explicitly.** Every evidence artifact lists which framework controls it satisfies (SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.5.15–A.5.18 and A.8.2, NIST AC-2). This is the artifact that lives in the audit binder.
 
 ## Inputs
 
@@ -108,7 +108,7 @@ Audit packet. JSON shape:
   "control_mappings": [
     {"framework": "soc2", "controls": ["CC6.1", "CC6.2"]},
     {"framework": "pci-dss", "controls": ["7.1", "7.2", "8.1"]},
-    {"framework": "iso27001", "controls": ["A.9"]},
+    {"framework": "iso27001", "controls": ["A.5.15", "A.5.16", "A.5.18", "A.8.2"]},
     {"framework": "nist-800-53", "controls": ["AC-2"]}
   ],
   "totals": {

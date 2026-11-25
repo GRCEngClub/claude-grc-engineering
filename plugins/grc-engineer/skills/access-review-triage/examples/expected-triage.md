@@ -40,7 +40,7 @@
 
 - **System / roles:** okta / `ap-creator` AND `ap-approver`
 - **Last login:** 2026-05-07
-- **Why P0:** Rule 2. `sod-conflicts.yaml` defines `[ap-creator, ap-approver]` as a SoD conflict. The user holds both roles. Whoever creates an invoice should not be able to approve it (SOC 2 CC6.1, PCI 7.1, ISO A.9, US-SOX ITGC).
+- **Why P0:** Rule 2. `sod-conflicts.yaml` defines `[ap-creator, ap-approver]` as a SoD conflict. The user holds both roles. Whoever creates an invoice should not be able to approve it (SOC 2 CC6.1, PCI 7.1, ISO A.5.3, US-SOX ITGC).
 - **Recommendation:** Investigate. Manager and Finance lead should choose which role to retain and revoke the other. Record the decision in the audit packet.
 
 ## P1 anomalies
@@ -95,7 +95,7 @@ This review produces evidence for:
 |---|---|
 | SOC 2 | CC6.1, CC6.2 |
 | PCI DSS v4.0 | 7.1, 7.2, 8.1 |
-| ISO 27001 | A.9 |
+| ISO 27001 | A.5.15, A.5.16, A.5.18, A.8.2 |
 | NIST 800-53 | AC-2 |
 
 Mappings recorded verbatim in `evidence.json`.

@@ -145,7 +145,7 @@ CONTROL #2: Encryption at Rest
 CONTROL #3: Security Logging and Monitoring
   Satisfies:
     ✓ NIST AU-2, AU-3, AU-6, AU-11 (Audit logging)
-    ✓ ISO A.8.15, A.8.17 (Logging, clock synchronization)
+    ✓ ISO A.8.15, A.8.16, A.8.17 (Logging, monitoring activities, clock synchronization)
     ✓ SOC2 CC7.2, CC7.3 (System monitoring)
     ✓ PCI 10.1-10.7 (Audit trails)
 

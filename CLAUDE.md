@@ -746,7 +746,7 @@ Lives at `plugins/grc-engineer/skills/access-review-triage/SKILL.md`. The skill 
 - Rule 9: unchanged since last cycle → Auto-certify
 - Rule 10: default → Manager confirm
 
-Output is four artifacts in `~/.cache/claude-grc/access-reviews/<system>-<YYYY-QN>/`: `triage.md` (human-readable report), `decisions.csv` (machine-readable per-row recommendations), `manager-emails/<manager>.md` (drafted confirmation emails), and `evidence.json` (audit-binder packet with control mappings to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.9, NIST AC-2).
+Output is four artifacts in `~/.cache/claude-grc/access-reviews/<system>-<YYYY-QN>/`: `triage.md` (human-readable report), `decisions.csv` (machine-readable per-row recommendations), `manager-emails/<manager>.md` (drafted confirmation emails), and `evidence.json` (audit-binder packet with control mappings to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.5.15–A.5.18 and A.8.2, NIST AC-2).
 
 The skill never auto-revokes — every recommendation is a draft for human review. It refuses to run for orgs that already have an IGA tool unless `--force` is passed.
 
