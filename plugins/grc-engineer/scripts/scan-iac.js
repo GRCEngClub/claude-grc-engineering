@@ -108,8 +108,9 @@ class IaCScanner {
   }
 
   async scan() {
-    console.log(`Scanning: ${this.directory}`);
-    console.log(`Frameworks: ${this.frameworks.join(', ')}\n`);
+    // Progress goes to stderr so `json` and `sarif` output on stdout stays parseable.
+    console.error(`Scanning: ${this.directory}`);
+    console.error(`Frameworks: ${this.frameworks.join(', ')}\n`);
 
     const files = this.findIaCFiles(this.directory);
 
@@ -281,6 +282,7 @@ class IaCScanner {
     if (!declaresEncryption) {
       if (referencesStorageClass) {
         issues.push({
+          check: 'storage-class-unresolved',
           severity: 'MEDIUM',
           issue: `${resourceType} '${resourceName}' references a StorageClass this scanner cannot resolve; encryption at rest is unverified`,
           remediation: 'Confirm the referenced StorageClass provisions encrypted volumes (e.g. EBS/PD parameters with encrypted: "true"), or add an explicit encryption indicator to the manifest.',
@@ -288,6 +290,7 @@ class IaCScanner {
         });
       } else {
         issues.push({
+          check: 'storage-class-unencrypted',
           severity: 'MEDIUM',
           issue: `${resourceType} '${resourceName}' does not reference an encrypted StorageClass`,
           remediation: 'Set storageClassName to a StorageClass whose provisioner enables encryption at rest (e.g. an EBS/PD class with encrypted: "true").',
@@ -318,6 +321,7 @@ class IaCScanner {
       issues.push(...settings.filter(Boolean));
 
       issues.push({
+        check: 'cloudtrail-retention',
         severity: 'INFO',
         issue: 'Verify CloudTrail logs are retained for 1 year (PCI-DSS 10.7)',
         remediation: 'Check S3 bucket lifecycle configuration for 365-day retention',
@@ -338,6 +342,7 @@ class IaCScanner {
       for (const ingress of ingressMatches) {
         if (ingress.includes('from_port   = 22') || ingress.includes('from_port = 22')) {
           issues.push({
+            check: 'open-ssh',
             severity: 'CRITICAL',
             issue: 'Security group allows unrestricted SSH access (0.0.0.0/0:22)',
             remediation: 'Restrict SSH to specific IP ranges or remove rule entirely',
@@ -347,6 +352,7 @@ class IaCScanner {
 
         if (ingress.includes('from_port   = 3389') || ingress.includes('from_port = 3389')) {
           issues.push({
+            check: 'open-rdp',
             severity: 'CRITICAL',
             issue: 'Security group allows unrestricted RDP access (0.0.0.0/0:3389)',
             remediation: 'Restrict RDP to specific IP ranges or remove rule entirely',
@@ -356,6 +362,7 @@ class IaCScanner {
 
         if (ingress.includes('from_port   = 0') || ingress.includes('to_port   = 65535')) {
           issues.push({
+            check: 'open-all-ports',
             severity: 'HIGH',
             issue: 'Security group allows all ports from 0.0.0.0/0',
             remediation: 'Apply principle of least privilege - only allow necessary ports',
@@ -374,6 +381,7 @@ class IaCScanner {
     if (resourceType === 'aws_iam_policy') {
       if (resourceBody.includes('"*"') && resourceBody.includes('"Effect": "Allow"')) {
         issues.push({
+          check: 'wildcard-policy',
           severity: 'HIGH',
           issue: 'IAM policy allows full access to all resources (*)',
           remediation: 'Apply least privilege principle - restrict to specific resources',
@@ -403,6 +411,8 @@ class IaCScanner {
     for (const issue of issues) {
       const finding = {
         controlId,
+        check: issue.check,
+        help: issue.help,
         controlName: rule.name,
         frameworks: rule.frameworks.filter(f =>
           this.frameworks.some(selected => f.includes(selected))
@@ -431,7 +441,16 @@ class IaCScanner {
   generateReport() {
     const totalControls = Object.keys(this.rules).length * this.frameworks.length;
     const violationCount = this.violations.length;
-    const satisfiedCount = totalControls - violationCount - this.partial.length;
+    // Score by (rule, framework) pair, matching calculateFrameworkCompliance: one
+    // finding mapped to three frameworks fails three checks, and ten findings
+    // against the same rule still fail that rule only once per framework.
+    const failedChecks = new Set();
+    for (const v of this.violations) {
+      for (const framework of this.frameworks) {
+        if (v.frameworks.some(f => f.includes(framework))) failedChecks.add(`${v.controlId}|${framework}`);
+      }
+    }
+    const satisfiedCount = Math.max(0, totalControls - failedChecks.size - this.partial.length);
 
     const compliancePercentage = Math.round((satisfiedCount / totalControls) * 100);
 
@@ -453,6 +472,67 @@ class IaCScanner {
       }),
       recommendations: this.recommendations,
       complianceByFramework: this.calculateFrameworkCompliance()
+    };
+  }
+
+  // SARIF 2.1.0 for GitHub code scanning and other SARIF consumers.
+  // Only violations become results; INFO recommendations are left out.
+  toSarif(report) {
+    const levelFor = { CRITICAL: 'error', HIGH: 'error', MEDIUM: 'warning', LOW: 'note' };
+    const securitySeverity = { CRITICAL: '9.5', HIGH: '7.5', MEDIUM: '5.0', LOW: '2.0' };
+    const rules = new Map();
+
+    const results = report.violations.map(v => {
+      // One SARIF rule per distinct check, so each rule's help and score fit every
+      // result filed under it (versioning and public access are different checks
+      // under the same data_protection control).
+      const ruleId = v.check ? `${v.controlId}/${v.check}` : v.controlId;
+      if (!rules.has(ruleId)) {
+        rules.set(ruleId, {
+          id: ruleId,
+          name: v.controlName,
+          shortDescription: { text: v.check ? `${v.controlName} (${v.check})` : v.controlName },
+          help: { text: v.help || v.remediation || v.controlName },
+          properties: {
+            tags: ['compliance', ...v.frameworks],
+            'security-severity': securitySeverity[v.severity] || '5.0'
+          }
+        });
+      }
+      // Repo-relative URIs let GitHub map results onto files; anything outside
+      // the working directory falls back to an absolute file:// URI.
+      const absolute = path.resolve(v.file);
+      const relative = path.relative(process.cwd(), absolute);
+      const uri = !relative || relative.startsWith('..') || path.isAbsolute(relative)
+        ? pathToFileURL(absolute).href
+        : relative.split(path.sep).map(segment => encodeURIComponent(segment)).join('/');
+      return {
+        ruleId,
+        level: levelFor[v.severity] || 'warning',
+        message: { text: `${v.resource}: ${v.issue}` },
+        locations: [{
+          physicalLocation: {
+            artifactLocation: { uri },
+            region: { startLine: Math.max(1, Number(v.line) || 1) }
+          }
+        }],
+        properties: { severity: v.severity, frameworks: v.frameworks, autoFixable: Boolean(v.autoFixable) }
+      };
+    });
+
+    return {
+      $schema: 'https://json.schemastore.org/sarif-2.1.0.json',
+      version: '2.1.0',
+      runs: [{
+        tool: {
+          driver: {
+            name: 'grc-engineer scan-iac',
+            informationUri: 'https://github.com/GRCEngClub/claude-grc-engineering',
+            rules: [...rules.values()]
+          }
+        },
+        results
+      }]
     };
   }
 
@@ -505,72 +585,6 @@ class IaCScanner {
   }
 }
 
-// `process.argv[1]` is undefined under `node --eval` and some embedders, where
-// pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const args = process.argv.slice(2);
-
-  if (args.length < 2) {
-    console.log('Usage: node scan-iac.js <directory> <frameworks> [output-format] [options]');
-    console.log('Example: node scan-iac.js ./terraform SOC2,PCI-DSS,NIST detailed');
-    process.exit(1);
-  }
-
-  const directory = args[0];
-  const frameworks = args[1].split(',');
-  const outputFormat = args[2] || 'detailed';
-  const options = {
-    fix: args.includes('--fix'),
-    severity: args.find(a => a.startsWith('--severity='))?.split('=')[1]
-  };
-
-  const scanner = new IaCScanner(directory, frameworks, options);
-
-  scanner.scan().then(report => {
-    if (outputFormat === 'json') {
-      console.log(JSON.stringify(report, null, 2));
-    } else if (outputFormat === 'summary') {
-      console.log(`\nCompliance: ${report.summary.compliancePercentage}% (${report.summary.satisfied}/${report.summary.totalControls} controls)`);
-      console.log(`\nViolations: ${report.violations.length}`);
-      console.log(`Files scanned: ${report.filesScanned}`);
-    } else {
-      console.log('\n' + '='.repeat(60));
-      console.log('IaC COMPLIANCE SCAN RESULTS');
-      console.log('='.repeat(60));
-      console.log(`\nDirectory: ${report.directory}`);
-      console.log(`Frameworks: ${report.frameworks.join(', ')}`);
-      console.log(`Files scanned: ${report.filesScanned}`);
-      console.log(`\nCompliance: ${report.summary.compliancePercentage}%`);
-      console.log(`Violations: ${report.violations.length}`);
-      console.log(`Satisfied: ${report.summary.satisfied}`);
-
-      if (report.violations.length > 0) {
-        console.log('\n' + '='.repeat(60));
-        console.log('VIOLATIONS');
-        console.log('='.repeat(60));
-
-        report.violations.forEach((v, i) => {
-          console.log(`\n[${i + 1}] ${v.severity} - ${v.controlName}`);
-          console.log(`    Frameworks: ${v.frameworks.join(', ')}`);
-          console.log(`    File: ${v.file}:${v.line}`);
-          console.log(`    Resource: ${v.resource}`);
-          console.log(`    Issue: ${v.issue}`);
-          console.log(`    Remediation: ${v.remediation}`);
-          if (v.autoFixable) {
-            console.log(`    Auto-fix: Available (run with --fix)`);
-          }
-        });
-      }
-    }
-
-    if (options.fix && report.violations.some(v => v.autoFixable)) {
-      console.log('\nApplying auto-fixes...');
-      scanner.applyFixes().then(count => {
-        console.log(`Applied ${count} fixes. Re-run scan to verify.`);
-      });
-    }
-  });
-}
 
 function applyTerraformFix(content, fix, siblings) {
   if (fix.attribute) {
@@ -626,9 +640,10 @@ function booleanSettingIssue(attributeOf, attribute, { severity, issue, remediat
   const value = withoutWrappingParentheses(attributeOf(attribute));
   if (value === 'true') return null;
   if (value === null || value === 'false') {
-    return { severity, issue, remediation, autoFixable: true, fix: { attribute, value: 'true' } };
+    return { check: attribute, severity, issue, remediation, autoFixable: true, fix: { attribute, value: 'true' } };
   }
   return {
+    check: `${attribute}-unresolved`,
     severity,
     issue: `${issue}: ${attribute} is set by an expression this scanner cannot resolve`,
     remediation: `Confirm ${attribute} evaluates to true`,
@@ -649,8 +664,11 @@ function s3ProtectionIssue(moduleContent, companionType, bucketName) {
   const { resources, unresolved } = companionCoverage(moduleContent, companionType, bucketName);
 
   if (resources.some(resource => protection.enabled(moduleContent, resource))) return null;
+  const check = companionType.replace(/^aws_s3_bucket_/, '');
   if (resources.length > 0) {
     return {
+      check: `${check}-disabled`,
+      help: protection.disabledRemediation,
       severity: protection.severity,
       issue: protection.disabledIssue,
       remediation: `${protection.disabledRemediation} in ${addresses(resources)}`,
@@ -659,6 +677,8 @@ function s3ProtectionIssue(moduleContent, companionType, bucketName) {
   }
   if (unresolved.length > 0) {
     return {
+      check: `${check}-unresolved`,
+      help: 'Confirm the companion resource targets this bucket, or reference the bucket directly',
       severity: protection.severity,
       issue: `${protection.missingIssue}: ${addresses(unresolved)} refers to this bucket through an expression this scanner cannot resolve`,
       remediation: `Confirm ${addresses(unresolved)} targets this bucket, or reference it directly`,
@@ -666,6 +686,7 @@ function s3ProtectionIssue(moduleContent, companionType, bucketName) {
     };
   }
   return {
+    check: `${check}-missing`,
     severity: protection.severity,
     issue: protection.missingIssue,
     remediation: protection.missingRemediation,
@@ -727,5 +748,77 @@ const S3_COMPANION_SETTINGS = {
     '  restrict_public_buckets = true'
   ]
 };
+
+// The CLI entry point sits at the bottom of the module so every constant above it
+// (S3_PROTECTIONS and friends) is initialized before a scan runs.
+// `process.argv[1]` is undefined under `node --eval` and some embedders, where
+// pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const args = process.argv.slice(2);
+
+  if (args.length < 2) {
+    console.log('Usage: node scan-iac.js <directory> <frameworks> [output-format] [options]');
+    console.log('Example: node scan-iac.js ./terraform SOC2,PCI-DSS,NIST detailed');
+    process.exit(1);
+  }
+
+  const directory = args[0];
+  const frameworks = args[1].split(',');
+  const outputFormat = args[2] || 'detailed';
+  const options = {
+    fix: args.includes('--fix'),
+    severity: args.find(a => a.startsWith('--severity='))?.split('=')[1]
+  };
+
+  const scanner = new IaCScanner(directory, frameworks, options);
+
+  scanner.scan().then(report => {
+    if (outputFormat === 'json') {
+      console.log(JSON.stringify(report, null, 2));
+    } else if (outputFormat === 'sarif') {
+      console.log(JSON.stringify(scanner.toSarif(report), null, 2));
+    } else if (outputFormat === 'summary') {
+      console.log(`\nCompliance: ${report.summary.compliancePercentage}% (${report.summary.satisfied}/${report.summary.totalControls} controls)`);
+      console.log(`\nViolations: ${report.violations.length}`);
+      console.log(`Files scanned: ${report.filesScanned}`);
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('IaC COMPLIANCE SCAN RESULTS');
+      console.log('='.repeat(60));
+      console.log(`\nDirectory: ${report.directory}`);
+      console.log(`Frameworks: ${report.frameworks.join(', ')}`);
+      console.log(`Files scanned: ${report.filesScanned}`);
+      console.log(`\nCompliance: ${report.summary.compliancePercentage}%`);
+      console.log(`Violations: ${report.violations.length}`);
+      console.log(`Satisfied: ${report.summary.satisfied}`);
+
+      if (report.violations.length > 0) {
+        console.log('\n' + '='.repeat(60));
+        console.log('VIOLATIONS');
+        console.log('='.repeat(60));
+
+        report.violations.forEach((v, i) => {
+          console.log(`\n[${i + 1}] ${v.severity} - ${v.controlName}`);
+          console.log(`    Frameworks: ${v.frameworks.join(', ')}`);
+          console.log(`    File: ${v.file}:${v.line}`);
+          console.log(`    Resource: ${v.resource}`);
+          console.log(`    Issue: ${v.issue}`);
+          console.log(`    Remediation: ${v.remediation}`);
+          if (v.autoFixable) {
+            console.log(`    Auto-fix: Available (run with --fix)`);
+          }
+        });
+      }
+    }
+
+    if (options.fix && report.violations.some(v => v.autoFixable)) {
+      // stderr keeps machine-readable stdout clean when --fix is combined with json/sarif.
+      console.error('\nApplying auto-fixes...');
+      scanner.applyFixes().then(count => {
+        console.error(`Applied ${count} fixes. Re-run scan to verify.`);
+      });
+    }
+  });
+}
 
 export default IaCScanner;

@@ -390,7 +390,7 @@ Recover data and system availability after incidents
 **Implementation Steps**:
 
 1. Identify important data repositories
-2. Deploy MFA solution (Azure AD, Duo, etc.)
+2. Deploy MFA solution (Entra ID, Duo, etc.)
 3. Enroll all privileged users
 4. Require MFA for VPN/remote access
 5. Configure conditional access policies

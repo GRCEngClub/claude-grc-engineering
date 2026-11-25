@@ -53,7 +53,7 @@ controls:
       azure:
         commands:
           - cmd: "az ad user list"
-            description: "List Azure AD users"
+            description: "List Entra ID users"
             pass_criteria: "Users have appropriate clearances"
       gcp:
         commands:

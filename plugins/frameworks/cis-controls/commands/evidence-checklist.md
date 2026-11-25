@@ -59,7 +59,7 @@ Establish and maintain an inventory of all accounts managed in the enterprise. T
 aws iam list-users --output json > evidence/cis-5.1-iam-users-$(date +%Y%m%d).json
 aws iam get-credential-report > evidence/cis-5.1-credential-report-$(date +%Y%m%d).csv
 
-# Azure AD Users
+# Entra ID Users
 az ad user list --output json > evidence/cis-5.1-azure-users-$(date +%Y%m%d).json
 
 # Google Workspace Users
@@ -126,7 +126,7 @@ aws cloudtrail lookup-events \
   --start-time $(date -u -d '30 days ago' +%Y-%m-%dT%H:%M:%S) \
   --output json > evidence/cis-5.1-account-deletion-$(date +%Y%m%d).json
 
-# Azure AD Audit Logs
+# Entra ID Audit Logs
 az monitor activity-log list \
   --caller 'Microsoft.Authorization' \
   --start-time $(date -u -d '30 days ago' +%Y-%m-%dT%H:%M:%S) \

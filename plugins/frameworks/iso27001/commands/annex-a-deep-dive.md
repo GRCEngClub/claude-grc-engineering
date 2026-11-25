@@ -214,7 +214,7 @@ ISO Requirements:
 Cloud Implementation (AWS):
 
   Identity Provider Integration:
-    ✓ Federated authentication (Okta, Azure AD)
+    ✓ Federated authentication (Okta, Entra ID)
     ✓ SAML 2.0 or OIDC protocol
     ✓ Single Sign-On (SSO) for all applications
     ✓ No direct IAM user passwords (federated only)
@@ -263,7 +263,7 @@ Cloud Implementation (AWS):
 Implementation Guide:
 
   Phase 1: Foundation (Weeks 1-4)
-    □ Deploy identity provider (Okta or Azure AD)
+    □ Deploy identity provider (Okta or Entra ID)
     □ Migrate all users to federated authentication
     □ Disable direct IAM user passwords
     □ Enforce MFA for all users (100% enrollment)
@@ -281,7 +281,7 @@ Implementation Guide:
     □ Create authentication dashboard
 
 Evidence for Audit:
-  □ Identity provider configuration (Okta/Azure AD)
+  □ Identity provider configuration (Okta/Entra ID)
   □ MFA enrollment report (100% required)
   □ Password policy screenshot
   □ Session timeout configuration
@@ -297,7 +297,7 @@ Common Pitfalls:
   ❌ Shared service accounts without MFA
 
 Effort: 40 hours (initial) + 2 hours/month (maintenance)
-Cost: $3-$5/user/month (Okta or Azure AD with MFA)
+Cost: $3-$5/user/month (Okta or Entra ID with MFA)
 Priority: 🔴 CRITICAL
 Cross-Reference: NIST IA-2, IA-5; SOC2 CC6.1
 
