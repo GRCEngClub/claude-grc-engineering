@@ -16,6 +16,7 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Removed
 
+- **`docs/ARCHITECTURE-V2-RFC.md`.** The April 2026 RFC was accepted and its reporting and dashboard categories have shipped; its description of the repo had gone stale. `ROADMAP.md` now lists the categories still open, and the roadmap drops connectors, frameworks and schemas that already exist.
 - **`fedramp-rev5` and `fedramp-ssp` plugins.** FedRAMP stops accepting new Rev5 Certifications on June 11, 2027, and its Consolidated Rules for 2026 replace the System Security Plan with a Certification Package Overview and Security Decision Record and replace POA&Ms with a list of Accepted Weaknesses. `fedramp-rev5` gave SSP, POA&M and JAB-path guidance for the old process, and `fedramp-ssp` only converted Rev5 SSP Word templates to OSCAL. For FedRAMP work use `fedramp-20x`. Nothing in this repo replaces the SSP Word-to-OSCAL conversion; the upstream tool, `ethanolivertroy/frdocx-to-froscal-ssp`, can still be run directly for a Rev5 package already in progress. See [What's Changing in 2026](https://www.fedramp.gov/2026/providers/updating/changes/).
 
 ### Changed
