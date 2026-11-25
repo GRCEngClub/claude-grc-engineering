@@ -227,6 +227,17 @@ const FRAMEWORK_ALIASES = {
   'hipaa':                        'usa-federal-law-hipaa-security-rule-2013',
   'hipaa-security':               'usa-federal-law-hipaa-security-rule-2013',
 
+  // GovRAMP (formerly StateRAMP). The bare name resolves to Moderate, the usual
+  // baseline for Ready and Authorized; `stateramp` is the pre-2025 name.
+  'govramp':                      'general-govramp-mod',
+  'govramp-core':                 'general-govramp-core',
+  'govramp-low':                  'general-govramp-low',
+  'govramp-low-plus':             'general-govramp-low-plus',
+  'govramp-moderate':             'general-govramp-mod',
+  'govramp-mod':                  'general-govramp-mod',
+  'govramp-high':                 'general-govramp-high',
+  'stateramp':                    'general-govramp-mod',
+
   'cmmc':                         'usa-federal-dow-cmmc-2-level-2',
   'cmmc-2':                       'usa-federal-dow-cmmc-2-level-2',
   'cmmc-level-1':                 'usa-federal-dow-cmmc-2-level-1',
@@ -260,7 +271,6 @@ const FRAMEWORK_ALIASES = {
 const FRAMEWORKS_WITHOUT_SCF_CROSSWALK = {
   'hitrust':     'HITRUST CSF is proprietary; SCF does not publish a public crosswalk. Use the `hitrust` plugin directly.',
   'hitrust-csf': 'HITRUST CSF is proprietary; SCF does not publish a public crosswalk. Use the `hitrust` plugin directly.',
-  'stateramp':   'StateRAMP has no SCF crosswalk; it mirrors NIST 800-53. Use FedRAMP-Moderate or NIST-800-53 as a proxy.',
   'pbmm':        'PBMM (ITSG-33) has no direct SCF crosswalk; use NIST-800-53 as a close proxy.',
   'us-export':   'US Export Controls (ITAR/EAR) are not a security controls framework and have no SCF mapping.',
 };

@@ -21,6 +21,14 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Changed
 
+- **`stateramp` plugin renamed to `govramp` and rewritten.** StateRAMP has operated as GovRAMP since February 14, 2025 (the legal entity is still StateRAMP, Inc.). To migrate:
+  1. Uninstall `stateramp`.
+  2. Install `govramp@grc-engineering-suite`.
+  3. Use the commands under `/govramp:*`. The command names are unchanged: `assess`, `impact-select`, `evidence-checklist`, `documentation`, `state-specific`.
+
+  The content now follows GovRAMP's current verification ladder: Security Snapshot, Progressing Snapshot, Core, Ready, and Authorized/Provisional. It drops the JAB references and the unsourced claims (three-year validity, cost ranges, a 15-state participant list, fixed state notification windows). GovRAMP-specific statements now link to govramp.org.
+- **GovRAMP is now an SCF-backed gap-assessment target.** `/grc-engineer:gap-assessment` used to reject `StateRAMP` as having no SCF crosswalk, but SCF publishes GovRAMP crosswalks. `GovRAMP`, `GovRAMP-Core`, `GovRAMP-Low`, `GovRAMP-Low-Plus`, `GovRAMP-Moderate` and `GovRAMP-High` now resolve to them. `StateRAMP` is still accepted and resolves to GovRAMP Moderate. The `govramp` plugin declares `general-govramp-mod` as its SCF framework.
+
 - **`poam-automation` connector renamed to `vdr-automation`.** FedRAMP's Consolidated Rules for 2026 replace POA&Ms with a list of Accepted Weaknesses, so the connector is now described by its FedRAMP 20x Vulnerability Detection and Response output. The finding `source`, cache directory (`~/.cache/claude-grc/findings/vdr-automation`) and config file (`connectors/vdr-automation.yaml`) changed with it; re-run `/vdr-automation:setup`, which writes the new config and moves the old `findings/poam-automation` cache to `~/.cache/claude-grc/retired/` so assessments do not read stale findings under the old name. Then run `/vdr-automation:collect` with your workbook to fill the new cache before the next assessment. The upstream tool is unchanged and still uses `--poam` for its workbook.
 
 - **Required CI checks now run on every PR.** Removed the `paths:` filters from the `pull_request` triggers of `validate-plugin-manifests.yml` and `contract-test.yml`. Both jobs are required status checks on `main`, but path-filtered required checks never report on PRs outside their paths (docs-only PRs, bot coverage PRs), leaving those PRs permanently blocked and forcing admin-bypass merges. Both jobs finish in under a minute, so the cost of always running them is negligible.

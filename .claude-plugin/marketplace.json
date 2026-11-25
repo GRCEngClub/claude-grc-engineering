@@ -164,9 +164,9 @@
       "version": "0.1.0"
     },
     {
-      "name": "stateramp",
-      "source": "./plugins/frameworks/stateramp",
-      "description": "StateRAMP state/local government cloud authorization",
+      "name": "govramp",
+      "source": "./plugins/frameworks/govramp",
+      "description": "GovRAMP (formerly StateRAMP) security verification for state, local, tribal, and education government cloud",
       "version": "0.1.0"
     },
     {

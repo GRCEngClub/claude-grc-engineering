@@ -34,7 +34,7 @@
   },
   "portfolio": {
     "skills": {
-      "Compliance Frameworks": ["SOC 2 Type II", "NIST 800-53", "ISO 27001", "FedRAMP Rev5", "FedRAMP 20x", "PCI-DSS v4.0.1", "CMMC Level 2/3", "HITRUST CSF", "GDPR", "CIS Controls v8", "DORA", "StateRAMP"],
+      "Compliance Frameworks": ["SOC 2 Type II", "NIST 800-53", "ISO 27001", "FedRAMP Rev5", "FedRAMP 20x", "PCI-DSS v4.0.1", "CMMC Level 2/3", "HITRUST CSF", "GDPR", "CIS Controls v8", "DORA", "GovRAMP"],
       "Compliance Automation": ["Control crosswalk mapping", "Policy-as-code (OPA/Rego)", "IaC scanning (Terraform/CloudFormation)", "Evidence collection automation", "Continuous compliance monitoring"],
       "Cloud & Infrastructure": ["AWS (IAM, CloudTrail, Config, Security Hub)", "GCP (Cloud IAM, Security Command Center)", "Terraform", "CloudFormation", "Kubernetes RBAC"],
       "GRC Tools": ["Claude Code", "Vanta", "Drata", "AWS Inspector", "Okta", "GitHub Advanced Security"],
@@ -151,7 +151,7 @@
     "secretsConfigured": false
   },
   "grc": {
-    "frameworks": ["SOC2", "ISO27001", "NIST800-53", "FedRAMP-20x", "PCI-DSS", "CMMC", "HITRUST", "GDPR", "CIS-Controls", "DORA", "StateRAMP"],
+    "frameworks": ["SOC2", "ISO27001", "NIST800-53", "FedRAMP-20x", "PCI-DSS", "CMMC", "HITRUST", "GDPR", "CIS-Controls", "DORA", "GovRAMP"],
     "specializations": ["Compliance engineering/automation", "GRC tooling implementation", "Security program management", "Third-party risk management (TPRM)"],
     "industries": ["SaaS/tech", "fintech", "government/FedRAMP", "healthcare/HIPAA"],
     "tools": ["Claude Code", "Vanta", "Drata", "AWS Inspector", "Okta", "ServiceNow GRC", "GitHub Advanced Security", "Terraform", "Python"]
