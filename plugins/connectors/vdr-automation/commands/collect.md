@@ -45,10 +45,12 @@ python3 grc_tool.py export --poam master_poam.xlsx --output fedramp_submission.x
 
 ## JSON Output
 
-The `vdr` command produces a `vdr_YYYYMMDD.json` file that conforms to the GRC Engineering finding schema. Each active vulnerability maps to an evaluation object with:
+`scripts/collect.sh` runs the `vdr` command and converts its `vdr_YYYYMMDD.json` output into documents that conform to the GRC Engineering finding schema, written to `~/.cache/claude-grc/findings/vdr-automation/`. Each vulnerability becomes one document.
 
-- `control_framework`: FedRAMP-20x
-- `control_id`: Tracking ID from the findings workbook
+`findings[].id` holds the tracking ID from the findings workbook. The evaluation object has:
+
+- `control_framework`: NIST-800-53-r5
+- `control_id`: SI-2
 - `status`: fail (active) or skipped (accepted)
 - `severity`: mapped from N-rating (N5=critical, N4=high, N3=medium, N2=low, N1=info)
 - `message`: weakness name and CVE

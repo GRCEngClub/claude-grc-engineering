@@ -97,8 +97,8 @@ Deliver these steps in plain conversational form. Do not dump all commands at on
 7. **If the user wants `/report:program-health`, add a second framework now.**
 
    ```
-   /plugin install fedramp-20x@grc-engineering-suite
-   /grc-engineer:gap-assessment SOC2,FedRAMP-Moderate --sources=github-inspector
+   /plugin install iso27001@grc-engineering-suite
+   /grc-engineer:gap-assessment SOC2,ISO27001 --sources=github-inspector
    ```
 
    `program-health` needs more than one framework in scope or it is not a portfolio view.

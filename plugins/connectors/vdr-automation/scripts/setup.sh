@@ -18,6 +18,14 @@ fi
 PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
 echo "  python3: ${PYTHON_VERSION}"
 
+LEGACY_CACHE_DIR="${HOME}/.cache/claude-grc/findings/poam-automation"
+if [[ -d "${LEGACY_CACHE_DIR}" ]]; then
+  RETIRED_DIR="${HOME}/.cache/claude-grc/retired/poam-automation-$(date +%s)"
+  mkdir -p "$(dirname "${RETIRED_DIR}")"
+  mv "${LEGACY_CACHE_DIR}" "${RETIRED_DIR}"
+  echo "  moved findings from the old poam-automation name to ${RETIRED_DIR}"
+fi
+
 mkdir -p "${TOOL_BASE}"
 if [[ ! -d "${TOOL_DIR}/.git" ]]; then
   echo "  cloning ${TOOL_REPO} → ${TOOL_DIR}"

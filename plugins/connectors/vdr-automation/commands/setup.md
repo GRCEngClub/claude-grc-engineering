@@ -7,6 +7,14 @@ description: Install dependencies and verify scanner exports are present
 
 Run this once before using any other vdr-automation commands.
 
+```bash
+plugins/connectors/vdr-automation/scripts/setup.sh
+```
+
+The script clones the upstream tool, installs `openpyxl` into a virtualenv, and writes `~/.config/claude-grc/connectors/vdr-automation.yaml`, which `collect.sh` requires. If you used this connector under its old name, `poam-automation`, the script also moves the old findings cache out of the findings directory so assessments stop reading it.
+
+The sections below describe the same steps for running the upstream tool by hand. They do not write the connector config.
+
 ## Get the Tool
 
 Clone the upstream tool, which is still named POAM Automation Tool:
