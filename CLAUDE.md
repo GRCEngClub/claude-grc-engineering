@@ -352,7 +352,7 @@ generated/
 - `aws` - AWS with CloudTrail, IAM, KMS, CloudWatch
 - `azure` - Azure with Azure AD, Key Vault, Monitor
 - `gcp` - GCP with Cloud IAM, KMS, Logging
-- `kubernetes` - K8s with RBAC, NetworkPolicy, PodSecurityPolicy
+- `kubernetes` - K8s with RBAC, NetworkPolicy, Pod Security Admission
 
 **Usage Example**:
 
@@ -420,14 +420,17 @@ Automatically remediates:
 GitHub Actions:
 
 ```yaml
+# The job needs `permissions: security-events: write`, and .grc is a checkout of this repo
 - name: Scan Infrastructure
-  run: /grc-engineer:scan-iac ./terraform SOC2,PCI-DSS,NIST sarif > results.sarif
+  run: node .grc/plugins/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST sarif > results.sarif
 
 - name: Upload Results
-  uses: github/codeql-action/upload-sarif@v2
+  uses: github/codeql-action/upload-sarif@v4
   with:
     sarif_file: results.sarif
 ```
+
+The full workflow is in `plugins/grc-engineer/commands/scan-iac.md`.
 
 **Severity Levels**:
 
