@@ -350,7 +350,7 @@ generated/
 **Cloud Provider Support**:
 
 - `aws` - AWS with CloudTrail, IAM, KMS, CloudWatch
-- `azure` - Azure with Azure AD, Key Vault, Monitor
+- `azure` - Azure with Entra ID, Key Vault, Monitor
 - `gcp` - GCP with Cloud IAM, KMS, Logging
 - `kubernetes` - K8s with RBAC, NetworkPolicy, PodSecurityPolicy
 
@@ -730,7 +730,7 @@ This provides end-to-end compliance automation:
 
 The grc-engineer plugin includes an `access-review-triage` skill for teams running quarterly user access reviews (UARs) out of spreadsheets — the common shape for orgs without a dedicated IGA tool (Sailpoint, Saviynt, Okta Access Certifications).
 
-Lives at `plugins/grc-engineer/skills/access-review-triage/SKILL.md`. The skill takes a CSV or JSON access export (Okta, Azure AD, AWS IAM, GitHub, or generic) plus optional HR list, SoD config, and prior-cycle decisions, then walks 10 ordered decision rules to tag each row:
+Lives at `plugins/grc-engineer/skills/access-review-triage/SKILL.md`. The skill takes a CSV or JSON access export (Okta, Entra ID, AWS IAM, GitHub, or generic) plus optional HR list, SoD config, and prior-cycle decisions, then walks 10 ordered decision rules to tag each row:
 
 - Rule 1: terminated user with active access → Investigate (P0)
 - Rule 2: separation-of-duty conflict → Investigate (P0)

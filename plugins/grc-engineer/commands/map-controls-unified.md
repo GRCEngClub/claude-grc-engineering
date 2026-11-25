@@ -137,9 +137,9 @@ AWS:
   - Lambda + EventBridge for automated lifecycle
 
 Azure:
-  - Azure Active Directory users
-  - Azure AD Privileged Identity Management (PIM)
-  - Azure AD Access Reviews for periodic certification
+  - Microsoft Entra ID users
+  - Microsoft Entra Privileged Identity Management (PIM)
+  - Microsoft Entra access reviews for periodic certification
   - Azure Policy for compliance enforcement
   - Azure Monitor for audit logging
   - Logic Apps for automation

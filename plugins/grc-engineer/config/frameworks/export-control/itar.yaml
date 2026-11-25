@@ -78,7 +78,7 @@ controls:
       azure:
         commands:
           - cmd: "az ad user list --query '[].{Name:displayName,UPN:userPrincipalName}'"
-            description: "List all Azure AD users for verification"
+            description: "List all Entra ID users for verification"
             pass_criteria: "All users verified as US persons"
       gcp:
         commands:

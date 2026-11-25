@@ -62,7 +62,7 @@ For AWS environments, this control requires:
   - Evidence: Signed IAM policy v1.x
 
 □ **Cloud Identity Architecture Diagram**
-  - Show: IdP integration (Okta, Azure AD, etc.) → AWS SSO/Azure AD/GCP Workforce Identity
+  - Show: IdP integration (Okta, Entra ID, etc.) → AWS SSO/Entra ID/GCP Workforce Identity
   - Include: User authentication flow, federated access, MFA enforcement points
   - Format: Visio, Lucidchart, or draw.io diagram
   - Update frequency: When architecture changes
@@ -203,10 +203,10 @@ Purpose: Lifecycle audit trail
 
 ### Automated Evidence Collection (Azure)
 
-✓ **Azure AD User Inventory**
+✓ **Entra ID User Inventory**
 
 ```bash
-# All Azure AD users
+# All Entra ID users
 az ad user list --output json > evidence/ccm-iam-02-azure-users-$(date +%Y%m%d).json
 
 # Guest users (external identities)
@@ -223,7 +223,7 @@ az identity list --output json > evidence/ccm-iam-02-managed-identities-$(date +
 Collection Frequency: Monthly
 Retention: 12 months
 
-✓ **Azure AD Sign-in Logs**
+✓ **Entra ID Sign-in Logs**
 
 ```bash
 # Sign-in activity (last 30 days)
@@ -272,8 +272,8 @@ Retention: 12 months
 
 □ **Identity Provider (IdP) Integration Configuration**
 
-- Screenshots of SAML/SCIM configuration in IdP (Okta, Azure AD, etc.)
-- Screenshots of AWS SSO/Azure AD/GCP federation setup
+- Screenshots of SAML/SCIM configuration in IdP (Okta, Entra ID, etc.)
+- Screenshots of AWS SSO/Entra ID/GCP federation setup
 - Attribute mapping configuration (email → username, groups → roles)
 - Evidence: Screenshots + configuration export (sanitized)
 - Frequency: When configuration changes, annual review
@@ -282,7 +282,7 @@ Retention: 12 months
 
 - Sample size: 10 users provisioned in last quarter
 - Required elements:
-  - User created in IdP (Okta/Azure AD)
+  - User created in IdP (Okta/Entra ID)
   - SCIM sync log showing user pushed to AWS/Azure/GCP
   - User appears in cloud platform within 15 minutes
   - Correct permission set/role assigned based on group membership
@@ -296,7 +296,7 @@ Retention: 12 months
   - User disabled in IdP
   - User access to cloud revoked within 24 hours
   - No subsequent login attempts after deprovisioning
-- Evidence: IdP audit logs + CloudTrail/Azure AD logs
+- Evidence: IdP audit logs + CloudTrail/Entra ID logs
 - Frequency: Quarterly review
 
 □ **Credential Rotation Policy Enforcement**
@@ -372,12 +372,12 @@ For CSA STAR Level 2 (Third-Party Audit), auditor will verify:
 
 1. **Select Identity Provider** (if none exists)
    - Small orgs: Okta Workforce Identity ($2-8/user/month)
-   - Microsoft shops: Azure AD Premium P1 ($6/user/month)
+   - Microsoft shops: Microsoft Entra ID P1 ($6/user/month)
    - Google Workspace: Cloud Identity Premium ($6/user/month)
 
 2. **Configure SAML/SCIM Integration**
    - AWS: AWS IAM Identity Center (free with AWS account)
-   - Azure: Native Azure AD integration
+   - Azure: Native Entra ID integration
    - GCP: Workforce Identity Federation
 
 3. **Implement Automated Lifecycle**
@@ -461,7 +461,7 @@ def lambda_handler(event, context):
 ### Identity Platform (Annual)
 
 - Okta Workforce: $6-10/user/month ($1,200-2,000/yr for 20 users)
-- Azure AD Premium P1: $6/user/month ($1,440/yr for 20 users)
+- Microsoft Entra ID P1: $6/user/month ($1,440/yr for 20 users)
 - Google Cloud Identity Premium: $6/user/month ($1,440/yr for 20 users)
 
 ### Implementation (One-Time)
@@ -532,8 +532,8 @@ class CCMIAMEvidence:
         return {'users': len(users), 'old_credentials': len(old_credentials)}
 
     def collect_azure(self):
-        """Collect Azure AD evidence"""
-        print("Collecting Azure AD evidence...")
+        """Collect Entra ID evidence"""
+        print("Collecting Entra ID evidence...")
 
         # Azure CLI commands
         try:
@@ -576,7 +576,7 @@ MULTI-CLOUD IDENTITY INVENTORY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 AWS IAM Users:          {aws_data.get('users', 0)}
 AWS Old Credentials:    {aws_data.get('old_credentials', 0)} (>90 days)
-Azure AD Users:         {azure_data.get('users', 0)}
+Entra ID Users:         {azure_data.get('users', 0)}
 GCP Service Accounts:   {gcp_data.get('service_accounts', 0)}
 
 COMPLIANCE STATUS
