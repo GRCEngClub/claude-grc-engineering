@@ -66,3 +66,26 @@ test('sarif: severities map to SARIF levels and paths outside the working direct
   assert.match(first.artifactLocation.uri, /^file:\/\//);
   assert.equal(first.region.startLine, 1);
 });
+
+test('sarif: different checks under one control get their own rules with matching help and score', () => {
+  const dir = fixtureDir();
+  const sarif = JSON.parse(runCli(dir, 'sarif'));
+  const rules = new Map(sarif.runs[0].tool.driver.rules.map(r => [r.id, r]));
+
+  const versioning = rules.get('data_protection/versioning-missing');
+  const publicAccess = rules.get('data_protection/public_access_block-missing');
+  assert.ok(versioning && publicAccess, 'versioning and public access are separate rules');
+  assert.match(versioning.help.text, /versioning/i);
+  assert.match(publicAccess.help.text, /public_access_block/);
+  assert.equal(versioning.properties['security-severity'], '5.0');
+  assert.equal(publicAccess.properties['security-severity'], '7.5');
+});
+
+test('sarif: relative path segments are percent-encoded so # and spaces stay part of the file name', () => {
+  const scanner = new IaCScanner('.', ['SOC2'], {});
+  const sarif = scanner.toSarif({
+    violations: [{ controlId: 'a', check: 'x', controlName: 'A', frameworks: [], severity: 'HIGH', file: path.join('prod #1', '50%.tf'), line: 3, resource: 'r', issue: 'i', remediation: 'fix' }],
+  });
+  assert.equal(sarif.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri, 'prod%20%231/50%25.tf');
+  assert.equal(sarif.runs[0].results[0].ruleId, 'a/x');
+});

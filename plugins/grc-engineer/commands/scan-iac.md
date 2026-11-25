@@ -406,7 +406,7 @@ Progress lines go to stderr, so stdout holds only the report:
 
 ### SARIF Output (for GitHub code scanning)
 
-Writes SARIF 2.1.0 with one result per violation. CRITICAL and HIGH map to `error`, MEDIUM to `warning`, and LOW to `note`; each rule carries a `security-severity` score so GitHub can rank alerts. File paths are relative to the directory you run the scan from, so run it from the repository root.
+Writes SARIF 2.1.0 with one result per violation. CRITICAL and HIGH map to `error`, MEDIUM to `warning`, and LOW to `note`; each distinct check gets its own rule (for example `data_protection/versioning-missing`) with its own help text and a `security-severity` score so GitHub can rank alerts. File paths are relative to the directory you run the scan from, so run it from the repository root.
 
 ```bash
 /grc-engineer:scan-iac ./terraform SOC2,PCI-DSS sarif > results.sarif
@@ -499,7 +499,8 @@ compliance_scan:
     - git clone --depth 1 https://github.com/GRCEngClub/claude-grc-engineering.git .grc
     - npm ci --prefix .grc --omit=dev
     - node .grc/plugins/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST json > scan-results.json
-    - node -e 'const r=require("./scan-results.json"); if (r.summary.compliancePercentage < 90) { console.error(`Compliance below 90%: ${r.summary.compliancePercentage}%`); process.exit(1); }'
+    - |
+      node -e 'const r=require("./scan-results.json"); if (r.summary.compliancePercentage < 90) { console.error(`Compliance below 90%: ${r.summary.compliancePercentage}%`); process.exit(1); }'
   artifacts:
     when: always
     paths:

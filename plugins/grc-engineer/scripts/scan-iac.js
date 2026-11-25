@@ -282,6 +282,7 @@ class IaCScanner {
     if (!declaresEncryption) {
       if (referencesStorageClass) {
         issues.push({
+          check: 'storage-class-unresolved',
           severity: 'MEDIUM',
           issue: `${resourceType} '${resourceName}' references a StorageClass this scanner cannot resolve; encryption at rest is unverified`,
           remediation: 'Confirm the referenced StorageClass provisions encrypted volumes (e.g. EBS/PD parameters with encrypted: "true"), or add an explicit encryption indicator to the manifest.',
@@ -289,6 +290,7 @@ class IaCScanner {
         });
       } else {
         issues.push({
+          check: 'storage-class-unencrypted',
           severity: 'MEDIUM',
           issue: `${resourceType} '${resourceName}' does not reference an encrypted StorageClass`,
           remediation: 'Set storageClassName to a StorageClass whose provisioner enables encryption at rest (e.g. an EBS/PD class with encrypted: "true").',
@@ -319,6 +321,7 @@ class IaCScanner {
       issues.push(...settings.filter(Boolean));
 
       issues.push({
+        check: 'cloudtrail-retention',
         severity: 'INFO',
         issue: 'Verify CloudTrail logs are retained for 1 year (PCI-DSS 10.7)',
         remediation: 'Check S3 bucket lifecycle configuration for 365-day retention',
@@ -339,6 +342,7 @@ class IaCScanner {
       for (const ingress of ingressMatches) {
         if (ingress.includes('from_port   = 22') || ingress.includes('from_port = 22')) {
           issues.push({
+            check: 'open-ssh',
             severity: 'CRITICAL',
             issue: 'Security group allows unrestricted SSH access (0.0.0.0/0:22)',
             remediation: 'Restrict SSH to specific IP ranges or remove rule entirely',
@@ -348,6 +352,7 @@ class IaCScanner {
 
         if (ingress.includes('from_port   = 3389') || ingress.includes('from_port = 3389')) {
           issues.push({
+            check: 'open-rdp',
             severity: 'CRITICAL',
             issue: 'Security group allows unrestricted RDP access (0.0.0.0/0:3389)',
             remediation: 'Restrict RDP to specific IP ranges or remove rule entirely',
@@ -357,6 +362,7 @@ class IaCScanner {
 
         if (ingress.includes('from_port   = 0') || ingress.includes('to_port   = 65535')) {
           issues.push({
+            check: 'open-all-ports',
             severity: 'HIGH',
             issue: 'Security group allows all ports from 0.0.0.0/0',
             remediation: 'Apply principle of least privilege - only allow necessary ports',
@@ -375,6 +381,7 @@ class IaCScanner {
     if (resourceType === 'aws_iam_policy') {
       if (resourceBody.includes('"*"') && resourceBody.includes('"Effect": "Allow"')) {
         issues.push({
+          check: 'wildcard-policy',
           severity: 'HIGH',
           issue: 'IAM policy allows full access to all resources (*)',
           remediation: 'Apply least privilege principle - restrict to specific resources',
@@ -404,6 +411,8 @@ class IaCScanner {
     for (const issue of issues) {
       const finding = {
         controlId,
+        check: issue.check,
+        help: issue.help,
         controlName: rule.name,
         frameworks: rule.frameworks.filter(f =>
           this.frameworks.some(selected => f.includes(selected))
@@ -465,12 +474,16 @@ class IaCScanner {
     const rules = new Map();
 
     const results = report.violations.map(v => {
-      if (!rules.has(v.controlId)) {
-        rules.set(v.controlId, {
-          id: v.controlId,
+      // One SARIF rule per distinct check, so each rule's help and score fit every
+      // result filed under it (versioning and public access are different checks
+      // under the same data_protection control).
+      const ruleId = v.check ? `${v.controlId}/${v.check}` : v.controlId;
+      if (!rules.has(ruleId)) {
+        rules.set(ruleId, {
+          id: ruleId,
           name: v.controlName,
-          shortDescription: { text: v.controlName },
-          help: { text: v.remediation || v.controlName },
+          shortDescription: { text: v.check ? `${v.controlName} (${v.check})` : v.controlName },
+          help: { text: v.help || v.remediation || v.controlName },
           properties: {
             tags: ['compliance', ...v.frameworks],
             'security-severity': securitySeverity[v.severity] || '5.0'
@@ -483,9 +496,9 @@ class IaCScanner {
       const relative = path.relative(process.cwd(), absolute);
       const uri = !relative || relative.startsWith('..') || path.isAbsolute(relative)
         ? pathToFileURL(absolute).href
-        : relative.split(path.sep).join('/');
+        : relative.split(path.sep).map(segment => encodeURIComponent(segment)).join('/');
       return {
-        ruleId: v.controlId,
+        ruleId,
         level: levelFor[v.severity] || 'warning',
         message: { text: `${v.resource}: ${v.issue}` },
         locations: [{
@@ -618,9 +631,10 @@ function booleanSettingIssue(attributeOf, attribute, { severity, issue, remediat
   const value = withoutWrappingParentheses(attributeOf(attribute));
   if (value === 'true') return null;
   if (value === null || value === 'false') {
-    return { severity, issue, remediation, autoFixable: true, fix: { attribute, value: 'true' } };
+    return { check: attribute, severity, issue, remediation, autoFixable: true, fix: { attribute, value: 'true' } };
   }
   return {
+    check: `${attribute}-unresolved`,
     severity,
     issue: `${issue}: ${attribute} is set by an expression this scanner cannot resolve`,
     remediation: `Confirm ${attribute} evaluates to true`,
@@ -641,8 +655,11 @@ function s3ProtectionIssue(moduleContent, companionType, bucketName) {
   const { resources, unresolved } = companionCoverage(moduleContent, companionType, bucketName);
 
   if (resources.some(resource => protection.enabled(moduleContent, resource))) return null;
+  const check = companionType.replace(/^aws_s3_bucket_/, '');
   if (resources.length > 0) {
     return {
+      check: `${check}-disabled`,
+      help: protection.disabledRemediation,
       severity: protection.severity,
       issue: protection.disabledIssue,
       remediation: `${protection.disabledRemediation} in ${addresses(resources)}`,
@@ -651,6 +668,8 @@ function s3ProtectionIssue(moduleContent, companionType, bucketName) {
   }
   if (unresolved.length > 0) {
     return {
+      check: `${check}-unresolved`,
+      help: 'Confirm the companion resource targets this bucket, or reference the bucket directly',
       severity: protection.severity,
       issue: `${protection.missingIssue}: ${addresses(unresolved)} refers to this bucket through an expression this scanner cannot resolve`,
       remediation: `Confirm ${addresses(unresolved)} targets this bucket, or reference it directly`,
@@ -658,6 +677,7 @@ function s3ProtectionIssue(moduleContent, companionType, bucketName) {
     };
   }
   return {
+    check: `${check}-missing`,
     severity: protection.severity,
     issue: protection.missingIssue,
     remediation: protection.missingRemediation,
