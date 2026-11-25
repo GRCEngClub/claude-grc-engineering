@@ -95,7 +95,7 @@ This review produces evidence for:
 |---|---|
 | SOC 2 | CC6.1, CC6.2 |
 | PCI DSS v4.0 | 7.1, 7.2, 8.1 |
-| ISO 27001 | A.5.15, A.5.16, A.5.18, A.8.2 |
+| ISO 27001 | A.5.3, A.5.15, A.5.16, A.5.18, A.8.2 |
 | NIST 800-53 | AC-2 |
 
 Mappings recorded verbatim in `evidence.json`.
