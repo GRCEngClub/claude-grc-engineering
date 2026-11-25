@@ -366,52 +366,47 @@ Run with 'detailed' for full analysis.
 
 ### JSON Output (for CI/CD)
 
+Progress lines go to stderr, so stdout holds only the report:
+
 ```json
 {
-  "scan_timestamp": "2025-01-15T10:30:00Z",
+  "timestamp": "2025-01-15T10:30:00.000Z",
   "directory": "./terraform",
-  "frameworks": ["SOC2", "PCI-DSS", "NIST-800-53"],
+  "frameworks": ["SOC2", "PCI-DSS", "NIST"],
+  "filesScanned": 23,
   "summary": {
-    "total_controls": 57,
-    "satisfied": 42,
-    "violations": 8,
-    "partial": 7,
-    "compliance_percentage": 73
+    "totalControls": 15,
+    "satisfied": 11,
+    "violations": 3,
+    "partial": 1,
+    "compliancePercentage": 73
   },
   "violations": [
     {
-      "id": "V001",
-      "severity": "HIGH",
-      "control": "encryption_at_rest",
+      "controlId": "encryption_at_rest",
+      "controlName": "Encryption at Rest",
       "frameworks": ["SOC2 CC6.7", "PCI-DSS 3.4", "NIST SC-28"],
+      "severity": "HIGH",
       "file": "terraform/s3_buckets.tf",
       "line": 12,
       "resource": "aws_s3_bucket.data",
-      "issue": "S3 bucket missing server-side encryption",
-      "remediation": {
-        "description": "Add server-side encryption configuration",
-        "code": "...",
-        "auto_fixable": true
-      }
+      "issue": "S3 bucket does not have server-side encryption enabled",
+      "remediation": "Add an aws_s3_bucket_server_side_encryption_configuration resource",
+      "autoFixable": true
     }
   ],
-  "recommendations": [...],
-  "compliance_by_framework": {
-    "SOC2": 0.78,
-    "PCI-DSS": 0.65,
-    "NIST-800-53": 0.76
+  "recommendations": [],
+  "complianceByFramework": {
+    "SOC2": 0.8,
+    "PCI-DSS": 0.6,
+    "NIST": 0.8
   }
 }
 ```
 
-### SARIF Output (for GitHub Security)
+### SARIF Output (for GitHub code scanning)
 
-Outputs SARIF 2.1.0 format compatible with:
-
-- GitHub Security tab
-- GitLab Security Dashboard
-- Azure DevOps Security
-- Jenkins Security plugins
+Writes SARIF 2.1.0 with one result per violation. CRITICAL and HIGH map to `error`, MEDIUM to `warning`, and LOW to `note`; each distinct check gets its own rule (for example `data_protection/versioning-missing`) with its own help text and a `security-severity` score so GitHub can rank alerts. File paths are relative to the directory you run the scan from, so run it from the repository root.
 
 ```bash
 /grc-engineer:scan-iac ./terraform SOC2,PCI-DSS sarif > results.sarif
@@ -444,10 +439,17 @@ Auto-fix applies to Terraform only. Generated S3 resources follow the bucket's `
 
 ### GitHub Actions
 
+Slash commands only run inside Claude Code, so CI calls the scanner script directly from a checkout of this repository:
+
 ```yaml
 name: IaC Compliance Scan
 
 on: [pull_request]
+
+permissions:
+  actions: read           # upload-sarif needs this in private repositories
+  contents: read
+  security-events: write  # required by upload-sarif
 
 jobs:
   compliance:
@@ -455,18 +457,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/checkout@v4
+        with:
+          repository: GRCEngClub/claude-grc-engineering
+          path: .grc
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install scanner dependencies
+        run: npm ci --prefix .grc --omit=dev
+
       - name: Scan Infrastructure
         run: |
-          /grc-engineer:scan-iac ./terraform SOC2,PCI-DSS,NIST sarif > results.sarif
+          node .grc/plugins/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST sarif > results.sarif
+          node .grc/plugins/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST json > scan-results.json
 
       - name: Upload Results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: results.sarif
 
       - name: Check Compliance Threshold
         run: |
-          COMPLIANCE=$(jq '.summary.compliance_percentage' scan-results.json)
+          COMPLIANCE=$(jq '.summary.compliancePercentage' scan-results.json)
           if [ "$COMPLIANCE" -lt 90 ]; then
             echo "Compliance below 90%: $COMPLIANCE%"
             exit 1
@@ -475,14 +490,22 @@ jobs:
 
 ### GitLab CI
 
+GitLab's SAST report format is not SARIF, so keep the JSON report as a plain artifact and gate on its score:
+
 ```yaml
 compliance_scan:
   stage: test
+  image: node:22
   script:
-    - /grc-engineer:scan-iac ./terraform SOC2,PCI-DSS,NIST json > gl-sast-report.json
+    - git clone --depth 1 https://github.com/GRCEngClub/claude-grc-engineering.git .grc
+    - npm ci --prefix .grc --omit=dev
+    - node .grc/plugins/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST json > scan-results.json
+    - |
+      node -e 'const r=require("./scan-results.json"); if (r.summary.compliancePercentage < 90) { console.error(`Compliance below 90%: ${r.summary.compliancePercentage}%`); process.exit(1); }'
   artifacts:
-    reports:
-      sast: gl-sast-report.json
+    when: always
+    paths:
+      - scan-results.json
 ```
 
 ## Severity Levels

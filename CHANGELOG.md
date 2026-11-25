@@ -14,6 +14,13 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 - **`/nist-800-53:evidence-checklist` command.** Added a baseline-scoped (Low/Moderate/High) evidence collection checklist to the `nist-800-53` plugin, matching the `gdpr`/`hitrust`/`cmmc` evidence-checklist convention. Includes worked examples for AC-2 (Account Management) and AU-6 (Audit Record Review, Analysis, and Reporting), NIST SP 800-53A assessment-method framing, baseline-depth deltas, and a baseline-aware Python collector. Closes [#163](https://github.com/GRCEngClub/claude-grc-engineering/issues/163).
 
+### Fixed
+
+- **`scan-iac` CLI crashed on any Terraform S3 bucket.** The command-line entry point ran before the module's S3 constants were initialized, so `node scan-iac.js` threw a `ReferenceError` on the first bucket it checked. Tests import the module and never hit it. The entry point now sits at the end of the file.
+- **`scan-iac` `sarif` format did nothing.** The command and docs listed `sarif`, but the script fell back to the text report, so the documented `upload-sarif` step uploaded invalid input. It now writes SARIF 2.1.0 with one result per violation. Progress lines moved to stderr so `json` and `sarif` stdout parse cleanly.
+- **`scan-iac` overall score overstated compliance.** The summary subtracted each finding once, so a finding mapped to three frameworks cost one check instead of three, and many findings against one rule could push the score below zero. It now counts each failed (rule, framework) pair, matching the per-framework scores the CI gates sit beside.
+- **CI examples for `scan-iac`.** The GitHub Actions example now calls the script directly (slash commands don't run in CI), grants `security-events: write`, uses `upload-sarif@v4`, and reads the real `compliancePercentage` field. The GitLab example no longer passes the JSON report off as a GitLab SAST report.
+
 ### Removed
 
 - **`docs/ARCHITECTURE-V2-RFC.md`.** The April 2026 RFC was accepted and its reporting and dashboard categories have shipped; its description of the repo had gone stale. `ROADMAP.md` now lists the categories still open, and the roadmap drops connectors, frameworks and schemas that already exist.
@@ -21,6 +28,8 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Changed
 
+- **Enterprise deployment model IDs.** `docs/ENTERPRISE-DEPLOYMENT.md` listed Claude Sonnet 4 and Claude 3.5 model IDs. It now uses the inference profile IDs from the Claude Code Bedrock guide, shows the per-tier `ANTHROPIC_DEFAULT_*_MODEL` variables, and adds the inference-profile resource to the IAM example.
+- **Kubernetes wording.** `CLAUDE.md` described the Kubernetes target as using PodSecurityPolicy, which Kubernetes removed in 1.25; the templates already use Pod Security Admission labels, and the doc now says so.
 - **Azure AD is now Microsoft Entra ID.** Microsoft renamed Azure Active Directory to Microsoft Entra ID in 2023. Thirty files across the framework plugins and `grc-engineer` configs used the old name; they now say Entra ID, with the matching feature names (Entra ID P1, Microsoft Entra Privileged Identity Management, Microsoft Entra Conditional Access, Microsoft Entra access reviews). The `az ad` commands and the `AzureADMyOrg` API value are unchanged because Azure still uses them. `stateramp` is handled in its own change.
 
 - **`poam-automation` connector renamed to `vdr-automation`.** FedRAMP's Consolidated Rules for 2026 replace POA&Ms with a list of Accepted Weaknesses, so the connector is now described by its FedRAMP 20x Vulnerability Detection and Response output. The finding `source`, cache directory (`~/.cache/claude-grc/findings/vdr-automation`) and config file (`connectors/vdr-automation.yaml`) changed with it; re-run `/vdr-automation:setup`, which writes the new config and moves the old `findings/poam-automation` cache to `~/.cache/claude-grc/retired/` so assessments do not read stale findings under the old name. Then run `/vdr-automation:collect` with your workbook to fill the new cache before the next assessment. The upstream tool is unchanged and still uses `--poam` for its workbook.

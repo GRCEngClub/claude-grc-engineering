@@ -60,7 +60,7 @@ export CLAUDE_CODE_USE_BEDROCK=1
 export AWS_REGION=us-east-1
 
 # Optional: Specify model
-export ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-20250514'
+export ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-6'
 
 # Start Claude Code
 claude
@@ -75,7 +75,7 @@ Add to `~/.claude/settings.json`:
   "env": {
     "CLAUDE_CODE_USE_BEDROCK": "1",
     "AWS_REGION": "us-east-1",
-    "ANTHROPIC_MODEL": "us.anthropic.claude-sonnet-4-20250514"
+    "ANTHROPIC_MODEL": "us.anthropic.claude-sonnet-4-6"
   }
 }
 ```
@@ -120,10 +120,13 @@ When running on AWS infrastructure, use IAM roles attached to your compute resou
       "Effect": "Allow",
       "Action": [
         "bedrock:InvokeModel",
-        "bedrock:InvokeModelWithResponseStream"
+        "bedrock:InvokeModelWithResponseStream",
+        "bedrock:ListInferenceProfiles",
+        "bedrock:GetInferenceProfile"
       ],
       "Resource": [
-        "arn:aws:bedrock:*::foundation-model/anthropic.claude-*"
+        "arn:aws:bedrock:*::foundation-model/anthropic.claude-*",
+        "arn:aws:bedrock:*:*:inference-profile/*"
       ]
     }
   ]
@@ -132,11 +135,15 @@ When running on AWS infrastructure, use IAM roles attached to your compute resou
 
 ### Available Models in Bedrock
 
-| Model | Model ID |
+These are the US cross-region inference profile IDs that the [Claude Code Bedrock guide](https://code.claude.com/docs/en/amazon-bedrock) uses. Newer models reach Bedrock on AWS's schedule, so check the Bedrock console's model catalog for what your account and region can use.
+
+| Model | Inference profile ID |
 |-------|----------|
-| Claude Sonnet 4 | `us.anthropic.claude-sonnet-4-20250514` |
-| Claude 3.5 Sonnet | `us.anthropic.claude-3-5-sonnet-20241022-v2:0` |
-| Claude 3.5 Haiku | `us.anthropic.claude-3-5-haiku-20241022-v1:0` |
+| Claude Opus 4.8 | `us.anthropic.claude-opus-4-8` |
+| Claude Sonnet 4.6 | `us.anthropic.claude-sonnet-4-6` |
+| Claude Haiku 4.5 | `us.anthropic.claude-haiku-4-5-20251001-v1:0` |
+
+To pin the models Claude Code uses for each tier, set `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_HAIKU_MODEL` to these IDs.
 
 ---
 
@@ -289,7 +296,7 @@ Both platforms support prompt caching to reduce costs for repeated context:
 
 ```bash
 # AWS Bedrock - enabled automatically
-export ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-20250514'
+export ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-6'
 
 # Vertex AI - check documentation for cache configuration
 ```
@@ -298,9 +305,9 @@ export ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-20250514'
 
 | Use Case | Recommended Model |
 |----------|-------------------|
-| Complex GRC analysis | Claude Sonnet 4 |
-| Quick queries | Claude 3.5 Haiku |
-| High-volume processing | Claude 3.5 Haiku |
+| Complex GRC analysis | Claude Opus (latest your platform offers) |
+| Everyday assessment and drafting | Claude Sonnet (latest) |
+| Quick queries and high-volume processing | Claude Haiku (latest) |
 
 ---
 
