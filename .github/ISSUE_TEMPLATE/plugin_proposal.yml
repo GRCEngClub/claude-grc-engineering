@@ -5,8 +5,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this form for Architecture v2 ideas that are not simply a new
-        connector or framework plugin.
+        Use this form for plugin ideas that are not simply a new connector or
+        framework plugin.
 
   - type: dropdown
     id: category
