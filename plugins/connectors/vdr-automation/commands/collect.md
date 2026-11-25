@@ -45,7 +45,7 @@ python3 grc_tool.py export --poam master_poam.xlsx --output fedramp_submission.x
 
 ## JSON Output
 
-`scripts/collect.sh` runs the `vdr` command and converts its `vdr_YYYYMMDD.json` output into documents that conform to the GRC Engineering finding schema, written to `~/.cache/claude-grc/findings/vdr-automation/`. Each vulnerability becomes one document.
+`scripts/collect.sh --poam <path>` runs the `vdr` command into the cache directory, `~/.cache/claude-grc/findings/vdr-automation/`, and converts the resulting `vdr_run.json` into one file per run, `vdr-automation-<unix-epoch>.json`. That file is a JSON array with one entry per active or accepted vulnerability, each conforming to the GRC Engineering finding schema.
 
 `findings[].id` holds the tracking ID from the findings workbook. The evaluation object has:
 
