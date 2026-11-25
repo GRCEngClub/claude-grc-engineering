@@ -441,7 +441,16 @@ class IaCScanner {
   generateReport() {
     const totalControls = Object.keys(this.rules).length * this.frameworks.length;
     const violationCount = this.violations.length;
-    const satisfiedCount = totalControls - violationCount - this.partial.length;
+    // Score by (rule, framework) pair, matching calculateFrameworkCompliance: one
+    // finding mapped to three frameworks fails three checks, and ten findings
+    // against the same rule still fail that rule only once per framework.
+    const failedChecks = new Set();
+    for (const v of this.violations) {
+      for (const framework of this.frameworks) {
+        if (v.frameworks.some(f => f.includes(framework))) failedChecks.add(`${v.controlId}|${framework}`);
+      }
+    }
+    const satisfiedCount = Math.max(0, totalControls - failedChecks.size - this.partial.length);
 
     const compliancePercentage = Math.round((satisfiedCount / totalControls) * 100);
 

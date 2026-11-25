@@ -89,3 +89,15 @@ test('sarif: relative path segments are percent-encoded so # and spaces stay par
   assert.equal(sarif.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri, 'prod%20%231/50%25.tf');
   assert.equal(sarif.runs[0].results[0].ruleId, 'a/x');
 });
+
+test('summary: compliance counts each failed (rule, framework) pair, like the per-framework scores', () => {
+  const scanner = new IaCScanner('.', ['SOC2', 'PCI-DSS', 'NIST'], {});
+  const totalRules = Object.keys(scanner.rules).length;
+  const finding = { controlId: 'encryption_at_rest', frameworks: ['SOC2 CC6.7', 'PCI-DSS 3.4', 'NIST SC-28'], severity: 'HIGH' };
+  scanner.violations.push(finding, { ...finding });
+
+  const report = scanner.generateReport();
+  assert.equal(report.summary.totalControls, totalRules * 3);
+  assert.equal(report.summary.satisfied, totalRules * 3 - 3);
+  assert.equal(report.summary.violations, 2);
+});

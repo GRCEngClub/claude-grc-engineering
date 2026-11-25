@@ -18,6 +18,7 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 - **`scan-iac` CLI crashed on any Terraform S3 bucket.** The command-line entry point ran before the module's S3 constants were initialized, so `node scan-iac.js` threw a `ReferenceError` on the first bucket it checked. Tests import the module and never hit it. The entry point now sits at the end of the file.
 - **`scan-iac` `sarif` format did nothing.** The command and docs listed `sarif`, but the script fell back to the text report, so the documented `upload-sarif` step uploaded invalid input. It now writes SARIF 2.1.0 with one result per violation. Progress lines moved to stderr so `json` and `sarif` stdout parse cleanly.
+- **`scan-iac` overall score overstated compliance.** The summary subtracted each finding once, so a finding mapped to three frameworks cost one check instead of three, and many findings against one rule could push the score below zero. It now counts each failed (rule, framework) pair, matching the per-framework scores the CI gates sit beside.
 - **CI examples for `scan-iac`.** The GitHub Actions example now calls the script directly (slash commands don't run in CI), grants `security-events: write`, uses `upload-sarif@v4`, and reads the real `compliancePercentage` field. The GitLab example no longer passes the JSON report off as a GitLab SAST report.
 
 ### Removed

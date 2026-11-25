@@ -420,7 +420,7 @@ Automatically remediates:
 GitHub Actions:
 
 ```yaml
-# The job needs `permissions: security-events: write`, and .grc is a checkout of this repo
+# The job needs `permissions: { actions: read, contents: read, security-events: write }`; .grc is a checkout of this repo
 - name: Scan Infrastructure
   run: node .grc/plugins/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST sarif > results.sarif
 

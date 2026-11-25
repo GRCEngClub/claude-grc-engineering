@@ -447,6 +447,7 @@ name: IaC Compliance Scan
 on: [pull_request]
 
 permissions:
+  actions: read           # upload-sarif needs this in private repositories
   contents: read
   security-events: write  # required by upload-sarif
 

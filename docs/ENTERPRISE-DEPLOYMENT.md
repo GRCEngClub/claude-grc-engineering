@@ -121,7 +121,8 @@ When running on AWS infrastructure, use IAM roles attached to your compute resou
       "Action": [
         "bedrock:InvokeModel",
         "bedrock:InvokeModelWithResponseStream",
-        "bedrock:ListInferenceProfiles"
+        "bedrock:ListInferenceProfiles",
+        "bedrock:GetInferenceProfile"
       ],
       "Resource": [
         "arn:aws:bedrock:*::foundation-model/anthropic.claude-*",
