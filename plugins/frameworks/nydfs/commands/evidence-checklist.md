@@ -116,11 +116,11 @@ mfa_users=$(aws iam get-credential-report --output text | base64 -d | awk -F',' 
 mfa_percentage=$((mfa_users * 100 / total_users))
 echo "MFA Compliance: $mfa_users / $total_users users ($mfa_percentage%)" > evidence/nydfs-500.12-mfa-summary-$(date +%Y%m%d).txt
 
-# Azure AD - MFA status
+# Entra ID - MFA status
 az ad user list --output json | jq '[.[] | {userPrincipalName, id}]' \
   > evidence/nydfs-500.12-azure-users-$(date +%Y%m%d).json
 
-# Query Azure AD MFA registration status (requires Azure AD Premium)
+# Query Entra ID multifactor authentication registration status (requires Microsoft Entra ID P1 or P2)
 # az rest --method get --url 'https://graph.microsoft.com/v1.0/users?$select=userPrincipalName,id' \
 #   > evidence/nydfs-500.12-azure-mfa-$(date +%Y%m%d).json
 ```
@@ -174,7 +174,7 @@ for user in $(aws iam list-users --query 'Users[].UserName' --output text); do
   fi
 done
 
-# Azure AD - Global Administrators MFA status
+# Entra ID - Global Administrators MFA status
 az ad directory role member list --role "Global Administrator" --output json \
   > evidence/nydfs-500.12-azure-global-admins-$(date +%Y%m%d).json
 ```
@@ -200,7 +200,7 @@ aws cloudtrail lookup-events \
   --output json | jq '.Events[] | select(.CloudTrailEvent | fromjson | .errorCode != null)' \
   > evidence/nydfs-500.12-failed-logins-$(date +%Y%m).json
 
-# Azure AD sign-ins with MFA
+# Entra ID sign-ins with MFA
 az monitor activity-log list \
   --caller 'Microsoft.Azure.ActiveDirectory' \
   --start-time $(date -u -d '30 days ago' +%Y-%m-%dT%H:%M:%S) \
@@ -233,7 +233,7 @@ Purpose: Emergency access monitoring
 
 - Screenshots of MFA configuration in identity systems
 - Required elements:
-  - Identity provider MFA settings (Okta, Azure AD, AWS SSO)
+  - Identity provider MFA settings (Okta, Entra ID, AWS SSO)
   - MFA methods enabled (authenticator app, SMS, hardware token)
   - MFA enforcement policies
   - Conditional access policies requiring MFA
@@ -327,7 +327,7 @@ NYDFS examiners will verify:
 
 ### Audit Trail
 
-✓ CloudTrail/Azure AD logs show MFA usage
+✓ CloudTrail/Entra ID logs show MFA usage
 ✓ Logs retained for 6 years
 ✓ Failed MFA attempts investigated
 ✓ Emergency access usage justified and reviewed
@@ -361,7 +361,7 @@ NYDFS examiners will verify:
 
 ### If No MFA Implemented
 
-1. **Immediate (Week 1)**: Select MFA solution (Okta, Duo, Azure AD MFA, AWS MFA)
+1. **Immediate (Week 1)**: Select MFA solution (Okta, Duo, Entra ID multifactor authentication, AWS MFA)
 2. **Week 2**: Configure MFA in identity provider
 3. **Weeks 3-4**: Pilot with IT team (test MFA registration, usage)
 4. **Weeks 5-8**: Roll out to all users (phased approach)

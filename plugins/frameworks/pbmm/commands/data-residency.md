@@ -64,7 +64,7 @@ Verifies that all Protected B data resides exclusively in Canadian geographic re
 
 **Global Services**:
 
-- **Azure AD**: Tenant data must be in Canadian data centers
+- **Entra ID**: Tenant data must be in Canadian data centers
 - **Traffic Manager**: Configure Canadian endpoints only
 
 ### Google Cloud Platform Canada

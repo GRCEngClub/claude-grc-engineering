@@ -736,7 +736,7 @@ terraform apply
 ### Azure (Supported)
 
 - Terraform azurerm provider
-- Azure AD, Key Vault, Monitor, Storage
+- Entra ID, Key Vault, Monitor, Storage
 - az-cli validation commands
 
 ### GCP (Supported)

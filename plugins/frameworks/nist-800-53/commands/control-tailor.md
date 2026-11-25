@@ -125,7 +125,7 @@ STRONGLY RECOMMENDED (High ROI):
     - Provides audit trail for all account changes
   Cloud Implementation:
     - AWS: IAM + Identity Center + Lambda for automation
-    - Azure: Azure AD + PIM + Logic Apps
+    - Azure: Entra ID + PIM + Logic Apps
     - GCP: Cloud Identity + Workflows
   Effort: 40 hours (initial setup), 2 hours/month (maintenance)
   Satisfies: SOC2 CC6.1, PCI 8.1.4, ISO 27001 A.9.2
@@ -309,12 +309,12 @@ Audit Logging (AC-2(4)):
 Azure Implementation:
 
 Account Types:
-  ✓ Individual: Azure AD users (federated via Okta)
+  ✓ Individual: Entra ID users (federated via Okta)
   ✓ Service: Managed identities
   ✓ Emergency: Break-glass accounts (cloud-only, PIM)
 
 Automated Management (AC-2(1)):
-  - Logic Apps: Sync Okta to Azure AD
+  - Logic Apps: Sync Okta to Entra ID
   - PIM: Just-in-time privileged access
   - Lifecycle workflows: Automated provisioning/deprovisioning
 

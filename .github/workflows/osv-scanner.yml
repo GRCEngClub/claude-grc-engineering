@@ -17,7 +17,11 @@ jobs:
   scan-scheduled:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@3d5827dbebf8a3f7ba681e730a8a1b116e8ebddd # v2.3.5
+    # Job-level permissions replace the workflow default, so grant everything the
+    # reusable workflow declares; a missing scope makes the run fail at startup.
     permissions:
+      actions: read
+      contents: read
       security-events: write
     with:
       scan-args: |-
@@ -28,7 +32,11 @@ jobs:
   scan-pr:
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@3d5827dbebf8a3f7ba681e730a8a1b116e8ebddd # v2.3.5
+    # Job-level permissions replace the workflow default, so grant everything the
+    # reusable workflow declares; a missing scope makes the run fail at startup.
     permissions:
+      actions: read
+      contents: read
       security-events: write
     with:
       scan-args: |-

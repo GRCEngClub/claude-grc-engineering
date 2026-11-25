@@ -240,7 +240,7 @@ For citation purposes, refer to the **NIST CSF 2.0 Quick Start Guides** (NIST SP
 
 ## Cloud-agnostic baseline
 
-CSF is technology-neutral. Implementation Examples are written without naming vendors. When this plugin's evidence checklist suggests artifacts (e.g., "IAM configuration export for PR.AA-01"), treat the artifact as cloud-agnostic — equivalent evidence exists in AWS IAM, Azure AD/Entra ID, GCP IAM, on-prem Active Directory, Kubernetes RBAC, or any combination. Optional vendor-specific examples may be added in a future Full-depth plugin, but Reference depth deliberately does not lock to a single cloud.
+CSF is technology-neutral. Implementation Examples are written without naming vendors. When this plugin's evidence checklist suggests artifacts (e.g., "IAM configuration export for PR.AA-01"), treat the artifact as cloud-agnostic — equivalent evidence exists in AWS IAM, Microsoft Entra ID, GCP IAM, on-prem Active Directory, Kubernetes RBAC, or any combination. Optional vendor-specific examples may be added in a future Full-depth plugin, but Reference depth deliberately does not lock to a single cloud.
 
 ## Capabilities
 

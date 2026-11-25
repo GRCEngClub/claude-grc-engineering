@@ -738,7 +738,7 @@ Deep expertise in Australian Cyber Security Centre (ACSC) Essential Eight mitiga
 
 **Technical Implementation**:
 
-- Azure AD MFA (Microsoft 365)
+- Entra ID multifactor authentication (Microsoft 365)
 - Duo Security
 - Okta Verify
 - RSA SecurID
@@ -1180,7 +1180,7 @@ Deep expertise in Australian Cyber Security Centre (ACSC) Essential Eight mitiga
 
 **MFA**:
 
-- Microsoft Azure AD MFA
+- Microsoft Entra multifactor authentication
 - Duo Security
 - Okta
 - Ping Identity

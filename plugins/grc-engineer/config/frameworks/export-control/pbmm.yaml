@@ -135,7 +135,7 @@ controls:
       azure:
         commands:
           - cmd: "az ad user list --query '[].{DisplayName:displayName,UserPrincipalName:userPrincipalName}' --output table"
-            description: "List Azure AD users"
+            description: "List Entra ID users"
             pass_criteria: "All users documented"
       gcp:
         commands:

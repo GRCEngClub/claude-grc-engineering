@@ -219,7 +219,7 @@ Example questions:
 
 **Key Evidence**:
 
-- SSO implementation (Okta, Azure AD)
+- SSO implementation (Okta, Entra ID)
 - MFA enforcement policies
 - Privileged Access Management (PAM) solution
 - Access review logs

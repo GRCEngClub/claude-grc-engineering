@@ -91,7 +91,7 @@ AC-1: Policy and Procedures
 AC-2: Account Management ⭐ HIGH PRIORITY
   Purpose: Manage system account lifecycle (create, modify, disable, delete)
   Implementation: Automated provisioning via identity provider
-  Cloud Pattern: Okta/Azure AD → AWS SSO, automated deprovisioning
+  Cloud Pattern: Okta/Entra ID → AWS SSO, automated deprovisioning
   Effort: 40 hours (automation setup), 10 hours/month (reviews)
   Evidence: IAM user lists, quarterly access reviews, termination logs
   Common Gap: Manual deprovisioning leads to orphaned accounts
@@ -135,7 +135,7 @@ AC-6: Least Privilege ⭐ HIGH PRIORITY
 AC-7: Unsuccessful Login Attempts
   Purpose: Lock accounts after failed login attempts
   Implementation: Failed login threshold (e.g., 5 attempts), lockout duration
-  Cloud Pattern: Okta/Azure AD account lockout policy
+  Cloud Pattern: Okta/Entra ID account lockout policy
   Effort: 2 hours (configuration)
   Evidence: Account lockout policy screenshot, lockout event logs
   Best Practice: 5 attempts, 30-minute lockout
@@ -211,7 +211,7 @@ AWS Implementation:
 
 Identity and Access Management:
   ✓ AWS IAM Identity Center (formerly AWS SSO)
-    - Federate with Okta/Azure AD
+    - Federate with Okta/Entra ID
     - Centralized access management
     - Multi-account support via Organizations
 
@@ -252,7 +252,7 @@ Access Monitoring:
 Azure Implementation:
 
 Identity and Access Management:
-  ✓ Azure Active Directory (Entra ID)
+  ✓ Microsoft Entra ID
     - Conditional access policies
     - Privileged Identity Management (PIM)
     - Identity Protection
@@ -263,7 +263,7 @@ Identity and Access Management:
     - Management group hierarchy
 
 Account Management:
-  ✓ Azure AD lifecycle workflows
+  ✓ Entra ID lifecycle workflows
   ✓ Automated provisioning/deprovisioning
   ✓ Guest user management (B2B)
 
@@ -316,7 +316,7 @@ Phase 1: Foundation (Weeks 1-4)
   Week 1:
     □ Document Access Control Policy (AC-1)
     □ Inventory all existing accounts
-    □ Set up Okta tenant (or Azure AD)
+    □ Set up Okta tenant (or Entra ID)
 
   Week 2:
     □ Configure Okta → AWS SSO integration

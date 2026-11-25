@@ -509,7 +509,7 @@ Step 2: Update Organization-Specific Details
 Step 3: Technical Implementation Details
 
 - Cloud providers (AWS, Azure, GCP)
-- Identity provider (Okta, Azure AD)
+- Identity provider (Okta, Entra ID)
 - Monitoring tools (CloudWatch, Datadog, Splunk)
 - Endpoint protection (CrowdStrike, Carbon Black)
 - Backup solutions and retention periods
