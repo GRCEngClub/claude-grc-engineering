@@ -56,7 +56,7 @@ controls:
       azure:
         commands:
           - cmd: "az ad user list --query '[].{UPN:userPrincipalName,Enabled:accountEnabled}'"
-            description: "List Azure AD users"
+            description: "List Entra ID users"
             pass_criteria: "All users have unique UPNs"
           - cmd: "az ad sp list --all --query '[].{Name:displayName,Type:servicePrincipalType}'"
             description: "List service principals"
@@ -209,8 +209,8 @@ controls:
       azure:
         commands:
           - cmd: "az ad device list --query '[].{Name:displayName,TrustType:trustType}'"
-            description: "List Azure AD devices"
-            pass_criteria: "Devices are registered with Azure AD"
+            description: "List Entra ID devices"
+            pass_criteria: "Devices are registered with Entra ID"
           - cmd: "az iot hub device-identity list --hub-name HUB"
             description: "List IoT Hub devices"
             pass_criteria: "IoT devices are registered"

@@ -1,6 +1,6 @@
 ---
 name: access-review-triage
-description: Helps you triage a quarterly user access review from an Okta, Azure AD, AWS IAM, GitHub, or generic CSV/JSON export. For each row, recommends certify, revoke, manager confirm, or investigate using rules that catch the usual audit-fail patterns: terminated users still active, dormant admin accounts, separation-of-duty conflicts, service accounts in a human review. Drafts manager confirmation emails and writes an audit evidence packet mapped to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.9, NIST AC-2. Built for small and mid-size orgs running UARs in spreadsheets without an IGA tool. Never auto-revokes. Output is a draft for human review before action.
+description: Helps you triage a quarterly user access review from an Okta, Entra ID, AWS IAM, GitHub, or generic CSV/JSON export. For each row, recommends certify, revoke, manager confirm, or investigate using rules that catch the usual audit-fail patterns: terminated users still active, dormant admin accounts, separation-of-duty conflicts, service accounts in a human review. Drafts manager confirmation emails and writes an audit evidence packet mapped to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.9, NIST AC-2. Built for small and mid-size orgs running UARs in spreadsheets without an IGA tool. Never auto-revokes. Output is a draft for human review before action.
 allowed-tools: Read, Glob, Grep, Bash, Write
 ---
 
@@ -32,7 +32,7 @@ If a rule's required input is missing, run the rules you can and clearly note in
 
 ## Steps
 
-1. **Identify the system.** Look at the columns or JSON shape of the access dump. If headers match Okta's user export schema, treat as Okta. Same for Azure AD, AWS IAM, GitHub. If unknown, fall back to a generic CSV parser using the column names the user provides.
+1. **Identify the system.** Look at the columns or JSON shape of the access dump. If headers match Okta's user export schema, treat as Okta. Same for Entra ID, AWS IAM, GitHub. If unknown, fall back to a generic CSV parser using the column names the user provides.
 2. **Load auxiliary inputs.** Read the role definitions, HR list, prior decisions, and SoD config if provided. Build lookup tables.
 3. **Walk the decision rules in order** (see Decision rules below). First match wins. Tag each row with `recommendation`, `reason`, and `priority` (P0 / P1 / P2).
 4. **Compute summary stats.** Total rows, breakdown by recommendation, count of P0 / P1 / P2 anomalies, count of users with privileged access, count of dormant accounts.

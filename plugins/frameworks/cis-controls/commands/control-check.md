@@ -173,7 +173,7 @@ Provides detailed implementation guidance and verification for specific CIS Cont
 - Separation of duties
 - Automated provisioning/deprovisioning
 
-**Common Tools**: SailPoint, Saviynt, Azure AD
+**Common Tools**: SailPoint, Saviynt, Entra ID
 
 ---
 
