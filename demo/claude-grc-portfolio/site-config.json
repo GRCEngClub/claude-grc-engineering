@@ -151,7 +151,7 @@
     "secretsConfigured": false
   },
   "grc": {
-    "frameworks": ["SOC2", "ISO27001", "NIST800-53", "FedRAMP-Rev5", "FedRAMP-20x", "PCI-DSS", "CMMC", "HITRUST", "GDPR", "CIS-Controls", "DORA", "StateRAMP"],
+    "frameworks": ["SOC2", "ISO27001", "NIST800-53", "FedRAMP-20x", "PCI-DSS", "CMMC", "HITRUST", "GDPR", "CIS-Controls", "DORA", "StateRAMP"],
     "specializations": ["Compliance engineering/automation", "GRC tooling implementation", "Security program management", "Third-party risk management (TPRM)"],
     "industries": ["SaaS/tech", "fintech", "government/FedRAMP", "healthcare/HIPAA"],
     "tools": ["Claude Code", "Vanta", "Drata", "AWS Inspector", "Okta", "ServiceNow GRC", "GitHub Advanced Security", "Terraform", "Python"]

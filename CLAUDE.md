@@ -7,9 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is the official open-source Claude Code plugin marketplace of the [GRC Engineering Club](https://grcengclub.com) for Governance, Risk, and Compliance (GRC) professionals. `.claude-plugin/marketplace.json` is the authoritative plugin list; the categories below describe the shapes, not an exhaustive inventory.
 
 - **Persona plugins** (grc-engineer, grc-auditor, grc-internal, grc-tprm)
-- **Framework plugins** under `plugins/frameworks/` (soc2, nist-800-53, iso27001, fedramp-rev5, fedramp-20x, pci-dss, cmmc, and more) — see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) for the generated list
+- **Framework plugins** under `plugins/frameworks/` (soc2, nist-800-53, iso27001, fedramp-20x, pci-dss, cmmc, and more) — see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) for the generated list
 - **Connector plugins** under `plugins/connectors/` (aws-inspector, gcp-inspector, github-inspector, okta-inspector, and more) that emit findings matching `schemas/finding.schema.json`
-- **OSCAL tooling plugins** (oscal, fedramp-ssp) wrapping external upstream projects
+- **OSCAL tooling plugin** (oscal) wrapping an external upstream project
 - **Reporting and workflow plugins** (grc-reporter, grc-loop, grc-diagrams, teach-me, trust-center, compliance-posture-dashboard)
 - **grc-portfolio** — site-builder plugin that scaffolds and deploys a GRC engineer's portfolio website (React/Vite on S3 + CloudFront, optional Route 53/ACM and SES-backed contact form, GitHub Actions OIDC for CI/CD)
 
@@ -177,8 +177,7 @@ Each plugin has a unique namespace for commands:
 - `/soc2:` - SOC 2 expertise
 - `/nist:` - NIST 800-53 controls
 - `/iso:` - ISO 27001 ISMS
-- `/fedramp-rev5:` - Traditional FedRAMP
-- `/fedramp-20x:` - Modern FedRAMP with auto-sync
+- `/fedramp-20x:` - FedRAMP 20x with auto-sync
 - `/pci-dss:` - PCI DSS v4.0.1
 - `/us-export:` - US Export Controls (ITAR + EAR)
 - `/pbmm:` - Canadian Protected B cloud

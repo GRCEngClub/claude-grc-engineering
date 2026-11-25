@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0.0",
-  "source": "poam-automation",
+  "source": "vdr-automation",
   "source_version": "1.0.0",
-  "run_id": "poam-automation-pass-001",
+  "run_id": "vdr-automation-pass-001",
   "collected_at": "2026-04-22T00:00:00Z",
   "resource": {
     "type": "cloud_workload",

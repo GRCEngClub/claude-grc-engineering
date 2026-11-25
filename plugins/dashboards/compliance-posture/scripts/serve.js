@@ -203,7 +203,7 @@ function demoRuns() {
       generated_at: generated,
       schedule: 'daily',
       frameworks,
-      sources: ['aws-inspector', 'github-inspector', 'poam-automation'],
+      sources: ['aws-inspector', 'github-inspector', 'vdr-automation'],
       thresholds: { warning: 0.9, critical: 0.8 },
       framework_results: frameworkResults,
       summary: {

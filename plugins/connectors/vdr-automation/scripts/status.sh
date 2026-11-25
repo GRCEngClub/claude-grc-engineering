@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CACHE_DIR="${HOME}/.cache/claude-grc/findings/poam-automation"
-CONFIG_FILE="${HOME}/.config/claude-grc/connectors/poam-automation.yaml"
+CACHE_DIR="${HOME}/.cache/claude-grc/findings/vdr-automation"
+CONFIG_FILE="${HOME}/.config/claude-grc/connectors/vdr-automation.yaml"
 
-echo "=== poam-automation status ==="
+echo "=== vdr-automation status ==="
 
 if [[ ! -f "${CONFIG_FILE}" ]]; then
   echo "  config:   NOT CONFIGURED (run setup.sh)" >&2

@@ -43,14 +43,14 @@ flowchart TD
     B -->|AWS cloud controls| AWS[aws-inspector]
     B -->|GCP cloud controls| GCP[gcp-inspector]
     B -->|Okta identity controls| OKTA[okta-inspector]
-    B -->|FedRAMP POA&M from vuln scans| POAM[poam-automation]
+    B -->|FedRAMP 20x VDR from vuln scans| VDR[vdr-automation]
     B -->|No, I need framework expertise| C{Which obligation?}
 
     C -->|SOC 2 audit| SOC2[soc2]
     C -->|ISO 27001 ISMS| ISO[iso27001]
     C -->|NIST controls| NIST[nist-800-53]
     C -->|NIST CSF posture| CSF[nist-csf-20]
-    C -->|FedRAMP package| FED[fedramp-rev5 + fedramp-ssp]
+    C -->|FedRAMP package| FED[fedramp-20x]
     C -->|Privacy law| PRIV{Region?}
     C -->|Financial / regulated industry| FIN{Regime?}
 
@@ -80,7 +80,7 @@ A few rules of thumb:
 - Add more framework plugins when the same evidence must satisfy multiple obligations; the SCF crosswalk lets one connector run support many reports.
 - Use **persona plugins** (`grc-auditor`, `grc-internal`, `grc-tprm`) when the task is workflow- or audience-specific rather than framework-specific.
 - Use **`teach-me`** before a framework plugin if you need a practitioner primer, role onboarding, or Socratic drills.
-- Use **`oscal`** and **`fedramp-ssp`** when the deliverable is OSCAL/FedRAMP package material rather than a markdown gap report.
+- Use **`oscal`** when the deliverable is OSCAL package material rather than a markdown gap report.
 
 Confirm with:
 

@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CACHE_DIR="${HOME}/.cache/claude-grc/findings/poam-automation"
+CACHE_DIR="${HOME}/.cache/claude-grc/findings/vdr-automation"
 CONFIG_DIR="${HOME}/.config/claude-grc/connectors"
-CONFIG_FILE="${CONFIG_DIR}/poam-automation.yaml"
+CONFIG_FILE="${CONFIG_DIR}/vdr-automation.yaml"
 TOOL_BASE="${HOME}/.local/share/claude-grc/tools"
-TOOL_DIR="${TOOL_BASE}/poam-automation"
+TOOL_DIR="${TOOL_BASE}/vdr-automation"
 TOOL_REPO="https://github.com/networkbm/POAM-Automation-Tool.git"
 
-echo "=== poam-automation setup ==="
+echo "=== vdr-automation setup ==="
 
 if ! command -v python3 &>/dev/null; then
   echo "ERROR: python3 not found. Install Python 3.8 or later." >&2

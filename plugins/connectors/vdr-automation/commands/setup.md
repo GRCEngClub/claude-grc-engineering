@@ -3,13 +3,13 @@ name: setup
 description: Install dependencies and verify scanner exports are present
 ---
 
-# POA&M Automation Setup
+# VDR Automation Setup
 
-Run this once before using any other poam-automation commands.
+Run this once before using any other vdr-automation commands.
 
 ## Get the Tool
 
-Clone the POAM Automation Tool repo:
+Clone the upstream tool, which is still named POAM Automation Tool:
 
 ```bash
 git clone https://github.com/networkbm/POAM-Automation-Tool

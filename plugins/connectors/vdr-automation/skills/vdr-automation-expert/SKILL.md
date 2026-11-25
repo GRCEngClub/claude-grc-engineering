@@ -1,17 +1,19 @@
 ---
-name: poam-automation-expert
-description: "Expertise in FedRAMP POA&M lifecycle management, FedRAMP 20x VDR generation, and vulnerability classification using CISA KEV, EPSS, N-ratings, LEV/IRV, and NIST 800-53 control mappings."
+name: vdr-automation-expert
+description: "Expertise in FedRAMP 20x VDR generation, vulnerability finding lifecycle management, and vulnerability classification using CISA KEV, EPSS, N-ratings, LEV/IRV, and NIST 800-53 control mappings."
 ---
 
-# POA&M Automation Expert
+# VDR Automation Expert
 
 ## Tool Behavior
 
-This connector wraps the FedRAMP POA&M Automation Tool — a Python CLI that manages the full vulnerability finding lifecycle from scanner import through FedRAMP 20x VDR generation.
+This connector wraps networkbm/POAM-Automation-Tool, a Python CLI that manages the vulnerability finding lifecycle from scanner import through FedRAMP 20x VDR generation.
+
+FedRAMP's Consolidated Rules for 2026 replace POA&Ms with a list of Accepted Weaknesses, so this connector is used for its VDR output. The upstream tool still calls its findings workbook a POA&M, which is why its file names and `--poam` flag keep that name.
 
 ### What it does
 
-- Parses raw scanner exports (Nessus, Tenable, Qualys, Wiz) into a structured FedRAMP POA&M
+- Parses raw scanner exports (Nessus, Tenable, Qualys, Wiz) into a structured findings workbook
 - Auto-deduplicates findings across scanner imports using title + asset identifier
 - Enriches findings with NIST 800-53 control mappings via keyword matching
 - Manages finding lifecycle: update, close, deviation (false positive / operational requirement)
@@ -55,7 +57,7 @@ This connector maps findings to NIST 800-53 Rev 5 controls via keyword matching 
 - **Missing openpyxl**: Install with `pip install openpyxl`
 - **CISA KEV unavailable**: Offline fallback uses severity-based LEV classification
 - **EPSS unavailable**: Offline fallback uses severity-based LEV classification
-- **POA&M file open in Excel**: Close the file before running any write command
+- **Findings workbook open in Excel**: Close the file before running any write command
 - **Duplicate findings**: Automatically skipped on import — same title + asset identifier
 
 ## Limitations
