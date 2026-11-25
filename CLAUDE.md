@@ -209,7 +209,7 @@ The grc-engineer plugin now includes advanced cross-framework intelligence capab
 
 1. **`/grc-engineer:map-controls-unified <control>`**
    - Maps a single control across ALL frameworks
-   - Shows framework equivalencies (e.g., NIST AC-2 = ISO A.9.2 = SOC2 CC6.1)
+   - Shows framework equivalencies (e.g., NIST AC-2 = ISO A.5.16 = SOC2 CC6.1)
    - Identifies conflicts and resolutions
    - Provides cloud implementation patterns
 

@@ -79,7 +79,7 @@ generated/
 
 ```terraform
 # Generated for: Access Control - Account Management
-# Frameworks: NIST AC-2, ISO A.9.2, SOC2 CC6.1, PCI 8.1
+# Frameworks: NIST AC-2, ISO A.5.16, SOC2 CC6.1, PCI 8.1
 # Cloud Provider: AWS
 # Generated: 2025-01-15
 
@@ -247,7 +247,7 @@ data "aws_caller_identity" "current" {}
 #!/usr/bin/env python3
 """
 Evidence Collection: Access Control - Account Management
-Frameworks: NIST AC-2, ISO A.9.2, SOC2 CC6.1, PCI 8.1
+Frameworks: NIST AC-2, ISO A.5.16, SOC2 CC6.1, PCI 8.1
 Generated: 2025-01-15
 """
 
@@ -271,7 +271,7 @@ class AccessControlEvidenceCollector:
         evidence = {
             'timestamp': self.timestamp,
             'control': 'access_control_account_management',
-            'frameworks': ['NIST AC-2', 'ISO A.9.2', 'SOC2 CC6.1', 'PCI 8.1'],
+            'frameworks': ['NIST AC-2', 'ISO A.5.16', 'SOC2 CC6.1', 'PCI 8.1'],
             'artifacts': []
         }
 
@@ -517,7 +517,7 @@ if __name__ == '__main__':
 This implementation satisfies requirements from:
 
 - **NIST 800-53**: AC-2 (Account Management), AC-2(1-4)
-- **ISO 27001**: A.9.2.1, A.9.2.2, A.9.2.3, A.9.2.5
+- **ISO 27001**: A.5.16, A.5.18, A.8.2
 - **SOC 2**: CC6.1, CC6.2, CC6.3
 - **PCI-DSS**: 8.1, 8.1.1, 8.1.3, 8.1.4
 
@@ -711,7 +711,7 @@ docs/
 
 FRAMEWORKS SATISFIED:
   ✓ NIST 800-53: AC-2, AC-2(1-4)
-  ✓ ISO 27001: A.9.2.1, A.9.2.2, A.9.2.3, A.9.2.5
+  ✓ ISO 27001: A.5.16, A.5.18, A.8.2
   ✓ SOC 2: CC6.1, CC6.2, CC6.3
   ✓ PCI-DSS: 8.1, 8.1.1, 8.1.3, 8.1.4
 

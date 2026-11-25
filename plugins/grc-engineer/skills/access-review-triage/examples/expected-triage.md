@@ -33,7 +33,7 @@
 - **System / role:** okta / analyst
 - **Last login:** 2026-04-20
 - **HR status:** `terminated`
-- **Why P0:** Rule 1. HR list flags this user as terminated. Active access to okta is an audit-fail condition (SOC 2 CC6.2, PCI 8.1.3, ISO A.9.2.6).
+- **Why P0:** Rule 1. HR list flags this user as terminated. Active access to okta is an audit-fail condition (SOC 2 CC6.2, PCI 8.1.3, ISO A.5.18).
 - **Recommendation:** Investigate. Confirm separation date with HR, revoke access if confirmed, and document the gap between separation and revocation in a `parse_errors.md`-style retrospective.
 
 ### 2. `ap.both@acme.com` — separation-of-duty conflict (AP creator + AP approver)

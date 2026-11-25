@@ -186,7 +186,7 @@ HITRUST CSF maps to 40+ frameworks including:
 
 - **HIPAA** Security and Privacy Rules
 - **NIST** 800-53, Cybersecurity Framework
-- **ISO/IEC** 27001:2013, 27002
+- **ISO/IEC** 27001:2022, 27002:2022
 - **PCI DSS** v3.2.1
 - **FedRAMP** Moderate Baseline
 

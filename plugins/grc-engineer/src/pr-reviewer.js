@@ -10,7 +10,7 @@ const COMPLIANCE_CHECKS = {
     ],
     frameworks: {
       SOC2: 'CC6.1',
-      ISO27001: 'A.9.2.3',
+      ISO27001: 'A.8.2',
       NIST80053: 'AC-6'
     },
     severity: 'high',
@@ -24,7 +24,7 @@ const COMPLIANCE_CHECKS = {
     ],
     frameworks: {
       SOC2: 'CC7.2',
-      ISO27001: 'A.10.1.1',
+      ISO27001: 'A.8.24',
       NIST80053: 'SC-28'
     },
     severity: 'high',
@@ -38,7 +38,7 @@ const COMPLIANCE_CHECKS = {
     ],
     frameworks: {
       SOC2: 'CC7.1',
-      ISO27001: 'A.8.2.1'
+      ISO27001: 'A.5.12'
     },
     severity: 'medium',
     message: 'This change creates resources without required tags for governance and compliance tracking.'
@@ -51,7 +51,7 @@ const COMPLIANCE_CHECKS = {
     ],
     frameworks: {
       SOC2: 'CC7.2',
-      ISO27001: 'A.13.1.1',
+      ISO27001: 'A.8.20',
       NIST80053: 'AC-4'
     },
     severity: 'critical',

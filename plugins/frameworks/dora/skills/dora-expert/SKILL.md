@@ -1377,7 +1377,7 @@ An incident is **major** if it meets **one or more** of these:
 
 **Standards and Frameworks**:
 
-- ISO 27001:2013 Information Security Management
+- ISO/IEC 27001:2022 Information Security Management
 - NIST Cybersecurity Framework
 - TIBER-EU
 

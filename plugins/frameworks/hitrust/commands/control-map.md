@@ -57,7 +57,7 @@ HITRUST CSF harmonizes 40+ frameworks including:
 
 - **HIPAA** Security Rule, Privacy Rule
 - **NIST** 800-53, Cybersecurity Framework
-- **ISO/IEC** 27001:2013, 27002
+- **ISO/IEC** 27001:2022, 27002:2022
 - **PCI DSS** v3.2.1
 - **FedRAMP** Moderate Baseline
 
@@ -79,7 +79,7 @@ HITRUST CSF harmonizes 40+ frameworks including:
 
 - **HIPAA**: 164.308(a)(1)(ii)(D), 164.312(b)
 - **NIST 800-53**: AU-2, AU-3, AU-6
-- **ISO 27001**: A.12.4.1
+- **ISO 27001**: A.8.15
 - **PCI DSS**: 10.1, 10.2, 10.3
 
 ### Encryption (Domain 10)
@@ -88,7 +88,7 @@ HITRUST CSF harmonizes 40+ frameworks including:
 
 - **HIPAA**: 164.312(a)(2)(iv)
 - **NIST 800-53**: SC-28
-- **ISO 27001**: A.10.1.1
+- **ISO 27001**: A.8.24
 - **PCI DSS**: 3.4
 
 ### Incident Response (Domain 12)
@@ -97,7 +97,7 @@ HITRUST CSF harmonizes 40+ frameworks including:
 
 - **HIPAA**: 164.308(a)(6)
 - **NIST 800-53**: IR-1, IR-8
-- **ISO 27001**: A.16.1.1
+- **ISO 27001**: A.5.24
 - **PCI DSS**: 12.10
 
 ### Business Associate Management (Domain 17)
@@ -106,7 +106,7 @@ HITRUST CSF harmonizes 40+ frameworks including:
 
 - **HIPAA**: 164.308(b)(1), 164.314(a)
 - **NIST 800-53**: SA-9
-- **ISO 27001**: A.15.1.2
+- **ISO 27001**: A.5.20
 
 ## MyCSF Implementation Levels
 

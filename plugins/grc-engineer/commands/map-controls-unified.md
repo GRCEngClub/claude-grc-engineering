@@ -59,11 +59,10 @@ NIST 800-53:
   ✓ AC-2(3)  - Disable Inactive Accounts
   ✓ AC-2(4)  - Automated Audit Actions
 
-ISO 27001:
-  ✓ A.9.2.1  - User Registration and De-registration
-  ✓ A.9.2.2  - User Access Provisioning
-  ✓ A.9.2.3  - Management of Privileged Access
-  ✓ A.9.2.5  - Review of User Access Rights
+ISO 27001:2022:
+  ✓ A.5.16   - Identity Management
+  ✓ A.5.18   - Access Rights
+  ✓ A.8.2    - Privileged Access Rights
 
 SOC 2:
   ✓ CC6.1    - Logical and Physical Access Controls

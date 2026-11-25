@@ -15,15 +15,15 @@ Expertise in Japanese government cloud security program based on ISO 27001/27017
 **Authority**: Digital Agency of Japan
 **Base Standards**:
 
-- ISO/IEC 27001:2013 (ISMS)
+- ISO/IEC 27001:2013 (ISMS) structure in the current control criteria; a draft revision adopts ISO/IEC 27001:2022 (JIS Q 27001:2023), with the effective date still to be set
 - ISO/IEC 27017:2015 (Cloud security)
 - ISO/IEC 27018:2019 (PII protection)
 
 **Scope**: Cloud services for Japanese government agencies
 
-### ISO 27001 Annex A (114 Controls)
+### ISO 27001 Annex A
 
-14 control domains for information security management.
+Today's ISMAP control criteria use the 2013 structure: 114 controls in 14 domains (A.5 to A.18). ISO/IEC 27001:2022 regrouped Annex A into 93 controls under A.5 to A.8, and ISO certificates are now issued only against 2022 (the 2013 transition ended October 31, 2025). Give both IDs when mapping, using ISO/IEC 27002:2022 Annex B for the correspondence (for example 2013 A.9.2.1 is 2022 A.5.16).
 
 ### ISO 27017 Cloud Controls
 

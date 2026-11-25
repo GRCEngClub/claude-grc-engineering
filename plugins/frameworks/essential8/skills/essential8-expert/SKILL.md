@@ -1351,11 +1351,12 @@ Deep expertise in Australian Cyber Security Centre (ACSC) Essential Eight mitiga
 
 **Mapping**:
 
-- Essential Eight controls map to ISO 27001 Annex A
-- A.9 Access Control → MFA, Admin Privileges
-- A.12 Operations Security → Patching, Application Control
-- A.12.3 Backups → Regular Backups
-- A.14 System Acquisition → Application Hardening
+- Essential Eight controls map to ISO 27001:2022 Annex A
+- A.8.2 Privileged access rights, A.8.5 Secure authentication → Restrict Admin Privileges, MFA
+- A.8.8 Management of technical vulnerabilities → Patch Applications, Patch Operating Systems
+- A.8.19 Installation of software on operational systems → Application Control
+- A.8.9 Configuration management → User Application Hardening, Restrict Microsoft Office Macros
+- A.8.13 Information backup → Regular Backups
 
 ### CIS Controls
 

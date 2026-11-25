@@ -55,6 +55,8 @@ controls:
       - cryptographic
       - tls
       - ssl
+      - cryptography
+      - key management
 
   A.8.25:
     title: Secure development life cycle
@@ -65,20 +67,11 @@ controls:
       - secure development
       - code review
 
-  A.9.2.1:
-    title: User registration and de-registration
-    description: A formal user registration and de-registration process shall be implemented to enable assignment of access rights.
+  A.5.16:
+    title: Identity management
+    description: The full life cycle of identities shall be managed.
     category: Access Control
     keywords:
       - user registration
       - provisioning
       - deprovisioning
-
-  A.10.1.1:
-    title: Cryptographic controls
-    description: A policy on the use of cryptographic controls for protection of information shall be developed and implemented.
-    category: Cryptography
-    keywords:
-      - encryption
-      - cryptography
-      - key management
