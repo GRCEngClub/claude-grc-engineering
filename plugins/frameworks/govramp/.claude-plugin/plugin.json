@@ -1,0 +1,21 @@
+{
+  "name": "govramp",
+  "description": "GovRAMP (formerly StateRAMP) - security verification for cloud products sold to state, local, tribal, territorial, and education governments",
+  "version": "0.1.0",
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT",
+  "framework_metadata": {
+    "scf_framework_id": "general-govramp-mod",
+    "display_name": "GovRAMP Moderate",
+    "region": "Americas",
+    "country": "US",
+    "depth": "reference",
+    "scf_controls_mapped": 347,
+    "framework_controls_mapped": 290,
+    "industry": [],
+    "regulator": ""
+  }
+}

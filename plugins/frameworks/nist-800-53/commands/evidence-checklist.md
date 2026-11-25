@@ -2,7 +2,7 @@
 
 Generates audit-ready evidence collection checklists for NIST SP 800-53 Rev 5 controls and control families, scoped to a NIST SP 800-53B baseline (Low / Moderate / High). Evidence depth tracks the baseline: higher baselines pull in additional control enhancements and tighter organization-defined parameters, so the checklist grows accordingly.
 
-NIST 800-53 is a control *catalog*, not a regulation. Enforcement comes from the authorizing program that profiles it — FISMA for federal systems, the FedRAMP PMO for cloud services, StateRAMP for state/local, CMMC/NIST 800-171 for the defense industrial base. This command produces the evidence an assessor asks for under any of those programs, organized by the framework's own control families and aligned to the NIST SP 800-53A assessment methods (examine / interview / test).
+NIST 800-53 is a control *catalog*, not a regulation. Enforcement comes from the authorizing program that profiles it — FISMA for federal systems, the FedRAMP PMO for cloud services, GovRAMP (formerly StateRAMP) for state/local, CMMC/NIST 800-171 for the defense industrial base. This command produces the evidence an assessor asks for under any of those programs, organized by the framework's own control families and aligned to the NIST SP 800-53A assessment methods (examine / interview / test).
 
 > **Never commit evidence artifacts to source control.** The outputs below include real usernames, credential reports, MFA device states, and privileged-account inventories. `.gitignore` covers `evidence/` by default so `git add -A` will not sweep it up, but durable storage is your responsibility. Use an encrypted, access-controlled evidence locker (encrypted S3 with least-privilege IAM, a GRC platform, or a shared drive with full-disk encryption and MFA-gated access).
 
@@ -780,5 +780,5 @@ if __name__ == "__main__":
 **Catalog**: NIST SP 800-53 Rev 5
 **Baselines**: NIST SP 800-53B (Low / Moderate / High)
 **Assessment procedures**: NIST SP 800-53A Rev 5 (examine / interview / test)
-**Profiled by**: FedRAMP, StateRAMP, CMMC / NIST 800-171, agency FISMA programs
+**Profiled by**: FedRAMP, GovRAMP (formerly StateRAMP), CMMC / NIST 800-171, agency FISMA programs
 **Evidence retention**: per the authorizing program (see AU-11 for the audit-retention parameter)

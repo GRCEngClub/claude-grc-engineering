@@ -25,7 +25,7 @@ Maps infrastructure-as-code (IaC) files to specific compliance framework control
 - CSA-CCM
 - NYDFS
 - DORA
-- STATERAMP
+- GOVRAMP
 - ESSENTIAL8
 - GLBA
 

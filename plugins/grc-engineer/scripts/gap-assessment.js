@@ -132,7 +132,7 @@ function parseArgs(argv) {
  * Returns { resolved, unresolved }:
  *   resolved:   [{ label, framework_id, display_name }]
  *   unresolved: [{ label, reason }] — reason is the specific explanation for
- *               frameworks SCF is known not to cover (HITRUST, StateRAMP,
+ *               frameworks SCF is known not to cover (HITRUST,
  *               PBMM, US export controls), or a generic not-found hint.
  *
  * Callers must treat a non-empty `unresolved` as fatal: an unresolved
