@@ -72,7 +72,7 @@ HIGH SEVERITY CONFLICTS
 
 🔴 CONFLICT #1: Access Review Frequency
    Control Area: Account Management
-   Affected Controls: NIST AC-2, ISO A.9.2.5, SOC2 CC6.1, PCI 8.1.4
+   Affected Controls: NIST AC-2, ISO A.5.18, SOC2 CC6.1, PCI 8.1.4
 
    Requirements:
    - SOC2:    No specific frequency, risk-based approach
@@ -82,7 +82,7 @@ HIGH SEVERITY CONFLICTS
    - NIST:    Annually minimum, or when roles/responsibilities change
               AC-2 control statement
    - ISO:     At planned intervals (typically annually)
-              A.9.2.5 requirement
+              A.5.18 requirement
 
    ⚠ IMPACT: PCI-DSS is most restrictive and MANDATORY
    ✓ RESOLUTION: Implement quarterly (90-day) access reviews
@@ -101,7 +101,7 @@ HIGH SEVERITY CONFLICTS
 
 🔴 CONFLICT #2: Log Retention Period
    Control Area: Logging and Monitoring
-   Affected Controls: NIST AU-11, ISO A.12.4.1, SOC2 CC7.3, PCI 10.7
+   Affected Controls: NIST AU-11, ISO A.8.15, SOC2 CC7.3, PCI 10.7
 
    Requirements:
 

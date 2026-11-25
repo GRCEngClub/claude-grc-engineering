@@ -209,7 +209,7 @@ The grc-engineer plugin now includes advanced cross-framework intelligence capab
 
 1. **`/grc-engineer:map-controls-unified <control>`**
    - Maps a single control across ALL frameworks
-   - Shows framework equivalencies (e.g., NIST AC-2 = ISO A.9.2 = SOC2 CC6.1)
+   - Shows framework equivalencies (e.g., NIST AC-2 = ISO A.5.16 = SOC2 CC6.1)
    - Identifies conflicts and resolutions
    - Provides cloud implementation patterns
 
@@ -746,7 +746,7 @@ Lives at `plugins/grc-engineer/skills/access-review-triage/SKILL.md`. The skill 
 - Rule 9: unchanged since last cycle → Auto-certify
 - Rule 10: default → Manager confirm
 
-Output is four artifacts in `~/.cache/claude-grc/access-reviews/<system>-<YYYY-QN>/`: `triage.md` (human-readable report), `decisions.csv` (machine-readable per-row recommendations), `manager-emails/<manager>.md` (drafted confirmation emails), and `evidence.json` (audit-binder packet with control mappings to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.9, NIST AC-2).
+Output is four artifacts in `~/.cache/claude-grc/access-reviews/<system>-<YYYY-QN>/`: `triage.md` (human-readable report), `decisions.csv` (machine-readable per-row recommendations), `manager-emails/<manager>.md` (drafted confirmation emails), and `evidence.json` (audit-binder packet with control mappings to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.5.15, A.5.16, A.5.18, A.8.2, and A.5.3 for separation-of-duty conflicts, NIST AC-2).
 
 The skill never auto-revokes — every recommendation is a draft for human review. It refuses to run for orgs that already have an IGA tool unless `--force` is passed.
 

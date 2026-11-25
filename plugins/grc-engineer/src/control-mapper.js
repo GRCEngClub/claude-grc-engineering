@@ -21,15 +21,15 @@ const LEGACY_FRAMEWORKS = {
     }
   },
   ISO27001: {
-    name: 'ISO/IEC 27001',
+    name: 'ISO/IEC 27001:2022',
     controls: {
-      'A.9.2.1': {
-        title: 'User registration and de-registration',
-        description: 'A formal user registration and de-registration process shall be implemented.'
+      'A.5.16': {
+        title: 'Identity management',
+        description: 'The full life cycle of identities shall be managed.'
       },
-      'A.10.1.1': {
-        title: 'Cryptographic controls',
-        description: 'A policy on the use of cryptographic controls for protection of information.'
+      'A.8.24': {
+        title: 'Use of cryptography',
+        description: 'Rules for the effective use of cryptography, including cryptographic key management, shall be defined and implemented.'
       }
     }
   },
@@ -78,12 +78,12 @@ async function getFrameworkConfig(framework) {
 const IAC_PATTERNS = {
   terraform: {
     encryption: [
-      { pattern: /storage_encrypted\s*=\s*true/i, control: ['CC7.2', 'A.10.1.1', 'SC-28'] },
-      { pattern: /encrypted\s*=\s*true/i, control: ['CC7.2', 'A.10.1.1', 'SC-28'] },
-      { pattern: /kms_key_id/i, control: ['CC7.2', 'A.10.1.1', 'SC-28'] }
+      { pattern: /storage_encrypted\s*=\s*true/i, control: ['CC7.2', 'A.8.24', 'SC-28'] },
+      { pattern: /encrypted\s*=\s*true/i, control: ['CC7.2', 'A.8.24', 'SC-28'] },
+      { pattern: /kms_key_id/i, control: ['CC7.2', 'A.8.24', 'SC-28'] }
     ],
     access: [
-      { pattern: /aws_iam_role/i, control: ['CC6.1', 'A.9.2.1', 'AC-3'] },
+      { pattern: /aws_iam_role/i, control: ['CC6.1', 'A.5.16', 'AC-3'] },
       { pattern: /aws_iam_policy/i, control: ['CC6.1', 'AC-6'] },
       { pattern: /AdministratorAccess/i, control: ['AC-6'], negative: true }
     ],
@@ -94,10 +94,10 @@ const IAC_PATTERNS = {
   },
   kubernetes: {
     encryption: [
-      { pattern: /encryption-provider-config/i, control: ['CC7.2', 'A.10.1.1', 'SC-28'] }
+      { pattern: /encryption-provider-config/i, control: ['CC7.2', 'A.8.24', 'SC-28'] }
     ],
     access: [
-      { pattern: /serviceAccountName/i, control: ['CC6.1', 'A.9.2.1', 'AC-3'] },
+      { pattern: /serviceAccountName/i, control: ['CC6.1', 'A.5.16', 'AC-3'] },
       { pattern: /runAsNonRoot:\s*true/i, control: ['AC-6'] }
     ]
   }

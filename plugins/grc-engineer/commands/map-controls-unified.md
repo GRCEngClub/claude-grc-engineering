@@ -59,11 +59,10 @@ NIST 800-53:
   ✓ AC-2(3)  - Disable Inactive Accounts
   ✓ AC-2(4)  - Automated Audit Actions
 
-ISO 27001:
-  ✓ A.9.2.1  - User Registration and De-registration
-  ✓ A.9.2.2  - User Access Provisioning
-  ✓ A.9.2.3  - Management of Privileged Access
-  ✓ A.9.2.5  - Review of User Access Rights
+ISO 27001:2022:
+  ✓ A.5.16   - Identity Management
+  ✓ A.5.18   - Access Rights
+  ✓ A.8.2    - Privileged Access Rights
 
 SOC 2:
   ✓ CC6.1    - Logical and Physical Access Controls
@@ -168,16 +167,16 @@ OPTIMIZATION INSIGHT
 
    Frameworks covered:
    ✓ NIST 800-53 (5 controls)
-   ✓ ISO 27001 (4 controls)
+   ✓ ISO 27001 (3 controls)
    ✓ SOC 2 (3 controls)
    ✓ PCI-DSS (4 controls)
    ✓ CIS Controls (5 controls)
    ✓ CMMC (4 controls)
    ✓ FedRAMP (1 control)
 
-   Total: 26 controls satisfied
+   Total: 25 controls satisfied
    Estimated effort: 40 hours
-   ROI: 650% (26 controls / 40 hours = 0.65 controls/hour)
+   ROI: 625% (25 controls / 40 hours = 0.625 controls/hour)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RECOMMENDED NEXT STEPS

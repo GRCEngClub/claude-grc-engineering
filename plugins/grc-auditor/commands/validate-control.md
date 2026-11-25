@@ -8,7 +8,7 @@ Tests and validates that a control is properly implemented and effective.
 
 ## Arguments
 
-- `$1` - Control ID (required, e.g., CC6.1, A.9.1.1, AC-2)
+- `$1` - Control ID (required, e.g., CC6.1, A.5.15, AC-2)
 - `$2` - Framework (optional, defaults to auto-detect)
 
 ## Instructions
@@ -33,7 +33,7 @@ Tests and validates that a control is properly implemented and effective.
 /grc-auditor:validate-control 8.4.2 PCIDSS
 
 # ISO 27001 control validation
-/grc-auditor:validate-control A.9.1.1 ISO27001
+/grc-auditor:validate-control A.5.15 ISO27001
 
 # NIST 800-53 control validation (auto-detect)
 /grc-auditor:validate-control AC-2

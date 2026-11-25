@@ -28,7 +28,7 @@ Generates comprehensive evidence collection checklists for HITRUST Common Securi
 HITRUST CSF Evidence Checklist
 Control: 01.a - User Registration
 Implementation Level: Level 2 (HIPAA-aligned)
-Mapped Frameworks: HIPAA §164.312(a)(2)(i), NIST 800-53 AC-2, ISO 27001 A.9.2.1
+Mapped Frameworks: HIPAA §164.312(a)(2)(i), NIST 800-53 AC-2, ISO 27001 A.5.16
 Assessment Type: Validated (third-party)
 Certification Validity: 2 years
 

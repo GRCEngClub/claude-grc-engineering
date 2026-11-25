@@ -128,7 +128,7 @@ STRONGLY RECOMMENDED (High ROI):
     - Azure: Entra ID + PIM + Logic Apps
     - GCP: Cloud Identity + Workflows
   Effort: 40 hours (initial setup), 2 hours/month (maintenance)
-  Satisfies: SOC2 CC6.1, PCI 8.1.4, ISO 27001 A.9.2
+  Satisfies: SOC2 CC6.1, PCI 8.1.4, ISO 27001 A.5.16, A.5.18
 
 ✓ AC-2(2) - Removal of Temporary / Emergency Accounts
   Impact: HIGH
@@ -142,7 +142,7 @@ STRONGLY RECOMMENDED (High ROI):
     - Lambda to disable accounts older than 72 hours
     - SNS notification before auto-disable
   Effort: 8 hours (one-time setup)
-  Satisfies: ISO 27001 A.9.2.6
+  Satisfies: ISO 27001 A.5.18
 
 ✓ AC-2(3) - Disable Inactive Accounts
   Impact: HIGH

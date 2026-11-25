@@ -1,7 +1,7 @@
 conflicts:
   - roles: ["ap-creator", "ap-approver"]
     reason: "Accounts payable separation of duties. Whoever creates an invoice cannot approve it."
-    frameworks: ["soc2:CC6.1", "pci-dss:7.1", "iso27001:A.9", "us-sox:ITGC"]
+    frameworks: ["soc2:CC6.1", "pci-dss:7.1", "iso27001:A.5.3", "us-sox:ITGC"]
 
   - roles: ["iam-admin", "audit-log-reader"]
     reason: "An IAM admin who can also read the audit log can mask their own actions."

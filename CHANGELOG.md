@@ -21,6 +21,7 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Changed
 
+- **ISO 27001 references moved to the 2022 Annex A.** ISO/IEC 27001:2013 was withdrawn and its certificate transition period ended on October 31, 2025, but the cross-framework tooling still cited 2013 Annex A IDs (A.9.2.1, A.10.1.1, A.12.4.1 and so on). The control crosswalk, `control-mapper.js`, `pr-reviewer.js`, `scan-iac.js`, the `iso27001.yaml` framework config and the `grc-engineer`, `grc-auditor`, `grc-reporter`, `hitrust`, `nist-800-53`, `essential8` and `dora` docs now use the 2022 IDs from the ISO/IEC 27002:2022 Annex B correspondence table, so crosswalk, mapper, PR-review and scan output report 2022 controls (for example A.5.16, A.5.18, A.8.2, A.8.15, A.8.24). The `ismap` plugin keeps the 2013 structure because ISMAP's control criteria in force still use it, and now notes the pending revision and gives the 2022 equivalents.
 - **`stateramp` plugin renamed to `govramp` and rewritten.** StateRAMP has operated as GovRAMP since February 14, 2025 (the legal entity is still StateRAMP, Inc.). To migrate:
   1. Uninstall `stateramp`.
   2. Install `govramp@grc-engineering-suite`.

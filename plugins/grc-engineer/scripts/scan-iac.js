@@ -40,7 +40,7 @@ class IaCScanner {
     const rules = {
       encryption_at_rest: {
         name: 'Encryption at Rest',
-        frameworks: ['SOC2 CC6.7', 'PCI-DSS 3.4', 'NIST SC-28', 'ISO A.10.1'],
+        frameworks: ['SOC2 CC6.7', 'PCI-DSS 3.4', 'NIST SC-28', 'ISO A.8.24'],
         checks: [
           {
             type: 'terraform',
@@ -57,7 +57,7 @@ class IaCScanner {
 
       logging_and_monitoring: {
         name: 'Security Logging and Monitoring',
-        frameworks: ['SOC2 CC7.2', 'PCI-DSS 10.1', 'NIST AU-2', 'ISO A.12.4'],
+        frameworks: ['SOC2 CC7.2', 'PCI-DSS 10.1', 'NIST AU-2', 'ISO A.8.15'],
         checks: [
           {
             type: 'terraform',
@@ -69,7 +69,7 @@ class IaCScanner {
 
       network_security: {
         name: 'Network Security and Segmentation',
-        frameworks: ['PCI-DSS 1.2', 'NIST SC-7', 'SOC2 CC6.6', 'ISO A.13.1'],
+        frameworks: ['PCI-DSS 1.2', 'NIST SC-7', 'SOC2 CC6.6', 'ISO A.8.20'],
         checks: [
           {
             type: 'terraform',
@@ -81,7 +81,7 @@ class IaCScanner {
 
       access_control: {
         name: 'Access Control',
-        frameworks: ['NIST AC-2', 'ISO A.9.2', 'SOC2 CC6.1', 'PCI-DSS 8.1'],
+        frameworks: ['NIST AC-2', 'ISO A.5.18', 'SOC2 CC6.1', 'PCI-DSS 8.1'],
         checks: [
           {
             type: 'terraform',
