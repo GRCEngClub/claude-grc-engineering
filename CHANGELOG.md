@@ -14,7 +14,13 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 - **`/nist-800-53:evidence-checklist` command.** Added a baseline-scoped (Low/Moderate/High) evidence collection checklist to the `nist-800-53` plugin, matching the `gdpr`/`hitrust`/`cmmc` evidence-checklist convention. Includes worked examples for AC-2 (Account Management) and AU-6 (Audit Record Review, Analysis, and Reporting), NIST SP 800-53A assessment-method framing, baseline-depth deltas, and a baseline-aware Python collector. Closes [#163](https://github.com/GRCEngClub/claude-grc-engineering/issues/163).
 
+### Removed
+
+- **`fedramp-rev5` and `fedramp-ssp` plugins.** FedRAMP stops accepting new Rev5 Certifications on June 11, 2027, and its Consolidated Rules for 2026 replace the System Security Plan with a Certification Package Overview and Security Decision Record and replace POA&Ms with a list of Accepted Weaknesses. `fedramp-rev5` gave SSP, POA&M and JAB-path guidance for the old process, and `fedramp-ssp` only converted Rev5 SSP Word templates to OSCAL. For FedRAMP work use `fedramp-20x`. Nothing in this repo replaces the SSP Word-to-OSCAL conversion; the upstream tool, `ethanolivertroy/frdocx-to-froscal-ssp`, can still be run directly for a Rev5 package already in progress. See [What's Changing in 2026](https://www.fedramp.gov/2026/providers/updating/changes/).
+
 ### Changed
+
+- **`poam-automation` connector renamed to `vdr-automation`.** FedRAMP's Consolidated Rules for 2026 replace POA&Ms with a list of Accepted Weaknesses, so the connector is now described by its FedRAMP 20x Vulnerability Detection and Response output. The finding `source`, cache directory (`~/.cache/claude-grc/findings/vdr-automation`) and config file (`connectors/vdr-automation.yaml`) changed with it; re-run `/vdr-automation:setup`, which writes the new config and moves the old `findings/poam-automation` cache to `~/.cache/claude-grc/retired/` so assessments do not read stale findings under the old name. Then run `/vdr-automation:collect` with your workbook to fill the new cache before the next assessment. The upstream tool is unchanged and still uses `--poam` for its workbook.
 
 - **Required CI checks now run on every PR.** Removed the `paths:` filters from the `pull_request` triggers of `validate-plugin-manifests.yml` and `contract-test.yml`. Both jobs are required status checks on `main`, but path-filtered required checks never report on PRs outside their paths (docs-only PRs, bot coverage PRs), leaving those PRs permanently blocked and forcing admin-bypass merges. Both jobs finish in under a minute, so the cost of always running them is negligible.
 

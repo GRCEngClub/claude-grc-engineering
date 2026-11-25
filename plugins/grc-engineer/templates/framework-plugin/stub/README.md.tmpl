@@ -17,7 +17,7 @@ Reference-depth adds an evidence checklist and framework-specific context. If yo
 
 ### Level up to Full
 
-Full depth adds framework-native workflow commands tied to the audit ritual (e.g. `/fedramp-rev5:poam-review`, `/soc2:service-auditor-prep`). See the existing Full-depth plugins (`soc2`, `fedramp-rev5`, `pci-dss`, `nist-800-53`) for reference.
+Full depth adds framework-native workflow commands tied to the audit ritual (e.g. `/fedramp-20x:vdr-assess`, `/soc2:service-auditor-prep`). See the existing Full-depth plugins (`soc2`, `fedramp-20x`, `pci-dss`, `nist-800-53`) for reference.
 
 ## Metadata
 

@@ -65,7 +65,7 @@ Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md). For Claude Desktop o
 | Optimize a multi-framework control plan | `/grc-engineer:optimize-multi-framework` |
 | Collect evidence from cloud, SaaS, and code systems | each connector's `setup`, `collect`, and `status` commands (`scan` for `testssl-inspector`) |
 | Build audit workpapers or evidence packages | `/grc-auditor:generate-workpaper`, `/grc-engineer:collect-evidence` |
-| Generate OSCAL SSP, SAP, SAR, and POA&M outputs | `/oscal:*`, `/fedramp-ssp:*` |
+| Validate and convert OSCAL documents | `/oscal:*` |
 | Draft leadership updates and automation coverage reports | `/report:exec-summary`, `/report:automation-coverage` |
 | Create editable GRC diagrams | `/grc-diagrams:drawio`, `/grc-diagrams:system-boundary`, `/grc-diagrams:evidence-flow`, `/grc-diagrams:control-map` |
 | Learn a framework, control, or GRC role | `/teach-me:framework`, `/teach-me:control`, `/teach-me:role`, `/teach-me:quiz` |
@@ -81,10 +81,10 @@ Install only the plugins you need. The full list is in [.claude-plugin/marketpla
 |---|---|
 | Engineering hub | `grc-engineer`: gap assessment, IaC scanning, evidence collection, remediation and policy generation, PR review, continuous monitoring, multi-framework optimization |
 | Personas and workflows | `grc-auditor`, `grc-internal`, `grc-tprm`, `grc-reporter`, `grc-loop`, `teach-me`, `academic-research-companion` |
-| Frameworks | `soc2`, `nist-800-53`, `iso27001`, `fedramp-rev5`, `fedramp-20x`, `pci-dss`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `dora`, `us-hipaa-security`, and more; see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) |
-| Connectors | `aws-inspector`, `github-inspector`, `gcp-inspector`, `azure-inspector`, `okta-inspector`, `slack-inspector`, `datadog-inspector`, `crowdstrike-inspector`, `drata-inspector`, `splunk-inspector`, `tenable-inspector`, `snowflake-inspector`, `wiz-inspector`, `testssl-inspector`, `poam-automation` |
+| Frameworks | `soc2`, `nist-800-53`, `iso27001`, `fedramp-20x`, `pci-dss`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `dora`, `us-hipaa-security`, and more; see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) |
+| Connectors | `aws-inspector`, `github-inspector`, `gcp-inspector`, `azure-inspector`, `okta-inspector`, `slack-inspector`, `datadog-inspector`, `crowdstrike-inspector`, `drata-inspector`, `splunk-inspector`, `tenable-inspector`, `snowflake-inspector`, `wiz-inspector`, `testssl-inspector`, `vdr-automation` |
 | Secrets connectors | `aws-secrets-inspector`, `gcp-secret-metadata`, `onepassword-connector`, `vault-kv` |
-| OSCAL and FedRAMP tooling | `oscal`, `fedramp-ssp` |
+| OSCAL tooling | `oscal` |
 | Diagrams | `grc-diagrams`: editable draw.io system boundaries, evidence flows, control maps, crosswalks, and more |
 | Dashboards and knowledge sources | `compliance-posture-dashboard`, `gcp-docs` |
 | Site builders | `trust-center`, `grc-portfolio` |

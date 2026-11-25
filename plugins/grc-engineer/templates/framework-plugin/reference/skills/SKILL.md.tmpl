@@ -59,7 +59,7 @@ Full-depth plugins add framework-specific workflow commands tied to the audit ri
 TODO: propose 2–4 framework-specific commands. Examples from existing Full-depth plugins:
 
 - `soc2`: `/soc2:service-auditor-prep`, `/soc2:trust-service-matrix`
-- `fedramp-rev5`: `/fedramp-rev5:poam-review`, `/fedramp-rev5:ssp-outline`
+- `fedramp-20x`: `/fedramp-20x:ksi-check`, `/fedramp-20x:vdr-assess`
 - `pci-dss`: `/pci-dss:roc-walkthrough`, `/pci-dss:saq-route`
 - `cmmc`: `/cmmc:c3pao-readiness`
 

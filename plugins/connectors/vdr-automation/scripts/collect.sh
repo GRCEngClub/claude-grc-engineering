@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CACHE_DIR="${HOME}/.cache/claude-grc/findings/poam-automation"
-CONFIG_FILE="${HOME}/.config/claude-grc/connectors/poam-automation.yaml"
+CACHE_DIR="${HOME}/.cache/claude-grc/findings/vdr-automation"
+CONFIG_FILE="${HOME}/.config/claude-grc/connectors/vdr-automation.yaml"
 POAM_FILE=""
 BASELINE="moderate"
 
@@ -27,7 +27,7 @@ if [[ -z "${POAM_FILE}" ]]; then
 fi
 
 if [[ ! -f "${POAM_FILE}" ]]; then
-  echo "ERROR: POA&M file not found: ${POAM_FILE}" >&2
+  echo "ERROR: findings workbook not found: ${POAM_FILE}" >&2
   exit 2
 fi
 
@@ -41,11 +41,11 @@ TOOL_DIR=$(dirname "${TOOL_PATH}")
 TOOL_PYTHON=$(grep '^python:' "${CONFIG_FILE}" | sed 's/python: *"//' | sed 's/"//')
 TOOL_PYTHON="${TOOL_PYTHON:-python3}"
 
-echo "=== poam-automation collect ==="
-echo "  POA&M:    ${POAM_FILE}"
+echo "=== vdr-automation collect ==="
+echo "  Workbook: ${POAM_FILE}"
 echo "  Baseline: ${BASELINE}"
 
-RUN_ID="poam-automation-$(date +%s)"
+RUN_ID="vdr-automation-$(date +%s)"
 COLLECTED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 OUTPUT_JSON="${CACHE_DIR}/${RUN_ID}.json"
 
@@ -89,7 +89,7 @@ for v in vdr.get("active_vulnerabilities", []):
 
     finding = {
         "schema_version": "1.0.0",
-        "source": "poam-automation",
+        "source": "vdr-automation",
         "source_version": "1.0.0",
         "run_id": run_id,
         "collected_at": collected_at,
@@ -129,7 +129,7 @@ for v in vdr.get("accepted_vulnerabilities", []):
     cve = v.get("cve", "")
     finding = {
         "schema_version": "1.0.0",
-        "source": "poam-automation",
+        "source": "vdr-automation",
         "source_version": "1.0.0",
         "run_id": run_id,
         "collected_at": collected_at,

@@ -23,7 +23,7 @@ A primer covering, in order:
 
 1. **In one paragraph** — what this framework exists to do and who it affects.
 2. **Who must comply** — territorial scope, entity types, common triggers.
-3. **What you have to produce** — the named artifacts (e.g. SOC 2 SOC report, FedRAMP SSP/SAP/SAR/POA&M, ISO 27001 SoA, PCI ROC/SAQ).
+3. **What you have to produce** — the named artifacts (e.g. SOC 2 SOC report, FedRAMP Security Decision Record, ISO 27001 SoA, PCI ROC/SAQ).
 4. **Cadence** — assessment frequency, recertification windows, breach-notification clocks.
 5. **Who enforces it** — regulator or accrediting body, recent enforcement patterns worth knowing.
 6. **Control families at a glance** — names + count, no normative text.

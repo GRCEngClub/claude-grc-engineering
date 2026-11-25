@@ -1,13 +1,13 @@
 ---
 name: status
-description: Display current POA&M health and VDR compliance status
+description: Display findings workbook health and VDR compliance status
 ---
 
-# POA&M Automation — Status
+# VDR Automation — Status
 
-Run these commands to get a current snapshot of your POA&M and VDR compliance state.
+Run these commands to get a current snapshot of your findings workbook and VDR compliance state.
 
-## POA&M Dashboard
+## Findings Dashboard
 
 Shows open/closed counts, severity breakdown, overdue findings, and the 5 oldest open items.
 

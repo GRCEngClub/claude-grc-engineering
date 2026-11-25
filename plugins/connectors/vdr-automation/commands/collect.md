@@ -3,11 +3,13 @@ name: collect
 description: Import scanner findings, enrich with NIST controls, and generate VDR outputs
 ---
 
-# POA&M Automation — Collect
+# VDR Automation — Collect
 
-Runs the full collection pipeline: import scanner findings into the POA&M, enrich with NIST 800-53 mappings, and generate FedRAMP 20x VDR outputs with live CISA KEV and EPSS enrichment.
+Runs the full collection pipeline: import scanner findings into the findings workbook, enrich with NIST 800-53 mappings, and generate FedRAMP 20x VDR outputs with live CISA KEV and EPSS enrichment.
 
 ## Import Scanner Findings
+
+The upstream tool calls its findings workbook a POA&M, so its file names and `--poam` flag keep that name.
 
 ```bash
 python3 grc_tool.py convert --input <scanner_export> --scanner <nessus|tenable|qualys|wiz|generic> --output master_poam.xlsx
@@ -43,10 +45,12 @@ python3 grc_tool.py export --poam master_poam.xlsx --output fedramp_submission.x
 
 ## JSON Output
 
-The `vdr` command produces a `vdr_YYYYMMDD.json` file that conforms to the GRC Engineering finding schema. Each active vulnerability maps to an evaluation object with:
+`scripts/collect.sh --poam <path>` runs the `vdr` command into the cache directory, `~/.cache/claude-grc/findings/vdr-automation/`, and converts the resulting `vdr_run.json` into one file per run, `vdr-automation-<unix-epoch>.json`. That file is a JSON array with one entry per active or accepted vulnerability, each conforming to the GRC Engineering finding schema.
 
-- `control_framework`: FedRAMP-20x
-- `control_id`: Tracking ID (POA&M ID)
+`findings[].id` holds the tracking ID from the findings workbook. The evaluation object has:
+
+- `control_framework`: NIST-800-53-r5
+- `control_id`: SI-2
 - `status`: fail (active) or skipped (accepted)
 - `severity`: mapped from N-rating (N5=critical, N4=high, N3=medium, N2=low, N1=info)
 - `message`: weakness name and CVE

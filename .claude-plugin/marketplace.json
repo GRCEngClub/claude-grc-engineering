@@ -110,12 +110,6 @@
       "version": "0.1.0"
     },
     {
-      "name": "fedramp-rev5",
-      "source": "./plugins/frameworks/fedramp-rev5",
-      "description": "FedRAMP Rev 5 traditional authorization with SSP/SAP/SAR/POA&M and NIST 800-53 controls",
-      "version": "0.1.0"
-    },
-    {
       "name": "fedramp-20x",
       "source": "./plugins/frameworks/fedramp-20x",
       "description": "FedRAMP 20X automated authorization with KSIs, continuous monitoring, and auto-sync from official docs",
@@ -320,12 +314,6 @@
       "version": "0.1.0"
     },
     {
-      "name": "fedramp-ssp",
-      "source": "./plugins/fedramp-ssp",
-      "description": "Convert FedRAMP Rev 5 SSP DOCX templates to validated OSCAL 1.2.0 SSP JSON. Wraps ethanolivertroy/frdocx-to-froscal-ssp.",
-      "version": "0.1.0"
-    },
-    {
       "name": "singapore-pdpa",
       "source": "./plugins/frameworks/singapore-pdpa",
       "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) \u2014 reference-depth plugin backed by the SCF crosswalk (30 SCF \u2192 14 framework controls).",
@@ -356,9 +344,9 @@
       "version": "0.1.0"
     },
     {
-      "name": "poam-automation",
-      "source": "./plugins/connectors/poam-automation",
-      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: converts vulnerability scans into FedRAMP POA&M Excel and emits NIST-800-53-r5 (SI-2) findings \u2192 v1 finding contract.",
+      "name": "vdr-automation",
+      "source": "./plugins/connectors/vdr-automation",
+      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: turns vulnerability scans into FedRAMP 20x VDR reports and emits NIST-800-53-r5 (SI-2) findings \u2192 v1 finding contract.",
       "version": "0.1.0"
     },
     {

@@ -45,4 +45,4 @@ This checks that `/grc-engineer:gap-assessment`'s OSCAL Assessment Results outpu
 ## Non-goals
 
 - **Semantic validation** (e.g., does this SSP actually align with its referenced catalog?). Use `oscal-cli resolve` (coming in a future release) or Compliance Trestle for that.
-- **FedRAMP-specific constraint checking**. For that, combine this with the `fedramp-ssp` plugin and the `fedramp-docs` MCP for spec lookups.
+- **FedRAMP-specific constraint checking**. For that, combine this with the `fedramp-docs` MCP for spec lookups.
