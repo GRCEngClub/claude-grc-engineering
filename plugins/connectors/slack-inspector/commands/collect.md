@@ -30,5 +30,5 @@ Slack exposes several of these controls only to Enterprise Grid or admin-scoped 
 ## Example
 
 ```bash
-node plugins/connectors/slack-inspector/scripts/collect.js --output=json
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" --output=json
 ```

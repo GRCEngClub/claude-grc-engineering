@@ -10,7 +10,7 @@ Converts an OSCAL document between JSON, XML, and YAML. The input format is auto
 ## How to run
 
 ```bash
-bash plugins/oscal/scripts/convert.sh <input> --to <json|xml|yaml> [--output <path>] [--overwrite]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/convert.sh" <input> --to <json|xml|yaml> [--output <path>] [--overwrite]
 ```
 
 ## Arguments

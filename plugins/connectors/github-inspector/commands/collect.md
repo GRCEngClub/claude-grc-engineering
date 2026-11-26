@@ -10,7 +10,7 @@ Scans GitHub repositories in the configured scope and emits one Finding document
 ## How to run
 
 ```bash
-node plugins/connectors/github-inspector/scripts/collect.js [options]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" [options]
 ```
 
 ## Arguments
@@ -78,6 +78,8 @@ GitHub's REST API gives you 5,000 requests/hour authenticated. The connector bud
 ```
 
 ## CI/CD usage
+
+These paths assume the job has checked out `GRCEngClub/claude-grc-engineering` and runs from its root.
 
 ```bash
 gh auth login --with-token < $GH_TOKEN_FILE

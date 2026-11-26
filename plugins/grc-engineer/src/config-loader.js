@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import yaml from 'js-yaml';
+import yaml from '../vendor/js-yaml.cjs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);

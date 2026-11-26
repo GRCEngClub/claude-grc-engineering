@@ -1,4 +1,32 @@
-import { Octokit } from '@octokit/rest';
+const GITHUB_API = process.env.GITHUB_API_URL || 'https://api.github.com';
+
+async function github(pathname, token) {
+  const response = await fetch(`${GITHUB_API}${pathname}`, {
+    headers: {
+      accept: 'application/vnd.github+json',
+      authorization: `Bearer ${token}`,
+      'x-github-api-version': '2022-11-28',
+      'user-agent': 'grc-engineer-review-pr'
+    }
+  });
+  if (!response.ok) {
+    const error = new Error(`GitHub API ${response.status} for ${pathname}`);
+    error.status = response.status;
+    throw error;
+  }
+  return response.json();
+}
+
+async function listPullFiles(base, token) {
+  const files = [];
+  for (let page = 1; ; page += 1) {
+    const batch = await github(`${base}/files?per_page=100&page=${page}`, token);
+    files.push(...batch);
+    if (batch.length < 100) return files;
+  }
+}
+
+const encodePath = filePath => filePath.split('/').map(encodeURIComponent).join('/');
 
 const COMPLIANCE_CHECKS = {
   privilege_escalation: {
@@ -64,20 +92,15 @@ export async function reviewPR(repo, prNumber, framework = 'SOC2', githubToken) 
     throw new Error('GITHUB_TOKEN environment variable is required');
   }
 
-  const octokit = new Octokit({ auth: githubToken });
   const [owner, repoName] = repo.split('/');
+  if (!owner || !repoName) {
+    throw new Error(`Repository must be owner/name, got "${repo}"`);
+  }
+  const repoBase = `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}`;
+  const pullBase = `${repoBase}/pulls/${encodeURIComponent(prNumber)}`;
 
-  const { data: pr } = await octokit.rest.pulls.get({
-    owner,
-    repo: repoName,
-    pull_number: prNumber
-  });
-
-  const { data: files } = await octokit.rest.pulls.listFiles({
-    owner,
-    repo: repoName,
-    pull_number: prNumber
-  });
+  const pr = await github(pullBase, githubToken);
+  const files = await listPullFiles(pullBase, githubToken);
 
   const issues = [];
 
@@ -89,12 +112,10 @@ export async function reviewPR(repo, prNumber, framework = 'SOC2', githubToken) 
       content = file.patch;
     } else {
       try {
-        const { data: fileData } = await octokit.rest.repos.getContent({
-          owner,
-          repo: repoName,
-          path: file.filename,
-          ref: pr.head.sha
-        });
+        const fileData = await github(
+          `${repoBase}/contents/${encodePath(file.filename)}?ref=${encodeURIComponent(pr.head.sha)}`,
+          githubToken
+        );
         if (fileData.type === 'file' && 'content' in fileData) {
           content = Buffer.from(fileData.content, 'base64').toString('utf-8');
         }

@@ -66,13 +66,13 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../docs/GRC-DATA.md) and
 1. Run the writer directly:
 
    ```bash
-   node plugins/grc-engineer/scripts/record-automation-metrics.js "$ARGUMENTS"
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/record-automation-metrics.js" "$ARGUMENTS"
    ```
 
    For batch mode, point it at the example config:
 
    ```bash
-   node plugins/grc-engineer/scripts/record-automation-metrics.js \
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/record-automation-metrics.js" \
      --config=plugins/grc-engineer/examples/automation-metrics.yaml \
      --window-label=current-week
    ```

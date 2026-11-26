@@ -32,7 +32,7 @@ Propagate errors without producing a substitute draft.
 For example, only for a request for this specific requirement and format:
 
 ```bash
-node plugins/grc-engineer/scripts/generate-policy.js "Ensure no S3 buckets are public" rego
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-policy.js" "Ensure no S3 buckets are public" rego
 ```
 
 Inspect the draft and validate it against representative compliant and noncompliant inputs. Do not deploy it as-is.

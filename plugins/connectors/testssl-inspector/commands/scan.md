@@ -10,7 +10,7 @@ Wraps `testssl.sh`, normalizes its JSON output into the toolkit's v1 finding con
 ## How to run
 
 ```bash
-node plugins/connectors/testssl-inspector/scripts/scan.js [options]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/scan.js" [options]
 ```
 
 ## Options

@@ -8,7 +8,6 @@ import { pathToFileURL } from 'node:url';
 import { initSCF, frameworkWithoutCrosswalk } from './scf-client.js';
 
 const FINDINGS_CACHE = path.join(os.homedir(), '.cache', 'claude-grc', 'findings');
-const SCHEMA_PATH = path.resolve(new URL('../../../schemas/finding.schema.json', import.meta.url).pathname);
 
 const EXIT = { OK: 0, USAGE: 2, NO_SOURCES: 3, NO_FRAMEWORKS: 4, SCF_UNAVAILABLE: 5, VALIDATION: 6, UNRESOLVED_FRAMEWORK: 7 };
 

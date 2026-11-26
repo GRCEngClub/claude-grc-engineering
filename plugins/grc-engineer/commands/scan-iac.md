@@ -466,9 +466,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install scanner dependencies
-        run: npm ci --prefix .grc --omit=dev
-
       - name: Scan Infrastructure
         run: |
           node .grc/plugins/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST sarif > results.sarif
@@ -498,7 +495,6 @@ compliance_scan:
   image: node:22
   script:
     - git clone --depth 1 https://github.com/GRCEngClub/claude-grc-engineering.git .grc
-    - npm ci --prefix .grc --omit=dev
     - node .grc/plugins/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST json > scan-results.json
     - |
       node -e 'const r=require("./scan-results.json"); if (r.summary.compliancePercentage < 90) { console.error(`Compliance below 90%: ${r.summary.compliancePercentage}%`); process.exit(1); }'

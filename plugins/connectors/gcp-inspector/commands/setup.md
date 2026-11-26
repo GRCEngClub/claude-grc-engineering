@@ -10,7 +10,7 @@ Prepares the gcp-inspector connector. Confirms `gcloud` CLI is installed and aut
 ## How to run
 
 ```bash
-bash plugins/connectors/gcp-inspector/scripts/setup.sh [--project=<id>] [--region=<region>]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" [--project=<id>] [--region=<region>]
 ```
 
 Exits 0 on success, 2 on missing/invalid credentials, 5 on missing `gcloud` binary.

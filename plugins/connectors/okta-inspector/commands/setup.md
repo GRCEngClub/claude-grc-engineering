@@ -10,7 +10,7 @@ Configures the okta-inspector connector. Verifies an Okta API token works agains
 ## How to run
 
 ```bash
-bash plugins/connectors/okta-inspector/scripts/setup.sh --domain=<your-org>.okta.com [--token-env=OKTA_API_TOKEN]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" --domain=<your-org>.okta.com [--token-env=OKTA_API_TOKEN]
 ```
 
 ## Credential sources (in precedence order)

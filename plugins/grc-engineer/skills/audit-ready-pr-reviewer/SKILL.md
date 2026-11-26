@@ -13,19 +13,19 @@ Reviews GitHub/GitLab pull requests specifically for compliance regressions. Shi
 **Review a PR for SOC 2 compliance:**
 
 ```bash
-node plugins/grc-engineer/scripts/review-pr.js myorg/infrastructure 42 SOC2
+node "${CLAUDE_PLUGIN_ROOT}/scripts/review-pr.js" myorg/infrastructure 42 SOC2
 ```
 
 **Review a PR for ISO 27001:**
 
 ```bash
-node plugins/grc-engineer/scripts/review-pr.js myorg/infrastructure 42 ISO27001
+node "${CLAUDE_PLUGIN_ROOT}/scripts/review-pr.js" myorg/infrastructure 42 ISO27001
 ```
 
 **Review a PR with custom framework:**
 
 ```bash
-node plugins/grc-engineer/scripts/review-pr.js myorg/infrastructure 42 NIST80053
+node "${CLAUDE_PLUGIN_ROOT}/scripts/review-pr.js" myorg/infrastructure 42 NIST80053
 ```
 
 ## What It Checks

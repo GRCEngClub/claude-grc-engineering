@@ -25,7 +25,7 @@ Prepare a **plan**, not a package or transmission. This is an initial manual wor
 The operator may use the experimental local CLI below after completing the planning and key verification steps above. Run it directly on a trusted, access-controlled machine, not through a chat containing evidence or credentials. Import the recipient's public key into the operator's GnuPG keyring first and independently verify the full **primary key** fingerprint. The CLI deliberately uses GnuPG's `--trust-model always` only after requiring that exact fingerprint; it cannot verify the recipient's identity for you.
 
 ```bash
-python3 plugins/grc-engineer/scripts/package-evidence.py /private/reviewed-evidence /private/output/evidence.zip.gpg FULL_PRIMARY_KEY_FINGERPRINT
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/package-evidence.py" /private/reviewed-evidence /private/output/evidence.zip.gpg FULL_PRIMARY_KEY_FINGERPRINT
 ```
 
 The source must be a stable, trusted directory, not writable by other users or processes during packaging. The output must not already exist or be within the source. The command stores regular files in a ZIP, includes a SHA-256 JSON manifest inside it, and encrypts to one GnuPG recipient. It refuses symlinks and special files; empty directories are omitted. ZIP timestamps use local time with two-second precision: dates before 1980 are clamped to 1980-01-01 00:00:00 and dates after 2107 to 2107-12-31 23:59:58 rather than preserved. Permission bits are stored where supported, but other metadata is not. File contents and the archive are held in memory, so use only for reasonably sized evidence. It creates no plaintext archive on disk, but memory, swap, crash dumps and backups can expose plaintext. The output digest is printed for the operator's restricted audit record. File names, metadata, hashes and manifest can be sensitive.
@@ -39,7 +39,7 @@ This initial CLI does **not** sign the manifest or authenticate the sender, veri
 After GnuPG reports successful decryption to a private, access-controlled ZIP file, the recipient can check the archive without extracting it:
 
 ```bash
-python3 plugins/grc-engineer/scripts/verify-evidence.py /private/workspace/decrypted.zip
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/verify-evidence.py" /private/workspace/decrypted.zip
 ```
 
 Use only a completed, successfully decrypted input: do not pipe unauthenticated or partially decrypted output into this check, and discard failed GnuPG output. The verifier requires the packaging CLI's exact manifest format, checks every regular file's SHA-256 and size, rejects missing, extra, duplicate and unsafe paths, and extracts nothing. It accepts at most 10,000 entries and 100 MiB total uncompressed data, including a manifest of at most 4 MiB. It is intended for the trusted host and stable input described above, not as a sandbox for hostile archives. Successful verification establishes **internal consistency only**: anyone with the public encryption key can create a new encrypted package with matching hashes. GnuPG encryption and its integrity protection do not identify the sender. Independently authenticate the sender and verify an approved signature using a separately verified signing key; this verifier performs neither operation. Before any extraction, continue to use an approved safe extraction procedure in a private workspace, and apply retention and cleanup policy to the plaintext ZIP.

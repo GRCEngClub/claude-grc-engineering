@@ -10,7 +10,7 @@ Quick health check.
 ## How to run
 
 ```bash
-bash plugins/connectors/testssl-inspector/scripts/status.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/status.sh"
 ```
 
 ## What it shows

@@ -2,18 +2,13 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { initSCF } from './scf-client.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const REPO_ROOT = path.resolve(__dirname, '../../..');
-const FRAMEWORKS_DIR = path.join(REPO_ROOT, 'plugins', 'frameworks');
-const DEFAULT_OUT = path.join(REPO_ROOT, 'docs', 'FRAMEWORK-COVERAGE.md');
+import { displayPath, frameworkMetadata, listFrameworkPlugins, requireRepoRoot } from '../src/plugin-locator.js';
 
 function parseArgs(argv) {
   const args = argv.slice(2);
-  const opts = { out: DEFAULT_OUT, offline: false };
+  const opts = { out: null, offline: false };
   for (const a of args) {
     if (a.startsWith('--out=')) opts.out = path.resolve(a.slice('--out='.length));
     else if (a === '--offline') opts.offline = true;
@@ -30,25 +25,18 @@ function regionFromFrameworkId(frameworkId) {
 }
 
 async function loadShippedPlugins() {
-  const entries = await fs.readdir(FRAMEWORKS_DIR, { withFileTypes: true });
   const plugins = new Map();
   const unmapped = [];
-  for (const e of entries) {
-    if (!e.isDirectory()) continue;
-    const pluginFile = path.join(FRAMEWORKS_DIR, e.name, '.claude-plugin', 'plugin.json');
-    try {
-      const data = JSON.parse(await fs.readFile(pluginFile, 'utf8'));
-      const fwMeta = data.framework_metadata;
-      if (fwMeta?.scf_framework_id) {
-        plugins.set(fwMeta.scf_framework_id, {
-          slug: e.name,
-          depth: fwMeta.depth || 'unknown',
-          display_name: fwMeta.display_name || data.description || e.name,
-        });
-      } else {
-        unmapped.push({ slug: e.name, description: data.description || '' });
-      }
-    } catch {
+  for (const { slug, manifest: data } of await listFrameworkPlugins()) {
+    const fwMeta = frameworkMetadata(data);
+    if (fwMeta?.scf_framework_id) {
+      plugins.set(fwMeta.scf_framework_id, {
+        slug,
+        depth: fwMeta.depth || 'unknown',
+        display_name: fwMeta.display_name || data.description || slug,
+      });
+    } else {
+      unmapped.push({ slug, description: data.description || '' });
     }
   }
   return { plugins, unmapped };
@@ -186,6 +174,9 @@ async function main() {
     return;
   }
 
+  const root = await requireRepoRoot('generate-coverage');
+  opts.out ??= path.join(root, 'docs', 'FRAMEWORK-COVERAGE.md');
+
   const scf = await initSCF({ offline: opts.offline });
   const [scfFrameworks, shipped] = await Promise.all([
     scf.frameworks(),
@@ -194,7 +185,7 @@ async function main() {
 
   const md = render({ scfFrameworks, shipped, generatedAt: new Date() });
   await fs.writeFile(opts.out, md);
-  console.log(`Wrote ${path.relative(REPO_ROOT, opts.out)}`);
+  console.log(`Wrote ${displayPath(opts.out)}`);
   console.log(`  ${shipped.plugins.size} / ${scfFrameworks.length} frameworks with dedicated plugins`);
   if (shipped.unmapped.length > 0) {
     console.log(`  ${shipped.unmapped.length} shipped plugins without SCF mapping`);

@@ -10,7 +10,7 @@ Reports on every connector registered in `~/.config/claude-grc/connectors/`. One
 ## How to run
 
 ```bash
-bash plugins/grc-engineer/scripts/pipeline-status.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/pipeline-status.sh"
 ```
 
 ## Output

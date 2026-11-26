@@ -6,11 +6,10 @@ import os from 'node:os';
 import crypto from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import yaml from 'js-yaml';
+import yaml from '../vendor/js-yaml.cjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const REPO_ROOT = path.resolve(__dirname, '../../..');
 const GAP_ASSESSMENT_SCRIPT = path.join(__dirname, 'gap-assessment.js');
 const RECORD_METRICS_SCRIPT = path.join(__dirname, 'record-automation-metrics.js');
 

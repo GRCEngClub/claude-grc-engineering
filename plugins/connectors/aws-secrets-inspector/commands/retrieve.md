@@ -10,7 +10,7 @@ Retrieves a single AWS Secrets Manager secret value and returns it to stdout (de
 ## How to run
 
 ```bash
-node plugins/connectors/aws-secrets-inspector/scripts/collect.js --retrieve=<secret-name> [options]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" --retrieve=<secret-name> [options]
 ```
 
 ## Arguments

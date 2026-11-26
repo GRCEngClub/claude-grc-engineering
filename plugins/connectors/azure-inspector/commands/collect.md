@@ -10,7 +10,7 @@ Scans an Azure subscription for compliance-relevant resources and configurations
 ## How to run
 
 ```bash
-node plugins/connectors/azure-inspector/scripts/collect.js [options]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" [options]
 ```
 
 ## Arguments
@@ -96,6 +96,8 @@ done
 ```
 
 ## CI/CD usage
+
+These paths assume the job has checked out `GRCEngClub/claude-grc-engineering` and runs from its root.
 
 ```bash
 az login --identity

@@ -10,7 +10,7 @@ Prepares the azure-inspector connector. Confirms `az` CLI is installed and authe
 ## How to run
 
 ```bash
-bash plugins/connectors/azure-inspector/scripts/setup.sh [--subscription=<id>] [--tenant=<id>]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" [--subscription=<id>] [--tenant=<id>]
 ```
 
 Exits 0 on success, 2 on missing/invalid credentials, 5 on missing `az` binary.

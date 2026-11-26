@@ -33,7 +33,7 @@ Pass options after the arguments:
 1. Run the generator:
 
    ```bash
-   node plugins/grc-engineer/scripts/generate-interview-questions.js "$ARGUMENTS"
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-interview-questions.js" "$ARGUMENTS"
    ```
 
 2. Review each question with the mapped controls and evidence hints.

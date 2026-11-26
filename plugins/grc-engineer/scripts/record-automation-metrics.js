@@ -2,15 +2,15 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import yaml from 'js-yaml';
+import yaml from '../vendor/js-yaml.cjs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { generateFedRAMPBaselineEvidence } from '../src/evidence-collector.js';
 import { loadFedRAMP20xKSI } from '../src/config-loader.js';
+import { displayPath, frameworkMetadata, listFrameworkPlugins, repoRoot } from '../src/plugin-locator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const REPO_ROOT = path.resolve(__dirname, '../../..');
-const DEFAULT_OUT_DIR = path.join(REPO_ROOT, 'grc-data', 'metrics');
+const DEFAULT_OUT_DIR = path.resolve('grc-data', 'metrics');
 const DEFAULT_SOURCE = 'grc-engineer://record-automation-metrics';
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -259,7 +259,7 @@ async function readJsonFile(filePath) {
     return JSON.parse(raw);
   } catch (err) {
     if (err instanceof SyntaxError) {
-      fail(`Could not parse JSON in ${path.relative(REPO_ROOT, filePath)}: ${err.message}`);
+      fail(`Could not parse JSON in ${displayPath(filePath)}: ${err.message}`);
     }
     throw err;
   }
@@ -267,35 +267,22 @@ async function readJsonFile(filePath) {
 
 async function loadFrameworkMetadata(frameworkAlias) {
   const normalized = normalizeFrameworkAlias(frameworkAlias);
-  const marketplacePath = path.join(REPO_ROOT, '.claude-plugin', 'marketplace.json');
-  const marketplace = await readJsonFile(marketplacePath);
-  const plugins = Array.isArray(marketplace.plugins) ? marketplace.plugins : [];
+  const root = await repoRoot();
+  let plugins;
+  try {
+    plugins = await listFrameworkPlugins();
+  } catch (err) {
+    fail(err.message);
+  }
 
-  for (const entry of plugins) {
-    const entryName = normalizeFrameworkAlias(entry.name);
-    const source = entry.source ? path.resolve(REPO_ROOT, entry.source) : null;
-    if (!source) {
-      continue;
-    }
-
-    const manifestPath = path.join(source, '.claude-plugin', 'plugin.json');
-    let manifest;
-    try {
-      manifest = await readJsonFile(manifestPath);
-    } catch (err) {
-      if (err && err.code === 'ENOENT') {
-        continue;
-      }
-      throw err;
-    }
-
-    const metadata = manifest.framework_metadata;
-    if (!metadata || typeof metadata !== 'object') {
+  for (const { slug, manifest, manifestPath } of plugins) {
+    const metadata = frameworkMetadata(manifest);
+    if (!metadata) {
       continue;
     }
 
     const candidates = [
-      entryName,
+      normalizeFrameworkAlias(slug),
       normalizeFrameworkAlias(manifest.name),
       normalizeFrameworkAlias(metadata.scf_framework_id),
       normalizeFrameworkAlias(metadata.display_name)
@@ -303,14 +290,16 @@ async function loadFrameworkMetadata(frameworkAlias) {
 
     if (candidates.includes(normalized)) {
       return {
-        marketplaceName: entry.name,
-        manifestPath,
+        marketplaceName: manifest.name || slug,
+        manifestPath: root ? path.relative(root, manifestPath) : manifestPath,
         metadata
       };
     }
   }
 
-  fail(`No framework plugin metadata found for ${frameworkAlias}`);
+  fail(root
+    ? `No framework plugin metadata found for ${frameworkAlias}`
+    : `No installed framework plugin matches ${frameworkAlias}. Install it, or pass --controls-total=<n>.`);
 }
 
 function getIsoWeekData(isoString) {
@@ -459,7 +448,7 @@ export async function deriveCounts(opts) {
     metadataDerivation = {
       derivation: 'framework-metadata',
       marketplace_plugin: framework.marketplaceName,
-      manifest_path: path.relative(REPO_ROOT, framework.manifestPath),
+      manifest_path: framework.manifestPath,
       scf_framework_id: framework.metadata.scf_framework_id,
       framework_display_name: framework.metadata.display_name,
       framework_controls_mapped: frameworkTotal

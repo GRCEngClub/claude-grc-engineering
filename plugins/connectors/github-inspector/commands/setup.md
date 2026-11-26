@@ -10,7 +10,7 @@ Prepares the github-inspector connector. Confirms `gh` CLI is installed and auth
 ## How to run
 
 ```bash
-bash plugins/connectors/github-inspector/scripts/setup.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh"
 ```
 
 The script exits 0 on success, 2 on missing auth, 5 on missing `gh` binary.

@@ -29,7 +29,7 @@ Generates scripts to collect point-in-time evidence for audit controls.
 1. Run the collect-evidence script:
 
    ```bash
-   node plugins/grc-engineer/scripts/collect-evidence.js "$ARGUMENTS"
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/collect-evidence.js" "$ARGUMENTS"
    ```
 
 2. The script generates an evidence collection script.

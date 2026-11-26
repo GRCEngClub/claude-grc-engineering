@@ -11,6 +11,22 @@ if [[ -z "$REPO_ROOT" ]]; then
 fi
 CONNECTORS_ROOT="$REPO_ROOT/plugins/connectors"
 
+# A checkout keeps connectors under plugins/connectors. An installed copy sits at
+# <cache>/<marketplace>/grc-engineer/<version>, so its connectors are siblings at
+# <cache>/<marketplace>/<name>/<version>.
+find_status_script() {
+  local name="$1" candidate newest=""
+  if [[ -f "$CONNECTORS_ROOT/$name/scripts/status.sh" ]]; then
+    printf '%s' "$CONNECTORS_ROOT/$name/scripts/status.sh"
+    return
+  fi
+  for candidate in "$REPO_ROOT/$name"/*/scripts/status.sh; do
+    [[ -f "$candidate" ]] || continue
+    if [[ -z "$newest" || "$candidate" -nt "$newest" ]]; then newest="$candidate"; fi
+  done
+  printf '%s' "$newest"
+}
+
 printf 'CLAUDE-GRC PIPELINE STATUS (%s)\n\n' "$(date -u +'%Y-%m-%d %H:%M UTC')"
 
 EXIT_CODE=0
@@ -32,15 +48,15 @@ shopt -s nullglob
 for cfg in "$CONFIG_DIR"/*.yaml; do
   name=$(basename "$cfg" .yaml)
   CONFIGURED=$((CONFIGURED + 1))
-  status_script="$CONNECTORS_ROOT/$name/scripts/status.sh"
-  if [[ -x "$status_script" ]]; then
+  status_script="$(find_status_script "$name")"
+  if [[ -n "$status_script" ]]; then
     if bash "$status_script" 2>/dev/null; then
       HEALTHY=$((HEALTHY + 1))
     else
       EXIT_CODE=2
     fi
   else
-    printf '%s\n  status:        unknown (no status script at %s)\n' "$name" "$status_script"
+    printf '%s\n  status:        unknown (connector plugin %s is not installed)\n' "$name" "$name"
     EXIT_CODE=2
   fi
   printf '\n'

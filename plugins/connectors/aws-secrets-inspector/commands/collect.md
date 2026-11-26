@@ -10,7 +10,7 @@ Scans AWS Secrets Manager for compliance-relevant configuration. Emits one Findi
 ## How to run
 
 ```bash
-node plugins/connectors/aws-secrets-inspector/scripts/collect.js [options]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" [options]
 ```
 
 ## Arguments
@@ -95,7 +95,7 @@ The AWS-managed `ReadOnlyAccess` policy is a superset that also works.
 /aws-secrets-inspector:collect --profile=audit-target
 
 # CI/CD-friendly
-node plugins/connectors/aws-secrets-inspector/scripts/collect.js --quiet --output=json
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" --quiet --output=json
 ```
 
 ## Cross-account access

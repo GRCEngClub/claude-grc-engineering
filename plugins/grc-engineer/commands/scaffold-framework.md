@@ -57,17 +57,17 @@ Full depth (framework-specific workflow commands, persona-specific UX) is not au
 
 ```bash
 # Stub scaffold from SCF ID
-node plugins/grc-engineer/scripts/scaffold-framework.js apac-sgp-pdpa-2012
+node "${CLAUDE_PLUGIN_ROOT}/scripts/scaffold-framework.js" apac-sgp-pdpa-2012
 
 # Reference depth with a custom slug
-node plugins/grc-engineer/scripts/scaffold-framework.js "Singapore PDPA" \
+node "${CLAUDE_PLUGIN_ROOT}/scripts/scaffold-framework.js" "Singapore PDPA" \
   --depth=reference --slug=singapore-pdpa
 
 # Preview without writing
-node plugins/grc-engineer/scripts/scaffold-framework.js americas-bra-lgpd-2018 --dry-run
+node "${CLAUDE_PLUGIN_ROOT}/scripts/scaffold-framework.js" americas-bra-lgpd-2018 --dry-run
 
 # Staging workflow: scaffold files but skip marketplace.json until human review
-node plugins/grc-engineer/scripts/scaffold-framework.js emea-che-fadp-2023 --no-register
+node "${CLAUDE_PLUGIN_ROOT}/scripts/scaffold-framework.js" emea-che-fadp-2023 --no-register
 ```
 
 ## Error modes

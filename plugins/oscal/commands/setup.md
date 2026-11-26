@@ -10,7 +10,7 @@ Installs the OSCAL CLI binary (a fast Go rewrite of NIST's Java `oscal-cli`) and
 ## How to run
 
 ```bash
-bash plugins/oscal/scripts/setup.sh [--from-source] [--prefix=$HOME/.local]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" [--from-source] [--prefix=$HOME/.local]
 ```
 
 ## What it does

@@ -51,18 +51,18 @@ cadence.
 
 ```bash
 # Single pass over three frameworks using cached findings
-node plugins/grc-engineer/scripts/monitor-continuous.js SOC2,PCI-DSS,NIST-800-53
+node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-continuous.js" SOC2,PCI-DSS,NIST-800-53
 
 # Daily monitoring driven by a config file
-node plugins/grc-engineer/scripts/monitor-continuous.js \
+node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-continuous.js" \
   --config=plugins/grc-engineer/examples/monitor-continuous.yaml
 
 # Chain automation-metrics snapshot on the same run
-node plugins/grc-engineer/scripts/monitor-continuous.js SOC2 \
+node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-continuous.js" SOC2 \
   --metrics-config=./automation-metrics.yaml --window-label=current-week
 
 # Dry-run to validate config without spawning subprocesses
-node plugins/grc-engineer/scripts/monitor-continuous.js \
+node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-continuous.js" \
   --config=./monitor-continuous.yaml --dry-run
 ```
 
@@ -192,13 +192,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: GRCEngClub/claude-grc-engineering
+          path: .grc
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npm ci
+        with: { node-version: 22 }
 
       - name: Run monitor-continuous
         run: |
-          node plugins/grc-engineer/scripts/monitor-continuous.js \
+          node .grc/plugins/grc-engineer/scripts/monitor-continuous.js \
             --config=./monitor-continuous.yaml \
             --output=./monitor-result.json
         continue-on-error: true
@@ -216,7 +219,7 @@ jobs:
 Cron on a runner:
 
 ```bash
-0 2 * * *  cd /srv/grc && node plugins/grc-engineer/scripts/monitor-continuous.js \
+0 2 * * *  cd /srv/grc && node .grc/plugins/grc-engineer/scripts/monitor-continuous.js \
              --config=./monitor-continuous.yaml --output=./monitor-result.json
 ```
 

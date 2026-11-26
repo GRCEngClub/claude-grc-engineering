@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import yaml from 'js-yaml';
+import yaml from '../vendor/js-yaml.cjs';
 import {
   appendResource,
   blockAttributeValues,
