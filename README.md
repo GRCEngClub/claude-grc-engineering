@@ -103,6 +103,7 @@ For the full architecture and schema example, see [docs/ARCHITECTURE.md](docs/AR
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): pipeline model, data contract, plugin categories, extensibility
 - [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md): generated coverage for SCF-mapped frameworks
 - [docs/FRAMEWORK-PLUGIN-GUIDE.md](docs/FRAMEWORK-PLUGIN-GUIDE.md): create and extend framework plugins
+- [docs/GRC-ENGINEER-WORKFLOWS.md](docs/GRC-ENGINEER-WORKFLOWS.md): how the `grc-engineer` commands fit together, from cross-framework mapping to continuous monitoring
 - [docs/GRC-DATA.md](docs/GRC-DATA.md): user-owned `grc-data/` contracts for metrics, risks, vendors, exceptions, and policies
 - [docs/ENTERPRISE-DEPLOYMENT.md](docs/ENTERPRISE-DEPLOYMENT.md): AWS Bedrock, Claude Platform on AWS, and Google Vertex AI guidance
 - [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md): Claude Desktop and Claude Cowork file-oriented usage, including third-party platform handoff notes
