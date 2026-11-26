@@ -125,5 +125,5 @@ These paths assume the job has checked out `GRCEngClub/claude-grc-engineering` a
 ```bash
 aws sso login --profile=audit
 AWS_PROFILE=audit node plugins/connectors/aws-inspector/scripts/collect.js --quiet
-node plugins/personas/grc-engineer/scripts/gap-assessment.js FedRAMP-Moderate,SOC2 --sources=aws-inspector --output=sarif --quiet > aws-gap.sarif
+node plugins/personas/engineer/scripts/gap-assessment.js FedRAMP-Moderate,SOC2 --sources=aws-inspector --output=sarif --quiet > aws-gap.sarif
 ```

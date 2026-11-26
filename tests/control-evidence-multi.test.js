@@ -5,7 +5,7 @@ import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync, symlinkSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const script = 'plugins/reporting/grc-diagrams/scripts/control-evidence.py';
+const script = 'plugins/reporting/diagrams/scripts/control-evidence.py';
 const run = (...args) => spawnSync('python3', [script, ...args], { encoding: 'utf8' });
 const row = { control: 'Access <review>', owner: 'Security & IT', evidence: 'Report "A"', cadence: 'monthly', reviewer: 'Audit' };
 
@@ -54,7 +54,7 @@ test('rejects invalid batches before creating output and refuses symlink overwri
       assert.notEqual(result.status, 0);
       assert.equal(existsSync(output), false);
     }
-    for (const batch of [Array(10).fill(row), JSON.parse(readFileSync('plugins/reporting/grc-diagrams/examples/multi-control-evidence-input.json', 'utf8'))]) {
+    for (const batch of [Array(10).fill(row), JSON.parse(readFileSync('plugins/reporting/diagrams/examples/multi-control-evidence-input.json', 'utf8'))]) {
       writeFileSync(input, JSON.stringify(batch));
       assert.equal(run(input, output).status, 0);
       rmSync(output);

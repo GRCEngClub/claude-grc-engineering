@@ -4,8 +4,8 @@ import { realpathSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { initSCF } from '../plugins/personas/grc-engineer/scripts/scf-client.js';
-import { requireRepoRoot } from '../plugins/personas/grc-engineer/src/plugin-locator.js';
+import { initSCF } from '../plugins/personas/engineer/scripts/scf-client.js';
+import { requireRepoRoot } from '../plugins/personas/engineer/src/plugin-locator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

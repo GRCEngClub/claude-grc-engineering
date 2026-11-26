@@ -217,7 +217,7 @@ inside this plugin.
 - `/nist-ai-rmf:scope` - purpose, AI systems in scope, role, risk tier, and
   profile plan.
 - `/nist-ai-rmf:evidence-checklist` - evidence by function and category.
-- `/nist-ai-rmf:assess` - gap assessment through `/grc-engineer:gap-assessment`
+- `/nist-ai-rmf:assess` - gap assessment through `/engineer:gap-assessment`
   with framework ID `general-nist-100-1-ai-rmf`, reported by subcategory ID.
 
 ## Levelling up to Full

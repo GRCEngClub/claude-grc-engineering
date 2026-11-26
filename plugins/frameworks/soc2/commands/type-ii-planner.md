@@ -73,7 +73,7 @@ READINESS TIMELINE (Pre-Period)
   Version: Must be dated before period start
 
 □ Set up evidence collection automation
-  Command: /grc-engineer:monitor-continuous SOC2 daily
+  Command: /engineer:monitor-continuous SOC2 daily
   Purpose: Continuous evidence collection
 
 2 Months Before (Nov 2023):
@@ -422,4 +422,4 @@ Import to project management tools:
 - `/soc2:assess` - Readiness assessment
 - `/soc2:evidence-checklist` - Evidence requirements per control
 - `/soc2:service-auditor-prep` - Generate evidence package
-- `/grc-engineer:monitor-continuous` - Continuous evidence collection
+- `/engineer:monitor-continuous` - Continuous evidence collection

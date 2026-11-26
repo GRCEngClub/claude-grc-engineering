@@ -138,7 +138,7 @@ function parseArgs(argv) {
 
 function pass(controlId, message) { return { control_framework: 'SCF', control_id: controlId, status: 'pass', severity: 'info', message }; }
 function inconclusive(controlId, message) { return { control_framework: 'SCF', control_id: controlId, status: 'inconclusive', severity: 'info', message }; }
-function failHigh(controlId, message, summary) { return { control_framework: 'SCF', control_id: controlId, status: 'fail', severity: 'high', message, remediation: { summary, ref: 'grc-engineer://generate-implementation/crowdstrike_sensor_coverage', effort_hours: 1, automation: 'manual' } }; }
+function failHigh(controlId, message, summary) { return { control_framework: 'SCF', control_id: controlId, status: 'fail', severity: 'high', message, remediation: { summary, ref: 'engineer://generate-implementation/crowdstrike_sensor_coverage', effort_hours: 1, automation: 'manual' } }; }
 function parseYaml(text) {
   const out = {};
   const stack = [{ indent: -1, obj: out }];

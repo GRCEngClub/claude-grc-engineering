@@ -298,7 +298,7 @@ CSF evidence is highly reusable. If the organization is also subject to:
 - **GLBA Safeguards Rule** — Govern + Identify + Protect evidence covers most of the Safeguards Rule's written-program requirements
 - **SOX ITGC** — PR.AA (access control), PR.PS-01 (configuration baselines), DE.CM (monitoring) feed ITGC testing
 
-Use `/grc-engineer:optimize-multi-framework` to plan evidence collection that satisfies multiple frameworks at once. Avoid duplicating collection effort.
+Use `/engineer:optimize-multi-framework` to plan evidence collection that satisfies multiple frameworks at once. Avoid duplicating collection effort.
 
 ## Retention
 
@@ -331,7 +331,7 @@ CSF imposes no specific retention period. In practice, retain evidence for at le
 
 - `/nist-csf-20:scope` — define Profile / Tier / Function scope before collecting evidence
 - `/nist-csf-20:assess` — gap-assess the collected evidence against the Target Profile
-- `/grc-engineer:gap-assessment general-nist-csf-2-0` — direct SCF-crosswalk-driven assessment
+- `/engineer:gap-assessment general-nist-csf-2-0` — direct SCF-crosswalk-driven assessment
 
 ---
 

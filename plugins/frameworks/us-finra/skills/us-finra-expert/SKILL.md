@@ -124,7 +124,7 @@ When building evidence, show how each observed threat is handled. Examiners tend
 
 - `/us-finra:scope` determines which obligations apply to a firm (firm size for Reg S-P dates, covered accounts for S-ID, SCI status, and vendor footprint).
 - `/us-finra:evidence-checklist` builds evidence lists organized by FINRA's 12 principles, with the underlying rule for each item.
-- `/us-finra:assess` runs `/grc-engineer:gap-assessment usa-federal-sro-finra` against connector evidence.
+- `/us-finra:assess` runs `/engineer:gap-assessment usa-federal-sro-finra` against connector evidence.
 
 ## Sources
 

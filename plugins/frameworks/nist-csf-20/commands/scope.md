@@ -128,5 +128,5 @@ Next steps:       /nist-csf-20:evidence-checklist  →  /nist-csf-20:assess
 
 - `/nist-csf-20:assess` — run the gap assessment once scope is defined
 - `/nist-csf-20:evidence-checklist` — enumerate evidence patterns per Function
-- `/grc-engineer:gap-assessment general-nist-csf-2-0` — direct SCF-crosswalk-driven assessment
-- `/grc-engineer:optimize-multi-framework` — when CSF is being implemented alongside multiple regulations
+- `/engineer:gap-assessment general-nist-csf-2-0` — direct SCF-crosswalk-driven assessment
+- `/engineer:optimize-multi-framework` — when CSF is being implemented alongside multiple regulations

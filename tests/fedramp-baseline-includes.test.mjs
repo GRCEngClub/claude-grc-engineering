@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { loadFedRAMPBaseline } from '../plugins/personas/grc-engineer/src/config-loader.js';
+import { loadFedRAMPBaseline } from '../plugins/personas/engineer/src/config-loader.js';
 
 test('the High baseline contains every Moderate control plus its own', async () => {
   const moderate = await loadFedRAMPBaseline('moderate');

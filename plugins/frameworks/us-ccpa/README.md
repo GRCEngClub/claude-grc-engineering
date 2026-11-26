@@ -17,7 +17,7 @@ This plugin is at **Reference depth** — it provides:
 
 - **Scope determination** for the three CPRA-amended applicability thresholds and the federal-statute carve-outs
 - **Evidence checklist** organized by California Civil Code section (1798.100 / .105 / .106 / .110 / .115 / .120 / .121 / .125 / .130 / .135 / .140 / .145 / .150 / .185)
-- **Gap assessment** delegated to `/grc-engineer:gap-assessment` against the SCF crosswalk (258 SCF controls → 623 framework controls)
+- **Gap assessment** delegated to `/engineer:gap-assessment` against the SCF crosswalk (258 SCF controls → 623 framework controls)
 - **CPPA-specific context**: risk assessments, cybersecurity audits, Universal Opt-Out Mechanism (GPC) handling, Service Provider / Contractor / Third Party distinctions, and the limited private right of action
 
 ### Level up to Full

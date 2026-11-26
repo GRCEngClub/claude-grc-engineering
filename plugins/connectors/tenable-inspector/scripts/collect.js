@@ -72,7 +72,7 @@ function ageDays(v) { const t = Date.parse(v || ''); return Number.isFinite(t) ?
 function parseArgs(argv) { const out = { output: 'summary', quiet: false, limit: 0 }; for (const tok of argv) { if (!tok.startsWith('--')) continue; const [k, v] = tok.slice(2).split('='); if (k === 'output' && ['summary', 'json', 'silent'].includes(v)) out.output = v; else if (k === 'quiet') out.quiet = true; else if (k === 'limit') out.limit = parseInt(v, 10); else fail(EXIT.USAGE, `Unknown flag: --${k}`); } return out; }
 function pass(id, message) { return { control_framework: 'SCF', control_id: id, status: 'pass', severity: 'info', message }; }
 function inconclusive(id, message) { return { control_framework: 'SCF', control_id: id, status: 'inconclusive', severity: 'info', message }; }
-function failHigh(id, message, summary) { return { control_framework: 'SCF', control_id: id, status: 'fail', severity: 'high', message, remediation: { summary, ref: 'grc-engineer://generate-implementation/tenable_vulnerability_management', effort_hours: 1, automation: 'manual' } }; }
+function failHigh(id, message, summary) { return { control_framework: 'SCF', control_id: id, status: 'fail', severity: 'high', message, remediation: { summary, ref: 'engineer://generate-implementation/tenable_vulnerability_management', effort_hours: 1, automation: 'manual' } }; }
 function parseYaml(text) {
   const out = {};
   const stack = [{ indent: -1, obj: out }];

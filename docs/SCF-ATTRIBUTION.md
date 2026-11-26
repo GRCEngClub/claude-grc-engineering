@@ -5,7 +5,7 @@ This toolkit uses the [Secure Controls Framework](https://securecontrolsframewor
 ## What this toolkit uses
 
 - **Data source**: the static JSON API at [`https://grcengclub.github.io/scf-api/`](https://grcengclub.github.io/scf-api/), itself a faithful parse of the SCF v2026.1 workbook published by [securecontrolsframework.com](https://securecontrolsframework.com).
-- **How**: `/grc-engineer:gap-assessment` and related commands fetch SCF controls, families, and framework crosswalks. Data is cached locally under `~/.cache/claude-grc/scf/` for performance.
+- **How**: `/engineer:gap-assessment` and related commands fetch SCF controls, families, and framework crosswalks. Data is cached locally under `~/.cache/claude-grc/scf/` for performance.
 
 ## License
 

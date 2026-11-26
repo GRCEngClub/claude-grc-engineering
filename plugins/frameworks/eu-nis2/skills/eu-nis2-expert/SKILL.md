@@ -225,7 +225,7 @@ National transposition laws can name and specify additional artifacts (e.g., Ger
 - `/eu-nis2:assess` — run a gap assessment against the directive baseline via the SCF crosswalk.
 - `/eu-nis2:evidence-checklist` — enumerate evidence requirements organised by the ten Article 21 domains and the Article 23 reporting workflow.
 
-All three commands delegate to `/grc-engineer:gap-assessment` with SCF framework ID `emea-eu-nis2-2022` for the control-by-control mechanics, and wrap the results in NIS2-specific terminology (essential/important entity classification, Article 21 domain headings, Article 23 timing).
+All three commands delegate to `/engineer:gap-assessment` with SCF framework ID `emea-eu-nis2-2022` for the control-by-control mechanics, and wrap the results in NIS2-specific terminology (essential/important entity classification, Article 21 domain headings, Article 23 timing).
 
 ## Levelling up to Full
 

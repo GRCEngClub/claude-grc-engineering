@@ -6,7 +6,7 @@ allowed-tools: Read, Glob, Grep
 
 # {{DISPLAY_NAME}} Expert
 
-Stub-depth expertise for **{{DISPLAY_NAME}}**. This plugin is scaffolded from the SCF crosswalk ({{SCF_CONTROLS_MAPPED}} SCF controls map to {{FRAMEWORK_CONTROLS_MAPPED}} framework controls) and defers to `/grc-engineer:gap-assessment` for the actual compliance check.
+Stub-depth expertise for **{{DISPLAY_NAME}}**. This plugin is scaffolded from the SCF crosswalk ({{SCF_CONTROLS_MAPPED}} SCF controls map to {{FRAMEWORK_CONTROLS_MAPPED}} framework controls) and defers to `/engineer:gap-assessment` for the actual compliance check.
 
 ## Framework identity
 
@@ -27,7 +27,7 @@ TODO: replace with framework-specific overview. Minimum sections for Reference-d
 
 ## Command routing
 
-All commands in this plugin route through `/grc-engineer:gap-assessment` with framework ID `{{SCF_FRAMEWORK_ID}}`. Reference-depth plugins add:
+All commands in this plugin route through `/engineer:gap-assessment` with framework ID `{{SCF_FRAMEWORK_ID}}`. Reference-depth plugins add:
 
 - `evidence-checklist` — framework-native evidence by control family
 - `scope` — applicability determination for the organization

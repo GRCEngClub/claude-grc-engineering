@@ -5,7 +5,7 @@ description: APRA CPS 234 compliance gap assessment
 # APRA CPS 234 Assessment
 
 Runs a compliance gap assessment against APRA Prudential Standard CPS 234
-Information Security by delegating to `/grc-engineer:gap-assessment` with the
+Information Security by delegating to `/engineer:gap-assessment` with the
 framework's SCF identifier, then overlays CPS 234-specific context and evidence
 requirements.
 
@@ -39,7 +39,7 @@ requirements.
 Under the hood:
 
 ```bash
-/grc-engineer:gap-assessment "apac-aus-ps-cps-234-2019" [--sources=<connector-list>]
+/engineer:gap-assessment "apac-aus-ps-cps-234-2019" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands 52 SCF controls into the 38 CPS 234 mapped controls.

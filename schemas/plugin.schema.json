@@ -53,7 +53,7 @@
     },
     "metadata": {
       "type": "object",
-      "description": "Free-form data that Claude Code does not read. Repo-specific fields go here: `framework` (SCF mapping and depth, read by /grc-engineer:frameworks), `knowledge_source`, `license_note`.",
+      "description": "Free-form data that Claude Code does not read. Repo-specific fields go here: `framework` (SCF mapping and depth, read by /engineer:frameworks), `knowledge_source`, `license_note`.",
       "properties": {
         "framework": {
           "type": "object",

@@ -18,7 +18,7 @@ The SRTM workbook has a Control Summary and separate control-family sheets. The 
 
 - The `fedramp-rev5` plugin, which offered Markdown command guidance for assessment, baseline selection, SSP and POA&M review, has been removed. It was not an SRTM, RET or SAR workbook/document generator.
 - `schemas/finding.schema.json` defines connector resource evaluations with control IDs, status and optional evidence references. Its pass/fail statuses and connector severity are not automatically equivalent to assessor test conclusions or FedRAMP risk ratings. Per-evaluation deficiency IDs, assessment procedures, risk methodology and reviewer decisions need explicit handling.
-- `plugins/personas/grc-engineer/scripts/gap-assessment.js` and crosswalk tooling support general framework gap reporting; mapping a connector evaluation is not proof of baseline coverage, and unmapped controls must not disappear.
+- `plugins/personas/engineer/scripts/gap-assessment.js` and crosswalk tooling support general framework gap reporting; mapping a connector evaluation is not proof of baseline coverage, and unmapped controls must not disappear.
 - The separate `plugins/connectors/vdr-automation/` describes an external vulnerability findings tool and 20x VDR workflow. That is not a legacy RET or SAR generator and does not establish Rev. 5/20x equivalence.
 - No complete authorization package or automatic authorization decision is provided by these findings. The original claim of 39 published artifacts remains unverified; the legacy index and current rules must be inventoried separately.
 

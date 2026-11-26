@@ -161,7 +161,7 @@ For the full spec — depth tiers, level-up checklists, minimum plugin structure
 
 - To **add a new framework plugin**, use the scaffolding command: `node tools/scaffold-framework.js <scf-framework-id> [--depth=stub|reference]`. Then fill in the `TODO:` markers.
 - To **improve an existing framework plugin**, level it up toward Reference or Full depth using the checklists in the guide.
-- To **discover which SCF frameworks don't have plugins yet**, run `/grc-engineer:frameworks --not-installed`.
+- To **discover which SCF frameworks don't have plugins yet**, run `/engineer:frameworks --not-installed`.
 
 Framework plugins are for implementation guidance, assessment workflows, and evidence checklists: not normative standard text. The bar for contributions:
 

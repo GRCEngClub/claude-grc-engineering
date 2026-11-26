@@ -580,7 +580,7 @@ Continuous Improvement:
 /soc2:generate-tsc-matrix all json > gaps.json
 
 # Generate implementation for missing controls
-/grc-engineer:generate-implementation CC7.2 aws
+/engineer:generate-implementation CC7.2 aws
 ```
 
 ### 3. TSC Matrix → Evidence Collection
@@ -643,5 +643,5 @@ Continuous Improvement:
 - `/soc2:evidence-checklist` - Detailed evidence requirements per control
 - `/soc2:type-ii-planner` - Plan Type II audit period timeline
 - `/soc2:service-auditor-prep` - Generate auditor-ready evidence package
-- `/grc-engineer:test-control` - Automated control testing
-- `/grc-engineer:generate-implementation` - Generate code for missing controls
+- `/engineer:test-control` - Automated control testing
+- `/engineer:generate-implementation` - Generate code for missing controls

@@ -590,8 +590,8 @@ Generate Implementation Code:
 /nist:overlay-apply fedramp moderate --show-only-changes > gaps.txt
 
 # Generate IaC to fix
-/grc-engineer:generate-implementation AC-2 aws
-/grc-engineer:generate-implementation AU-4 aws
+/engineer:generate-implementation AC-2 aws
+/engineer:generate-implementation AU-4 aws
 # ... for each gap
 
 # Or use SOC2 gap-to-code
@@ -632,4 +632,4 @@ Maps NIST 800-53 to CMMC levels:
 - `/nist:select-baseline` - Select appropriate baseline
 - `/nist:ssp-section-generate` - Generate SSP text
 - `/fedramp:assess` - FedRAMP-specific assessment
-- `/grc-engineer:generate-implementation` - Generate IaC for gaps
+- `/engineer:generate-implementation` - Generate IaC for gaps

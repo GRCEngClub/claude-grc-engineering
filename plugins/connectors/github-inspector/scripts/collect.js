@@ -183,7 +183,7 @@ async function evaluateRepo(repo, runId) {
         message: `Default branch '${defaultBranch}' has no protection rule; direct pushes are permitted.`,
         remediation: {
           summary: 'Enable branch protection with required PR reviews and status checks.',
-          ref: 'grc-engineer://generate-implementation/change_management/github',
+          ref: 'engineer://generate-implementation/change_management/github',
           effort_hours: 0.25,
           automation: 'auto_fixable'
         }
@@ -197,7 +197,7 @@ async function evaluateRepo(repo, runId) {
           control_framework: 'SCF', control_id: 'CHG-02',
           status: 'fail', severity: 'medium',
           message: `Branch protection exists but requires 0 approving reviews.`,
-          remediation: { summary: 'Set required_approving_review_count >= 1.', ref: 'grc-engineer://generate-implementation/change_management/github', effort_hours: 0.1, automation: 'auto_fixable' }
+          remediation: { summary: 'Set required_approving_review_count >= 1.', ref: 'engineer://generate-implementation/change_management/github', effort_hours: 0.1, automation: 'auto_fixable' }
         });
       } else {
         evaluations.push({ control_framework: 'SCF', control_id: 'CHG-02', status: 'pass', severity: 'info' });
@@ -209,7 +209,7 @@ async function evaluateRepo(repo, runId) {
           control_framework: 'SCF', control_id: 'CHG-02.1',
           status: 'fail', severity: 'medium',
           message: 'No required status checks configured on default branch.',
-          remediation: { summary: 'Require at least one passing status check before merge.', ref: 'grc-engineer://generate-implementation/change_management/github', effort_hours: 0.2, automation: 'semi_automated' }
+          remediation: { summary: 'Require at least one passing status check before merge.', ref: 'engineer://generate-implementation/change_management/github', effort_hours: 0.2, automation: 'semi_automated' }
         });
       }
     }
@@ -229,7 +229,7 @@ async function evaluateRepo(repo, runId) {
       control_framework: 'SCF', control_id: 'MON-01',
       status: 'fail', severity: 'high',
       message: 'Secret scanning is disabled for this repository.',
-      remediation: { summary: 'Enable GitHub Secret Scanning (Advanced Security on private repos).', ref: 'grc-engineer://generate-implementation/continuous_monitoring/github', effort_hours: 0.1, automation: 'auto_fixable' }
+      remediation: { summary: 'Enable GitHub Secret Scanning (Advanced Security on private repos).', ref: 'engineer://generate-implementation/continuous_monitoring/github', effort_hours: 0.1, automation: 'auto_fixable' }
     });
   } else {
     evaluations.push({ control_framework: 'SCF', control_id: 'MON-01', status: 'inconclusive', severity: 'low', message: 'Secret scanning status unknown — requires admin:repo or security_events scope.' });
@@ -244,7 +244,7 @@ async function evaluateRepo(repo, runId) {
         control_framework: 'SCF', control_id: 'MON-01.4',
         status: 'fail', severity: 'medium',
         message: 'Dependabot vulnerability alerts are not enabled.',
-        remediation: { summary: 'Enable Dependabot alerts in repo Security settings.', ref: 'grc-engineer://generate-implementation/vulnerability_management/github', effort_hours: 0.1, automation: 'auto_fixable' }
+        remediation: { summary: 'Enable Dependabot alerts in repo Security settings.', ref: 'engineer://generate-implementation/vulnerability_management/github', effort_hours: 0.1, automation: 'auto_fixable' }
       });
     } else {
       evaluations.push({ control_framework: 'SCF', control_id: 'MON-01.4', status: 'inconclusive', severity: 'low', message: 'Could not determine Dependabot status.' });
@@ -260,10 +260,10 @@ async function evaluateRepo(repo, runId) {
         control_framework: 'SCF', control_id: 'IAO-04',
         status: 'fail', severity: 'medium',
         message: 'Code scanning is not enabled.',
-        remediation: { summary: 'Enable CodeQL via Actions or a third-party SAST.', ref: 'grc-engineer://generate-implementation/secure_coding/github', effort_hours: 0.5, automation: 'semi_automated' }
+        remediation: { summary: 'Enable CodeQL via Actions or a third-party SAST.', ref: 'engineer://generate-implementation/secure_coding/github', effort_hours: 0.5, automation: 'semi_automated' }
       });
     } else if (stdout.trim() === '' || stdout.includes('Not Found')) {
-      evaluations.push({ control_framework: 'SCF', control_id: 'IAO-04', status: 'fail', severity: 'medium', message: 'Code scanning appears not configured.', remediation: { summary: 'Enable CodeQL.', ref: 'grc-engineer://generate-implementation/secure_coding/github', effort_hours: 0.5, automation: 'semi_automated' } });
+      evaluations.push({ control_framework: 'SCF', control_id: 'IAO-04', status: 'fail', severity: 'medium', message: 'Code scanning appears not configured.', remediation: { summary: 'Enable CodeQL.', ref: 'engineer://generate-implementation/secure_coding/github', effort_hours: 0.5, automation: 'semi_automated' } });
     } else {
       evaluations.push({ control_framework: 'SCF', control_id: 'IAO-04', status: 'pass', severity: 'info' });
     }

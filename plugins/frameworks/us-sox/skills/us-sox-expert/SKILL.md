@@ -197,7 +197,7 @@ A vendor's SOC 1 mapping work for SOX includes:
 
 ## Interaction with other frameworks
 
-A narrative summary — this plugin deliberately does **not** ship a hand-maintained crosswalk table. The SCF crosswalk is the authoritative source for control mappings; see `/grc-engineer:gap-assessment` and the [cross-framework analyzer](../../../../grc-engineer/scripts/cross-framework-analyzer.js) outputs.
+A narrative summary — this plugin deliberately does **not** ship a hand-maintained crosswalk table. The SCF crosswalk is the authoritative source for control mappings; see `/engineer:gap-assessment` and the [cross-framework analyzer](../../../../engineer/scripts/cross-framework-analyzer.js) outputs.
 
 - **COSO 2013 IC-IF** — the de facto control framework most U.S. public companies use to satisfy management's §404(a) assessment. SOX provides the legal mandate; COSO provides the substantive framework.
 - **COBIT 5 / 2019** — IT-process control framework commonly used to map ITGC objectives. Many SOX programs cite COBIT control objectives as the basis for their ITGC testing program.
@@ -314,7 +314,7 @@ If you have just been handed a SOX program — or your SaaS company has been tol
 - Pre-IPO (S-1 readiness) ICFR build
 - Post-acquisition ICFR integration scoping
 - Cloud-agnostic ITGC patterns with brief vendor-specific examples (e.g., AWS CloudTrail as Operations-domain logging evidence)
-- SCF crosswalk routing (`usa-federal-law-sox-2002`) — `/grc-engineer:gap-assessment` integration
+- SCF crosswalk routing (`usa-federal-law-sox-2002`) — `/engineer:gap-assessment` integration
 
 ## Command routing
 
@@ -322,7 +322,7 @@ If you have just been handed a SOX program — or your SaaS company has been tol
 - `/us-sox:assess` — gap assessment via the SCF crosswalk for `usa-federal-law-sox-2002`
 - `/us-sox:evidence-checklist` — ITGC + entity-level + IT-dependent manual evidence patterns
 
-All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID `usa-federal-law-sox-2002` for the control-by-control mechanics, and wrap the results in SOX-specific terminology (filer status, ITGC domains, deficiency severity, SOC 1 reliance).
+All three delegate to `/engineer:gap-assessment` with SCF framework ID `usa-federal-law-sox-2002` for the control-by-control mechanics, and wrap the results in SOX-specific terminology (filer status, ITGC domains, deficiency severity, SOC 1 reliance).
 
 ## Levelling up to Full
 

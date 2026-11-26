@@ -36,7 +36,7 @@ A back-and-forth Q&A loop in the terminal. No file output, no scoring history pe
 
 The `socratic-drill` skill drives the loop. It calls:
 
-- `/grc-engineer:frameworks` to validate the framework target.
+- `/engineer:frameworks` to validate the framework target.
 - The SCF API to enumerate the framework's mapped controls.
 - The framework plugin's `<framework>-expert` skill for application context that goes beyond the control text.
 

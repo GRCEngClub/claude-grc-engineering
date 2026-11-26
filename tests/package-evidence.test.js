@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const script = resolve('plugins/personas/grc-engineer/scripts/package-evidence.py');
+const script = resolve('plugins/personas/engineer/scripts/package-evidence.py');
 test('encrypts real evidence to verified GPG key and rejects unsafe inputs', () => {
   const dir = mkdtempSync(join(tmpdir(), 'evidence-test-'));
   const home = join(dir, 'gnupg'); mkdirSync(home, { mode: 0o700 });
@@ -46,7 +46,7 @@ test('encrypts real evidence to verified GPG key and rejects unsafe inputs', () 
     const zip = join(dir, 'decrypted.zip');
     const decrypt = run('gpg', ['--batch', '--output', zip, '--decrypt', output]);
     assert.equal(decrypt.status, 0, decrypt.stderr);
-    const verified = run('python3', [resolve('plugins/personas/grc-engineer/scripts/verify-evidence.py'), zip]);
+    const verified = run('python3', [resolve('plugins/personas/engineer/scripts/verify-evidence.py'), zip]);
     assert.equal(verified.status, 0, verified.stderr);
     assert.match(verified.stdout, /Sender authenticity is NOT verified/);
     const extracted = join(dir, 'extracted');
@@ -92,7 +92,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     const limitedDir = join(dir, 'limited'); mkdirSync(limitedDir);
     const limitedScript = join(limitedDir, 'package-evidence.py');
     writeFileSync(limitedScript, readFileSync(script));
-    const verifier = readFileSync(resolve('plugins/personas/grc-engineer/scripts/verify-evidence.py'), 'utf8');
+    const verifier = readFileSync(resolve('plugins/personas/engineer/scripts/verify-evidence.py'), 'utf8');
     for (const [original, lowered, message] of [
       ['MAX_ENTRIES = 10000', 'MAX_ENTRIES = 2', /too many entries/],
       ['MAX_TOTAL = 100 * 1024 * 1024', 'MAX_TOTAL = 2', /archive exceeds verification size limit/],

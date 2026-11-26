@@ -12,7 +12,8 @@ import { pathToFileURL } from 'node:url';
 // along: no repo-root node_modules, no sibling plugins, no schemas/.
 const repo = resolve('.');
 const marketplace = JSON.parse(readFileSync(join(repo, '.claude-plugin/marketplace.json'), 'utf8'));
-const plugins = marketplace.plugins.map(p => ({ name: p.name, dir: resolve(repo, p.source) }));
+// Entries whose source is an object live in another repository and are tested there.
+const plugins = marketplace.plugins.filter(p => typeof p.source === 'string').map(p => ({ name: p.name, dir: resolve(repo, p.source) }));
 const CODE_DIRS = ['scripts', 'src', 'hooks', 'bin'];
 const CODE_EXT = /\.(?:js|mjs|cjs)$/;
 const builtins = new Set(builtinModules.flatMap(m => [m, `node:${m}`]));
@@ -169,29 +170,11 @@ test('every plugin script answers --help from an installed copy, offline', { tim
   assert.deepEqual(problems, []);
 });
 
-// CI configs written before the regroup run plugins/grc-engineer/scripts/...
-// from a checkout. That path is now a symlink and must still do real work.
-test('the plugins/grc-engineer compatibility path runs a real scan', () => {
-  const work = mkdtempSync(join(tmpdir(), 'compat-scan-'));
-  try {
-    writeFileSync(join(work, 'main.tf'), 'resource "aws_s3_bucket" "b" {\n  bucket = "x"\n}\n');
-    const run = spawnSync(process.execPath, [join(repo, 'plugins/grc-engineer/scripts/scan-iac.js'), '.', 'SOC2', 'json'], {
-      cwd: work, encoding: 'utf8', timeout: 30_000,
-    });
-    assert.equal(run.error, undefined);
-    const report = JSON.parse(run.stdout);
-    assert.equal(report.filesScanned, 1);
-    assert.ok(report.summary.totalControls > 0, 'the scan evaluated controls');
-  } finally {
-    rmSync(work, { recursive: true, force: true });
-  }
-});
-
 // With `node -` or `node --eval`, process.argv[1] is "-" or missing. Importing a
 // script as a module there must not throw or start its CLI.
 test('scripts can be imported as modules when there is no entry file', () => {
   const targets = [
-    'plugins/personas/grc-engineer/scripts/scan-iac.js',
+    'plugins/personas/engineer/scripts/scan-iac.js',
     'plugins/connectors/datadog-inspector/scripts/collect.js',
     'tools/assessment-review-draft.mjs',
   ];

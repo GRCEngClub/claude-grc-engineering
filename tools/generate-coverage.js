@@ -4,8 +4,8 @@ import { realpathSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { initSCF } from '../plugins/personas/grc-engineer/scripts/scf-client.js';
-import { displayPath, frameworkMetadata, listFrameworkPlugins, requireRepoRoot } from '../plugins/personas/grc-engineer/src/plugin-locator.js';
+import { initSCF } from '../plugins/personas/engineer/scripts/scf-client.js';
+import { displayPath, frameworkMetadata, listFrameworkPlugins, requireRepoRoot } from '../plugins/personas/engineer/src/plugin-locator.js';
 
 function parseArgs(argv) {
   const args = argv.slice(2);
@@ -53,7 +53,7 @@ function render({ scfFrameworks, shipped, generatedAt }) {
   lines.push('');
   lines.push(`Last generated: ${generatedAt.toISOString().slice(0, 10)}`);
   lines.push('');
-  lines.push('This page tracks which of the 249 frameworks in the [Secure Controls Framework](https://securecontrolsframework.com) crosswalk have a dedicated plugin in this repo. Frameworks without a dedicated plugin are **already usable today** via `/grc-engineer:gap-assessment <scf-framework-id>` through the SCF crosswalk.');
+  lines.push('This page tracks which of the 249 frameworks in the [Secure Controls Framework](https://securecontrolsframework.com) crosswalk have a dedicated plugin in this repo. Frameworks without a dedicated plugin are **already usable today** via `/engineer:gap-assessment <scf-framework-id>` through the SCF crosswalk.');
   lines.push('');
 
   const totalScf = scfFrameworks.length;
@@ -81,7 +81,7 @@ function render({ scfFrameworks, shipped, generatedAt }) {
   lines.push('|---|---|---|');
   lines.push(`| Full | ${depthCounts.full || 0} | Framework-native workflow commands + Reference content |`);
   lines.push(`| Reference | ${depthCounts.reference || 0} | Scope + evidence checklist + framework-specific SKILL |`);
-  lines.push(`| Stub | ${depthCounts.stub || 0} | Scaffolded delegation to \`/grc-engineer:gap-assessment\` |`);
+  lines.push(`| Stub | ${depthCounts.stub || 0} | Scaffolded delegation to \`/engineer:gap-assessment\` |`);
   if (depthCounts.unknown) {
     lines.push(`| Unknown | ${depthCounts.unknown} | Plugins without \`metadata.framework.depth\` — needs backfill |`);
   }
@@ -144,7 +144,7 @@ function render({ scfFrameworks, shipped, generatedAt }) {
   lines.push('Or keep using the crosswalk directly:');
   lines.push('');
   lines.push('```bash');
-  lines.push('/grc-engineer:gap-assessment "<scf-framework-id>"');
+  lines.push('/engineer:gap-assessment "<scf-framework-id>"');
   lines.push('```');
   lines.push('');
 

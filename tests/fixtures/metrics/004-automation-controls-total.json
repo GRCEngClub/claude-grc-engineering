@@ -10,7 +10,7 @@
     "framework": "fedramp-moderate",
     "provider": "aws"
   },
-  "source": "grc-engineer://record-automation-metrics",
+  "source": "engineer://record-automation-metrics",
   "subject": {
     "kind": "framework",
     "id": "fedramp-moderate"

@@ -857,4 +857,4 @@ Grand Total: \$150,000 (one-time) + \$79,020/year (ongoing)
 - `/iso:risk-treatment-plan` - Create risk treatment plan
 - `/iso:certification-roadmap` - Plan certification process
 - `/iso:isms-documentation-pack` - Generate ISMS documents
-- `/grc-engineer:generate-implementation` - Generate IaC for controls
+- `/engineer:generate-implementation` - Generate IaC for controls

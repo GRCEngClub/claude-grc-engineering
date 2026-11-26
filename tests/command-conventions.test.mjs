@@ -5,7 +5,7 @@ import { join, relative, resolve } from 'node:path';
 
 const repo = resolve('.');
 const marketplace = JSON.parse(readFileSync(join(repo, '.claude-plugin/marketplace.json'), 'utf8'));
-const pluginDirs = marketplace.plugins.map(p => resolve(repo, p.source));
+const pluginDirs = marketplace.plugins.filter(p => typeof p.source === 'string').map(p => resolve(repo, p.source));
 
 function walk(dir, keep, out = []) {
   if (!existsSync(dir)) return out;

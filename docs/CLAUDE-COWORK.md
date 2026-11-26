@@ -36,7 +36,7 @@ Claude Code or a terminal-backed environment when the workflow needs to execute:
 | Connector setup and collection | Requires local CLIs or inspector tools |
 | `npm run test:contract` | Requires Node.js dependencies and shell execution |
 | Manifest validation | Requires Node.js dependencies and shell execution |
-| `/grc-engineer:monitor-continuous` | Emits scheduler artifacts and may run scripts |
+| `/engineer:monitor-continuous` | Emits scheduler artifacts and may run scripts |
 | OSCAL conversion commands | Wraps external OSCAL tooling |
 
 If Cowork has shell execution available in your environment, the same command
@@ -77,13 +77,13 @@ Keep sensitive raw exports in `evidence/` or another clearly named folder. Use
 Use direct, file-oriented prompts:
 
 ```text
-Read docs/QUICKSTART.md and plugins/personas/grc-engineer/commands/gap-assessment.md.
+Read docs/QUICKSTART.md and plugins/personas/engineer/commands/gap-assessment.md.
 Draft a SOC 2 assessment plan for the findings in grc-data/ and list any
 missing evidence as a table.
 ```
 
 ```text
-Use plugins/frameworks/soc2 and plugins/reporting/grc-reporter as references. Turn the
+Use plugins/frameworks/soc2 and plugins/reporting/reporter as references. Turn the
 latest metrics in grc-data/metrics into a weekly executive update in Markdown.
 Do not invent missing values; call out gaps explicitly.
 ```

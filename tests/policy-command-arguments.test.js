@@ -5,7 +5,7 @@ import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-const cli = resolve('plugins/personas/grc-engineer/scripts/generate-policy.js');
+const cli = resolve('plugins/personas/engineer/scripts/generate-policy.js');
 
 test('CLI honors requested requirement and format, defaults format, and rejects unsupported combinations', () => {
   for (const [args, format, extension, succeeds] of [

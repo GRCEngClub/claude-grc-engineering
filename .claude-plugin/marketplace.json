@@ -23,38 +23,38 @@
       "version": "0.1.0"
     },
     {
-      "name": "grc-engineer",
-      "source": "./plugins/personas/grc-engineer",
+      "name": "engineer",
+      "source": "./plugins/personas/engineer",
       "description": "Maps IaC to compliance controls, generates policies, collects evidence, reviews PRs",
       "version": "0.1.0"
     },
     {
-      "name": "grc-auditor",
-      "source": "./plugins/personas/grc-auditor",
+      "name": "auditor",
+      "source": "./plugins/personas/auditor",
       "description": "Evidence review, control validation, and audit workpaper generation for external auditors",
       "version": "0.1.0"
     },
     {
-      "name": "grc-internal",
-      "source": "./plugins/personas/grc-internal",
+      "name": "internal",
+      "source": "./plugins/personas/internal",
       "description": "Risk register, policy lifecycle, and compliance tracking for internal GRC teams, built on the grc-data record schemas",
       "version": "0.1.0"
     },
     {
-      "name": "grc-tprm",
-      "source": "./plugins/personas/grc-tprm",
+      "name": "tprm",
+      "source": "./plugins/personas/tprm",
       "description": "Vendor tiering and assessments, SOC 2 report review, SIG and CAIQ questionnaire analysis, and residual risk scoring for third-party risk management",
       "version": "0.1.0"
     },
     {
-      "name": "grc-reporter",
-      "source": "./plugins/reporting/grc-reporter",
+      "name": "reporter",
+      "source": "./plugins/reporting/reporter",
       "description": "Translate findings, risks, and metrics into narratives leadership reads. Reference implementation of the Reporting category from RFC #38.",
       "version": "0.1.0"
     },
     {
-      "name": "grc-loop",
-      "source": "./plugins/workflows/grc-loop",
+      "name": "loop",
+      "source": "./plugins/workflows/loop",
       "description": "Iterative GRC automation loops for gap-remediation burndown and quarterly evidence sweeps.",
       "version": "0.1.0"
     },
@@ -77,8 +77,8 @@
       "version": "0.1.0"
     },
     {
-      "name": "grc-diagrams",
-      "source": "./plugins/reporting/grc-diagrams",
+      "name": "diagrams",
+      "source": "./plugins/reporting/diagrams",
       "description": "Editable draw.io diagram patterns for GRC system boundaries, evidence flows, control maps, risk treatment, audits, crosswalks, TPRM, POA&M, data flows, RACI, and operating models.",
       "version": "0.1.0",
       "category": "workflow",
@@ -404,10 +404,12 @@
       "version": "0.1.0"
     },
     {
-      "name": "grc-portfolio",
-      "source": "./plugins/grc-portfolio",
-      "description": "Build and deploy a professional portfolio website for GRC engineers — certifications, frameworks, audit experience, and AWS hosting.",
-      "version": "0.1.0"
+      "name": "portfolio",
+      "source": {
+        "source": "github",
+        "repo": "GRCEngClub/grc-portfolio"
+      },
+      "description": "Build and deploy a professional portfolio website for GRC engineers — certifications, frameworks, audit experience, and AWS hosting. Lives in its own repository."
     },
     {
       "name": "nist-ai-rmf",

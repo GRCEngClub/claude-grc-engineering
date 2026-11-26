@@ -414,11 +414,11 @@ TESTING AND VALIDATION
 Automated Testing:
 ```bash
 # Test all AC family controls
-/grc-engineer:test-control AC
+/engineer:test-control AC
 
 # Test specific controls
-/grc-engineer:test-control AC-2
-/grc-engineer:test-control AC-6
+/engineer:test-control AC-2
+/engineer:test-control AC-6
 ```
 
 Manual Testing Scenarios:
@@ -477,7 +477,7 @@ Pitfall 1: Orphaned Accounts
   Impact: Security risk, compliance violation
   Solution: Integrate HR system with IAM, automated deprovisioning
   Detection: Daily credential report, inactive account check
-  Fix: /grc-engineer:generate-implementation AC-2 aws
+  Fix: /engineer:generate-implementation AC-2 aws
 
 Pitfall 2: Excessive Permissions
   Problem: Users have admin access when not needed
@@ -588,5 +588,5 @@ Grand Total: \$54,000 (one-time) + \$39,900/year (technology + ongoing)
 - `/nist:select-baseline` - Choose appropriate baseline
 - `/nist:overlay-apply` - Apply FedRAMP or other overlays
 - `/nist:ssp-section-generate` - Generate SSP documentation
-- `/grc-engineer:generate-implementation` - Generate IaC for controls
-- `/grc-engineer:test-control` - Test control effectiveness
+- `/engineer:generate-implementation` - Generate IaC for controls
+- `/engineer:test-control` - Test control effectiveness

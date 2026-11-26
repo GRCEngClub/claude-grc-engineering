@@ -33,7 +33,7 @@ Priority candidates for new connector scaffolds:
 
 ## Plugin categories beyond frameworks
 
-Reporting (`grc-reporter`) and dashboards (`compliance-posture-dashboard`)
+Reporting (`reporter`) and dashboards (`compliance-posture-dashboard`)
 have shipped. Categories still open for proposals:
 
 - Document transformation
@@ -44,7 +44,7 @@ have shipped. Categories still open for proposals:
 
 Teams using commercial GRC platforms shouldn't have to choose between their
 platform and this toolkit. Bridges pull platform-owned data into the Finding
-schema so `/grc-engineer:gap-assessment` can consume it alongside the toolkit's
+schema so `/engineer:gap-assessment` can consume it alongside the toolkit's
 direct connectors. Vendor-owned Claude Code plugins (when they exist) are
 **installed alongside** the Club toolkit, not vendored — bridges are
 normalization layers, not forks.

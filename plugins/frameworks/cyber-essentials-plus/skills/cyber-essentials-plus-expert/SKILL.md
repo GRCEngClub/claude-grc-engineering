@@ -48,7 +48,7 @@ The NCSC owns the Cyber Essentials scheme and sets the technical requirements. T
 ## Interaction with other frameworks
 
 - **UK GDPR / GDPR**: ICO guidance references CE+ as evidence of appropriate technical measures under Article 32. CE+ does not substitute for a full GDPR assessment but satisfies the baseline technical-security element. Run `/cyber-essentials-plus:assess` before a GDPR gap assessment to avoid re-covering the same ground.
-- **ISO 27001**: CE+ five controls align with ISO Annex A domains A.8, A.9, A.12, A.13. Organisations pursuing ISO 27001 should implement CE+ first — it is lower effort and provides demonstrable quick wins. Use `/grc-engineer:map-controls-unified` to identify overlaps.
+- **ISO 27001**: CE+ five controls align with ISO Annex A domains A.8, A.9, A.12, A.13. Organisations pursuing ISO 27001 should implement CE+ first — it is lower effort and provides demonstrable quick wins. Use `/engineer:map-controls-unified` to identify overlaps.
 - **NIST CSF**: CE+ maps primarily to the Protect function (PR.AC, PR.DS, PR.IP, PR.PT). The CSF is broader; CE+ is a useful entry point for organisations not yet ready for a full NIST programme.
 - **DSPT (Data Security and Protection Toolkit)**: NHS and health/social care organisations must complete the DSPT annually; CE+ certification satisfies several DSPT assertions and can simplify the DSPT submission.
 
@@ -68,7 +68,7 @@ The NCSC owns the Cyber Essentials scheme and sets the technical requirements. T
 - `/cyber-essentials-plus:assess` — run a gap assessment against all five controls
 - `/cyber-essentials-plus:evidence-checklist` — enumerate evidence requirements by control
 
-All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID `emea-gbr-cyber-essentials-requirements-3-3` for the control-by-control mechanics, and wrap the results in CE+-specific terminology.
+All three delegate to `/engineer:gap-assessment` with SCF framework ID `emea-gbr-cyber-essentials-requirements-3-3` for the control-by-control mechanics, and wrap the results in CE+-specific terminology.
 
 ## Levelling up to Full
 

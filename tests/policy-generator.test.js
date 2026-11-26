@@ -4,9 +4,9 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { generatePolicy } from '../plugins/personas/grc-engineer/src/policy-generator.js';
+import { generatePolicy } from '../plugins/personas/engineer/src/policy-generator.js';
 
-const cli = resolve('plugins/personas/grc-engineer/scripts/generate-policy.js');
+const cli = resolve('plugins/personas/engineer/scripts/generate-policy.js');
 
 test('unsupported requirements and format combinations fail rather than return a stub', () => {
   for (const [requirement, format] of [

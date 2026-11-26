@@ -27,13 +27,13 @@ Take one control — by SCF ID, framework-specific ID, or plain English — and 
 3. **What good looks like** — 2–3 evidence patterns that demonstrate the control is in place.
 4. **Common implementation gaps** — where teams typically half-implement this control.
 5. **Cross-framework view** — every framework in the SCF crosswalk that maps this SCF control, with their local IDs. Lets the reader see "the same control shows up as CC6.1, IA-2, and 8.3."
-6. **Where this shows up in the toolkit** — relevant connector that detects it (e.g. `/aws-inspector:setup` for IAM controls), framework plugins that include it, and `/grc-engineer:test-control` to validate end-to-end.
+6. **Where this shows up in the toolkit** — relevant connector that detects it (e.g. `/aws-inspector:setup` for IAM controls), framework plugins that include it, and `/engineer:test-control` to validate end-to-end.
 
 ## Delegation
 
 The `control-explainer` skill calls:
 
-- `/grc-engineer:map-controls-unified` for the cross-framework view.
+- `/engineer:map-controls-unified` for the cross-framework view.
 - The SCF API for the canonical control vocabulary.
 - Reads the relevant framework plugins' `skills/<framework>-expert/SKILL.md` for any framework-specific notes the plugin author left.
 

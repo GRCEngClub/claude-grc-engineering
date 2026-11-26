@@ -35,10 +35,10 @@ body:
     attributes:
       label: Primary persona or audience
       options:
-        - grc-engineer
-        - grc-auditor
-        - grc-internal
-        - grc-tprm
+        - engineer
+        - auditor
+        - internal
+        - tprm
         - Executive / leadership audience
         - Multi-persona
     validations:

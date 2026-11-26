@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { renderHtml, renderCsv, renderGithubIssuePreview } from '../plugins/personas/grc-engineer/scripts/gap-assessment.js';
+import { renderHtml, renderCsv, renderGithubIssuePreview } from '../plugins/personas/engineer/scripts/gap-assessment.js';
 
 const dangerous = '<script>alert("x")</script>';
 const finding = {
@@ -87,7 +87,7 @@ test('offline CLI previews nonempty hostile tier 1 and 2 data without executing 
     }));
     await fs.writeFile(path.join(findings, 'findings.json'), JSON.stringify(docs));
     const out = path.join(dir, 'out');
-    const result = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/gap-assessment.js', 'fixture', '--offline', '--quiet', '--output=github-issues', '--cache-dir=' + path.dirname(findings), '--report-dir=' + out], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache, PATH: bin + path.delimiter + process.env.PATH } });
+    const result = spawnSync(process.execPath, ['plugins/personas/engineer/scripts/gap-assessment.js', 'fixture', '--offline', '--quiet', '--output=github-issues', '--cache-dir=' + path.dirname(findings), '--report-dir=' + out], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache, PATH: bin + path.delimiter + process.env.PATH } });
     assert.equal(result.status, 0, result.stderr);
     const output = await fs.readFile(path.join(out, 'gap-report.github-issues.json'), 'utf8');
     assert.equal(output.trimEnd(), result.stdout.trimEnd());
@@ -110,10 +110,10 @@ test('offline CLI previews nonempty hostile tier 1 and 2 data without executing 
 
 test('CLI accepts new formats and rejects unknown formats before SCF initialization', () => {
   for (const format of ['html', 'csv']) {
-    const result = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/gap-assessment.js', '--output=' + format], { encoding: 'utf8' });
+    const result = spawnSync(process.execPath, ['plugins/personas/engineer/scripts/gap-assessment.js', '--output=' + format], { encoding: 'utf8' });
     assert.equal(result.status, 4, result.stderr);
   }
-  const invalid = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/gap-assessment.js', '--output=invalid'], { encoding: 'utf8' });
+  const invalid = spawnSync(process.execPath, ['plugins/personas/engineer/scripts/gap-assessment.js', '--output=invalid'], { encoding: 'utf8' });
   assert.equal(invalid.status, 2);
 });
 
@@ -135,7 +135,7 @@ test('offline CLI writes the correct extension for every supported output', asyn
     await fs.writeFile(path.join(findings, 'invalid.json'), '{}');
     for (const [format, ext] of Object.entries({ markdown: 'md', json: 'json', sarif: 'sarif', 'oscal-ar': 'oscal-ar', html: 'html', csv: 'csv', 'github-issues': 'github-issues.json' })) {
       const out = path.join(dir, format);
-      const result = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/gap-assessment.js', 'fixture', '--offline', '--quiet', '--output=' + format, '--cache-dir=' + path.dirname(findings), '--report-dir=' + out], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache } });
+      const result = spawnSync(process.execPath, ['plugins/personas/engineer/scripts/gap-assessment.js', 'fixture', '--offline', '--quiet', '--output=' + format, '--cache-dir=' + path.dirname(findings), '--report-dir=' + out], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache } });
       assert.equal(result.status, 0, result.stderr);
       assert.equal((await fs.readFile(path.join(out, 'gap-report.' + ext), 'utf8')).trimEnd(), result.stdout.trimEnd());
       const normalized = JSON.parse(await fs.readFile(path.join(out, 'findings.normalized.json'), 'utf8'));

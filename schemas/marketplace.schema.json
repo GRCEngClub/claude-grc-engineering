@@ -2,19 +2,35 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/GRCEngClub/claude-grc-engineering/main/schemas/marketplace.schema.json",
   "title": "Claude Code marketplace manifest",
-  "description": "Schema for .claude-plugin/marketplace.json. Validates the shape `claude plugin marketplace add` expects. The `namespace`, `commands`, `skills`, and `hooks` keys are explicitly forbidden on plugin entries — Claude Code's install-time validator rejects marketplaces that declare them (commands and skills are auto-discovered from each plugin's `commands/` and `skills/` directories, hooks are wired via `hooks/hooks.json`, and `namespace` is not a recognized field). Same rule as plugin.schema.json, enforced here at the marketplace-entry level.",
+  "description": "Schema for .claude-plugin/marketplace.json. Validates the shape `claude plugin marketplace add` expects. The `namespace`, `commands`, `skills`, and `hooks` keys are explicitly forbidden on plugin entries \u2014 Claude Code's install-time validator rejects marketplaces that declare them (commands and skills are auto-discovered from each plugin's `commands/` and `skills/` directories, hooks are wired via `hooks/hooks.json`, and `namespace` is not a recognized field). Same rule as plugin.schema.json, enforced here at the marketplace-entry level.",
   "type": "object",
-  "required": ["name", "owner", "plugins"],
+  "required": [
+    "name",
+    "owner",
+    "plugins"
+  ],
   "additionalProperties": true,
   "properties": {
-    "name": { "type": "string", "minLength": 1 },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
     "owner": {
       "type": "object",
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "url": { "type": "string" },
-        "email": { "type": "string" }
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
       },
       "additionalProperties": true
     },
@@ -27,28 +43,89 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["name", "source"],
+        "required": [
+          "name",
+          "source"
+        ],
         "additionalProperties": true,
         "not": {
           "anyOf": [
-            { "required": ["namespace"] },
-            { "required": ["commands"] },
-            { "required": ["skills"] },
-            { "required": ["hooks"] }
+            {
+              "required": [
+                "namespace"
+              ]
+            },
+            {
+              "required": [
+                "commands"
+              ]
+            },
+            {
+              "required": [
+                "skills"
+              ]
+            },
+            {
+              "required": [
+                "hooks"
+              ]
+            }
           ]
         },
         "properties": {
-          "name": { "type": "string", "minLength": 1 },
-          "source": { "type": "string", "minLength": 1 },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "description": "A relative path to a plugin in this repository, or a source object for a plugin that lives in another repository.",
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^\\./plugins/(personas|frameworks|connectors|reporting|workflows)/[a-z0-9][a-z0-9-]*$",
+                "description": "Every in-repo plugin sits exactly one level below a category folder."
+              },
+              {
+                "type": "object",
+                "required": [
+                  "source",
+                  "repo"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "source": {
+                    "const": "github"
+                  },
+                  "repo": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+                  },
+                  "ref": {
+                    "type": "string"
+                  },
+                  "sha": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{40}$"
+                  }
+                }
+              }
+            ]
+          },
           "version": {
             "type": "string",
             "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
           },
-          "description": { "type": "string" },
-          "category": { "type": "string" },
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
           "tags": {
             "type": "array",
-            "items": { "type": "string" }
+            "items": {
+              "type": "string"
+            }
           }
         }
       }

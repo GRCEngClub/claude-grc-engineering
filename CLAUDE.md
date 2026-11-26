@@ -10,13 +10,13 @@ The open-source Claude Code plugin marketplace of the [GRC Engineering Club](htt
 
 | Kind | Where | Notes |
 |---|---|---|
-| Personas | `plugins/personas/` | `grc-engineer` (script-backed), `grc-auditor`, `grc-internal`, `grc-tprm` (prompt-only) |
+| Personas | `plugins/personas/` | `engineer` (script-backed), `auditor`, `internal`, `tprm` (prompt-only) |
 | Frameworks | `plugins/frameworks/` | One per framework, mostly prompt-only. [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) is the generated list |
 | Connectors | `plugins/connectors/` | Script-backed. Emit Findings matching `schemas/finding.schema.json` |
-| Reporting | `plugins/reporting/` | `grc-reporter`, `grc-diagrams`, `compliance-posture` (local dashboard) |
-| Workflows | `plugins/workflows/` | `grc-loop`, `teach-me`, `oscal`, `gcp-docs`, `academic-research-companion` |
+| Reporting | `plugins/reporting/` | `reporter`, `diagrams`, `compliance-posture` (local dashboard) |
+| Workflows | `plugins/workflows/` | `loop`, `teach-me`, `oscal`, `gcp-docs`, `academic-research-companion` |
 
-Every plugin sits exactly one level below a category folder. `plugins/grc-engineer` is a symlink to `plugins/personas/grc-engineer`, kept so CI configs written against the old path keep working.
+Every plugin sits exactly one level below a category folder; `schemas/marketplace.schema.json` enforces it. `portfolio` is listed in the marketplace but lives in [GRCEngClub/grc-portfolio](https://github.com/GRCEngClub/grc-portfolio).
 
 ## Layout
 
@@ -38,7 +38,7 @@ docs/                             # architecture, contributing, guides
 
 Claude Code installs a plugin by copying its folder, alone, into `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`. Nothing outside the folder comes along: no repo-root `node_modules`, no sibling plugins, no `schemas/`. Code that works in a clone can still be broken for every installed user. CI enforces every rule below except the last; [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md#plugin-rules-that-ci-enforces) explains them.
 
-- A plugin is self-contained. Scripts import only Node built-ins and files inside their own plugin. `grc-engineer` vendors `js-yaml` in `vendor/`.
+- A plugin is self-contained. Scripts import only Node built-ins and files inside their own plugin. `engineer` vendors `js-yaml` in `vendor/`.
 - Commands, skills and hooks call scripts as `node "${CLAUDE_PLUGIN_ROOT}/scripts/x.js"`, never `node plugins/.../scripts/x.js`. CI examples that check out this repo are the exception.
 - Every script handles `--help` without collecting, writing or using the network.
 - Every command and `SKILL.md` has frontmatter with a `description`.
@@ -50,7 +50,7 @@ Claude Code installs a plugin by copying its folder, alone, into `~/.claude/plug
 
 - **New framework plugin**: `node tools/scaffold-framework.js <scf-framework-id>` creates the folder and registers it. Depth tiers (Stub, Reference, Full) are defined in [docs/FRAMEWORK-PLUGIN-GUIDE.md](docs/FRAMEWORK-PLUGIN-GUIDE.md). Afterwards run `npm run generate-coverage`.
 - **New connector**: follow [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md#how-to-add-a-connector). Add contract fixtures under `tests/fixtures/`.
-- **New `grc-engineer` command**: add `commands/<name>.md`, `scripts/<name>.js` (logic in `src/` when shared), and a test in `tests/`.
+- **New `engineer` command**: add `commands/<name>.md`, `scripts/<name>.js` (logic in `src/` when shared), and a test in `tests/`.
 - **Any new plugin**: add it to `.claude-plugin/marketplace.json` and to the README plugin table.
 - **Try a plugin locally**: `claude --plugin-dir ./plugins/<path-to-plugin>`.
 
@@ -98,7 +98,7 @@ Day-to-day bug reports and feature requests should still be filed as GitHub issu
 ## Where the detail lives
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): plugin categories, the Finding contract, data flow
-- [docs/GRC-ENGINEER-WORKFLOWS.md](docs/GRC-ENGINEER-WORKFLOWS.md): cross-framework mapping, code generation, IaC scanning, control testing, monitoring, access review triage
+- [docs/ENGINEER-WORKFLOWS.md](docs/ENGINEER-WORKFLOWS.md): cross-framework mapping, code generation, IaC scanning, control testing, monitoring, access review triage
 - [docs/GRC-DATA.md](docs/GRC-DATA.md): the user-owned `grc-data/` state and its schemas
 - [docs/ENTERPRISE-DEPLOYMENT.md](docs/ENTERPRISE-DEPLOYMENT.md): Amazon Bedrock and Google Vertex AI
 - [docs/QUICKSTART.md](docs/QUICKSTART.md): the user-facing install and first run

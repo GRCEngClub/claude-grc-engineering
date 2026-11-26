@@ -34,7 +34,7 @@ Note: the SCF IDs above were verified against the live SCF API at `https://grcen
 
 ## Framework mappings (via SCF crosswalk)
 
-`/grc-engineer:gap-assessment` handles these automatically. For quick reference:
+`/engineer:gap-assessment` handles these automatically. For quick reference:
 
 - **CRY-09 (rotation)** → SOC 2 CC6.1, CC7.2 · NIST 800-53 SC-12, IA-05(07) · ISO 27002 A.8.24 · PCI 3.7.4
 - **CRY-09 (CMK)** → SOC 2 CC6.1, CC6.7 · NIST 800-53 SC-12, SC-13 · FedRAMP SC-12 · PCI 3.6.1.2

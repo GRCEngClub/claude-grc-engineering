@@ -100,7 +100,7 @@ development, outsourcing, and technology incident readiness.
 - `/sg-mas-trm:assess` - run a gap assessment
 - `/sg-mas-trm:evidence-checklist` - enumerate evidence requirements
 
-All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID
+All three delegate to `/engineer:gap-assessment` with SCF framework ID
 `apac-sgp-mas-trm-2021` for the control-by-control mechanics, and wrap the
 results in MAS TRM-specific terminology.
 

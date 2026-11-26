@@ -163,7 +163,7 @@ const serviceHandlers = {
           message: `${offenders.length} user account(s) hold primitive role(s): ${offenders.slice(0, 5).map(o => `${o.member} (${o.role})`).join('; ')}${offenders.length > 5 ? ', …' : ''}.`,
           remediation: {
             summary: 'Replace primitive roles with predefined or custom roles. roles/owner and roles/editor are over-broad.',
-            ref: 'grc-engineer://generate-implementation/least_privilege/gcp',
+            ref: 'engineer://generate-implementation/least_privilege/gcp',
             effort_hours: 1,
             automation: 'semi_automated'
           }
@@ -198,7 +198,7 @@ const serviceHandlers = {
           control_framework: 'SCF', control_id: 'IAC-15.1',
           status: 'fail', severity: 'medium',
           message: `${staleKeys.length} service-account key(s) older than 90 days. Oldest: ${oldestKey.sa} key ${oldestKey.key_id} (${oldestKey.age_days}d).`,
-          remediation: { summary: 'Rotate service account keys or replace with Workload Identity / IAM conditions where possible.', ref: 'grc-engineer://generate-implementation/key_rotation/gcp', effort_hours: 2, automation: 'semi_automated' }
+          remediation: { summary: 'Rotate service account keys or replace with Workload Identity / IAM conditions where possible.', ref: 'engineer://generate-implementation/key_rotation/gcp', effort_hours: 2, automation: 'semi_automated' }
         });
       }
     } catch (err) {
@@ -234,7 +234,7 @@ const serviceHandlers = {
         evaluations.push({
           control_framework: 'SCF', control_id: 'DCH-01.2', status: 'fail', severity: 'critical',
           message: `Public access prevention is '${pap || 'inherited'}'. Bucket is not protected from accidental public exposure.`,
-          remediation: { summary: 'Set publicAccessPrevention=enforced on the bucket.', ref: 'grc-engineer://generate-implementation/storage_public_access/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
+          remediation: { summary: 'Set publicAccessPrevention=enforced on the bucket.', ref: 'engineer://generate-implementation/storage_public_access/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
         });
       }
 
@@ -243,7 +243,7 @@ const serviceHandlers = {
       else evaluations.push({
         control_framework: 'SCF', control_id: 'IAC-10', status: 'fail', severity: 'medium',
         message: 'Uniform bucket-level access is disabled; ACLs can grant object-level permissions.',
-        remediation: { summary: 'Enable uniformBucketLevelAccess to force IAM-only access control.', ref: 'grc-engineer://generate-implementation/storage_uniform_access/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
+        remediation: { summary: 'Enable uniformBucketLevelAccess to force IAM-only access control.', ref: 'engineer://generate-implementation/storage_uniform_access/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
       });
 
       if (b.encryption?.defaultKmsKeyName) {
@@ -260,7 +260,7 @@ const serviceHandlers = {
       else evaluations.push({
         control_framework: 'SCF', control_id: 'MON-01.2', status: 'fail', severity: 'low',
         message: 'Bucket access logging not configured.',
-        remediation: { summary: 'Enable access logging to a dedicated log sink bucket.', ref: 'grc-engineer://generate-implementation/storage_logging/gcp', effort_hours: 0.25, automation: 'auto_fixable' }
+        remediation: { summary: 'Enable access logging to a dedicated log sink bucket.', ref: 'engineer://generate-implementation/storage_logging/gcp', effort_hours: 0.25, automation: 'auto_fixable' }
       });
 
       findings.push(buildDoc(ctx, resource, evaluations));
@@ -281,7 +281,7 @@ const serviceHandlers = {
           evaluations.push({
             control_framework: 'SCF', control_id: 'MON-02.1', status: 'fail', severity: 'high',
             message: `${publicSinks.length} log sink(s) route to a publicly accessible destination.`,
-            remediation: { summary: 'Route log sinks to a private storage bucket or BigQuery dataset.', ref: 'grc-engineer://generate-implementation/audit_logging/gcp', effort_hours: 0.5, automation: 'manual' }
+            remediation: { summary: 'Route log sinks to a private storage bucket or BigQuery dataset.', ref: 'engineer://generate-implementation/audit_logging/gcp', effort_hours: 0.5, automation: 'manual' }
           });
         } else {
           evaluations.push({ control_framework: 'SCF', control_id: 'MON-02.1', status: 'pass', severity: 'info' });
@@ -290,7 +290,7 @@ const serviceHandlers = {
         evaluations.push({
           control_framework: 'SCF', control_id: 'MON-02', status: 'fail', severity: 'high',
           message: 'No log sinks configured. Admin Activity + Data Access logs are not being retained outside the default 30-day window.',
-          remediation: { summary: 'Create a log sink exporting audit logs to long-term storage (GCS or BigQuery).', ref: 'grc-engineer://generate-implementation/audit_logging/gcp', effort_hours: 1, automation: 'auto_fixable' }
+          remediation: { summary: 'Create a log sink exporting audit logs to long-term storage (GCS or BigQuery).', ref: 'engineer://generate-implementation/audit_logging/gcp', effort_hours: 1, automation: 'auto_fixable' }
         });
       }
     } catch (err) {
@@ -338,14 +338,14 @@ const serviceHandlers = {
             evaluations.push({
               control_framework: 'SCF', control_id: 'CRY-09', status: 'fail', severity: 'medium',
               message: `Key ${keyName} has no automatic rotation configured.`,
-              remediation: { summary: 'Set rotationPeriod to 7776000s (90d) or shorter.', ref: 'grc-engineer://generate-implementation/key_rotation/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
+              remediation: { summary: 'Set rotationPeriod to 7776000s (90d) or shorter.', ref: 'engineer://generate-implementation/key_rotation/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
             });
           } else {
             const seconds = parseInt(period, 10);
             if (seconds > 7776000) evaluations.push({
               control_framework: 'SCF', control_id: 'CRY-09', status: 'fail', severity: 'medium',
               message: `Key ${keyName} rotation period is ${Math.round(seconds/86400)}d — exceeds 90d baseline.`,
-              remediation: { summary: 'Shorten rotationPeriod to 7776000s (90d).', ref: 'grc-engineer://generate-implementation/key_rotation/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
+              remediation: { summary: 'Shorten rotationPeriod to 7776000s (90d).', ref: 'engineer://generate-implementation/key_rotation/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
             });
             else evaluations.push({ control_framework: 'SCF', control_id: 'CRY-09', status: 'pass', severity: 'info' });
           }
@@ -373,7 +373,7 @@ const serviceHandlers = {
         evaluations.push({
           control_framework: 'SCF', control_id: 'IAC-02', status: 'fail', severity: 'medium',
           message: 'OS Login is not enabled at the project level; instances may fall back to SSH keys in metadata.',
-          remediation: { summary: 'Set project metadata enable-oslogin=TRUE.', ref: 'grc-engineer://generate-implementation/compute_os_login/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
+          remediation: { summary: 'Set project metadata enable-oslogin=TRUE.', ref: 'engineer://generate-implementation/compute_os_login/gcp', effort_hours: 0.1, automation: 'auto_fixable' }
         });
       }
     } catch (err) {

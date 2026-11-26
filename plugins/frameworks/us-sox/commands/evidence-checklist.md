@@ -203,11 +203,11 @@ Simplified checklist for the SOX PMO and control owners:
 
 ## SCF crosswalk
 
-This evidence checklist supplements (rather than replaces) the SCF-driven evidence list produced by `/grc-engineer:gap-assessment usa-federal-law-sox-2002`. The crosswalk maps **4 SCF controls → 17 SOX-relevant controls** — small because SOX itself does not enumerate technical control objectives. Use the SCF gap assessment for the control-by-control mechanics; use this checklist for the artifacts and evidence the SOX cycle actually produces.
+This evidence checklist supplements (rather than replaces) the SCF-driven evidence list produced by `/engineer:gap-assessment usa-federal-law-sox-2002`. The crosswalk maps **4 SCF controls → 17 SOX-relevant controls** — small because SOX itself does not enumerate technical control objectives. Use the SCF gap assessment for the control-by-control mechanics; use this checklist for the artifacts and evidence the SOX cycle actually produces.
 
 ---
 
 **Statute**: Public Law 107-204; 15 U.S.C. §§ 7201 et seq.
 **Regulators**: SEC, PCAOB, DOJ
 **Evidence retention**: 7 years (PCAOB rule); §802 (18 U.S.C. § 1519) imposes criminal exposure for knowing destruction
-**Related commands**: `/us-sox:scope`, `/us-sox:assess`, `/grc-engineer:gap-assessment`
+**Related commands**: `/us-sox:scope`, `/us-sox:assess`, `/engineer:gap-assessment`

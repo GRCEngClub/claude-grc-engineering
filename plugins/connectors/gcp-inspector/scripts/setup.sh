@@ -106,5 +106,5 @@ gcp-inspector:setup ✓
 
 Next:
   /gcp-inspector:collect
-  /grc-engineer:gap-assessment FedRAMP-Moderate,SOC2 --sources=gcp-inspector
+  /engineer:gap-assessment FedRAMP-Moderate,SOC2 --sources=gcp-inspector
 EOF

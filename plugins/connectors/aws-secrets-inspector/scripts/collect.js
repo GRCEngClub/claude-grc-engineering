@@ -209,7 +209,7 @@ async function evaluateSecret({ env, region, runId, accountId, arn, summary }) {
       message: 'Automatic rotation is not enabled.',
       remediation: {
         summary: 'Enable automatic rotation with a rotation Lambda; this is a key-management lifecycle control.',
-        ref: 'grc-engineer://generate-implementation/secret_rotation/aws',
+        ref: 'engineer://generate-implementation/secret_rotation/aws',
         effort_hours: 1,
         automation: 'semi_automated'
       }
@@ -232,7 +232,7 @@ async function evaluateSecret({ env, region, runId, accountId, arn, summary }) {
         : 'No KMS key associated; AWS uses the default account key for encryption.',
       remediation: {
         summary: 'Create or assign a customer-managed KMS key to this secret so the key has an assigned owner and rotation policy.',
-        ref: 'grc-engineer://generate-implementation/kms_cmk/aws',
+        ref: 'engineer://generate-implementation/kms_cmk/aws',
         effort_hours: 0.5,
         automation: 'auto_fixable'
       }
@@ -260,7 +260,7 @@ async function evaluateSecret({ env, region, runId, accountId, arn, summary }) {
         message: `Resource policy grants public access: ${publicAccess.reason}.`,
         remediation: {
           summary: 'Remove public principals from the resource policy; restrict to specific AWS account IDs or IAM roles.',
-          ref: 'grc-engineer://generate-implementation/iam_least_privilege/aws',
+          ref: 'engineer://generate-implementation/iam_least_privilege/aws',
           effort_hours: 0.5,
           automation: 'auto_fixable'
         }
@@ -287,7 +287,7 @@ async function evaluateSecret({ env, region, runId, accountId, arn, summary }) {
       message: `Secret has not been accessed in ${inactiveDays} day(s); review whether it is still needed.`,
       remediation: {
         summary: 'Disable or delete the secret if no consumer remains; otherwise document why it is retained.',
-        ref: 'grc-engineer://generate-implementation/inactive_credential_review/aws',
+        ref: 'engineer://generate-implementation/inactive_credential_review/aws',
         effort_hours: 0.25,
         automation: 'manual'
       }

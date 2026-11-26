@@ -184,7 +184,7 @@ CONTROL TESTING EVIDENCE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ✓ Automated Control Tests
-  Command: /grc-engineer:test-control access_control_account_management
+  Command: /engineer:test-control access_control_account_management
   Frequency: Daily (automated)
   Purpose: Continuous validation of control effectiveness
   Evidence: test-results-*.json files
@@ -369,5 +369,5 @@ NEXT STEPS
 - `/soc2:assess` - SOC 2 readiness assessment
 - `/soc2:type-ii-planner` - Plan Type II period testing
 - `/soc2:service-auditor-prep` - Generate auditor-ready package
-- `/grc-engineer:test-control` - Automated control testing
-- `/grc-engineer:collect-evidence` - General evidence collection
+- `/engineer:test-control` - Automated control testing
+- `/engineer:collect-evidence` - General evidence collection

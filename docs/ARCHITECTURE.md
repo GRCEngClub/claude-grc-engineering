@@ -5,12 +5,12 @@
 ```
                     ┌─────────────────────────────────────────────┐
                     │           Persona / framework plugins        │  ← human workflows
-                    │  (grc-auditor, grc-internal, grc-tprm,       │    and reference
+                    │  (auditor, internal, tprm,       │    and reference
                     │   soc2, nist-800-53, iso27001, pci-dss, …)   │
                     └────────────┬────────────────────────────────┘
                                  │ uses
                     ┌────────────▼────────────────────────────────┐
-                    │            grc-engineer (hub)                │  ← the engineering
+                    │            engineer (hub)                │  ← the engineering
                     │  gap-assessment, scan-iac, test-control,     │    hub
                     │  generate-implementation, monitor-continuous │
                     └────────────┬────────────────────────────────┘
@@ -63,7 +63,7 @@ Every connector emits **Findings**: documents matching [`schemas/finding.schema.
       "message": "Bucket has no default encryption configured",
       "remediation": {
         "summary": "Enable SSE-KMS with a customer-managed key",
-        "ref": "grc-engineer://generate-implementation/encryption_at_rest/aws",
+        "ref": "engineer://generate-implementation/encryption_at_rest/aws",
         "effort_hours": 1,
         "automation": "auto_fixable"
       }
@@ -112,34 +112,34 @@ Report shows:          "Data at rest encryption is failing: violates 4 framework
 
 Connectors can emit evaluations against any framework. SCF isn't required. If a connector emits `control_framework="NIST-800-53-r5", control_id="AC-2"`, `/gap-assessment` still works. It just uses the reverse crosswalk to reach other frameworks. The report flags any control that doesn't resolve in the crosswalk.
 
-## The engineering hub: `grc-engineer`
+## The engineering hub: `engineer`
 
 One plugin holds the cross-cutting commands. Other plugins either *feed* the hub (connectors) or *consume* the hub's outputs (persona plugins, framework plugins, or user workflows).
 
 | Command | Purpose |
 |---|---|
-| `/grc-engineer:gap-assessment` | Join Findings × Crosswalk → prioritized gap report |
-| `/grc-engineer:scan-iac` | Scan Terraform/CloudFormation/K8s for violations (emits Findings) |
-| `/grc-engineer:test-control` | Validate a control is working end-to-end |
-| `/grc-engineer:generate-implementation` | Produce remediation code (Terraform, Python, policy-as-code) |
-| `/grc-engineer:generate-policy` | Select draft templates for two supported phrases in Rego, Sentinel, or AWS Config; [availability varies by phrase](../plugins/personas/grc-engineer/commands/generate-policy.md) |
-| `/grc-engineer:monitor-continuous` | Schedule recurring gap-assessment with alerting |
-| `/grc-engineer:map-controls-unified` | Show one control across every framework it maps to |
-| `/grc-engineer:find-conflicts` | Surface conflicting requirements across frameworks |
-| `/grc-engineer:optimize-multi-framework` | "Implement once, satisfy many" ROI report |
-| `/grc-engineer:pipeline-status` | Show connector health: last run, auth, cache freshness |
-| `/grc-engineer:collect-evidence` | Build framework-specific evidence packages from Findings |
-| `/grc-engineer:review-pr` | Review a PR for compliance regressions |
+| `/engineer:gap-assessment` | Join Findings × Crosswalk → prioritized gap report |
+| `/engineer:scan-iac` | Scan Terraform/CloudFormation/K8s for violations (emits Findings) |
+| `/engineer:test-control` | Validate a control is working end-to-end |
+| `/engineer:generate-implementation` | Produce remediation code (Terraform, Python, policy-as-code) |
+| `/engineer:generate-policy` | Select draft templates for two supported phrases in Rego, Sentinel, or AWS Config; [availability varies by phrase](../plugins/personas/engineer/commands/generate-policy.md) |
+| `/engineer:monitor-continuous` | Schedule recurring gap-assessment with alerting |
+| `/engineer:map-controls-unified` | Show one control across every framework it maps to |
+| `/engineer:find-conflicts` | Surface conflicting requirements across frameworks |
+| `/engineer:optimize-multi-framework` | "Implement once, satisfy many" ROI report |
+| `/engineer:pipeline-status` | Show connector health: last run, auth, cache freshness |
+| `/engineer:collect-evidence` | Build framework-specific evidence packages from Findings |
+| `/engineer:review-pr` | Review a PR for compliance regressions |
 
 ## Plugin categories
 
-1. **Engineering hub**: `grc-engineer`. Holds the cross-cutting commands every other plugin either feeds or consumes.
+1. **Engineering hub**: `engineer`. Holds the cross-cutting commands every other plugin either feeds or consumes.
 2. **Framework plugins**: everything under `plugins/frameworks/` (`soc2`, `nist-800-53`, `iso27001`, `pci-dss`, `fedramp-20x`, `cmmc`, and the rest). These carry framework-specific knowledge and commands (`/soc2:generate-tsc-matrix`, `/fedramp-20x:vdr-assess`, etc.). Normative control text stays behind your licensed copy of the standard. These plugins reference control IDs and provide my implementation guidance, not the standards' prose. See [FRAMEWORK-COVERAGE.md](FRAMEWORK-COVERAGE.md) for the current list and each plugin's depth.
-3. **Persona plugins**: `grc-auditor` (audit workflows), `grc-internal` (internal GRC team), `grc-tprm` (third-party risk). Orchestrate commands from the hub and framework plugins for a specific role.
+3. **Persona plugins**: `auditor` (audit workflows), `internal` (internal GRC team), `tprm` (third-party risk). Orchestrate commands from the hub and framework plugins for a specific role.
 4. **Connector plugins**: everything under `plugins/connectors/` (`aws-inspector`, `github-inspector`, `gcp-inspector`, `okta-inspector`, and the rest). Thin integration layer over external tools. Emit Findings, conform to the contract.
 5. **OSCAL plugin**: `oscal` (wraps `oscal-cli`). Turns the OSCAL tooling into first-class Claude commands.
-6. **Reporting and workflow plugins**: `grc-reporter`, `grc-loop`, `grc-diagrams`, `teach-me`, `compliance-posture`. Turn Findings and assessments into artifacts for humans: reports, diagrams, dashboards.
-7. **Knowledge sources and site builders**: `gcp-docs` (API-backed documentation lookup), `grc-portfolio` (portfolio site scaffolding and deployment).
+6. **Reporting and workflow plugins**: `reporter`, `loop`, `diagrams`, `teach-me`, `compliance-posture`. Turn Findings and assessments into artifacts for humans: reports, diagrams, dashboards.
+7. **Knowledge sources and site builders**: `gcp-docs` (API-backed documentation lookup), `portfolio` (portfolio site scaffolding and deployment; lives in [GRCEngClub/grc-portfolio](https://github.com/GRCEngClub/grc-portfolio) and is listed in this marketplace).
 
 `.claude-plugin/marketplace.json` is the authoritative inventory; the categories describe shapes, not an exhaustive list.
 
@@ -185,4 +185,4 @@ Don't. Use SCF. If SCF doesn't have the control mapping you need, the right fix 
 - **Not a replacement for commercial GRC platforms** (Vanta, Drata, OneTrust, Archer). This is an engineering toolkit that composes with them.
 - **Not a legal or audit opinion**. Outputs are engineering artifacts, not certifications.
 - **Not a reproduction of any standard**. For normative framework text, use your licensed copy.
-- **Not a runtime service**. Everything is operator-invoked via Claude Code. Scheduling lives in `/grc-engineer:monitor-continuous`, which emits scheduler configs for cron/EventBridge/GitHub Actions.
+- **Not a runtime service**. Everything is operator-invoked via Claude Code. Scheduling lives in `/engineer:monitor-continuous`, which emits scheduler configs for cron/EventBridge/GitHub Actions.

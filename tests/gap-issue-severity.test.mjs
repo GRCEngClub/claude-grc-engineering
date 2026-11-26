@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const script = path.resolve('plugins/personas/grc-engineer/scripts/create-gap-issue.js');
+const script = path.resolve('plugins/personas/engineer/scripts/create-gap-issue.js');
 
 test('optional severity label is previewed and passed to gh only with create', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gap-severity-'));

@@ -20,7 +20,7 @@
       "message": "Key db-encryption rotation period is 365d — exceeds 90d baseline.",
       "remediation": {
         "summary": "Shorten rotationPeriod to 7776000s (90d).",
-        "ref": "grc-engineer://generate-implementation/key_rotation/gcp",
+        "ref": "engineer://generate-implementation/key_rotation/gcp",
         "effort_hours": 0.1,
         "automation": "auto_fixable"
       }

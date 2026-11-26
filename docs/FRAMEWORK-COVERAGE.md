@@ -4,7 +4,7 @@
 
 Last generated: 2026-11-26
 
-This page tracks which of the 249 frameworks in the [Secure Controls Framework](https://securecontrolsframework.com) crosswalk have a dedicated plugin in this repo. Frameworks without a dedicated plugin are **already usable today** via `/grc-engineer:gap-assessment <scf-framework-id>` through the SCF crosswalk.
+This page tracks which of the 249 frameworks in the [Secure Controls Framework](https://securecontrolsframework.com) crosswalk have a dedicated plugin in this repo. Frameworks without a dedicated plugin are **already usable today** via `/engineer:gap-assessment <scf-framework-id>` through the SCF crosswalk.
 
 ## Summary
 
@@ -21,7 +21,7 @@ This page tracks which of the 249 frameworks in the [Secure Controls Framework](
 |---|---|---|
 | Full | 0 | Framework-native workflow commands + Reference content |
 | Reference | 30 | Scope + evidence checklist + framework-specific SKILL |
-| Stub | 1 | Scaffolded delegation to `/grc-engineer:gap-assessment` |
+| Stub | 1 | Scaffolded delegation to `/engineer:gap-assessment` |
 
 See [Framework Plugin Guide](FRAMEWORK-PLUGIN-GUIDE.md) for depth definitions and level-up checklists.
 
@@ -83,7 +83,7 @@ node tools/scaffold-framework.js <scf-framework-id>
 Or keep using the crosswalk directly:
 
 ```bash
-/grc-engineer:gap-assessment "<scf-framework-id>"
+/engineer:gap-assessment "<scf-framework-id>"
 ```
 
 ### Americas — 70 frameworks

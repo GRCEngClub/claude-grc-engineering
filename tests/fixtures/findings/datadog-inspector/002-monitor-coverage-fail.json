@@ -20,7 +20,7 @@
       "message": "No critical or production Datadog monitors were detected.",
       "remediation": {
         "summary": "Define monitors for critical services and resources, with severity and routing aligned to incident response.",
-        "ref": "grc-engineer://generate-implementation/datadog_monitoring",
+        "ref": "engineer://generate-implementation/datadog_monitoring",
         "effort_hours": 1,
         "automation": "manual"
       }

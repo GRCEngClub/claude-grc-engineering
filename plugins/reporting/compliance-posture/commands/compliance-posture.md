@@ -5,7 +5,7 @@ description: Serve a localhost compliance posture dashboard from monitor-continu
 # Compliance Posture Dashboard
 
 Serves a local HTML dashboard from saved
-`/grc-engineer:monitor-continuous` JSON output.
+`/engineer:monitor-continuous` JSON output.
 
 Implementation:
 [`scripts/serve.js`](../scripts/serve.js).
@@ -38,10 +38,10 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/serve.js" \
 Generate dashboard input with:
 
 ```text
-/grc-engineer:monitor-continuous SOC2,NIST-800-53 --output=grc-data/dashboard/monitor-continuous/<timestamp>.json --no-exit-code
+/engineer:monitor-continuous SOC2,NIST-800-53 --output=grc-data/dashboard/monitor-continuous/<timestamp>.json --no-exit-code
 ```
 
-This needs the `grc-engineer` plugin. Use a UTC timestamp such as `20260115T020000` for the file name.
+This needs the `engineer` plugin. Use a UTC timestamp such as `20260115T020000` for the file name.
 
 The dashboard reads the saved JSON manifests and computes latest state, trends,
 and deltas at view time. It does not require Claude to retain historical state.

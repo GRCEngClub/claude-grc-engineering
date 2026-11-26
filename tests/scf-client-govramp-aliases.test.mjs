@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { initSCF, frameworkWithoutCrosswalk } from '../plugins/personas/grc-engineer/scripts/scf-client.js';
+import { initSCF, frameworkWithoutCrosswalk } from '../plugins/personas/engineer/scripts/scf-client.js';
 
 const GOVRAMP_IDS = [
   'general-govramp',

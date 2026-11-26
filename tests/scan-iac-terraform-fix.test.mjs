@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import IaCScanner from '../plugins/personas/grc-engineer/scripts/scan-iac.js';
+import IaCScanner from '../plugins/personas/engineer/scripts/scan-iac.js';
 
 const INSECURE = `resource "aws_s3_bucket" "data" {
   bucket = "example-data"

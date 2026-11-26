@@ -192,7 +192,7 @@ CSF is designed to play well with others. Common interactions:
 - **CSF + PCI DSS v4.0.1** — CSF doesn't satisfy PCI DSS, but PCI DSS controls map cleanly into PR.DS (data security), PR.AA (access control), DE.CM (monitoring) Subcategories.
 - **CSF + NIS2 (EU)** — both are outcomes-oriented. NIS2 imposes obligations on essential and important entities operating in the EU; CSF can be used as the internal cybersecurity management framework that demonstrates NIS2-required risk management measures.
 
-For multi-framework optimization and crosswalk-driven implementation work, see `/grc-engineer:optimize-multi-framework` and `/grc-engineer:map-controls-unified`.
+For multi-framework optimization and crosswalk-driven implementation work, see `/engineer:optimize-multi-framework` and `/engineer:map-controls-unified`.
 
 ## Common misinterpretations
 
@@ -230,7 +230,7 @@ When using this plugin, the typical workflow is:
 3. /nist-csf-20:assess            # run the gap assessment via SCF crosswalk
 ```
 
-Underneath, all three commands delegate the control-by-control mechanics to `/grc-engineer:gap-assessment` with SCF framework ID `general-nist-csf-2-0`. This plugin contributes:
+Underneath, all three commands delegate the control-by-control mechanics to `/engineer:gap-assessment` with SCF framework ID `general-nist-csf-2-0`. This plugin contributes:
 
 - The CSF-specific scope decision tree (Functions in scope, Tier target, Community Profile selection)
 - CSF-specific framing of the gap assessment output (organized by Function and Category, not by SCF family)
@@ -255,7 +255,7 @@ CSF is technology-neutral. Implementation Examples are written without naming ve
 - Board-readable reporting structure aligned with CSF Functions
 - SEC cybersecurity disclosure (Reg S-K Item 106) alignment via Govern Function
 - C-SCRM (cybersecurity supply chain risk management) under GV.SC
-- Multi-framework optimization via `/grc-engineer:optimize-multi-framework`
+- Multi-framework optimization via `/engineer:optimize-multi-framework`
 - SCF crosswalk navigation (general-nist-csf-2-0 → 250 SCF controls → 134 CSF Subcategories)
 
 ## Levelling up to Full
@@ -277,7 +277,7 @@ Contributors with practitioner experience in any of these workflows are encourag
 - `/nist-csf-20:assess` — run a gap assessment via SCF crosswalk
 - `/nist-csf-20:evidence-checklist` — enumerate evidence per Function and Category across all 106 Subcategories
 
-All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID `general-nist-csf-2-0` for the control-by-control mechanics, and wrap the results in CSF 2.0 vocabulary (Function / Category / Subcategory / Profile / Tier).
+All three delegate to `/engineer:gap-assessment` with SCF framework ID `general-nist-csf-2-0` for the control-by-control mechanics, and wrap the results in CSF 2.0 vocabulary (Function / Category / Subcategory / Profile / Tier).
 
 ## References
 

@@ -176,7 +176,7 @@ table inside this plugin.
   scope.
 - `/nist-ai-600-1:evidence-checklist` - evidence by primary consideration and
   GAI risk.
-- `/nist-ai-600-1:assess` - gap review through `/grc-engineer:gap-assessment`
+- `/nist-ai-600-1:assess` - gap review through `/engineer:gap-assessment`
   with framework ID `general-nist-600-1-gen-ai-profile`, reported by action
   ID and GAI risk.
 

@@ -106,5 +106,5 @@ okta-inspector:setup ✓
 
 Next:
   /okta-inspector:collect
-  /grc-engineer:gap-assessment FedRAMP-Moderate,SOC2 --sources=okta-inspector
+  /engineer:gap-assessment FedRAMP-Moderate,SOC2 --sources=okta-inspector
 EOF

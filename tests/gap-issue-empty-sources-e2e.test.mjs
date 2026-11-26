@@ -20,7 +20,7 @@ test('mixed sources make empty coverage visible and suppress CLI issue labels', 
     const report = path.join(dir, 'report');
     const previewFile = path.join(report, 'gap-report.github-issues.json');
     const run = () => {
-      const result = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/gap-assessment.js', 'profile', '--offline', '--quiet', '--output=github-issues', `--cache-dir=${findings}`, `--report-dir=${report}`], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache } });
+      const result = spawnSync(process.execPath, ['plugins/personas/engineer/scripts/gap-assessment.js', 'profile', '--offline', '--quiet', '--output=github-issues', `--cache-dir=${findings}`, `--report-dir=${report}`], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache } });
       assert.equal(result.status, 0, result.stderr);
       const preview = JSON.parse(result.stdout);
       assert.deepEqual(JSON.parse(fs.readFileSync(previewFile, 'utf8')), preview);
@@ -50,7 +50,7 @@ test('mixed sources make empty coverage visible and suppress CLI issue labels', 
       const normalized = JSON.parse(fs.readFileSync(path.join(report, 'findings.normalized.json'), 'utf8'));
       assert.deepEqual(normalized.load_errors, preview.data_quality_warnings);
       for (const create of [false, true]) {
-        const args = ['plugins/personas/grc-engineer/scripts/create-gap-issue.js', previewFile, 'owner/repo', '0', '--severity-label'];
+        const args = ['plugins/personas/engineer/scripts/create-gap-issue.js', previewFile, 'owner/repo', '0', '--severity-label'];
         if (create) args.push('--create');
         const result = spawnSync(process.execPath, args, { encoding: 'utf8', env: { ...process.env, PATH: bin + path.delimiter + process.env.PATH, RECORD: record } });
         assert.equal(result.status, 0, result.stderr);

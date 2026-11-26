@@ -31,7 +31,7 @@ node tools/scaffold-framework.js <scf-framework-id-or-label> [options]
 ```
 plugins/frameworks/<slug>/
 ├── .claude-plugin/plugin.json             # Plugin metadata + metadata.framework block
-├── commands/assess.md                     # Routes to /grc-engineer:gap-assessment
+├── commands/assess.md                     # Routes to /engineer:gap-assessment
 ├── skills/<slug>-expert/SKILL.md          # Framework identity + TODO sections
 └── README.md                              # Install + level-up instructions
 ```

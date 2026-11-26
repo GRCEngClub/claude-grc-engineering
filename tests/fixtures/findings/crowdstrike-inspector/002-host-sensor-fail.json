@@ -20,7 +20,7 @@
       "message": "Falcon host 'server-01' has stale/offline sensor telemetry.",
       "remediation": {
         "summary": "Restore Falcon sensor coverage or formally retire the endpoint from inventory.",
-        "ref": "grc-engineer://generate-implementation/crowdstrike_sensor_coverage",
+        "ref": "engineer://generate-implementation/crowdstrike_sensor_coverage",
         "effort_hours": 1,
         "automation": "manual"
       }

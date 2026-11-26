@@ -331,7 +331,7 @@ Use `--sdf` to include SDF-specific intensification across all themes.
 
 Produces a per-theme checklist with status (`Collected` / `Partial` / `Missing` / `Not applicable`), gaps prioritised by penalty exposure (security ₹250cr > children ₹200cr > SDF ₹150cr > breach-notification ₹50cr), and a remediation-effort estimate.
 
-This output feeds into `/ind-dpdpa:assess` (gap-by-control) and `/grc-engineer:generate-implementation` (where automation is feasible).
+This output feeds into `/ind-dpdpa:assess` (gap-by-control) and `/engineer:generate-implementation` (where automation is feasible).
 
 ## Disclaimer
 

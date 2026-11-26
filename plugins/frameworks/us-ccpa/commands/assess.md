@@ -4,7 +4,7 @@ description: CCPA / CPRA compliance gap assessment via SCF crosswalk
 
 # CCPA / CPRA Assessment
 
-Runs a compliance gap assessment against the California Consumer Privacy Act and the California Privacy Rights Act amendments by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier, then overlays CCPA/CPRA-specific context.
+Runs a compliance gap assessment against the California Consumer Privacy Act and the California Privacy Rights Act amendments by delegating to `/engineer:gap-assessment` with the framework's SCF identifier, then overlays CCPA/CPRA-specific context.
 
 ## Usage
 
@@ -49,7 +49,7 @@ Before running, confirm with the user:
 Under the hood:
 
 ```
-/grc-engineer:gap-assessment "usa-state-ca-ccpa-cpra-2026" [--sources=<connector-list>]
+/engineer:gap-assessment "usa-state-ca-ccpa-cpra-2026" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands 258 SCF controls into the 623 CCPA/CPRA framework controls.
@@ -91,7 +91,7 @@ The SCF crosswalk expands 258 SCF controls into the 623 CCPA/CPRA framework cont
 
 ### Combined regimes
 
-- **CCPA/CPRA + GDPR** — overlapping rights and vendor management; use `/grc-engineer:find-conflicts` and `/grc-engineer:optimize-multi-framework` to identify "implement once, satisfy many" controls. Do not maintain a hand-curated CCPA-to-GDPR mapping inside this plugin.
+- **CCPA/CPRA + GDPR** — overlapping rights and vendor management; use `/engineer:find-conflicts` and `/engineer:optimize-multi-framework` to identify "implement once, satisfy many" controls. Do not maintain a hand-curated CCPA-to-GDPR mapping inside this plugin.
 - **CCPA/CPRA + HIPAA** — bifurcate at the data-carve-out boundary; PHI is governed by HIPAA, residual PI by CCPA/CPRA.
 - **CCPA/CPRA + state analogs** (Virginia, Colorado, Connecticut, Texas, Utah, etc.) — for multi-state programs, run CCPA/CPRA first because it is the most stringent in several dimensions and the others can largely be satisfied by a CCPA/CPRA-compliant baseline.
 
@@ -146,7 +146,7 @@ Based on CPPA enforcement advisories, AG settlements, and observed assessment pa
 
 - `/us-ccpa:scope` — determine applicability before assessing.
 - `/us-ccpa:evidence-checklist` — enumerate evidence requirements organized by Civil Code section.
-- `/grc-engineer:gap-assessment usa-state-ca-ccpa-cpra-2026` — direct SCF crosswalk assessment.
+- `/engineer:gap-assessment usa-state-ca-ccpa-cpra-2026` — direct SCF crosswalk assessment.
 
 ## Enforcement context
 

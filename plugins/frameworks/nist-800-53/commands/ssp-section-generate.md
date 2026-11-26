@@ -601,7 +601,7 @@ Configuration Evidence:
   - AWS Config rules: iam-user-mfa-enabled
 
 Testing Evidence:
-  - Automated control tests: /grc-engineer:test-control AC-2
+  - Automated control tests: /engineer:test-control AC-2
     - Test results from 2024-12-28: 14/15 tests passed (93%)
   - Quarterly access reviews (2024 Q1-Q4)
   - Monthly privileged access reviews (2024)
@@ -645,4 +645,4 @@ Your Company provides:
 - `/nist:overlay-apply` - Apply FedRAMP or other overlays
 - `/nist:family-deep-dive` - Detailed guidance on AC family
 - `/soc2:evidence-checklist` - Collect required evidence
-- `/grc-engineer:test-control` - Test control effectiveness
+- `/engineer:test-control` - Test control effectiveness

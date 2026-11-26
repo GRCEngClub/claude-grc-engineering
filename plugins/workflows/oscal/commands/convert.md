@@ -48,5 +48,5 @@ curl -LO https://raw.githubusercontent.com/usnistgov/oscal-content/main/nist.gov
 ## When to use
 
 - **Integrate with tools that want a specific format**: some GRC platforms ingest only XML; others JSON. This plugin lets you keep authoring in whichever format your team prefers and export to whatever the downstream wants.
-- **Move assessment results** from `/grc-engineer:gap-assessment --output=oscal-ar` into OSCAL SAR consumers that only speak XML.
+- **Move assessment results** from `/engineer:gap-assessment --output=oscal-ar` into OSCAL SAR consumers that only speak XML.
 - **Human review** of machine-authored OSCAL — YAML is usually the most readable.

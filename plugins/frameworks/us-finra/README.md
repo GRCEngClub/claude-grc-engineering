@@ -20,7 +20,7 @@ Reference-depth framework plugin for FINRA member firms. FINRA has no single cyb
 |---|---|
 | `/us-finra:scope` | Determines which obligations apply. It checks covered accounts for S-ID, the firm's SCI entity status, and which service providers hold customer information |
 | `/us-finra:evidence-checklist` | Builds an evidence list grouped by FINRA's 12 cybersecurity principles (August 2026), with the rule behind each item |
-| `/us-finra:assess` | Runs `/grc-engineer:gap-assessment` against the SCF crosswalk |
+| `/us-finra:assess` | Runs `/engineer:gap-assessment` against the SCF crosswalk |
 
 ## Status: Reference
 

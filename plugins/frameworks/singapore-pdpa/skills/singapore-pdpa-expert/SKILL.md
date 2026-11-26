@@ -38,7 +38,7 @@ TODO: who enforces, how penalties are calculated, recent enforcement patterns wo
 
 ### Interaction with other frameworks
 
-TODO: overlaps with GDPR / ISO / NIST / sectoral rules. Reference the [cross-framework analyzer](../../../../grc-engineer/scripts/cross-framework-analyzer.js) outputs when useful.
+TODO: overlaps with GDPR / ISO / NIST / sectoral rules. Reference the [cross-framework analyzer](../../../../engineer/scripts/cross-framework-analyzer.js) outputs when useful.
 
 ### Common misinterpretations
 
@@ -50,7 +50,7 @@ TODO: at least 2–3 community-level misunderstandings this plugin should correc
 - `/singapore-pdpa:assess` — run a gap assessment
 - `/singapore-pdpa:evidence-checklist` — enumerate evidence requirements
 
-All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID `apac-sgp-pdpa-2012` for the control-by-control mechanics, and wrap the results in Singapore - Personal Data Protection Ac (PDPA) (2012)-specific terminology.
+All three delegate to `/engineer:gap-assessment` with SCF framework ID `apac-sgp-pdpa-2012` for the control-by-control mechanics, and wrap the results in Singapore - Personal Data Protection Ac (PDPA) (2012)-specific terminology.
 
 ## Levelling up to Full
 

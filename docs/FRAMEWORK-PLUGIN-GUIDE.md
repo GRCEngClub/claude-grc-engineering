@@ -8,7 +8,7 @@ The Club's goal is a dedicated plugin for every framework in the Secure Controls
 
 | Depth | You ship | Ship criterion |
 |---|---|---|
-| **Stub** | Scaffolded plugin that delegates to `/grc-engineer:gap-assessment` via the SCF crosswalk. 4 files. | Passes CI. Framework identity is correct. Any GRC engineer with no prior knowledge of this framework can install the plugin and get a meaningful gap report. |
+| **Stub** | Scaffolded plugin that delegates to `/engineer:gap-assessment` via the SCF crosswalk. 4 files. | Passes CI. Framework identity is correct. Any GRC engineer with no prior knowledge of this framework can install the plugin and get a meaningful gap report. |
 | **Reference** | Stub plus scope determination, evidence checklist, and framework-specific context in the SKILL. 6 files, no `TODO:` markers left in the SKILL body. | A practitioner who's never seen this framework before can assess, scope, and prepare evidence with only the plugin as a guide. No copying from the standard itself required. |
 | **Full** | Reference plus framework-specific workflow commands tied to the audit ritual. 8+ files. | The plugin handles the *native* assessment artifacts for this framework — SSP outlines for FedRAMP, ROC walkthroughs for PCI DSS, TSC matrices for SOC 2, etc. — not just generic gap-assessment output. |
 
@@ -67,7 +67,7 @@ plugins/frameworks/<slug>/
 }
 ```
 
-Claude Code ignores unknown top-level keys in `plugin.json` and `claude plugin validate` warns about them, so repo-specific data lives under the free-form `metadata` key. The `metadata.framework` block drives `/grc-engineer:frameworks` — the discovery command that lists all 249 SCF frameworks and shows which have plugins. Missing metadata means the plugin shows up as "no SCF mapping recorded."
+Claude Code ignores unknown top-level keys in `plugin.json` and `claude plugin validate` warns about them, so repo-specific data lives under the free-form `metadata` key. The `metadata.framework` block drives `/engineer:frameworks` — the discovery command that lists all 249 SCF frameworks and shows which have plugins. Missing metadata means the plugin shows up as "no SCF mapping recorded."
 
 ## Stub depth
 
@@ -197,7 +197,7 @@ Style issues (markdown lint, heading hierarchy) are enforced by CI. Substantive 
 
 ## Getting started
 
-1. Pick a framework. Use `/grc-engineer:frameworks --not-installed` to see what's available.
+1. Pick a framework. Use `/engineer:frameworks --not-installed` to see what's available.
 2. Pick a depth. If you've never touched the framework before → Stub. If you've used it in practice → Reference. If you've done multiple audits of it → Full.
 3. Scaffold: `node tools/scaffold-framework.js <scf-framework-id> --depth=<stub|reference>`.
 4. Fill in `TODO:` markers if applicable.

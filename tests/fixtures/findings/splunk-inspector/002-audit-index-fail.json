@@ -20,7 +20,7 @@
       "message": "No Splunk _audit or audit index was detected.",
       "remediation": {
         "summary": "Enable and retain Splunk audit events for administrative activity monitoring.",
-        "ref": "grc-engineer://generate-implementation/splunk_logging",
+        "ref": "engineer://generate-implementation/splunk_logging",
         "effort_hours": 1,
         "automation": "manual"
       }

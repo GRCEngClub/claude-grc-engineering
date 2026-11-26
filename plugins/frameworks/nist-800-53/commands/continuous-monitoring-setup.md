@@ -656,16 +656,16 @@ Test Continuous Monitoring:
 
 ```bash
 # Test vulnerability scanning
-/grc-engineer:test-control RA-5
+/engineer:test-control RA-5
 
 # Test security monitoring
-/grc-engineer:test-control SI-4
+/engineer:test-control SI-4
 
 # Test configuration management
-/grc-engineer:test-control CM-3
+/engineer:test-control CM-3
 
 # Test continuous monitoring program
-/grc-engineer:test-control CA-7
+/engineer:test-control CA-7
 ```
 
 Expected Results:
@@ -680,5 +680,5 @@ Expected Results:
 
 - `/nist:control-tailor` - Tailor monitoring controls
 - `/nist:overlay-apply` - Apply FedRAMP overlay
-- `/grc-engineer:test-control` - Test monitoring effectiveness
-- `/grc-engineer:monitor-continuous` - General continuous monitoring
+- `/engineer:test-control` - Test monitoring effectiveness
+- `/engineer:monitor-continuous` - General continuous monitoring

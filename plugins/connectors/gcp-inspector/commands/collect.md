@@ -129,5 +129,5 @@ marketplace checkout as its working directory.
 ```bash
 gcloud auth activate-service-account --key-file=sa.json
 node plugins/connectors/gcp-inspector/scripts/collect.js --quiet
-node plugins/personas/grc-engineer/scripts/gap-assessment.js FedRAMP-Moderate --sources=gcp-inspector --output=sarif --quiet > gcp-gap.sarif
+node plugins/personas/engineer/scripts/gap-assessment.js FedRAMP-Moderate --sources=gcp-inspector --output=sarif --quiet > gcp-gap.sarif
 ```

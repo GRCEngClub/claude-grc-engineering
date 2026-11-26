@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { buildReport, renderGithubIssuePreview } from '../plugins/personas/grc-engineer/scripts/gap-assessment.js';
+import { buildReport, renderGithubIssuePreview } from '../plugins/personas/engineer/scripts/gap-assessment.js';
 
 test('issue labels use failing evaluations only, without changing report tiers', async () => {
   const scf = {
@@ -31,7 +31,7 @@ test('issue labels use failing evaluations only, without changing report tiers',
     const bin = path.join(dir, 'bin'); fs.mkdirSync(bin);
     const record = path.join(dir, 'record');
     fs.writeFileSync(path.join(bin, 'gh'), '#!/usr/bin/env node\nrequire("fs").writeFileSync(process.env.RECORD, JSON.stringify(process.argv.slice(2)));\n', { mode: 0o755 });
-    const script = path.resolve('plugins/personas/grc-engineer/scripts/create-gap-issue.js');
+    const script = path.resolve('plugins/personas/engineer/scripts/create-gap-issue.js');
     const run = (index, ...args) => spawnSync(process.execPath, [script, file, 'owner/repo', String(index), ...args], { encoding: 'utf8', env: { ...process.env, PATH: bin + path.delimiter + process.env.PATH, RECORD: record } });
     for (const [i, labels] of [[0, []], [1, ['severity:medium']], [2, ['severity:critical']], [3, []]]) {
       const p = run(i, '--severity-label'); assert.equal(p.status, 0, p.stderr); assert.deepEqual(JSON.parse(p.stdout).labels, labels);

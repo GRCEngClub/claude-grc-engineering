@@ -86,7 +86,7 @@ Workflow:
 # Inspect the resulting findings file. Attach it to the audit evidence packet
 # alongside the remediation tickets opened for each fail.
 
-/grc-engineer:gap-assessment SOC2,PCI-DSS --sources=testssl-inspector
+/engineer:gap-assessment SOC2,PCI-DSS --sources=testssl-inspector
 # Aggregates testssl evaluations with your other connector outputs into a
 # control-by-control posture view.
 ```

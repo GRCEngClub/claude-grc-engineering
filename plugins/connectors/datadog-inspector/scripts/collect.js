@@ -194,7 +194,7 @@ function failHigh(controlId, message, summary) {
     message,
     remediation: {
       summary,
-      ref: 'grc-engineer://generate-implementation/datadog_monitoring',
+      ref: 'engineer://generate-implementation/datadog_monitoring',
       effort_hours: 1,
       automation: 'manual'
     }

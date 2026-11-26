@@ -4,10 +4,10 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { generateExplicitPolicyDraft } from '../plugins/personas/grc-engineer/src/explicit-policy-draft.js';
+import { generateExplicitPolicyDraft } from '../plugins/personas/engineer/src/explicit-policy-draft.js';
 
 const spec = { format: 'rego', resource_type: 'aws_s3_bucket', required_tag: 'Owner', source: { reference: 'Example policy §1', excerpt: 'Buckets must have an Owner tag.' } };
-const cli = resolve('plugins/personas/grc-engineer/scripts/generate-policy.js');
+const cli = resolve('plugins/personas/engineer/scripts/generate-policy.js');
 const opa = process.env.OPA_BIN || 'opa';
 const available = spawnSync(opa, ['version']).status === 0;
 

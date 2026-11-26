@@ -440,7 +440,7 @@ AC-2,AC-2(3),AC,moderate,automated,Inactive-account report from IAM credential r
 
 ### Maps to other frameworks
 
-These are representative crosswalks; confirm exact mappings with `/grc-engineer:map-controls-unified` (the SCF crosswalk is the canonical source).
+These are representative crosswalks; confirm exact mappings with `/engineer:map-controls-unified` (the SCF crosswalk is the canonical source).
 
 **AC-2 (Account Management):**
 

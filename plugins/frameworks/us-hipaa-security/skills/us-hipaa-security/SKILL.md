@@ -288,7 +288,7 @@ A BAA is required when a **Covered Entity** or **Business Associate**:
 
 **Framework Mapping**: This HIPAA Security Rule plugin maps to SCF ID `usa-federal-law-hipaa-security-rule-2013`.
 
-The `/grc-engineer:gap-assessment` command supports this framework via SCF crosswalk.
+The `/engineer:gap-assessment` command supports this framework via SCF crosswalk.
 
 **Key SCF Domain Overlaps**:
 
@@ -300,10 +300,10 @@ The `/grc-engineer:gap-assessment` command supports this framework via SCF cross
 - **CFG (Configuration Management)**: System configuration, change management, security settings
 - **PES (Physical Environment Security)**: Facility access controls, workstation security, media controls
 
-**When Using /grc-engineer:gap-assessment**:
+**When Using /engineer:gap-assessment**:
 
 ```text
-/grc-engineer:gap-assessment HIPAA
+/engineer:gap-assessment HIPAA
 ```
 
 This will map HIPAA Security Rule requirements to SCF controls and generate findings grouped by safeguard category.

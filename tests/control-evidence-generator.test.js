@@ -5,11 +5,11 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from 'no
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const script = 'plugins/reporting/grc-diagrams/scripts/control-evidence.py';
-const example = 'plugins/reporting/grc-diagrams/examples/control-evidence-input.json';
+const script = 'plugins/reporting/diagrams/scripts/control-evidence.py';
+const example = 'plugins/reporting/diagrams/examples/control-evidence-input.json';
 const run = (...args) => spawnSync('python3', [script, ...args], { encoding: 'utf8' });
-const validator = 'plugins/reporting/grc-diagrams/examples/validate-control-evidence.py';
-const diagram = 'plugins/reporting/grc-diagrams/examples/control-evidence-flow.drawio';
+const validator = 'plugins/reporting/diagrams/examples/validate-control-evidence.py';
+const diagram = 'plugins/reporting/diagrams/examples/control-evidence-flow.drawio';
 
 test('CLI produces an editable model with escaped practical labels and valid endpoints', () => {
   const dir = mkdtempSync(join(tmpdir(), 'drawio-test-'));
