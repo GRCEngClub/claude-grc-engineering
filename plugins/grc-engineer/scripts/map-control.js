@@ -19,10 +19,15 @@ async function main() {
     process.exit(1);
   }
 
+  let stat;
   try {
-    await fs.access(iacFile);
+    stat = await fs.stat(iacFile);
   } catch {
     console.error(`Error: File not found: ${iacFile}`);
+    process.exit(1);
+  }
+  if (stat.isDirectory()) {
+    console.error(`Error: ${iacFile} is a directory. map-control reads one file; use /grc-engineer:scan-iac for a directory.`);
     process.exit(1);
   }
 
