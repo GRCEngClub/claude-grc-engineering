@@ -8,7 +8,7 @@ Runs 10 automated checks against your AWS environment to verify everything is re
 
 ## Arguments
 
-- `$1` — Project directory containing `site-config.json` (optional; defaults to current directory)
+- Argument 1 — Project directory containing `site-config.json` (optional; defaults to current directory)
 
 ## Checks Run
 

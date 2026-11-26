@@ -8,8 +8,8 @@ Evaluates readiness for Canadian Protected B, Medium Integrity, Medium Availabil
 
 ## Arguments
 
-- `$1` - Classification level (optional: protected-a, protected-b, protected-c) - defaults to "protected-b"
-- `$2` - Assessment type (optional: readiness, gap-analysis, certification) - defaults to "readiness"
+- Argument 1 - Classification level (optional: protected-a, protected-b, protected-c) - defaults to "protected-b"
+- Argument 2 - Assessment type (optional: readiness, gap-analysis, certification) - defaults to "readiness"
 
 ## Classification Levels
 

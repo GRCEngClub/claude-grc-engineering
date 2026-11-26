@@ -14,9 +14,9 @@ Analyzes SOC 2 gap assessment results and generates production-ready Infrastruct
 
 ## Arguments
 
-- `$1` - Gap analysis file (JSON output from `/soc2:assess`)
-- `$2` - Cloud provider: "aws", "azure", "gcp", "kubernetes", or "multi-cloud"
-- `$3` - Options (optional): `--output-dir=path`, `--format=terraform|cloudformation`, `--apply`
+- Argument 1 - Gap analysis file (JSON output from `/soc2:assess`)
+- Argument 2 - Cloud provider: "aws", "azure", "gcp", "kubernetes", or "multi-cloud"
+- Argument 3 - Options (optional): `--output-dir=path`, `--format=terraform|cloudformation`, `--apply`
 
 ## Examples
 
@@ -63,7 +63,7 @@ Total Gaps: 12
 
 Automated Remediation: 10/12 gaps (83%)
 Estimated Time to Fix: 2.5 hours (manual review + terraform apply)
-Estimated Cost Impact: +$45/month (additional AWS resources)
+Estimated Cost Impact: +\$45/month (additional AWS resources)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GENERATED INFRASTRUCTURE AS CODE
@@ -103,7 +103,7 @@ Gap Description:
 
 Remediation Type: AUTOMATED
 Effort: 5 minutes (terraform apply)
-Cost Impact: $0/month (S3 encryption is free)
+Cost Impact: \$0/month (S3 encryption is free)
 
 Generated Code: ./remediation/modules/encryption/s3_encryption.tf
 ```terraform
@@ -206,7 +206,7 @@ Gap Description:
 
 Remediation Type: AUTOMATED
 Effort: 2 minutes (terraform apply)
-Cost Impact: +$12/month (additional S3 storage + Glacier)
+Cost Impact: +\$12/month (additional S3 storage + Glacier)
 
 Generated Code: ./remediation/modules/logging/cloudtrail_retention.tf
 
@@ -309,7 +309,7 @@ Gap Description:
 
 Remediation Type: AUTOMATED
 Effort: 15 minutes (deploy Lambda + EventBridge)
-Cost Impact: +$2/month (Lambda executions)
+Cost Impact: +\$2/month (Lambda executions)
 
 Generated Code: ./remediation/modules/access_control/automated_access_review.tf
 
@@ -667,19 +667,19 @@ COST ESTIMATE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Monthly Recurring Costs:
-  S3 additional storage (log retention):     $12/month
-  Lambda executions (access reviews):         $2/month
-  CloudWatch Logs retention:                  $8/month
-  KMS key usage:                              $1/month
-  GuardDuty (if not enabled):               $30/month (varies)
+  S3 additional storage (log retention):     \$12/month
+  Lambda executions (access reviews):         \$2/month
+  CloudWatch Logs retention:                  \$8/month
+  KMS key usage:                              \$1/month
+  GuardDuty (if not enabled):               \$30/month (varies)
 
-Total Estimated Increase: $45-75/month
+Total Estimated Increase: \$45-75/month
 
 One-Time Costs:
-  Engineering time (deployment):         4 hours ($600)
-  Testing and validation:                2 hours ($300)
+  Engineering time (deployment):         4 hours (\$600)
+  Testing and validation:                2 hours (\$300)
 
-Total One-Time: $900
+Total One-Time: \$900
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 NEXT STEPS

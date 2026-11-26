@@ -8,8 +8,8 @@ Comprehensive guidance on Chief Information Security Officer (CISO) requirements
 
 ## Arguments
 
-- `$1` - CISO type (optional: employee, affiliate, third-party)
-- `$2` - Focus area (optional: qualifications, responsibilities, reporting, compensation)
+- Argument 1 - CISO type (optional: employee, affiliate, third-party)
+- Argument 2 - Focus area (optional: qualifications, responsibilities, reporting, compensation)
 
 ## Regulatory Requirement
 
@@ -383,16 +383,16 @@ Comprehensive guidance on Chief Information Security Officer (CISO) requirements
 
 **Financial Services Industry** (NY Metro):
 
-- **Small Institution** (<$100M assets): $120K-$180K
-- **Mid-Size** ($100M-$1B): $150K-$250K
-- **Large** ($1B-$10B): $200K-$350K
-- **Major Institution** (>$10B): $300K-$600K+
+- **Small Institution** (<\$100M assets): \$120K-\$180K
+- **Mid-Size** (\$100M-\$1B): \$150K-\$250K
+- **Large** (\$1B-\$10B): \$200K-\$350K
+- **Major Institution** (>\$10B): \$300K-\$600K+
 
 **vCISO/Fractional** (outsourced):
 
-- Part-time engagement: $50K-$150K annually
-- Retainer model: $5K-$15K per month
-- Project-based: $150-$400 per hour
+- Part-time engagement: \$50K-\$150K annually
+- Retainer model: \$5K-\$15K per month
+- Project-based: \$150-\$400 per hour
 
 ### Budget Authority
 
@@ -442,8 +442,8 @@ Comprehensive guidance on Chief Information Security Officer (CISO) requirements
 
 - Entities may claim exemption from CISO requirement
 - Must have <10 employees
-- <$5M gross annual revenue (3 years)
-- <$10M total assets
+- <\$5M gross annual revenue (3 years)
+- <\$10M total assets
 
 **If Exempted**:
 

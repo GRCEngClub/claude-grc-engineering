@@ -8,7 +8,7 @@ Helps determine the appropriate Canadian Government security classification leve
 
 ## Arguments
 
-- `$1` - Data type description (optional)
+- Argument 1 - Data type description (optional)
 
 ## Classification Levels
 

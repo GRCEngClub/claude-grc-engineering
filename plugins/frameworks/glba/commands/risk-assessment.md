@@ -8,8 +8,8 @@ Provides methodology and guidance for conducting risk assessments required under
 
 ## Arguments
 
-- `$1` - Assessment phase (required: planning, execution, reporting, all)
-- `$2` - Methodology (optional: nist, iso, qualitative, quantitative)
+- Argument 1 - Assessment phase (required: planning, execution, reporting, all)
+- Argument 2 - Methodology (optional: nist, iso, qualitative, quantitative)
 
 ## Risk Assessment Requirement
 
@@ -235,9 +235,9 @@ Provides methodology and guidance for conducting risk assessments required under
 
 **Impact Ratings**:
 
-- **Low**: Minimal impact, easily recoverable (<$50K, <1 day disruption)
-- **Medium**: Moderate impact, recoverable ($50K-$500K, 1-7 days disruption)
-- **High**: Severe impact, difficult recovery (>$500K, >7 days disruption, regulatory action)
+- **Low**: Minimal impact, easily recoverable (<\$50K, <1 day disruption)
+- **Medium**: Moderate impact, recoverable (\$50K-\$500K, 1-7 days disruption)
+- **High**: Severe impact, difficult recovery (>\$500K, >7 days disruption, regulatory action)
 
 **Step 6: Control Evaluation**
 

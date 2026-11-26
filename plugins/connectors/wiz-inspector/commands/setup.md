@@ -1,3 +1,7 @@
+---
+description: "Configure Wiz GraphQL API credentials for local evidence collection"
+---
+
 # /wiz-inspector:setup
 
 Configure Wiz GraphQL API credentials for local evidence collection.

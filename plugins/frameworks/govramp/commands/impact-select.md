@@ -8,7 +8,7 @@ Helps pick the impact level for GovRAMP Ready or Authorized Verification from th
 
 ## Arguments
 
-- `$1` - System description (optional)
+- Argument 1 - System description (optional)
 
 ## How GovRAMP sets the level
 

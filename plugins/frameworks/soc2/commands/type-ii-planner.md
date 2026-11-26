@@ -14,9 +14,9 @@ Generates a detailed timeline and checklist for SOC 2 Type II audit period testi
 
 ## Arguments
 
-- `$1` - Period start date (format: YYYY-MM-DD)
-- `$2` - Period end date (format: YYYY-MM-DD)
-- `$3` - Options: `--audit-firm=name`, `--output=format` (timeline, checklist, gantt)
+- Argument 1 - Period start date (format: YYYY-MM-DD)
+- Argument 2 - Period end date (format: YYYY-MM-DD)
+- Argument 3 - Options: `--audit-firm=name`, `--output=format` (timeline, checklist, gantt)
 
 ## Examples
 
@@ -79,7 +79,7 @@ READINESS TIMELINE (Pre-Period)
 2 Months Before (Nov 2023):
 □ Select and engage audit firm
   RFP Process: Get quotes from 3+ firms
-  Budget: $15k-$50k depending on complexity
+  Budget: \$15k-\$50k depending on complexity
   Deliverables: Type II report, management letter
 
 □ Conduct readiness audit (optional but recommended)
@@ -366,15 +366,15 @@ Internal Effort (Staff Time):
 - Readiness preparation: 160-240 hours
 - Evidence collection (ongoing): 10-20 hours/month
 - Audit support: 80-120 hours
-- Total: 400-600 hours (~$40k-$90k at $150/hour)
+- Total: 400-600 hours (~\$40k-\$90k at \$150/hour)
 
 External Costs:
-- Type II audit (Security only): $15k-$35k
-- Additional TSCs: +$5k-$10k each
-- Readiness audit (optional): $10k-$15k
-- Gap remediation: Variable ($0-$50k+)
+- Type II audit (Security only): \$15k-\$35k
+- Additional TSCs: +\$5k-\$10k each
+- Readiness audit (optional): \$10k-\$15k
+- Gap remediation: Variable (\$0-\$50k+)
 
-Total Estimated Cost: $55k-$180k
+Total Estimated Cost: \$55k-\$180k
 Timeline: 15-18 months (prep + period + audit)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

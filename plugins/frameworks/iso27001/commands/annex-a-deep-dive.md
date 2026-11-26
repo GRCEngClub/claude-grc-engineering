@@ -14,8 +14,8 @@ Provides comprehensive analysis of ISO 27001:2022 Annex A control domains, inclu
 
 ## Arguments
 
-- `$1` - Control domain: "A.5" (Organizational), "A.6" (People), "A.7" (Physical), "A.8" (Technological)
-- `$2` - Options (optional): `--environment=cloud|hybrid`, `--show-gaps`, `--certification-focus`
+- Argument 1 - Control domain: "A.5" (Organizational), "A.6" (People), "A.7" (Physical), "A.8" (Technological)
+- Argument 2 - Options (optional): `--environment=cloud|hybrid`, `--show-gaps`, `--certification-focus`
 
 ## Examples
 
@@ -67,7 +67,7 @@ Key Themes:
 
 Control Count: 34 controls (largest domain in Annex A)
 Typical Implementation Time: 6-12 months (cloud environment)
-Average Cost: $150,000-$300,000 (including tools and implementation)
+Average Cost: \$150,000-\$300,000 (including tools and implementation)
 
 Common Audit Findings:
   - Insufficient logging and monitoring (A.8.15, A.8.16)
@@ -186,7 +186,7 @@ Evidence for Audit:
   □ Session duration limits configuration
 
 Effort: 24 hours (initial setup) + 4 hours/month (reviews)
-Cost: $0 (AWS native) + staff time
+Cost: \$0 (AWS native) + staff time
 Priority: 🔴 CRITICAL
 Cross-Reference: NIST AC-6, SOC2 CC6.2
 
@@ -297,7 +297,7 @@ Common Pitfalls:
   ❌ Shared service accounts without MFA
 
 Effort: 40 hours (initial) + 2 hours/month (maintenance)
-Cost: $3-$5/user/month (Okta or Entra ID with MFA)
+Cost: \$3-\$5/user/month (Okta or Entra ID with MFA)
 Priority: 🔴 CRITICAL
 Cross-Reference: NIST IA-2, IA-5; SOC2 CC6.1
 
@@ -435,7 +435,7 @@ Common Pitfalls:
   ❌ Default configurations used (not hardened)
 
 Effort: 80 hours (initial baseline) + 10 hours/month (maintenance)
-Cost: $200/month (AWS Config) + staff time
+Cost: \$200/month (AWS Config) + staff time
 Priority: 🔴 CRITICAL
 Cross-Reference: NIST CM-2, CM-3, CM-6; SOC2 CC8.1
 
@@ -548,7 +548,7 @@ Common Pitfalls:
   ❌ Clock skew (inaccurate timestamps)
 
 Effort: 24 hours (initial setup) + 2 hours/month (review)
-Cost: $100-$500/month (storage, depending on volume)
+Cost: \$100-\$500/month (storage, depending on volume)
 Priority: 🟠 HIGH
 Cross-Reference: NIST AU-2, AU-3, AU-9, AU-11; SOC2 CC7.2
 
@@ -706,7 +706,7 @@ Common Pitfalls:
   ❌ Data encrypted but keys not protected
 
 Effort: 16 hours (policy + initial setup) + 2 hours/month (review)
-Cost: $1/key/month (KMS) + storage overhead (negligible)
+Cost: \$1/key/month (KMS) + storage overhead (negligible)
 Priority: 🔴 CRITICAL
 Cross-Reference: NIST SC-12, SC-13, SC-28; SOC2 CC6.7, CC6.8
 
@@ -724,7 +724,7 @@ Phase 1: Critical Controls (Months 1-3)
   □ A.8.24 - Cryptography (3 weeks)
 
   Effort: 320 hours
-  Cost: $50,000 (tools + implementation)
+  Cost: \$50,000 (tools + implementation)
 
 Phase 2: High-Priority Controls (Months 4-6)
   Priority: Expected for certification
@@ -736,7 +736,7 @@ Phase 2: High-Priority Controls (Months 4-6)
   □ A.8.16 - Monitoring activities (6 weeks)
 
   Effort: 240 hours
-  Cost: $35,000
+  Cost: \$35,000
 
 Phase 3: Medium-Priority Controls (Months 7-9)
   Priority: Nice-to-have, demonstrates maturity
@@ -748,7 +748,7 @@ Phase 3: Medium-Priority Controls (Months 7-9)
   □ A.8.28 - Secure coding (8 weeks)
 
   Effort: 200 hours
-  Cost: $25,000
+  Cost: \$25,000
 
 Phase 4: Optimization (Months 10-12)
   Priority: Continuous improvement
@@ -759,12 +759,12 @@ Phase 4: Optimization (Months 10-12)
   □ Threat hunting capabilities
 
   Effort: 160 hours
-  Cost: $40,000
+  Cost: \$40,000
 
 Total Implementation:
   Timeline: 12 months
   Effort: 920 hours
-  Cost: $150,000
+  Cost: \$150,000
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CERTIFICATION AUDIT PREPARATION
@@ -821,34 +821,34 @@ COST SUMMARY (A.8 Technological Controls)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Technology Costs (Annual):
-  Identity & Access (Okta):         $7,000  ($50/user/month × 142 users × 1 year / 12)
-  Endpoint Protection (CrowdStrike): $7,100  ($50/endpoint/month)
-  Configuration Management:          $2,400  (AWS Config)
-  Logging & Monitoring:              $6,000  (CloudWatch, Storage)
-  Encryption (KMS):                    $120  (10 keys × $1/month)
-  Backup & DR:                      $12,000  (cross-region replication)
-  Vulnerability Scanning:            $2,400  (Inspector)
+  Identity & Access (Okta):         \$7,000  (\$50/user/month × 142 users × 1 year / 12)
+  Endpoint Protection (CrowdStrike): \$7,100  (\$50/endpoint/month)
+  Configuration Management:          \$2,400  (AWS Config)
+  Logging & Monitoring:              \$6,000  (CloudWatch, Storage)
+  Encryption (KMS):                    \$120  (10 keys × \$1/month)
+  Backup & DR:                      \$12,000  (cross-region replication)
+  Vulnerability Scanning:            \$2,400  (Inspector)
 
-  Total Technology: $37,020/year
+  Total Technology: \$37,020/year
 
 Implementation Costs (One-Time):
-  Phase 1 (Critical): $50,000
-  Phase 2 (High):     $35,000
-  Phase 3 (Medium):   $25,000
-  Phase 4 (Optimize): $40,000
+  Phase 1 (Critical): \$50,000
+  Phase 2 (High):     \$35,000
+  Phase 3 (Medium):   \$25,000
+  Phase 4 (Optimize): \$40,000
 
-  Total Implementation: $150,000
+  Total Implementation: \$150,000
 
 Ongoing Operational Costs (Annual):
-  Access reviews:            $12,000  (10 hours/month × $100/hour)
-  Config management:          $6,000  (5 hours/month)
-  Log review:                 $6,000  (5 hours/month)
-  Vulnerability remediation: $12,000  (10 hours/month)
-  Incident response:          $6,000  (5 hours/month avg)
+  Access reviews:            \$12,000  (10 hours/month × \$100/hour)
+  Config management:          \$6,000  (5 hours/month)
+  Log review:                 \$6,000  (5 hours/month)
+  Vulnerability remediation: \$12,000  (10 hours/month)
+  Incident response:          \$6,000  (5 hours/month avg)
 
-  Total Operational: $42,000/year
+  Total Operational: \$42,000/year
 
-Grand Total: $150,000 (one-time) + $79,020/year (ongoing)
+Grand Total: \$150,000 (one-time) + \$79,020/year (ongoing)
 ```
 
 ## Related Commands

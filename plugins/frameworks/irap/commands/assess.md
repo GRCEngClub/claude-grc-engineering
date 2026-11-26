@@ -20,7 +20,7 @@ Delegates to:
 
 ## Arguments
 
-- `$1`: the highest classification the system will hold. Defaults to `official`. It is used to filter results by ISM applicability marking; it does not change the crosswalk.
+- Argument 1: the highest classification the system will hold. Defaults to `official`. It is used to filter results by ISM applicability marking; it does not change the crosswalk.
 - `--sources=<connector-list>` (optional): connectors to pull evidence from.
 
 ## Before you run it

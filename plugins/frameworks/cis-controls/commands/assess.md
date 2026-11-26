@@ -10,8 +10,8 @@ Evaluates organizational readiness for CIS Controls v8 baseline security framewo
 
 ## Arguments
 
-- `$1` - Target Implementation Group (required: IG1, IG2, or IG3)
-- `$2` - Assessment scope (optional: full, gap-analysis, specific-control)
+- Argument 1 - Target Implementation Group (required: IG1, IG2, or IG3)
+- Argument 2 - Assessment scope (optional: full, gap-analysis, specific-control)
 
 ## CIS Controls v8 Implementation Groups
 

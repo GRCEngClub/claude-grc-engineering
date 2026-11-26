@@ -8,7 +8,7 @@ Explains how to find out what a particular state, local, tribal, territorial, or
 
 ## Arguments
 
-- `$1` - Government (optional: a state code such as `TX`, an agency or district name, or `multi` for a multi-government plan)
+- Argument 1 - Government (optional: a state code such as `TX`, an agency or district name, or `multi` for a multi-government plan)
 
 ## What GovRAMP standardizes
 

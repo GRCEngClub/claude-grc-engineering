@@ -38,12 +38,12 @@ A for-profit business that does business in California and collects PI of Califo
 
 ### Threshold 1 — Revenue (§1798.140(d)(1)(A))
 
-Annual gross revenues in excess of **US $25 million** in the **preceding calendar year**.
+Annual gross revenues in excess of **US \$25 million** in the **preceding calendar year**.
 
 - "Annual gross revenues" is the entity's worldwide gross revenue for the prior calendar year, not California-specific revenue.
 - The threshold is subject to periodic CPPA inflation adjustment — confirm the current dollar figure against the current text of §1798.140(d) and any CPPA Board-adopted adjustment notice.
 
-**Walk**: ask the user for the entity's prior calendar year worldwide gross revenue. If > $25M (or the current adjusted figure), Threshold 1 is met.
+**Walk**: ask the user for the entity's prior calendar year worldwide gross revenue. If > \$25M (or the current adjusted figure), Threshold 1 is met.
 
 ### Threshold 2 — Volume of PI handled (§1798.140(d)(1)(B))
 
@@ -123,7 +123,7 @@ Recommended next commands:
 - **Assuming employee or B2B data is exempt**. The HR and B2B partial exemptions sunset on January 1, 2023; both are fully in scope.
 - **Treating the HIPAA carve-out as entity-wide**. Only the HIPAA-covered PHI is exempt; everything else the entity holds about California consumers is in scope.
 - **Underestimating the volume threshold**. Programmatic ad-tech, analytics, and CDP partner disclosures push most consumer-facing businesses past 100,000 California consumers/households quickly. Audit the partner list, not just the customer list.
-- **Treating the $25M revenue threshold as the only trigger**. Threshold 2 (volume) and Threshold 3 (revenue derivation) are independent — an under-$25M business can still be in scope.
+- **Treating the \$25M revenue threshold as the only trigger**. Threshold 2 (volume) and Threshold 3 (revenue derivation) are independent — an under-\$25M business can still be in scope.
 - **Ignoring the affiliate hook**. Common-branded subsidiaries that share PI are pulled into scope by §1798.140(d)(2)(B).
 
 ## Citations

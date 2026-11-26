@@ -1,3 +1,7 @@
+---
+description: "Builds an evidence checklist for one NIST SP 800-53 Rev. 5 control or control family, scoped to a GovRAMP verification status"
+---
+
 # GovRAMP Evidence Checklist
 
 Builds an evidence checklist for one NIST SP 800-53 Rev. 5 control or control family, scoped to a GovRAMP verification status. GovRAMP was called StateRAMP until February 2025.
@@ -124,15 +128,15 @@ Purpose: Privileged account monitoring per AC-2(7)
 ```bash
 # Check for inactive accounts (no access in 90 days)
 aws iam get-credential-report --output text | base64 -d | \
-  awk -F',' '$4 == "true" {
-    split($5,a,"T");
+  awk -F',' '\$4 == "true" {
+    split(\$5,a,"T");
     if ((systime() - mktime(gensub(/[-:]/," ","g",a[1]" "substr(a[2],1,8)))) > 90*86400)
-      print $1","$5",INACTIVE_90_DAYS"
+      print \$1","\$5",INACTIVE_90_DAYS"
   }' > evidence/govramp-ac2-inactive-accounts-$(date +%Y%m%d).csv
 
 # Check for unused IAM access keys (>90 days)
 aws iam get-credential-report --output text | base64 -d | \
-  awk -F',' '$10 == "true" && $12 == "N/A" {print $1",access_key_1,NEVER_USED"}' \
+  awk -F',' '\$10 == "true" && \$12 == "N/A" {print \$1",access_key_1,NEVER_USED"}' \
   >> evidence/govramp-ac2-unused-keys-$(date +%Y%m%d).csv
 ```
 

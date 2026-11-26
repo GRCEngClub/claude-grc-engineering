@@ -1,3 +1,7 @@
+---
+description: "Configure snowflake-inspector to use snowsql"
+---
+
 # /snowflake-inspector:setup
 
 Configure `snowflake-inspector` to use `snowsql`.

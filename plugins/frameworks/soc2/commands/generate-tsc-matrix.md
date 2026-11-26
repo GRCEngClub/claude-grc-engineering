@@ -14,8 +14,8 @@ Generates a comprehensive implementation matrix showing which Trust Service Crit
 
 ## Arguments
 
-- `$1` - Criteria (optional): "security", "availability", "confidentiality", "processing-integrity", "privacy", or "all" (default: "security")
-- `$2` - Output format (optional): "table", "json", "csv", "markdown" (default: "table")
+- Argument 1 - Criteria (optional): "security", "availability", "confidentiality", "processing-integrity", "privacy", or "all" (default: "security")
+- Argument 2 - Output format (optional): "table", "json", "csv", "markdown" (default: "table")
 
 ## Examples
 

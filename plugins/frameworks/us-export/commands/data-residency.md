@@ -10,8 +10,8 @@ Verifies data residency posture for ITAR (US-located by default) and EAR (BIS-dr
 
 ## Arguments
 
-- `$1` - Framework (optional: itar, ear, both) - defaults to "both"
-- `$2` - Cloud provider (optional: aws, azure, gcp, all) - defaults to "all"
+- Argument 1 - Framework (optional: itar, ear, both) - defaults to "both"
+- Argument 2 - Cloud provider (optional: aws, azure, gcp, all) - defaults to "all"
 
 ## ITAR Data Residency Requirements
 

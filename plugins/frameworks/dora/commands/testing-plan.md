@@ -8,8 +8,8 @@ Comprehensive guidance on DORA's digital operational resilience testing requirem
 
 ## Arguments
 
-- `$1` - Testing type (required: general, advanced-tlpt, vulnerability, scenario, all)
-- `$2` - Entity profile (optional: significant, non-significant)
+- Argument 1 - Testing type (required: general, advanced-tlpt, vulnerability, scenario, all)
+- Argument 2 - Entity profile (optional: significant, non-significant)
 
 ## Testing Framework Overview
 

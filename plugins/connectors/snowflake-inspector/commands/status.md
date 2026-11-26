@@ -1,3 +1,7 @@
+---
+description: "Show SnowSQL availability, connection validity, and latest cache freshness"
+---
+
 # /snowflake-inspector:status
 
 Show SnowSQL availability, connection validity, and latest cache freshness.

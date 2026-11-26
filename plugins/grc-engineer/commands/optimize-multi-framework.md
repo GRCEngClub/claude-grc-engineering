@@ -14,8 +14,8 @@ Analyzes multiple compliance frameworks to identify "implement once, satisfy man
 
 ## Arguments
 
-- `$1` - Comma-separated list of frameworks (e.g., "SOC2,PCI-DSS,NIST,ISO")
-- `$2` - Output format (optional): "roadmap", "matrix", "summary" (default: "roadmap")
+- Argument 1 - Comma-separated list of frameworks (e.g., "SOC2,PCI-DSS,NIST,ISO")
+- Argument 2 - Output format (optional): "roadmap", "matrix", "summary" (default: "roadmap")
 
 ## Framework Codes
 
@@ -91,7 +91,7 @@ EFFORT REDUCTION:
   ✅ With Optimization:    362 controls × 8 hours = 2,896 hours
 
   💰 SAVINGS: 3,624 hours (56% reduction)
-             ~$543,600 at $150/hour
+             ~\$543,600 at \$150/hour
              ~18 person-months
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -353,16 +353,16 @@ TOTAL IMPLEMENTATION:
   Duration: 30 weeks (~7.5 months)
   Effort: 2,896 hours
   Team size: 3-4 engineers
-  Cost: ~$434,400 at $150/hour
+  Cost: ~\$434,400 at \$150/hour
 
 ALTERNATIVE (separate implementations):
   Duration: 60+ weeks (~15 months)
   Effort: 6,520 hours
   Team size: 6-8 engineers
-  Cost: ~$978,000 at $150/hour
+  Cost: ~\$978,000 at \$150/hour
 
 OPTIMIZATION BENEFIT:
-  💰 Cost savings: $543,600 (56%)
+  💰 Cost savings: \$543,600 (56%)
   ⏱ Time savings: 7.5 months
   👥 Resource savings: 50% fewer engineers
 
@@ -477,7 +477,7 @@ Total Controls (separate): 815
 Optimized Controls: 362
 Reduction: 56%
 
-Effort Savings: 3,624 hours ($543,600)
+Effort Savings: 3,624 hours (\$543,600)
 Time Savings: 7.5 months
 
 Tier 1 (4 frameworks): 87 controls (40% coverage)

@@ -8,9 +8,9 @@ Reviews GitHub pull requests for compliance regressions and security issues.
 
 ## Arguments
 
-- `$1` - Repository (required, format: owner/repo)
-- `$2` - PR number (required)
-- `$3` - Framework (optional, defaults to SOC2)
+- Argument 1 - Repository (required, format: owner/repo)
+- Argument 2 - PR number (required)
+- Argument 3 - Framework (optional, defaults to SOC2)
 
 ## Prerequisites
 

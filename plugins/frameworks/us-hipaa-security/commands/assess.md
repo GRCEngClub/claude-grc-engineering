@@ -183,12 +183,12 @@ Based on OCR enforcement actions and Resolution Agreements, the most common HIPA
 
 *As of January 28, 2026* (45 CFR 102.3 / Federal Register annual inflation adjustment)
 
-- Tier 1: $145 – $73,011 (lack of knowledge)
-- Tier 2: $1,461 – $73,011 (reasonable cause)
-- Tier 3: $14,602 – $73,011 (willful neglect, corrected)
-- Tier 4: $73,011 – $2,190,294 (willful neglect, not corrected)
+- Tier 1: \$145 – \$73,011 (lack of knowledge)
+- Tier 2: \$1,461 – \$73,011 (reasonable cause)
+- Tier 3: \$14,602 – \$73,011 (willful neglect, corrected)
+- Tier 4: \$73,011 – \$2,190,294 (willful neglect, not corrected)
 
-Annual cap: $2,190,294 per violation category.
+Annual cap: \$2,190,294 per violation category.
 
 ---
 

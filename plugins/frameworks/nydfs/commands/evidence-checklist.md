@@ -1,3 +1,7 @@
+---
+description: "Generates comprehensive evidence collection checklists for New York Department of Financial Services (NYDFS) 23 NYCRR 500 cybersecurity requirements for covered entities"
+---
+
 # NYDFS Cybersecurity Evidence Checklist
 
 Generates comprehensive evidence collection checklists for New York Department of Financial Services (NYDFS) 23 NYCRR 500 cybersecurity requirements for covered entities.
@@ -27,10 +31,10 @@ Generates comprehensive evidence collection checklists for New York Department o
 ```markdown
 NYDFS Cybersecurity Evidence Checklist
 Section: 23 NYCRR 500.12 - Multi-Factor Authentication
-Entity Classification: Class A (Assets ≥$20M OR 2,000+ employees)
+Entity Classification: Class A (Assets ≥\$20M OR 2,000+ employees)
 Regulator: New York Department of Financial Services (NYDFS)
 Compliance Deadline: February 15, 2017 (original), November 1, 2023 (amendments)
-Penalties: Up to $1,000 per violation per day
+Penalties: Up to \$1,000 per violation per day
 
 ## Section 500.12 Requirements
 
@@ -107,12 +111,12 @@ aws iam get-credential-report --output text | base64 -d \
 
 # Filter users WITHOUT MFA (non-compliant)
 aws iam get-credential-report --output text | base64 -d | \
-  awk -F',' '$4 == "true" && $8 == "false" {print $1}' \
+  awk -F',' '\$4 == "true" && \$8 == "false" {print \$1}' \
   > evidence/nydfs-500.12-no-mfa-$(date +%Y%m%d).txt
 
 # Count MFA compliance
-total_users=$(aws iam get-credential-report --output text | base64 -d | tail -n +2 | awk -F',' '$4 == "true"' | wc -l)
-mfa_users=$(aws iam get-credential-report --output text | base64 -d | awk -F',' '$8 == "true"' | wc -l)
+total_users=$(aws iam get-credential-report --output text | base64 -d | tail -n +2 | awk -F',' '\$4 == "true"' | wc -l)
+mfa_users=$(aws iam get-credential-report --output text | base64 -d | awk -F',' '\$8 == "true"' | wc -l)
 mfa_percentage=$((mfa_users * 100 / total_users))
 echo "MFA Compliance: $mfa_users / $total_users users ($mfa_percentage%)" > evidence/nydfs-500.12-mfa-summary-$(date +%Y%m%d).txt
 
@@ -419,18 +423,18 @@ NYDFS examiners will verify:
 
 ### MFA Implementation (500-person organization)
 
-- MFA solution (Okta, Duo): $3-8/user/month ($18k-$48k/year for 500 users)
-- Implementation (setup, configuration): 80 hours ($8,000)
-- User training (2 hours per user): 1,000 hours ($100,000)
-- Help desk support (first 3 months): 120 hours ($12,000)
-- Annual review and monitoring: 40 hours/year ($4,000/year)
-- **Total Year 1**: ~$142k-$172k (one-time) + $22k-$52k/year (ongoing)
+- MFA solution (Okta, Duo): \$3-8/user/month (\$18k-\$48k/year for 500 users)
+- Implementation (setup, configuration): 80 hours (\$8,000)
+- User training (2 hours per user): 1,000 hours (\$100,000)
+- Help desk support (first 3 months): 120 hours (\$12,000)
+- Annual review and monitoring: 40 hours/year (\$4,000/year)
+- **Total Year 1**: ~\$142k-\$172k (one-time) + \$22k-\$52k/year (ongoing)
 
 ### MFA Alternatives
 
-- SMS MFA: $0.02-0.05 per SMS ($1k-$2.5k/year for 500 users)
+- SMS MFA: \$0.02-0.05 per SMS (\$1k-\$2.5k/year for 500 users)
 - Authenticator app (Google Authenticator, Microsoft Authenticator): Free
-- Hardware tokens (YubiKey): $50-75 per token ($25k-$37.5k for 500 users, one-time)
+- Hardware tokens (YubiKey): \$50-75 per token (\$25k-\$37.5k for 500 users, one-time)
 - Biometric MFA (Windows Hello, TouchID): Included with OS (free)
 
 ## Evidence Package Structure
@@ -686,11 +690,11 @@ if __name__ == "__main__":
 **Section**: §500.12 - Multi-Factor Authentication
 **Applicability**: NY-chartered/licensed financial institutions, insurers
 **Compliance Deadline**: February 15, 2017 (original); November 1, 2023 (amendments)
-**Penalties**: Up to $1,000 per violation per day
+**Penalties**: Up to \$1,000 per violation per day
 **Evidence Retention**: 6 years (§500.13)
 **Priority**: 🔴 CRITICAL (NY financial services regulatory requirement)
 
 **NYDFS Class A vs Class B**:
 
-- **Class A**: ≥$20M in gross annual revenue from NY OR ≥2,000 employees (more stringent requirements)
-- **Class B**: <$20M revenue AND <2,000 employees (some exemptions/extended deadlines)
+- **Class A**: ≥\$20M in gross annual revenue from NY OR ≥2,000 employees (more stringent requirements)
+- **Class B**: <\$20M revenue AND <2,000 employees (some exemptions/extended deadlines)

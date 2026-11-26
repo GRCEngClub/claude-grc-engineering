@@ -1,3 +1,7 @@
+---
+description: "Configure datadog-inspector with a Datadog API key and application key"
+---
+
 # /datadog-inspector:setup
 
 Configure `datadog-inspector` with a Datadog API key and application key.

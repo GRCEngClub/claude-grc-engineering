@@ -14,9 +14,9 @@ Applies overlay requirements from FedRAMP, DoD, Privacy, and other specialized f
 
 ## Arguments
 
-- `$1` - Overlay type: "fedramp", "dod", "privacy", "cmmc", "cjis", "hipaa", "irs-1075"
-- `$2` - Base baseline: "low", "moderate", "high"
-- `$3` - Options (optional): `--output=table|ssp-text|yaml`, `--show-only-changes`
+- Argument 1 - Overlay type: "fedramp", "dod", "privacy", "cmmc", "cjis", "hipaa", "irs-1075"
+- Argument 2 - Base baseline: "low", "moderate", "high"
+- Argument 3 - Options (optional): `--output=table|ssp-text|yaml`, `--show-only-changes`
 
 ## Examples
 
@@ -66,7 +66,7 @@ Categorization:
 
 Impact Analysis:
   Effort Increase: +15% (28 additional controls)
-  Cost Increase: +$35k-$50k (initial), +$15k/year (ongoing)
+  Cost Increase: +\$35k-\$50k (initial), +\$15k/year (ongoing)
   Timeline Impact: +6-8 weeks (implementation)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -83,7 +83,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - GuardDuty for threat detection
     - SIEM correlation rules (Splunk, DataDog)
   Effort: 24 hours
-  Cost: $500/month (GuardDuty + CloudWatch)
+  Cost: \$500/month (GuardDuty + CloudWatch)
   Evidence: GuardDuty findings, CloudWatch dashboards
 
 + AC-6(9) - Auditing Use of Privileged Functions
@@ -94,7 +94,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Separate log stream for privileged actions
     - Tamper-proof log storage (S3 Object Lock)
   Effort: 8 hours
-  Cost: $50/month (additional CloudTrail storage)
+  Cost: \$50/month (additional CloudTrail storage)
   Evidence: CloudTrail logs showing privileged events
 
 + AU-3(1) - Full-Text Recording of Privileged Commands
@@ -105,7 +105,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Session Manager logging for SSH/RDP sessions
     - S3 bucket for long-term storage (1 year)
   Effort: 12 hours
-  Cost: $100/month (storage)
+  Cost: \$100/month (storage)
   Evidence: Session logs, API call records
 
 + AU-4(1) - Transfer to Alternate Storage
@@ -116,7 +116,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Separate AWS account for log aggregation
     - S3 Object Lock (compliance mode, 1 year)
   Effort: 16 hours
-  Cost: $200/month (cross-region transfer + storage)
+  Cost: \$200/month (cross-region transfer + storage)
   Evidence: S3 replication configuration, Object Lock proof
 
 + CA-7(3) - Trend Analyses
@@ -127,7 +127,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - GuardDuty trend reports (monthly)
     - Security dashboard with 30-day trends
   Effort: 32 hours
-  Cost: $300/month (CloudWatch Insights)
+  Cost: \$300/month (CloudWatch Insights)
   Evidence: Trend analysis reports, dashboards
 
 + CP-9(8) - Cryptographic Protection (Backups)
@@ -138,7 +138,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - RDS automated backups encrypted
     - EBS snapshot encryption enabled
   Effort: 4 hours (configuration only)
-  Cost: $0 (encryption is free)
+  Cost: \$0 (encryption is free)
   Evidence: S3/RDS/EBS encryption configs
 
 + IA-2(1) - Multi-Factor Authentication (Network Access)
@@ -149,7 +149,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - AWS SSO MFA enforcement
     - Disable password-only access
   Effort: 8 hours
-  Cost: $3/user/month (Okta MFA)
+  Cost: \$3/user/month (Okta MFA)
   Evidence: Okta MFA enrollment reports, IAM MFA status
 
 + IA-2(2) - Multi-Factor Authentication (Non-Privileged Access)
@@ -169,7 +169,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Session tokens with nonce
     - TLS 1.2+ for all authentication traffic
   Effort: 4 hours (verify existing implementation)
-  Cost: $0 (Okta handles this)
+  Cost: \$0 (Okta handles this)
   Evidence: Okta OAuth configuration
 
 + IA-2(12) - Acceptance of PIV Credentials
@@ -180,7 +180,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Certificate trust chain configuration
     - Fallback to MFA if no PIV card
   Effort: 40 hours (complex integration)
-  Cost: $5,000 (Okta PKI add-on)
+  Cost: \$5,000 (Okta PKI add-on)
   Evidence: PIV authentication logs
 
 + IA-5(1) - Password-Based Authentication (Complexity)
@@ -193,7 +193,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Okta password policy update
     - IAM password policy (for emergency accounts)
   Effort: 2 hours
-  Cost: $0
+  Cost: \$0
   Evidence: Password policy screenshots
 
 + IR-5 - Incident Monitoring
@@ -204,7 +204,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Automated incident ticket creation (Jira)
     - Notification to FedRAMP PMO (automated email)
   Effort: 16 hours
-  Cost: $200/month (PagerDuty)
+  Cost: \$200/month (PagerDuty)
   Evidence: Incident response runbook, PagerDuty logs
 
 + IR-6(1) - Automated Reporting
@@ -215,7 +215,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Automated FedRAMP incident notification
     - Slack integration for team awareness
   Effort: 12 hours
-  Cost: $50/month (Lambda)
+  Cost: \$50/month (Lambda)
   Evidence: Lambda function code, sample incident reports
 
 + PE-3(1) - Information System Access - Video Surveillance
@@ -234,7 +234,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Tenable.io or Qualys integration (if 3PAO requires)
     - Weekly credentialed scans
   Effort: 16 hours
-  Cost: $500/month (Inspector + optional Tenable)
+  Cost: \$500/month (Inspector + optional Tenable)
   Evidence: Scan reports showing credentialed scans
 
 + SC-7(4) - Boundary Protection - External Telecommunications
@@ -245,7 +245,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Private NAT for outbound (controlled egress)
     - Transit Gateway for partner connections
   Effort: 24 hours
-  Cost: $300/month (Transit Gateway)
+  Cost: \$300/month (Transit Gateway)
   Evidence: VPC flow logs, network diagram
 
 + SC-7(5) - Boundary Protection - Deny by Default
@@ -256,7 +256,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - NACLs: explicit allow only
     - WAF: deny all, allow specific
   Effort: 8 hours
-  Cost: $50/month (WAF)
+  Cost: \$50/month (WAF)
   Evidence: Security group configs showing default deny
 
 + SC-12(1) - Cryptographic Key Availability
@@ -267,7 +267,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Key backup to separate region
     - Documented key recovery process
   Effort: 12 hours
-  Cost: $50/month (additional KMS keys)
+  Cost: \$50/month (additional KMS keys)
   Evidence: KMS key policies, backup documentation
 
 + SC-13 - Cryptographic Protection (FedRAMP Approved Algorithms)
@@ -278,7 +278,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - TLS 1.2+ only (no TLS 1.0/1.1)
     - S3/RDS encryption uses AES-256
   Effort: 4 hours (verify, document)
-  Cost: $0
+  Cost: \$0
   Evidence: FIPS validation certificates
 
 + SC-28(1) - Cryptographic Protection of Information at Rest
@@ -290,7 +290,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - EBS volume encryption
     - Secrets Manager encryption
   Effort: 8 hours
-  Cost: $0 (encryption is free)
+  Cost: \$0 (encryption is free)
   Evidence: Encryption configuration screenshots
 
 + SI-2(2) - Automated Flaw Remediation Status
@@ -301,7 +301,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - Automated compliance reporting
     - Dashboard showing patch compliance %
   Effort: 16 hours
-  Cost: $100/month (SSM)
+  Cost: \$100/month (SSM)
   Evidence: Patch compliance reports
 
 + SI-3(1) - Central Management (Malware)
@@ -312,7 +312,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - CrowdStrike or Trend Micro (if EC2 workloads)
     - Central dashboard for all alerts
   Effort: 20 hours
-  Cost: $1,000/month (3rd party AV)
+  Cost: \$1,000/month (3rd party AV)
   Evidence: GuardDuty + AV console screenshots
 
 + SI-4(2) - Automated Tools for Real-Time Analysis
@@ -323,7 +323,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - CloudWatch Logs Insights (real-time queries)
     - SIEM correlation (Splunk, real-time)
   Effort: 32 hours
-  Cost: $1,500/month (SIEM)
+  Cost: \$1,500/month (SIEM)
   Evidence: Real-time alerting examples
 
 + SI-4(5) - System-Generated Alerts
@@ -334,7 +334,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - GuardDuty findings → EventBridge → Lambda
     - Security Hub aggregation
   Effort: 12 hours
-  Cost: $200/month (PagerDuty)
+  Cost: \$200/month (PagerDuty)
   Evidence: Alert examples, PagerDuty integration
 
 + SI-4(23) - Host-Based Devices
@@ -345,7 +345,7 @@ HIGH PRIORITY (Must Implement Before Assessment):
     - SSM agent for inventory
     - Optional: CrowdStrike EDR
   Effort: 16 hours
-  Cost: $500/month (CrowdStrike)
+  Cost: \$500/month (CrowdStrike)
   Evidence: Agent deployment status
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -427,13 +427,13 @@ Required Deliverables:
 FEDRAMP AUTHORIZATION PROCESS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Step 1: Readiness Assessment (2-3 months, $75k-$150k)
+Step 1: Readiness Assessment (2-3 months, \$75k-\$150k)
   - Self-assessment against FedRAMP controls
   - Gap remediation
   - Documentation preparation
   - Pre-assessment by 3PAO (optional, recommended)
 
-Step 2: 3PAO Assessment (3-4 months, $150k-$300k)
+Step 2: 3PAO Assessment (3-4 months, \$150k-\$300k)
   - Kickoff and planning
   - Documentation review
   - Testing (design + operating effectiveness)
@@ -446,7 +446,7 @@ Step 3: Agency ATO (1-3 months, varies)
   - ATO issuance
 
 Total Timeline: 6-10 months
-Total Cost: $225k-$450k (initial), $100k-$200k/year (ConMon)
+Total Cost: \$225k-\$450k (initial), \$100k-\$200k/year (ConMon)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 INHERITED CONTROLS (from AWS)
@@ -533,30 +533,30 @@ COST SUMMARY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Initial Authorization:
-  Readiness Assessment:        $75,000 - $150,000
-  Gap Remediation (IaC):        $25,000 - $50,000
-  3PAO Assessment:             $150,000 - $300,000
-  Documentation (internal):     $40,000 (400 hours @ $100/hr)
-  Misc (tools, training):       $10,000
-  TOTAL INITIAL:               $300,000 - $550,000
+  Readiness Assessment:        \$75,000 - \$150,000
+  Gap Remediation (IaC):        \$25,000 - \$50,000
+  3PAO Assessment:             \$150,000 - \$300,000
+  Documentation (internal):     \$40,000 (400 hours @ \$100/hr)
+  Misc (tools, training):       \$10,000
+  TOTAL INITIAL:               \$300,000 - \$550,000
 
 Ongoing (Annual):
-  3PAO Annual Assessment:       $75,000 - $125,000
-  Monthly ConMon:               $15,000 - $30,000
-  Vuln Scanning (monthly):      $12,000
-  Incident Response (retainer): $10,000
-  TOTAL ANNUAL:                $112,000 - $177,000
+  3PAO Annual Assessment:       \$75,000 - \$125,000
+  Monthly ConMon:               \$15,000 - \$30,000
+  Vuln Scanning (monthly):      \$12,000
+  Incident Response (retainer): \$10,000
+  TOTAL ANNUAL:                \$112,000 - \$177,000
 
 Technology Costs (Annual):
-  GuardDuty:                    $6,000
-  Inspector:                    $6,000
-  CloudWatch (enhanced):        $3,600
-  PagerDuty:                    $2,400
-  Okta PKI (PIV):               $5,000
-  SIEM (Splunk/DataDog):       $18,000
-  TOTAL TECH:                  $41,000/year
+  GuardDuty:                    \$6,000
+  Inspector:                    \$6,000
+  CloudWatch (enhanced):        \$3,600
+  PagerDuty:                    \$2,400
+  Okta PKI (PIV):               \$5,000
+  SIEM (Splunk/DataDog):       \$18,000
+  TOTAL TECH:                  \$41,000/year
 
-GRAND TOTAL: $300k-$550k (initial) + $153k-$218k/year (ongoing)
+GRAND TOTAL: \$300k-\$550k (initial) + \$153k-\$218k/year (ongoing)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RECOMMENDATIONS
@@ -567,21 +567,21 @@ Before Starting FedRAMP:
 1. Ensure NIST 800-53 Moderate compliance (baseline)
 2. Complete gap remediation for 28 additional controls
 3. Select and engage 3PAO (get quotes from 3+)
-4. Budget appropriately ($300k-$550k initial)
+4. Budget appropriately (\$300k-\$550k initial)
 5. Allocate internal resources (400-800 hours)
 
 Quick Wins (Implement First):
 
-1. SC-28(1) - Data at rest encryption ($0 cost, 8 hours)
-2. IA-5(1) - Update password policy ($0 cost, 2 hours)
-3. SI-2(2) - Patch Manager ($100/month, 16 hours)
-4. AU-4(1) - Cross-region log replication ($200/month, 16 hours)
+1. SC-28(1) - Data at rest encryption (\$0 cost, 8 hours)
+2. IA-5(1) - Update password policy (\$0 cost, 2 hours)
+3. SI-2(2) - Patch Manager (\$100/month, 16 hours)
+4. AU-4(1) - Cross-region log replication (\$200/month, 16 hours)
 
 High Impact:
 
-1. IA-2(12) - PIV/CAC support ($5k, 40 hours) - REQUIRED for gov users
-2. CA-7(3) - Trend analysis ($300/month, 32 hours)
-3. RA-5(5) - Credentialed scanning ($500/month, 16 hours)
+1. IA-2(12) - PIV/CAC support (\$5k, 40 hours) - REQUIRED for gov users
+2. CA-7(3) - Trend analysis (\$300/month, 32 hours)
+3. RA-5(5) - Credentialed scanning (\$500/month, 16 hours)
 
 Generate Implementation Code:
 

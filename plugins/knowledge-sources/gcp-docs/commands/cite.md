@@ -1,3 +1,7 @@
+---
+description: "Return ranked Google documentation references for a control or implementation topic"
+---
+
 # /gcp-docs:cite
 
 Return ranked Google documentation references for a control or implementation topic.

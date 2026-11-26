@@ -8,7 +8,7 @@ Synchronizes the latest FedRAMP 20X machine-readable policies from the official 
 
 ## Arguments
 
-- `$1` - Sync mode (optional: check, full, force)
+- Argument 1 - Sync mode (optional: check, full, force)
 
 ## Sync Modes
 

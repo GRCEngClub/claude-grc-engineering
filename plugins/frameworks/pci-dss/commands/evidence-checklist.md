@@ -1,3 +1,7 @@
+---
+description: "Generate a proposed PCI DSS v4.0.1 evidence collection checklist for a requirement or requirement family"
+---
+
 # PCI DSS Evidence Checklist
 
 Generate a proposed PCI DSS v4.0.1 evidence collection checklist for a requirement or requirement family. This is assessment preparation, not a determination of compliance or SAQ eligibility.

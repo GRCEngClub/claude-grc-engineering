@@ -8,8 +8,8 @@ Maps infrastructure-as-code (IaC) files to specific compliance framework control
 
 ## Arguments
 
-- `$1` - Path to one IaC file (required): Terraform (`.tf`, `.tfvars`) or a Kubernetes manifest (`.yaml`, `.yml`)
-- `$2` - Framework name (optional, defaults to `soc2`)
+- Argument 1 - Path to one IaC file (required): Terraform (`.tf`, `.tfvars`) or a Kubernetes manifest (`.yaml`, `.yml`)
+- Argument 2 - Framework name (optional, defaults to `soc2`)
 
 ## Supported Frameworks
 

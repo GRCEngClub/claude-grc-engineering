@@ -8,8 +8,8 @@ Analyzes current security posture against HITRUST CSF requirements and identifie
 
 ## Arguments
 
-- `$1` - Assessment type target (required: i1, r2)
-- `$2` - Analysis depth (optional: high-level, detailed, by-domain)
+- Argument 1 - Assessment type target (required: i1, r2)
+- Argument 2 - Analysis depth (optional: high-level, detailed, by-domain)
 
 ## Gap Analysis Process
 

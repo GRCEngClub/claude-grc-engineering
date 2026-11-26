@@ -1,3 +1,7 @@
+---
+description: "Configure drata-inspector, a workflow wrapper over drata-cli"
+---
+
 # /drata-inspector:setup
 
 Configure `drata-inspector`, a workflow wrapper over [`drata-cli`](https://github.com/ethanolivertroy/drata-cli).

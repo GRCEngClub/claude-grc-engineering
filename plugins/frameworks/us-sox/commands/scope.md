@@ -49,9 +49,9 @@ Ask the user:
 
 If in-scope, determine the filer category. The current SEC definitions (paraphrased):
 
-- **Large accelerated filer**: public float ≥ $700M. §404(b) external-auditor attestation **required**. 10-K due 60 days after fiscal year-end.
-- **Accelerated filer**: public float ≥ $75M and < $700M. §404(b) **required** (subject to the 2020 SEC narrowing for certain low-revenue filers). 10-K due 75 days after fiscal year-end.
-- **Non-accelerated filer**: public float < $75M. §404(b) **not required** (per Dodd-Frank-driven amendments). §404(a) management assessment **is** required. 10-K due 90 days after fiscal year-end.
+- **Large accelerated filer**: public float ≥ \$700M. §404(b) external-auditor attestation **required**. 10-K due 60 days after fiscal year-end.
+- **Accelerated filer**: public float ≥ \$75M and < \$700M. §404(b) **required** (subject to the 2020 SEC narrowing for certain low-revenue filers). 10-K due 75 days after fiscal year-end.
+- **Non-accelerated filer**: public float < \$75M. §404(b) **not required** (per Dodd-Frank-driven amendments). §404(a) management assessment **is** required. 10-K due 90 days after fiscal year-end.
 - **Emerging Growth Company (EGC)** — JOBS Act category. §404(b) exempt for up to **5 years** from IPO or until disqualifying threshold breach (revenue, debt issuance, large-accelerated status). §404(a) still required.
 - **Smaller Reporting Company (SRC)** — orthogonal to §404(b); affects scaled disclosure obligations. Confirm separately.
 

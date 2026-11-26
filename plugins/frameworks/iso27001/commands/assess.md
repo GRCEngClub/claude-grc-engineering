@@ -8,8 +8,8 @@ Evaluates ISMS compliance against ISO 27001:2022 requirements.
 
 ## Arguments
 
-- `$1` - Assessment scope (optional: isms, annexa, specific-control)
-- `$2` - Control domain (optional, for Annex A assessment)
+- Argument 1 - Assessment scope (optional: isms, annexa, specific-control)
+- Argument 2 - Control domain (optional, for Annex A assessment)
 
 ## Assessment Areas
 

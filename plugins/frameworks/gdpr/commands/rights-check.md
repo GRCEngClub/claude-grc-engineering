@@ -8,8 +8,8 @@ Evaluates implementation of the 8 data subject rights under GDPR Articles 12-22.
 
 ## Arguments
 
-- `$1` - Specific right to check (optional: access, rectification, erasure, restriction, portability, object, automated-decisions, all)
-- `$2` - Check depth (optional: basic, comprehensive, audit-ready)
+- Argument 1 - Specific right to check (optional: access, rectification, erasure, restriction, portability, object, automated-decisions, all)
+- Argument 2 - Check depth (optional: basic, comprehensive, audit-ready)
 
 ## Overview of Data Subject Rights
 

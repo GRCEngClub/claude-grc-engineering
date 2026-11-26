@@ -8,8 +8,8 @@ Provides detailed implementation guidance for CSA Cloud Controls Matrix domains 
 
 ## Arguments
 
-- `$1` - Domain abbreviation (required: A&A, AIS, BCR, CCC, CEK, DCS, DSP, GRC, HRS, IAM, IPY, IVS, LOG, SEF, STA, TVM, UEM)
-- `$2` - Service model context (optional: IaaS, PaaS, SaaS)
+- Argument 1 - Domain abbreviation (required: A&A, AIS, BCR, CCC, CEK, DCS, DSP, GRC, HRS, IAM, IPY, IVS, LOG, SEF, STA, TVM, UEM)
+- Argument 2 - Service model context (optional: IaaS, PaaS, SaaS)
 
 ## 17 CCM Domains
 

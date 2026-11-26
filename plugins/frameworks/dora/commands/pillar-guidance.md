@@ -8,8 +8,8 @@ Provides detailed implementation guidance for each of DORA's 5 pillars.
 
 ## Arguments
 
-- `$1` - Pillar (required: ict-risk, incident-management, resilience-testing, third-party-risk, information-sharing, all)
-- `$2` - Detail level (optional: overview, implementation, evidence)
+- Argument 1 - Pillar (required: ict-risk, incident-management, resilience-testing, third-party-risk, information-sharing, all)
+- Argument 2 - Detail level (optional: overview, implementation, evidence)
 
 ## Pillar 1: ICT Risk Management (Articles 5-16)
 

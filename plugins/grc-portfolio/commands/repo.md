@@ -8,7 +8,7 @@ Creates a new GitHub repo for your portfolio project, initializes git, and pushe
 
 ## Arguments
 
-- `$1` — Project directory containing `site-config.json` (optional; defaults to current directory)
+- Argument 1 — Project directory containing `site-config.json` (optional; defaults to current directory)
 
 ## What It Does
 

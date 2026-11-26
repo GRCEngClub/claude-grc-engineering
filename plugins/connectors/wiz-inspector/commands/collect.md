@@ -1,3 +1,7 @@
+---
+description: "Query Wiz GraphQL resources and write Finding documents to the shared findings cache"
+---
+
 # /wiz-inspector:collect
 
 Query Wiz GraphQL resources and write Finding documents to:

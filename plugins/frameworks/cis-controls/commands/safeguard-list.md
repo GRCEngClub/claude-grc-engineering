@@ -10,8 +10,8 @@ Provides comprehensive listing of CIS Controls v8 safeguards organized by Implem
 
 ## Arguments
 
-- `$1` - Implementation Group (required: IG1, IG2, or IG3)
-- `$2` - Control filter (optional: control number 1-18 or "all")
+- Argument 1 - Implementation Group (required: IG1, IG2, or IG3)
+- Argument 2 - Control filter (optional: control number 1-18 or "all")
 
 ## Safeguard Distribution
 

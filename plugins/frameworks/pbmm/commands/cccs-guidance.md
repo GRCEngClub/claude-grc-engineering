@@ -8,7 +8,7 @@ Guidance on the Canadian Centre for Cyber Security (CCCS) cloud security assessm
 
 ## Arguments
 
-- `$1` - Topic (optional: process, providers, requirements) - defaults to "process"
+- Argument 1 - Topic (optional: process, providers, requirements) - defaults to "process"
 
 ## CCCS Assessment Process
 
@@ -110,12 +110,12 @@ The CCCS assesses cloud service providers against the ITSP.50.103 Cloud Security
 
 | Item | Estimated Cost (CAD) | Notes |
 |------|---------------------|-------|
-| **Pre-assessment consulting** | $50,000 - $150,000 | Gap analysis, SSP development |
-| **Third-party assessment** | $100,000 - $250,000 | CCCS Tier 2 assessment |
-| **Remediation** | $50,000 - $200,000 | Depends on gaps |
+| **Pre-assessment consulting** | \$50,000 - \$150,000 | Gap analysis, SSP development |
+| **Third-party assessment** | \$100,000 - \$250,000 | CCCS Tier 2 assessment |
+| **Remediation** | \$50,000 - \$200,000 | Depends on gaps |
 | **CCCS assessment fee** | Varies | For Tier 3 assessments |
-| **Annual maintenance** | $25,000 - $75,000 | Continuous monitoring |
-| **Re-assessment (2 years)** | $75,000 - $150,000 | Reduced scope |
+| **Annual maintenance** | \$25,000 - \$75,000 | Continuous monitoring |
+| **Re-assessment (2 years)** | \$75,000 - \$150,000 | Reduced scope |
 
 ## Certified Cloud Service Providers
 

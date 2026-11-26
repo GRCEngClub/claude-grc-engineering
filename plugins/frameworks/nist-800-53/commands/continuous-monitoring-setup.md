@@ -14,8 +14,8 @@ Establishes comprehensive continuous monitoring program compliant with NIST 800-
 
 ## Arguments
 
-- `$1` - Program type (optional): "fedramp", "fisma", "standard" (default: "standard")
-- `$2` - Options (optional): `--environment=cloud|hybrid`, `--auto-deploy`, `--skip-fedramp-reports`
+- Argument 1 - Program type (optional): "fedramp", "fisma", "standard" (default: "standard")
+- Argument 2 - Options (optional): `--environment=cloud|hybrid`, `--auto-deploy`, `--skip-fedramp-reports`
 
 ## Examples
 
@@ -97,7 +97,7 @@ Step 1: Deploy Vulnerability Scanning Tool
       --s3-destination bucketName=compliance-reports
     ```
 
-    Cost: $0.09/instance/month + $0.01/scan for Lambda
+    Cost: \$0.09/instance/month + \$0.01/scan for Lambda
 
   Option B: Tenable.io (Industry Standard)
     ✓ Pros: FedRAMP authorized, comprehensive coverage, widely accepted by 3PAOs
@@ -110,13 +110,13 @@ Step 1: Deploy Vulnerability Scanning Tool
     terraform apply -target=module.tenable_connector
     ```
 
-    Cost: $2,500/year (up to 65 assets)
+    Cost: \$2,500/year (up to 65 assets)
 
   Option C: Qualys VMDR
     ✓ Pros: FedRAMP authorized, cloud agent-based, dashboard
     ✓ Cons: Cost
 
-    Cost: $1,995/year (up to 100 assets)
+    Cost: \$1,995/year (up to 100 assets)
 
   RECOMMENDATION: Use Inspector for continuous scanning + Tenable for monthly
                   FedRAMP scans (3PAO accepts Tenable reports)
@@ -240,7 +240,7 @@ Step 1: Enable Core Monitoring Services
       --destination-properties DestinationArn=arn:aws:s3:::security-findings
     ```
 
-    Cost: $4.50/month per AWS account + $1.00/GB traffic analyzed
+    Cost: \$4.50/month per AWS account + \$1.00/GB traffic analyzed
 
   AWS Security Hub (Aggregation):
     ```bash
@@ -256,7 +256,7 @@ Step 1: Enable Core Monitoring Services
     # Aggregate findings from Inspector, GuardDuty, Macie, Config
     ```
 
-    Cost: $0.0010 per security check per region per month
+    Cost: \$0.0010 per security check per region per month
 
   AWS CloudWatch (Metrics & Logs):
     ```bash
@@ -336,7 +336,7 @@ Step 3: Network Traffic Monitoring (SI-4(4))
     - Deploy AWS Network Firewall with IDS/IPS
     - Or use third-party NIDS (Suricata, Zeek)
 
-    Cost: $0.395/hour per endpoint (~$285/month)
+    Cost: \$0.395/hour per endpoint (~\$285/month)
 
 Step 4: Centralized SIEM (Optional but Recommended)
 
@@ -345,22 +345,22 @@ Step 4: Centralized SIEM (Optional but Recommended)
     - Correlation rules for advanced threat detection
     - FedRAMP reporting dashboards
 
-    Cost: $150-$300/GB ingested per month
-    Typical: 50 GB/month = $7,500-$15,000/month
+    Cost: \$150-\$300/GB ingested per month
+    Typical: 50 GB/month = \$7,500-\$15,000/month
 
   Option B: Datadog Security Monitoring
     - Native AWS integration
     - Real-time threat detection
     - Compliance dashboards
 
-    Cost: $15/host/month + $0.10/GB logs
+    Cost: \$15/host/month + \$0.10/GB logs
 
   Option C: AWS-Native Stack (Cost-Effective)
     - CloudWatch Logs Insights for queries
     - Athena for analysis of S3-stored logs
     - QuickSight for dashboards
 
-    Cost: $100-$500/month
+    Cost: \$100-\$500/month
 
   RECOMMENDATION: AWS-native for small deployments, Splunk for FedRAMP
 
@@ -598,7 +598,7 @@ What Gets Deployed:
 - QuickSight dashboard (trend analysis, optional)
 
 Deployment Time: 2-3 hours (automated), 1 day (manual)
-Cost: $500-$2,000/month (depending on data volume, SIEM choice)
+Cost: \$500-\$2,000/month (depending on data volume, SIEM choice)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 POST-DEPLOYMENT CHECKLIST
@@ -623,30 +623,30 @@ COST SUMMARY
 Monthly Recurring Costs:
 
 Vulnerability Scanning:
-  Amazon Inspector:              $50-$200 (depends on instances)
-  Tenable.io:                   $200 (~$2,400/year)
+  Amazon Inspector:              \$50-\$200 (depends on instances)
+  Tenable.io:                   \$200 (~\$2,400/year)
 
 Security Monitoring:
-  GuardDuty:                    $300-$500 (depends on traffic)
-  Security Hub:                  $50
-  CloudWatch Logs:              $100-$300 (depends on volume)
-  VPC Flow Logs storage:         $50
+  GuardDuty:                    \$300-\$500 (depends on traffic)
+  Security Hub:                  \$50
+  CloudWatch Logs:              \$100-\$300 (depends on volume)
+  VPC Flow Logs storage:         \$50
 
 Optional SIEM:
-  Splunk Cloud:                 $7,500-$15,000
-  Datadog:                      $1,500-$3,000
-  AWS-native (CloudWatch):       $200-$500
+  Splunk Cloud:                 \$7,500-\$15,000
+  Datadog:                      \$1,500-\$3,000
+  AWS-native (CloudWatch):       \$200-\$500
 
 Alerting:
-  PagerDuty:                    $200
+  PagerDuty:                    \$200
 
 Configuration Management:
-  AWS Config:                    $100-$200
+  AWS Config:                    \$100-\$200
 
-Total (Basic):                  $1,000-$1,500/month
-Total (with SIEM):              $8,500-$16,500/month
+Total (Basic):                  \$1,000-\$1,500/month
+Total (with SIEM):              \$8,500-\$16,500/month
 
-Recommended: Start with AWS-native ($1,000/month), upgrade to SIEM if needed
+Recommended: Start with AWS-native (\$1,000/month), upgrade to SIEM if needed
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 COMPLIANCE VALIDATION

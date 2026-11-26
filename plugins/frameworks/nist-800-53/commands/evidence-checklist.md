@@ -1,3 +1,7 @@
+---
+description: "Generates audit-ready evidence collection checklists for NIST SP 800-53 Rev 5 controls and control families, scoped to a NIST SP 800-53B baseline (Low / Moderate / High)"
+---
+
 # NIST 800-53 Evidence Checklist
 
 Generates audit-ready evidence collection checklists for NIST SP 800-53 Rev 5 controls and control families, scoped to a NIST SP 800-53B baseline (Low / Moderate / High). Evidence depth tracks the baseline: higher baselines pull in additional control enhancements and tighter organization-defined parameters, so the checklist grows accordingly.

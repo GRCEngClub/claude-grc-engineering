@@ -10,8 +10,8 @@ Validates implementation of specific CMMC v2.0 practices and provides evidence g
 
 ## Arguments
 
-- `$1` - Practice ID (required, e.g., AC.L2-3.1.1, IA.L2-3.5.7)
-- `$2` - Check type (optional: implementation, evidence, gaps)
+- Argument 1 - Practice ID (required, e.g., AC.L2-3.1.1, IA.L2-3.5.7)
+- Argument 2 - Check type (optional: implementation, evidence, gaps)
 
 ## Practice ID Format
 

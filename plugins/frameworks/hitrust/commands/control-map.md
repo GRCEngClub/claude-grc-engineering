@@ -8,8 +8,8 @@ Maps HITRUST CSF control requirements to underlying source frameworks (HIPAA, NI
 
 ## Arguments
 
-- `$1` - HITRUST control ID (required, e.g., 01.a, 09.ab)
-- `$2` - Target framework (optional: HIPAA, NIST, ISO27001, PCIDSS, all)
+- Argument 1 - HITRUST control ID (required, e.g., 01.a, 09.ab)
+- Argument 2 - Target framework (optional: HIPAA, NIST, ISO27001, PCIDSS, all)
 
 ## HITRUST Control ID Format
 

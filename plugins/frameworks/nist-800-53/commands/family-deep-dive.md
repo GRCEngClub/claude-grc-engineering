@@ -14,9 +14,9 @@ Provides comprehensive analysis of NIST 800-53 control families, including contr
 
 ## Arguments
 
-- `$1` - Control family: "AC", "AU", "SC", "IA", "CM", "CP", "IR", "SI", "RA", etc.
-- `$2` - Baseline (optional): "low", "moderate", "high" (default: "moderate")
-- `$3` - Options (optional): `--environment=cloud|hybrid|on-prem`, `--show-controls`, `--implementation-only`
+- Argument 1 - Control family: "AC", "AU", "SC", "IA", "CM", "CP", "IR", "SI", "RA", etc.
+- Argument 2 - Baseline (optional): "low", "moderate", "high" (default: "moderate")
+- Argument 3 - Options (optional): `--environment=cloud|hybrid|on-prem`, `--show-controls`, `--implementation-only`
 
 ## Examples
 
@@ -334,7 +334,7 @@ Phase 1: Foundation (Weeks 1-4)
     □ Test user workflows
 
   Effort: 160 hours
-  Cost: $5,000 (Okta licenses)
+  Cost: \$5,000 (Okta licenses)
 
 Phase 2: Automation (Weeks 5-8)
   Priority: HIGH
@@ -361,7 +361,7 @@ Phase 2: Automation (Weeks 5-8)
     □ Test anomaly detection
 
   Effort: 120 hours
-  Cost: $2,000 (development)
+  Cost: \$2,000 (development)
 
 Phase 3: Network Controls (Weeks 9-12)
   Priority: MEDIUM
@@ -388,7 +388,7 @@ Phase 3: Network Controls (Weeks 9-12)
     □ Test access controls
 
   Effort: 80 hours
-  Cost: $500/month (VPN, Transit Gateway)
+  Cost: \$500/month (VPN, Transit Gateway)
 
 Phase 4: Review and Monitoring (Ongoing)
   Priority: MEDIUM
@@ -405,7 +405,7 @@ Phase 4: Review and Monitoring (Ongoing)
     □ Annual policy review
 
   Effort: 20 hours/quarter
-  Cost: $0 (internal)
+  Cost: \$0 (internal)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 TESTING AND VALIDATION
@@ -555,30 +555,30 @@ COST ESTIMATE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Technology Costs (Annual):
-  Okta (SSO + MFA):                  $3/user/month = $5,100/year (142 users)
+  Okta (SSO + MFA):                  \$3/user/month = \$5,100/year (142 users)
   AWS IAM Identity Center:            Free
-  GuardDuty:                         $500/month = $6,000/year
+  GuardDuty:                         \$500/month = \$6,000/year
   Access Analyzer:                    Free
-  CloudTrail:                        $200/month = $2,400/year
+  CloudTrail:                        \$200/month = \$2,400/year
   Session Manager:                    Free
-  Total Technology:                  $13,500/year
+  Total Technology:                  \$13,500/year
 
 Implementation Costs (One-Time):
-  Policy documentation:               40 hours = $6,000
-  IAM setup and configuration:        80 hours = $12,000
-  Automation development:            120 hours = $18,000
-  Network architecture:               80 hours = $12,000
-  Testing and validation:             40 hours = $6,000
-  Total Implementation:              $54,000
+  Policy documentation:               40 hours = \$6,000
+  IAM setup and configuration:        80 hours = \$12,000
+  Automation development:            120 hours = \$18,000
+  Network architecture:               80 hours = \$12,000
+  Testing and validation:             40 hours = \$6,000
+  Total Implementation:              \$54,000
 
 Ongoing Costs (Annual):
-  Quarterly access reviews:           80 hours = $12,000
-  Monthly privileged reviews:         48 hours = $7,200
-  Annual policy review:                8 hours = $1,200
-  Incident investigation:             40 hours = $6,000
-  Total Ongoing:                     $26,400/year
+  Quarterly access reviews:           80 hours = \$12,000
+  Monthly privileged reviews:         48 hours = \$7,200
+  Annual policy review:                8 hours = \$1,200
+  Incident investigation:             40 hours = \$6,000
+  Total Ongoing:                     \$26,400/year
 
-Grand Total: $54,000 (one-time) + $39,900/year (technology + ongoing)
+Grand Total: \$54,000 (one-time) + \$39,900/year (technology + ongoing)
 
 ```
 

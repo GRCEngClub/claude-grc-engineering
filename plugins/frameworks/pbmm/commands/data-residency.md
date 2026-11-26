@@ -8,8 +8,8 @@ Verifies that all Protected B data resides exclusively in Canadian geographic re
 
 ## Arguments
 
-- `$1` - Cloud provider (optional: aws, azure, gcp, all) - defaults to "all"
-- `$2` - Verification mode (optional: check, remediate) - defaults to "check"
+- Argument 1 - Cloud provider (optional: aws, azure, gcp, all) - defaults to "all"
+- Argument 2 - Verification mode (optional: check, remediate) - defaults to "check"
 
 ## Canadian Data Residency Requirement
 

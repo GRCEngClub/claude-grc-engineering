@@ -8,8 +8,8 @@ Evaluates organizational readiness for New York Department of Financial Services
 
 ## Arguments
 
-- `$1` - Entity type (required: covered-entity, limited-exemption, full-scope)
-- `$2` - Assessment scope (optional: full, gap-analysis, annual-certification)
+- Argument 1 - Entity type (required: covered-entity, limited-exemption, full-scope)
+- Argument 2 - Assessment scope (optional: full, gap-analysis, annual-certification)
 
 ## NYDFS 23 NYCRR 500 Overview
 
@@ -22,7 +22,7 @@ Evaluates organizational readiness for New York Department of Financial Services
 
 | Type | Description | Requirements | Exemptions |
 |------|-------------|--------------|------------|
-| **Covered Entity** | <10 employees, <$5M revenue, <$10M assets | Full compliance | Limited exemptions available |
+| **Covered Entity** | <10 employees, <\$5M revenue, <\$10M assets | Full compliance | Limited exemptions available |
 | **Limited Exemption** | Qualifies for certain exemptions | Reduced requirements | Must file exemption notice |
 | **Full Scope** | Does not qualify for exemptions | All 23 sections apply | No exemptions |
 

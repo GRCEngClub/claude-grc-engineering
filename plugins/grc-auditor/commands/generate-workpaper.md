@@ -8,8 +8,8 @@ Creates structured audit workpaper documentation for findings and testing.
 
 ## Arguments
 
-- `$1` - Workpaper type (required: finding, test, summary)
-- `$2` - Control or area (required)
+- Argument 1 - Workpaper type (required: finding, test, summary)
+- Argument 2 - Control or area (required)
 
 ## Workpaper Types
 

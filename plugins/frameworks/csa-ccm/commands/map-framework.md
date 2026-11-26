@@ -8,8 +8,8 @@ Maps Cloud Security Alliance Cloud Controls Matrix controls to other major compl
 
 ## Arguments
 
-- `$1` - CCM control ID (required, e.g., CEK-01, IAM-06, LOG-08)
-- `$2` - Target framework (optional: ISO27001, SOC2, PCIDSS, NIST, HIPAA, GDPR, all)
+- Argument 1 - CCM control ID (required, e.g., CEK-01, IAM-06, LOG-08)
+- Argument 2 - Target framework (optional: ISO27001, SOC2, PCIDSS, NIST, HIPAA, GDPR, all)
 
 ## CCM Control ID Format
 

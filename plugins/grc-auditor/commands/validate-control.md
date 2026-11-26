@@ -8,8 +8,8 @@ Tests and validates that a control is properly implemented and effective.
 
 ## Arguments
 
-- `$1` - Control ID (required, e.g., CC6.1, A.5.15, AC-2)
-- `$2` - Framework (optional, defaults to auto-detect)
+- Argument 1 - Control ID (required, e.g., CC6.1, A.5.15, AC-2)
+- Argument 2 - Framework (optional, defaults to auto-detect)
 
 ## Instructions
 

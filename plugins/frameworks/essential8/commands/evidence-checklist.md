@@ -1,3 +1,7 @@
+---
+description: "Generates comprehensive evidence collection checklists for Australian Cyber Security Centre (ACSC) Essential Eight mitigation strategies with maturity level progression (ML1-ML3)"
+---
+
 # Essential Eight Evidence Checklist
 
 Generates comprehensive evidence collection checklists for Australian Cyber Security Centre (ACSC) Essential Eight mitigation strategies with maturity level progression (ML1-ML3).
@@ -448,27 +452,27 @@ Purpose: Demonstrates cryptographic hash validation
 
 ### ML1 Implementation
 
-- Planning and policy development: 40 hours ($4,000)
-- Pilot deployment: 40 hours ($4,000)
-- Full deployment: 80 hours ($8,000)
-- **Total ML1**: ~$16k
+- Planning and policy development: 40 hours (\$4,000)
+- Pilot deployment: 40 hours (\$4,000)
+- Full deployment: 80 hours (\$8,000)
+- **Total ML1**: ~\$16k
 
 ### ML2 Implementation (from ML1)
 
-- Server deployment: 40 hours ($4,000)
-- Driver block rules: 16 hours ($1,600)
-- Annual validation: 24 hours/year ($2,400/year)
-- **Additional for ML2**: ~$8k
+- Server deployment: 40 hours (\$4,000)
+- Driver block rules: 16 hours (\$1,600)
+- Annual validation: 24 hours/year (\$2,400/year)
+- **Additional for ML2**: ~\$8k
 
 ### ML3 Implementation (from ML2)
 
-- Centralized logging (SIEM): 80 hours + $10k-$50k SIEM ($18k-$58k)
-- Hash rule migration: 40 hours ($4,000)
-- Incident response process: 24 hours ($2,400)
-- Semi-annual validation: 24 hours x2/year ($4,800/year)
-- **Additional for ML3**: ~$29k-$69k
+- Centralized logging (SIEM): 80 hours + \$10k-\$50k SIEM (\$18k-\$58k)
+- Hash rule migration: 40 hours (\$4,000)
+- Incident response process: 24 hours (\$2,400)
+- Semi-annual validation: 24 hours x2/year (\$4,800/year)
+- **Additional for ML3**: ~\$29k-\$69k
 
-**Total Cost (ML0 to ML3)**: $53k-$93k (one-time) + $7k/year (ongoing)
+**Total Cost (ML0 to ML3)**: \$53k-\$93k (one-time) + \$7k/year (ongoing)
 
 ## Evidence Package Structure
 

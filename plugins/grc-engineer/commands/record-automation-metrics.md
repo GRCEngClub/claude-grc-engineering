@@ -39,8 +39,8 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../docs/GRC-DATA.md) and
 
 ## Arguments
 
-- `$1` - Framework alias or FedRAMP scope
-- `$2` - Provider in derived mode (optional, defaults to `aws`)
+- Argument 1 - Framework alias or FedRAMP scope
+- Argument 2 - Provider in derived mode (optional, defaults to `aws`)
 
 ## Common options
 

@@ -8,8 +8,8 @@ Helps determine the appropriate Essential 8 maturity level target based on organ
 
 ## Arguments
 
-- `$1` - Organization type (optional: government, critical-infrastructure, business, small-business)
-- `$2` - Risk profile (optional: high, medium, low)
+- Argument 1 - Organization type (optional: government, critical-infrastructure, business, small-business)
+- Argument 2 - Risk profile (optional: high, medium, low)
 
 ## Maturity Level Decision Framework
 
@@ -144,7 +144,7 @@ Helps determine the appropriate Essential 8 maturity level target based on organ
 - Regulatory compliance requirements
 - Professional services
 - Supply chain to government
-- Revenue >$100M
+- Revenue >\$100M
 
 ### Low-Risk Organizations (Target ML1)
 
@@ -160,24 +160,24 @@ Helps determine the appropriate Essential 8 maturity level target based on organ
 
 ### Maturity Level 1
 
-- **Tools/Technology**: $10K-$50K
-- **Consulting/Labor**: $25K-$75K
-- **Ongoing**: $10K-$30K/year
-- **Total Initial**: $35K-$125K
+- **Tools/Technology**: \$10K-\$50K
+- **Consulting/Labor**: \$25K-\$75K
+- **Ongoing**: \$10K-\$30K/year
+- **Total Initial**: \$35K-\$125K
 
 ### Maturity Level 2
 
-- **Tools/Technology**: $50K-$150K
-- **Consulting/Labor**: $75K-$200K
-- **Ongoing**: $30K-$100K/year
-- **Total Initial**: $125K-$350K
+- **Tools/Technology**: \$50K-\$150K
+- **Consulting/Labor**: \$75K-\$200K
+- **Ongoing**: \$30K-\$100K/year
+- **Total Initial**: \$125K-\$350K
 
 ### Maturity Level 3
 
-- **Tools/Technology**: $150K-$500K
-- **Consulting/Labor**: $200K-$500K+
-- **Ongoing**: $100K-$300K/year
-- **Total Initial**: $350K-$1M+
+- **Tools/Technology**: \$150K-\$500K
+- **Consulting/Labor**: \$200K-\$500K+
+- **Ongoing**: \$100K-\$300K/year
+- **Total Initial**: \$350K-\$1M+
 
 *Costs vary significantly by organization size and current maturity*
 

@@ -8,8 +8,8 @@ Evaluates organizational readiness for Cloud Security Alliance Cloud Controls Ma
 
 ## Arguments
 
-- `$1` - Assessment scope (required: full, domain-specific, service-model)
-- `$2` - Cloud service model (optional: IaaS, PaaS, SaaS, hybrid)
+- Argument 1 - Assessment scope (required: full, domain-specific, service-model)
+- Argument 2 - Cloud service model (optional: IaaS, PaaS, SaaS, hybrid)
 
 ## CSA CCM Overview
 

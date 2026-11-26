@@ -20,10 +20,10 @@ Generates production-ready implementation code for a security control, including
 
 ## Arguments
 
-- `$1` - Control ID or name (e.g., "access_control_account_management", "AC-2", "encryption_at_rest")
-- `$2` - Cloud provider: `aws`, `azure`, `gcp`, or `kubernetes`
-- `$3` - Output directory (optional, defaults to `./generated`)
-- `$4` - Options (optional): `--terraform-only`, `--scripts-only`, `--with-tests`
+- Argument 1 - Control ID or name (e.g., "access_control_account_management", "AC-2", "encryption_at_rest")
+- Argument 2 - Cloud provider: `aws`, `azure`, `gcp`, or `kubernetes`
+- Argument 3 - Output directory (optional, defaults to `./generated`)
+- Argument 4 - Options (optional): `--terraform-only`, `--scripts-only`, `--with-tests`
 
 ## Examples
 
@@ -662,12 +662,12 @@ python scripts/compliance_test.py
 
 ## Cost Estimate
 
-- CloudTrail: ~$2/month
-- S3 Storage (1 year): ~$5/month
-- Lambda (quarterly): ~$0.20/month
-- Access Analyzer: ~$0/month (free tier)
+- CloudTrail: ~\$2/month
+- S3 Storage (1 year): ~\$5/month
+- Lambda (quarterly): ~\$0.20/month
+- Access Analyzer: ~\$0/month (free tier)
 
-**Total:** ~$7.20/month
+**Total:** ~\$7.20/month
 
 ## Support
 

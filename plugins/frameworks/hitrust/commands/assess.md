@@ -8,8 +8,8 @@ Evaluates organizational readiness for HITRUST Common Security Framework (CSF) c
 
 ## Arguments
 
-- `$1` - Assessment type (required: i1, r2, e1)
-- `$2` - Scope (optional: full, self-assessment, validated)
+- Argument 1 - Assessment type (required: i1, r2, e1)
+- Argument 2 - Scope (optional: full, self-assessment, validated)
 
 ## HITRUST Assessment Types
 

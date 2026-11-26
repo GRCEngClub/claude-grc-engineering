@@ -1,3 +1,7 @@
+---
+description: "Show Falcon API auth validity and latest cache freshness"
+---
+
 # /crowdstrike-inspector:status
 
 Show Falcon API auth validity and latest cache freshness.

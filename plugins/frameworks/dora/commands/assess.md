@@ -8,8 +8,8 @@ Evaluates organizational readiness for Digital Operational Resilience Act (DORA)
 
 ## Arguments
 
-- `$1` - Assessment scope (required: full, pillar-specific, entity-type)
-- `$2` - Entity classification (optional: credit-institution, payment-institution, investment-firm, crypto-asset-provider, ict-provider)
+- Argument 1 - Assessment scope (required: full, pillar-specific, entity-type)
+- Argument 2 - Entity classification (optional: credit-institution, payment-institution, investment-firm, crypto-asset-provider, ict-provider)
 
 ## DORA Overview
 

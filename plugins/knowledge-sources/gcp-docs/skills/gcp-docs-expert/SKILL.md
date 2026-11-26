@@ -1,3 +1,8 @@
+---
+name: gcp-docs-expert
+description: "Use gcp-docs when implementation guidance needs current Google Cloud, Google Workspace, Firebase, Android, Chrome, or related public Google developer documentation"
+---
+
 # GCP Docs Expert
 
 Use `gcp-docs` when implementation guidance needs current Google Cloud, Google Workspace, Firebase, Android, Chrome, or related public Google developer documentation.

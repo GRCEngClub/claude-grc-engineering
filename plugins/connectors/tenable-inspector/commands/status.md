@@ -1,3 +1,7 @@
+---
+description: "Show Tenable API auth validity and latest cache freshness"
+---
+
 # /tenable-inspector:status
 
 Show Tenable API auth validity and latest cache freshness.

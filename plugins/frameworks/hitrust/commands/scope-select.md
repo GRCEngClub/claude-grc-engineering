@@ -8,8 +8,8 @@ Helps determine whether to pursue i1, r2, or e1 HITRUST CSF assessment based on 
 
 ## Arguments
 
-- `$1` - Organization type (optional: provider, payer, vendor, business-associate)
-- `$2` - Primary driver (optional: hipaa, baa-requirement, vendor-requirement, competitive)
+- Argument 1 - Organization type (optional: provider, payer, vendor, business-associate)
+- Argument 2 - Primary driver (optional: hipaa, baa-requirement, vendor-requirement, competitive)
 
 ## Decision Factors
 
@@ -20,7 +20,7 @@ Helps determine whether to pursue i1, r2, or e1 HITRUST CSF assessment based on 
 - First-time HITRUST certification
 - Vendor/supplier requirement (not provider)
 - Annual recertification acceptable
-- Budget constraints (<$100K for assessment)
+- Budget constraints (<\$100K for assessment)
 - Want to test readiness before r2
 - Self-attestation preferred (validated optional)
 
@@ -28,10 +28,10 @@ Helps determine whether to pursue i1, r2, or e1 HITRUST CSF assessment based on 
 
 - **Validated**: External assessor reviews and validates
   - More credible to customers
-  - ~$30K-$80K assessment cost
+  - ~\$30K-\$80K assessment cost
   - Recommended for BAAs, vendors
 - **Self-Assessment**: Internal team completes
-  - Lower cost (~$10K-$30K tools/training)
+  - Lower cost (~\$10K-\$30K tools/training)
   - Less third-party credibility
   - Good for internal readiness
 
@@ -51,7 +51,7 @@ Helps determine whether to pursue i1, r2, or e1 HITRUST CSF assessment based on 
 
 - External HITRUST assessor required
 - More rigorous testing and validation
-- Higher cost ($100K-$300K+ assessment)
+- Higher cost (\$100K-\$300K+ assessment)
 - Longer timeline (6-12 months)
 - Greater ongoing maintenance
 
@@ -116,10 +116,10 @@ Helps determine whether to pursue i1, r2, or e1 HITRUST CSF assessment based on 
 
 | Assessment Type | Assessment Cost | Remediation Cost | Timeline | Validity |
 |-----------------|----------------|------------------|----------|----------|
-| **i1 Self** | $10K-$30K | $50K-$150K | 3-6 months | 1 year |
-| **i1 Validated** | $30K-$80K | $50K-$150K | 3-6 months | 1 year |
-| **r2** | $100K-$300K+ | $150K-$500K+ | 6-12 months | 2 years |
-| **e1** | $40K-$100K | Variable | 3-6 months | Extends to 2yr |
+| **i1 Self** | \$10K-\$30K | \$50K-\$150K | 3-6 months | 1 year |
+| **i1 Validated** | \$30K-\$80K | \$50K-\$150K | 3-6 months | 1 year |
+| **r2** | \$100K-\$300K+ | \$150K-\$500K+ | 6-12 months | 2 years |
+| **e1** | \$40K-\$100K | Variable | 3-6 months | Extends to 2yr |
 
 *Costs vary by scope, assessor, and readiness level*
 

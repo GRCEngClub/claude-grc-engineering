@@ -8,7 +8,7 @@ Guides a GRC engineer through building a professional portfolio website plan. As
 
 ## Arguments
 
-- `$1` — Target project directory (optional; prompted if not provided)
+- Argument 1 — Target project directory (optional; prompted if not provided)
 
 ## What It Produces
 

@@ -9,8 +9,8 @@ Draft a quarterly board or audit-committee brief. This is a real board brief, no
 
 ## Arguments
 
-- `$1` - Quarter (optional, defaults to current quarter, e.g. `2026-Q1`)
-- `$2` - Audience (optional: `board`, `audit-committee`, `risk-committee`, defaults to `audit-committee`)
+- Argument 1 - Quarter (optional, defaults to current quarter, e.g. `2026-Q1`)
+- Argument 2 - Audience (optional: `board`, `audit-committee`, `risk-committee`, defaults to `audit-committee`)
 
 ## Instructions
 

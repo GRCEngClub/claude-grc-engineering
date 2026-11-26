@@ -145,7 +145,7 @@ Generates a comprehensive evidence request list for a CCPA / CPRA assessment, or
 
 | Evidence item | Citation | Common format | Notes / Gotchas |
 |---|---|---|---|
-| **Encryption-and-redaction posture** for the categories of PI subject to the private right of action | §1798.150(a) | Encryption inventory by data store, key-management documentation | Statutory damages of $100–$750 per consumer per incident apply only to non-encrypted, non-redacted PI |
+| **Encryption-and-redaction posture** for the categories of PI subject to the private right of action | §1798.150(a) | Encryption inventory by data store, key-management documentation | Statutory damages of \$100–\$750 per consumer per incident apply only to non-encrypted, non-redacted PI |
 | **Reasonable security procedures and practices** documentation | §1798.150(a) | Security program documentation, control catalog mapping | "Reasonable" judged against organizational size, complexity, and nature of activities |
 | **Breach response plan** with notification procedures | Civil Code §1798.82 (separate California breach-notification statute) | IRP document, tabletop exercise records | Note: §1798.82 (not §1798.150) governs breach notification; both are relevant to private right of action exposure |
 | **Tabletop / IR test results** with corrective actions tracked | Implicit in §1798.150(a) | Exercise reports, AAR documentation | Pattern of unaddressed findings can defeat reasonable-security defense |

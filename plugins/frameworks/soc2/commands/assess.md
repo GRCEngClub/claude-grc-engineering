@@ -8,8 +8,8 @@ Evaluates organizational readiness for SOC 2 Type I or Type II audit.
 
 ## Arguments
 
-- `$1` - Assessment scope (optional: security, availability, confidentiality, processing-integrity, privacy)
-- `$2` - Audit type (optional: type1, type2)
+- Argument 1 - Assessment scope (optional: security, availability, confidentiality, processing-integrity, privacy)
+- Argument 2 - Audit type (optional: type1, type2)
 
 ## Trust Service Criteria
 

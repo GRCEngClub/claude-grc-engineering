@@ -14,8 +14,8 @@ Generates a comprehensive Statement of Applicability (SOA) for ISO 27001 Annex A
 
 ## Arguments
 
-- `$1` - Scope (optional): "cloud-only", "hybrid", "on-premise", or "full" (default: "full")
-- `$2` - Options (optional): `--format=docx|xlsx|markdown`, `--include-evidence`, `--show-gaps-only`
+- Argument 1 - Scope (optional): "cloud-only", "hybrid", "on-premise", or "full" (default: "full")
+- Argument 2 - Options (optional): `--format=docx|xlsx|markdown`, `--include-evidence`, `--show-gaps-only`
 
 ## Examples
 
@@ -113,7 +113,7 @@ Evidence:
   - Security awareness training completion records
 
 Control Owner: CISO
-Implementation Cost: $8,000 (initial policy development)
+Implementation Cost: \$8,000 (initial policy development)
 Annual Review: December (annually)
 
 Cross-Reference:
@@ -192,7 +192,7 @@ Implementation Description:
   Planned Remediation:
     1. Implement threat intelligence platform (Q1 2025)
        - Evaluate: Recorded Future, ThreatConnect, or CrowdStrike Threat Graph
-       - Budget: $15,000/year
+       - Budget: \$15,000/year
     2. Subscribe to FS-ISAC (Financial Services threat intelligence)
     3. Integrate threat feeds with SIEM
 
@@ -354,7 +354,7 @@ Evidence:
   - Re-screening schedule and completion log
 
 Control Owner: Human Resources
-Cost: $150/employee (standard), $300 (privileged)
+Cost: \$150/employee (standard), \$300 (privileged)
 Cross-Reference: NIST 800-53: PS-3; SOC 2: CC1.4
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -514,7 +514,7 @@ Evidence:
   - Compliance check results (daily)
 
 Control Owner: IT Operations
-Cost: $50/device/month (MDM + endpoint protection)
+Cost: \$50/device/month (MDM + endpoint protection)
 Cross-Reference: NIST 800-53: AC-19, MP-2; SOC 2: CC6.6, CC6.7
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -635,7 +635,7 @@ A.5.7 - Threat Intelligence (Partially Implemented)
   Gap: No formal threat intelligence platform
   Compensating Control: Enhanced monitoring via GuardDuty
   Remediation Plan: Implement threat intelligence platform by Q1 2025
-  Budget Allocated: $15,000/year
+  Budget Allocated: \$15,000/year
   Approval: CISO (accepted residual risk until implementation)
 
 A.8.16 - Monitoring activities (Partially Implemented)
@@ -644,7 +644,7 @@ A.8.16 - Monitoring activities (Partially Implemented)
   Gap: No centralized SIEM for log correlation
   Compensating Control: CloudWatch Logs + GuardDuty + manual analysis
   Remediation Plan: Implement Splunk Cloud or similar SIEM by Q2 2025
-  Budget Allocated: $100,000/year
+  Budget Allocated: \$100,000/year
   Approval: CFO + CISO (cost-benefit analysis in progress)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -8,7 +8,7 @@ Configures fully automated deployments using GitHub Actions and GitHub OIDC. No 
 
 ## Arguments
 
-- `$1` — Project directory containing `site-config.json` (optional; defaults to current directory)
+- Argument 1 — Project directory containing `site-config.json` (optional; defaults to current directory)
 
 ## What It Does
 

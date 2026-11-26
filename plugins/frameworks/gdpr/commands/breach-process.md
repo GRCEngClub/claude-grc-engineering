@@ -8,8 +8,8 @@ Guides compliance with GDPR breach notification requirements under Articles 33 (
 
 ## Arguments
 
-- `$1` - Breach severity (optional: low, moderate, high, critical)
-- `$2` - Process phase (optional: detection, assessment, notification, documentation)
+- Argument 1 - Breach severity (optional: low, moderate, high, critical)
+- Argument 2 - Process phase (optional: detection, assessment, notification, documentation)
 
 ## Definition of Personal Data Breach
 

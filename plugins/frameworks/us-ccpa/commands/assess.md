@@ -150,9 +150,9 @@ Based on CPPA enforcement advisories, AG settlements, and observed assessment pa
 
 ## Enforcement context
 
-- **Penalties** (§1798.155): up to **US $2,500 per violation** non-intentional; up to **US $7,500 per violation** intentional or involving consumers under 16. Per-consumer aggregation applies — exposure for a noncompliant data-driven business reaches the millions even at the lower rate.
+- **Penalties** (§1798.155): up to **US \$2,500 per violation** non-intentional; up to **US \$7,500 per violation** intentional or involving consumers under 16. Per-consumer aggregation applies — exposure for a noncompliant data-driven business reaches the millions even at the lower rate.
 - **No mandatory cure period** under post-CPRA AG enforcement; CPPA may discretionarily consider good-faith remediation.
-- **Private right of action** (§1798.150): statutory damages of US $100–$750 per consumer per incident for breaches of non-encrypted, non-redacted PI caused by failure to maintain reasonable security.
+- **Private right of action** (§1798.150): statutory damages of US \$100–\$750 per consumer per incident for breaches of non-encrypted, non-redacted PI caused by failure to maintain reasonable security.
 - **Two enforcers**: CPPA (administrative) and California AG (civil action in superior court). Coordination via interagency MOU.
 
 ---

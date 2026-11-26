@@ -8,8 +8,8 @@ Generates focused client interview questions from a technology stack, maps them 
 
 ## Arguments
 
-- `$1` - Technology stack or scope (required, in quotes)
-- `$2` - Comma-separated frameworks (optional, defaults to `SOC2,NIST-800-53`)
+- Argument 1 - Technology stack or scope (required, in quotes)
+- Argument 2 - Comma-separated frameworks (optional, defaults to `SOC2,NIST-800-53`)
 
 ## Options
 

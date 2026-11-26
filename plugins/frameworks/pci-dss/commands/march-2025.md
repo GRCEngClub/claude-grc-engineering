@@ -8,7 +8,7 @@ Requirements that became mandatory on March 31, 2025 (previously "future-dated")
 
 ## Arguments
 
-- `$1` - Requirement number or category (optional)
+- Argument 1 - Requirement number or category (optional)
 
 ## Critical March 2025 Requirements
 

@@ -1,3 +1,7 @@
+---
+description: "Show drata-cli availability, auth state, and latest cache freshness"
+---
+
 # /drata-inspector:status
 
 Show `drata-cli` availability, auth state, and latest cache freshness.
