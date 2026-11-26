@@ -14,11 +14,6 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 - **`/nist-800-53:evidence-checklist` command.** Added a baseline-scoped (Low/Moderate/High) evidence collection checklist to the `nist-800-53` plugin, matching the `gdpr`/`hitrust`/`cmmc` evidence-checklist convention. Includes worked examples for AC-2 (Account Management) and AU-6 (Audit Record Review, Analysis, and Reporting), NIST SP 800-53A assessment-method framing, baseline-depth deltas, and a baseline-aware Python collector. Closes [#163](https://github.com/GRCEngClub/claude-grc-engineering/issues/163).
 
-### Removed
-
-- **`docs/ARCHITECTURE-V2-RFC.md`.** The April 2026 RFC was accepted and its reporting and dashboard categories have shipped; its description of the repo had gone stale. `ROADMAP.md` now lists the categories still open, and the roadmap drops connectors, frameworks and schemas that already exist.
-- **`fedramp-rev5` and `fedramp-ssp` plugins.** FedRAMP stops accepting new Rev5 Certifications on June 11, 2027, and its Consolidated Rules for 2026 replace the System Security Plan with a Certification Package Overview and Security Decision Record and replace POA&Ms with a list of Accepted Weaknesses. `fedramp-rev5` gave SSP, POA&M and JAB-path guidance for the old process, and `fedramp-ssp` only converted Rev5 SSP Word templates to OSCAL. For FedRAMP work use `fedramp-20x`. Nothing in this repo replaces the SSP Word-to-OSCAL conversion; the upstream tool, `ethanolivertroy/frdocx-to-froscal-ssp`, can still be run directly for a Rev5 package already in progress. See [What's Changing in 2026](https://www.fedramp.gov/2026/providers/updating/changes/).
-
 ### Changed
 
 - **`us-finra` plugin moved to Reference depth.** Added `/us-finra:scope` and `/us-finra:evidence-checklist`, and rewrote the skill. FINRA has no single cybersecurity rule; the plugin now covers the obligations FINRA examines:
@@ -57,10 +52,13 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Removed
 
+- **`docs/ARCHITECTURE-V2-RFC.md`.** The April 2026 RFC was accepted and its reporting and dashboard categories have shipped; its description of the repo had gone stale. `ROADMAP.md` now lists the categories still open, and the roadmap drops connectors, frameworks and schemas that already exist.
+- **`fedramp-rev5` and `fedramp-ssp` plugins.** FedRAMP stops accepting new Rev5 Certifications on June 11, 2027, and its Consolidated Rules for 2026 replace the System Security Plan with a Certification Package Overview and Security Decision Record and replace POA&Ms with a list of Accepted Weaknesses. `fedramp-rev5` gave SSP, POA&M and JAB-path guidance for the old process, and `fedramp-ssp` only converted Rev5 SSP Word templates to OSCAL. For FedRAMP work use `fedramp-20x`. Nothing in this repo replaces the SSP Word-to-OSCAL conversion; the upstream tool, `ethanolivertroy/frdocx-to-froscal-ssp`, can still be run directly for a Rev5 package already in progress. See [What's Changing in 2026](https://www.fedramp.gov/2026/providers/updating/changes/).
 - **`vanta-bridge` plugin removed.** Vanta now ships an official Claude Code plugin (`vanta-mcp-plugin` in `anthropics/claude-plugins-official`) and an official MCP server (`mcp.vanta.com/mcp` and regional variants). The community bridge predated both and added a manual-export step that's now obsolete. Users should install Vanta's official plugin instead — see [GHSA #150](https://github.com/GRCEngClub/claude-grc-engineering/issues/150). Drops the bridge plugin, marketplace registration, test fixtures, and documentation references.
 
 ### Fixed
 
+- **`map-control` listed frameworks it can't map.** The command doc listed 15 frameworks, but the script loads only the SOC 2, ISO 27001 and NIST 800-53 configs and rejects the rest. The doc now lists those three and points other frameworks to `/grc-engineer:gap-assessment`. Its examples passed directories, which crashed with `EISDIR`; the script now says to use `/grc-engineer:scan-iac` for a directory.
 - **`scan-iac` CLI crashed on any Terraform S3 bucket.** The command-line entry point ran before the module's S3 constants were initialized, so `node scan-iac.js` threw a `ReferenceError` on the first bucket it checked. Tests import the module and never hit it. The entry point now sits at the end of the file.
 - **`scan-iac` `sarif` format did nothing.** The command and docs listed `sarif`, but the script fell back to the text report, so the documented `upload-sarif` step uploaded invalid input. It now writes SARIF 2.1.0 with one result per violation. Progress lines moved to stderr so `json` and `sarif` stdout parse cleanly.
 - **`scan-iac` overall score overstated compliance.** The summary subtracted each finding once, so a finding mapped to three frameworks cost one check instead of three, and many findings against one rule could push the score below zero. It now counts each failed (rule, framework) pair, matching the per-framework scores the CI gates sit beside.
