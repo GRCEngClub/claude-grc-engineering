@@ -128,7 +128,7 @@ STRONGLY RECOMMENDED (High ROI):
     - Azure: Entra ID + PIM + Logic Apps
     - GCP: Cloud Identity + Workflows
   Effort: 40 hours (initial setup), 2 hours/month (maintenance)
-  Satisfies: SOC2 CC6.1, PCI 8.1.4, ISO 27001 A.5.16, A.5.18
+  Satisfies: SOC2 CC6.1, PCI 7.2.4, ISO 27001 A.5.16, A.5.18
 
 ✓ AC-2(2) - Removal of Temporary / Emergency Accounts
   Impact: HIGH
@@ -156,7 +156,7 @@ STRONGLY RECOMMENDED (High ROI):
     - Automated disable after 90 days inactivity
     - Manager notification before disable
   Effort: 12 hours
-  Satisfies: PCI 8.1.4, SOC2 CC6.1
+  Satisfies: PCI 8.2.6, SOC2 CC6.1
 
 ✓ AC-2(4) - Automated Audit Actions
   Impact: HIGH
@@ -170,7 +170,7 @@ STRONGLY RECOMMENDED (High ROI):
     - CloudWatch Logs with 1-year retention
     - GuardDuty for anomaly detection
   Effort: 16 hours
-  Satisfies: SOC2 CC7.2, PCI 10.2
+  Satisfies: SOC2 CC7.2, PCI 10.2.1
 
 RECOMMENDED (Good Value):
 
@@ -186,7 +186,7 @@ RECOMMENDED (Good Value):
     - Service accounts documented and approved
     - Automated check via Config rule
   Effort: 4 hours
-  Satisfies: PCI 8.1, SOC2 CC6.1
+  Satisfies: PCI 8.2, SOC2 CC6.1
 
 ⊕ AC-2(12) - Account Monitoring / Atypical Usage
   Impact: MEDIUM
@@ -262,7 +262,7 @@ JUSTIFICATION: Automation reduces errors, improves timeliness.
 
 [Assignment: organization-defined frequency]
 TAILORED TO:
-  - Quarterly reviews for all accounts (PCI requirement)
+  - Quarterly reviews for all accounts (exceeds PCI DSS 7.2.4's six-month minimum)
   - Monthly reviews for privileged accounts
   - Daily automated checks for inactive accounts (>90 days)
 

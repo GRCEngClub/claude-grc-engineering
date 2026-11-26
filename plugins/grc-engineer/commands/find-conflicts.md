@@ -72,24 +72,25 @@ HIGH SEVERITY CONFLICTS
 
 🔴 CONFLICT #1: Access Review Frequency
    Control Area: Account Management
-   Affected Controls: NIST AC-2, ISO A.5.18, SOC2 CC6.1, PCI 8.1.4
+   Affected Controls: NIST AC-2, ISO A.5.18, SOC2 CC6.1, PCI 7.2.4
 
    Requirements:
    - SOC2:    No specific frequency, risk-based approach
               (typically quarterly for sensitive systems)
-   - PCI-DSS: Quarterly reviews MANDATORY (every 90 days)
-              Requirement 8.1.4: At least quarterly
+   - PCI-DSS: Reviews MANDATORY at least once every six months
+              Requirement 7.2.4
    - NIST:    Annually minimum, or when roles/responsibilities change
               AC-2 control statement
    - ISO:     At planned intervals (typically annually)
               A.5.18 requirement
 
    ⚠ IMPACT: PCI-DSS is most restrictive and MANDATORY
-   ✓ RESOLUTION: Implement quarterly (90-day) access reviews
+   ✓ RESOLUTION: Review at least every six months; quarterly (90-day)
+                 reviews leave margin and suit privileged access
 
    Implementation:
    - Set automated reviews every 90 days
-   - This satisfies PCI-DSS mandatory requirement
+   - This exceeds the PCI-DSS six-month minimum
    - Exceeds NIST, ISO, SOC2 requirements
    - Document as quarterly in all framework documentation
 
@@ -101,7 +102,7 @@ HIGH SEVERITY CONFLICTS
 
 🔴 CONFLICT #2: Log Retention Period
    Control Area: Logging and Monitoring
-   Affected Controls: NIST AU-11, ISO A.8.15, SOC2 CC7.3, PCI 10.7
+   Affected Controls: NIST AU-11, ISO A.8.15, SOC2 CC7.3, PCI 10.5.1
 
    Requirements:
 
@@ -109,7 +110,7 @@ HIGH SEVERITY CONFLICTS
               (typically 1 year minimum)
 - PCI-DSS: One year minimum, with at least 3 months
               immediately available for analysis
-              Requirement 10.7 MANDATORY
+              Requirement 10.5.1 MANDATORY
 - NIST:    Organization-defined period
               (typically 90 days online, 1 year archived)
 - ISO:     As required by applicable regulations
@@ -143,14 +144,14 @@ HIGH SEVERITY CONFLICTS
 
 🔴 CONFLICT #3: Inactive Account Handling
    Control Area: Account Management
-   Affected Controls: NIST AC-2(3), SOC2 CC6.1, PCI 8.1.4
+   Affected Controls: NIST AC-2(3), SOC2 CC6.1, PCI 8.2.6
 
    Requirements:
 
 - SOC2:    Remove or disable inactive accounts based on
               risk assessment (no specific timeline)
 - PCI-DSS: Remove/disable inactive user accounts at least
-              every 90 days - Requirement 8.1.4 MANDATORY
+              every 90 days - Requirement 8.2.6 MANDATORY
 - NIST:    AC-2(3) - Organization-defined time period
               (commonly 90 days for government)
 - ISO:     Review access rights at regular intervals
@@ -269,9 +270,9 @@ When conflicts exist:
 4. Verify all frameworks accept the implementation
 
 Example:
-  PCI-DSS requires quarterly access reviews
-  → Implement quarterly reviews
-  → Satisfies SOC2 (risk-based, quarterly is appropriate)
+  PCI-DSS requires access reviews at least every six months
+  → Implement six-monthly (or quarterly) reviews
+  → Satisfies SOC2 (risk-based)
   → Exceeds NIST (annual minimum)
   → Exceeds ISO (annual typical)
 
@@ -338,7 +339,7 @@ Conflict Analysis: SOC2, PCI-DSS, NIST
 22 conflicts identified
 
 HIGH SEVERITY (3):
-  🔴 Access review frequency → Use quarterly (PCI requirement)
+  🔴 Access review frequency → At least every six months (PCI 7.2.4)
   🔴 Log retention period → 1yr total, 3mo+ online (PCI)
   🔴 Inactive accounts → 90-day threshold (PCI)
 

@@ -40,7 +40,7 @@ class IaCScanner {
     const rules = {
       encryption_at_rest: {
         name: 'Encryption at Rest',
-        frameworks: ['SOC2 CC6.7', 'PCI-DSS 3.4', 'NIST SC-28', 'ISO A.8.24'],
+        frameworks: ['SOC2 CC6.7', 'PCI-DSS 3.5.1', 'NIST SC-28', 'ISO A.8.24'],
         checks: [
           {
             type: 'terraform',
@@ -57,7 +57,7 @@ class IaCScanner {
 
       logging_and_monitoring: {
         name: 'Security Logging and Monitoring',
-        frameworks: ['SOC2 CC7.2', 'PCI-DSS 10.1', 'NIST AU-2', 'ISO A.8.15'],
+        frameworks: ['SOC2 CC7.2', 'PCI-DSS 10.2.1', 'NIST AU-2', 'ISO A.8.15'],
         checks: [
           {
             type: 'terraform',
@@ -69,7 +69,7 @@ class IaCScanner {
 
       network_security: {
         name: 'Network Security and Segmentation',
-        frameworks: ['PCI-DSS 1.2', 'NIST SC-7', 'SOC2 CC6.6', 'ISO A.8.20'],
+        frameworks: ['PCI-DSS 1.3.1', 'NIST SC-7', 'SOC2 CC6.6', 'ISO A.8.20'],
         checks: [
           {
             type: 'terraform',
@@ -81,7 +81,7 @@ class IaCScanner {
 
       access_control: {
         name: 'Access Control',
-        frameworks: ['NIST AC-2', 'ISO A.5.18', 'SOC2 CC6.1', 'PCI-DSS 8.1'],
+        frameworks: ['NIST AC-2', 'ISO A.5.18', 'SOC2 CC6.1', 'PCI-DSS 8.2.1'],
         checks: [
           {
             type: 'terraform',
@@ -93,7 +93,7 @@ class IaCScanner {
 
       data_protection: {
         name: 'Data Protection',
-        frameworks: ['PCI-DSS 3.1', 'SOC2 CC6.7', 'GDPR Art.32'],
+        frameworks: ['PCI-DSS 3.2.1', 'SOC2 CC6.7', 'GDPR Art.32'],
         checks: [
           {
             type: 'terraform',
@@ -323,7 +323,7 @@ class IaCScanner {
       issues.push({
         check: 'cloudtrail-retention',
         severity: 'INFO',
-        issue: 'Verify CloudTrail logs are retained for 1 year (PCI-DSS 10.7)',
+        issue: 'Verify CloudTrail logs are retained for 1 year (PCI-DSS 10.5.1)',
         remediation: 'Check S3 bucket lifecycle configuration for 365-day retention',
         autoFixable: false
       });

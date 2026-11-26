@@ -70,10 +70,10 @@ SOC 2:
   ✓ CC6.3    - Removes Access When Appropriate
 
 PCI-DSS:
-  ✓ 8.1      - Identification and Authentication
-  ✓ 8.1.1    - Unique User IDs
-  ✓ 8.1.3    - Revoke Access for Terminated Users
-  ✓ 8.1.4    - Remove Inactive Accounts Every 90 Days
+  ✓ 7.2.4    - Review User Accounts Every Six Months
+  ✓ 8.2.1    - Unique User IDs
+  ✓ 8.2.5    - Revoke Access for Terminated Users
+  ✓ 8.2.6    - Remove Inactive Accounts Within 90 Days
 
 CIS Controls:
   ✓ 5.1      - Inventory of Accounts
@@ -109,15 +109,15 @@ CONFLICTS DETECTED
 
 ⚠ Access Review Frequency:
   - SOC2: No specific frequency, risk-based approach
-  - PCI-DSS: Quarterly reviews required (every 90 days)
+  - PCI-DSS: Reviews at least every six months (7.2.4)
   - NIST: Annually minimum, or when roles change
   - ISO 27001: At planned intervals (typically annually)
 
-  ✓ RESOLUTION: Use quarterly (90 days) to satisfy
-                 most restrictive requirement (PCI-DSS)
+  ✓ RESOLUTION: Review at least every six months to satisfy
+                 the most restrictive requirement (PCI-DSS 7.2.4)
 
 ⚠ Inactive Account Detection:
-  - PCI-DSS: Remove/disable after 90 days
+  - PCI-DSS: Remove/disable after 90 days (8.2.6)
   - NIST: Organization-defined time period
   - SOC2: Risk-based determination
 

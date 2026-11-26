@@ -538,14 +538,14 @@ Total Tests: 15
 ⚠ Warnings: 2 (13%)
 
 FAILURES:
-- Quarterly access review overdue (92 days, PCI requires 90)
+- Access review overdue (190 days; PCI DSS 7.2.4 requires at least every six months)
 - Access review policy documentation outdated
 
 FRAMEWORK COMPLIANCE:
 NIST 800-53: ⚠ PARTIALLY COMPLIANT
 ISO 27001:   ⚠ PARTIALLY COMPLIANT
 SOC2:        ⚠ PARTIALLY COMPLIANT
-PCI-DSS:     ✗ NON-COMPLIANT (quarterly review requirement violated)
+PCI-DSS:     ✗ NON-COMPLIANT (six-month access review requirement 7.2.4 missed)
 
 Status: PARTIALLY EFFECTIVE
 Remediation: Run python scripts/access_review.py --immediate
@@ -557,7 +557,7 @@ Remediation: Run python scripts/access_review.py --immediate
 
 - ✓ Unique user IDs
 - ✓ Access approval process
-- ✗ Quarterly access reviews (schedule/execution)
+- ✗ Periodic access reviews (schedule/execution)
 - ✓ Automated provisioning
 - ✓ Least privilege (permissions boundaries)
 - ✓ CloudTrail logging active
