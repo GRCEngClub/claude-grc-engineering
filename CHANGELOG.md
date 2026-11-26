@@ -107,7 +107,6 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Changed
 
-- **Plugins ship skills only; `commands/` folders are gone.** Claude Code merged commands into skills and prefers `skills/` for plugins. All 254 `commands/<name>.md` files moved to `skills/<name>/SKILL.md` with a `name` matching the folder. Invocation is unchanged: `/soc2:assess`, `/engineer:gap-assessment` and every other command work as before, with the same argument handling (checked on Claude Code 2.1.331 with a throwaway plugin, with and without arguments). In `diagrams`, each thin command that only pointed at a companion skill is folded into that skill, which takes the command's name: `/diagrams:control-map` is now one skill, where it used to be a `control-map` command plus a `grc-control-map-diagram` skill. The dollar-digit escaping rule now covers every `SKILL.md`, so 126 more literals are escaped. The scaffold templates, the tests and the docs follow the new layout, and a test fails if a `commands/` folder reappears.
 - **Architecture v2 accepted.** Marked the Architecture v2 RFC accepted, including Amendment A1 decisions for bridges, knowledge sources, and the non-breaking directory-layout recommendation. Closes [#38](https://github.com/GRCEngClub/claude-grc-engineering/issues/38).
 - **Quickstart and marketplace expanded.** Registered the new connector, bridge, framework, and knowledge-source plugins in the marketplace and kept the quickstart plugin-selection guidance aligned with the growing toolkit.
 - **Lychee stability.** Excluded the PCAOB auditing standards URL that returns scraper-only 522 responses, preventing unrelated PRs from being blocked by an external regulator-site availability issue.
@@ -131,7 +130,6 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Changed
 
-- **Plugins ship skills only; `commands/` folders are gone.** Claude Code merged commands into skills and prefers `skills/` for plugins. All 254 `commands/<name>.md` files moved to `skills/<name>/SKILL.md` with a `name` matching the folder. Invocation is unchanged: `/soc2:assess`, `/engineer:gap-assessment` and every other command work as before, with the same argument handling (checked on Claude Code 2.1.331 with a throwaway plugin, with and without arguments). In `diagrams`, each thin command that only pointed at a companion skill is folded into that skill, which takes the command's name: `/diagrams:control-map` is now one skill, where it used to be a `control-map` command plus a `grc-control-map-diagram` skill. The dollar-digit escaping rule now covers every `SKILL.md`, so 126 more literals are escaped. The scaffold templates, the tests and the docs follow the new layout, and a test fails if a `commands/` folder reappears.
 - **SCF API source migrated to the Club-owned mirror.** Default `DEFAULT_BASE_URL` in `plugins/grc-engineer/scripts/scf-client.js` switched from `hackidle.github.io/scf-api` to [`grcengclub.github.io/scf-api`](https://grcengclub.github.io/scf-api/) ([repo](https://github.com/GRCEngClub/scf-api)). The new mirror is API-compatible — same SCF v2026.1 workbook, identical endpoint shapes, identical response payloads — so cached data and framework alias tables remain valid. Users who want to pin to the previous origin can still set `CLAUDE_GRC_SCF_BASE_URL=https://hackidle.github.io/scf-api`. Closes [#55](https://github.com/GRCEngClub/claude-grc-engineering/issues/55).
 
 ## [0.0.2] — 2026-04-18
@@ -170,7 +168,6 @@ This release marks the official handoff of the toolkit to the [GRC Engineering C
 
 ### Changed
 
-- **Plugins ship skills only; `commands/` folders are gone.** Claude Code merged commands into skills and prefers `skills/` for plugins. All 254 `commands/<name>.md` files moved to `skills/<name>/SKILL.md` with a `name` matching the folder. Invocation is unchanged: `/soc2:assess`, `/engineer:gap-assessment` and every other command work as before, with the same argument handling (checked on Claude Code 2.1.331 with a throwaway plugin, with and without arguments). In `diagrams`, each thin command that only pointed at a companion skill is folded into that skill, which takes the command's name: `/diagrams:control-map` is now one skill, where it used to be a `control-map` command plus a `grc-control-map-diagram` skill. The dollar-digit escaping rule now covers every `SKILL.md`, so 126 more literals are escaped. The scaffold templates, the tests and the docs follow the new layout, and a test fails if a `commands/` folder reappears.
 **Ownership transfer to GRC Engineering Club**
 
 - Repository transferred from `ethanolivertroy/claude-grc-engineering` to [`GRCEngClub/claude-grc-engineering`](https://github.com/GRCEngClub/claude-grc-engineering). The toolkit is now the official open-source project of the [GRC Engineering Club](https://grcengclub.com).
@@ -220,7 +217,6 @@ This release marks the official handoff of the toolkit to the [GRC Engineering C
 
 ### Changed
 
-- **Plugins ship skills only; `commands/` folders are gone.** Claude Code merged commands into skills and prefers `skills/` for plugins. All 254 `commands/<name>.md` files moved to `skills/<name>/SKILL.md` with a `name` matching the folder. Invocation is unchanged: `/soc2:assess`, `/engineer:gap-assessment` and every other command work as before, with the same argument handling (checked on Claude Code 2.1.331 with a throwaway plugin, with and without arguments). In `diagrams`, each thin command that only pointed at a companion skill is folded into that skill, which takes the command's name: `/diagrams:control-map` is now one skill, where it used to be a `control-map` command plus a `grc-control-map-diagram` skill. The dollar-digit escaping rule now covers every `SKILL.md`, so 126 more literals are escaped. The scaffold templates, the tests and the docs follow the new layout, and a test fails if a `commands/` folder reappears.
 - README rewritten around capability-first workflows and the data-pipeline model.
 - Plugin taxonomy restructured into five categories: engineering hub, persona, framework, connector, OSCAL / FedRAMP showcase.
 

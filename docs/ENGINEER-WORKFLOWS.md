@@ -1,6 +1,6 @@
 # engineer workflows
 
-A walkthrough of the `engineer` plugin's main workflows: cross-framework mapping, code generation, IaC scanning, control testing, continuous monitoring, and access review triage. Each command's own file under `plugins/personas/engineer/commands/` is the reference for its options; this page shows how they fit together.
+A walkthrough of the `engineer` plugin's main workflows: cross-framework mapping, code generation, IaC scanning, control testing, continuous monitoring, and access review triage. Each command's own skill under `plugins/personas/engineer/skills/` is the reference for its options; this page shows how they fit together.
 
 Sample output in this guide is illustrative.
 

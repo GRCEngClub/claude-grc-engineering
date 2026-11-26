@@ -109,4 +109,4 @@ source_profile = default
 mfa_serial = arn:aws:iam::111122223333:mfa/you   # optional
 ```
 
-The AWS SDK performs the `AssumeRole` transparently; this connector sees the resolved credentials. See `skills/setup/SKILL.md` and `commands/retrieve.md` for the same pattern applied to setup and retrieval.
+The AWS SDK performs the `AssumeRole` transparently; this connector sees the resolved credentials. See `skills/setup/SKILL.md` and `skills/retrieve/SKILL.md` for the same pattern applied to setup and retrieval.

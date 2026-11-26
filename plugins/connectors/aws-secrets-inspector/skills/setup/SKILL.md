@@ -94,7 +94,7 @@ source_profile = default
 mfa_serial = arn:aws:iam::111122223333:mfa/you   # optional
 ```
 
-Then run `/aws-secrets-inspector:setup --profile=audit-target` and the connector will pick up the AssumeRole transparently. See `commands/retrieve.md` for the same pattern applied to retrievals.
+Then run `/aws-secrets-inspector:setup --profile=audit-target` and the connector will pick up the AssumeRole transparently. See `skills/retrieve/SKILL.md` for the same pattern applied to retrievals.
 
 ## Safe to re-run
 
