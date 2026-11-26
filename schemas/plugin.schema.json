@@ -67,13 +67,5 @@
         }
       }
     }
-  },
-  "not": {
-    "anyOf": [
-      { "required": ["framework_metadata"] },
-      { "required": ["knowledge_source_metadata"] },
-      { "required": ["license_note"] },
-      { "required": ["tags"] }
-    ]
   }
 }
