@@ -357,7 +357,7 @@ More Restrictive Parameters:
 AC-2(j) - Account Review Frequency
   NIST Moderate: "Organization-defined frequency"
   FedRAMP: "At least annually"
-  RECOMMENDED: Quarterly (exceeds FedRAMP, matches PCI)
+  RECOMMENDED: Quarterly (exceeds FedRAMP and PCI DSS 7.2.4's six-month minimum)
 
 AU-11 - Audit Record Retention
   NIST Moderate: "Organization-defined time period"

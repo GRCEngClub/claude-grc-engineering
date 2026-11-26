@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Validate the deliberately small, uncompressed mxGraph example."""
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path

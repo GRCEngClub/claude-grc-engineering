@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# oscal:convert — run oscal-cli convert
 set -uo pipefail
 
 CONFIG_FILE="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors/oscal.yaml"
@@ -9,15 +8,16 @@ TO=""
 OUTPUT=""
 OVERWRITE=0
 FILE=""
-for arg in "$@"; do
-  case "$arg" in
-    --to=*)     TO="${arg#*=}" ;;
-    --to)       shift; TO="$1" ;;  # not typically used; keep arg parser simple
-    --output=*) OUTPUT="${arg#*=}" ;;
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --to=*)     TO="${1#*=}" ;;
+    --to)       shift; TO="${1:-}" ;;
+    --output=*) OUTPUT="${1#*=}" ;;
     --overwrite) OVERWRITE=1 ;;
-    --*)        echo "[$SOURCE:convert] unknown flag: $arg" >&2; exit 2 ;;
-    *)          FILE="$arg" ;;
+    --*)        echo "[$SOURCE:convert] unknown flag: $1" >&2; exit 2 ;;
+    *)          FILE="$1" ;;
   esac
+  shift || true
 done
 
 if [[ -z "$FILE" || -z "$TO" ]]; then

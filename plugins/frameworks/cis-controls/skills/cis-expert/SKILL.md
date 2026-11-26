@@ -583,7 +583,7 @@ The core innovation of CIS Controls: tailored security based on organizational m
 - Security tools (firewall, IDS/IPS, AV, DLP)
 - Network devices (routers, switches, wireless)
 - Cloud platforms (AWS CloudTrail, Azure Monitor, GCP Cloud Logging)
-- Identity providers (Active Directory, Okta, Azure AD)
+- Identity providers (Active Directory, Okta, Entra ID)
 
 **Centralized Logging (SIEM)**:
 

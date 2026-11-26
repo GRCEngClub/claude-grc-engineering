@@ -163,7 +163,7 @@ The CCCS assesses cloud service providers against the ITSP.50.103 Cloud Security
 
 - FIPS 140-2 Level 2 encryption (Key Vault HSM)
 - Canadian data residency controls
-- Azure AD MFA
+- Entra ID multifactor authentication
 - 2-year log retention (Monitor, Storage)
 - Network Security Groups, Application Security Groups
 

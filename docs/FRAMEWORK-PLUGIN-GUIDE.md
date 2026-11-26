@@ -126,7 +126,7 @@ A Stub levels up to Reference when all of these land in one PR:
 | Plugin | Full-depth commands |
 |---|---|
 | `soc2` | `/soc2:service-auditor-prep`, `/soc2:generate-tsc-matrix`, `/soc2:evidence-checklist` |
-| `fedramp-rev5` | `/fedramp-rev5:poam-review`, `/fedramp-rev5:ssp-outline`, `/fedramp-rev5:sap-draft` |
+| `fedramp-20x` | `/fedramp-20x:ksi-check`, `/fedramp-20x:vdr-assess`, `/fedramp-20x:mas-review` |
 | `pci-dss` | `/pci-dss:roc-walkthrough`, `/pci-dss:saq-route`, `/pci-dss:scoping-worksheet` |
 | `cmmc` | `/cmmc:c3pao-readiness`, `/cmmc:ssp-generator` |
 

@@ -10,7 +10,7 @@ const frameworks = [
   { name: 'GDPR', type: 'EU Data Protection', icon: '🇪🇺' },
   { name: 'CIS Controls v8', type: 'Security Best Practices', icon: '✅' },
   { name: 'DORA', type: 'EU Digital Operational Resilience', icon: '📊' },
-  { name: 'StateRAMP', type: 'State Government Cloud', icon: '🏗️' },
+  { name: 'GovRAMP', type: 'State and Local Government Cloud', icon: '🏗️' },
 ]
 
 const skillGroups = {

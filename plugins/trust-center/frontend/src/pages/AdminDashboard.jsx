@@ -15,7 +15,6 @@ const p = {
 const baseFont = "'DM Sans', sans-serif"
 const monoFont = "'JetBrains Mono', monospace"
 
-// ── Demo data for preview ───────────────────────────────────
 const DEMO_REQUESTS = [
   { requestId: 'r001', documentName: 'SOC 2 Type II Report', requesterName: 'Sarah Chen', requesterEmail: 'sarah@bigcorp.com', requesterCompany: 'BigCorp', reason: 'Vendor due diligence for enterprise procurement', status: 'pending', ndaSigned: false, createdAt: '2026-05-15T10:30:00Z' },
   { requestId: 'r002', documentName: 'Information Security Policy', requesterName: 'James Mwangi', requesterEmail: 'james@techpartners.io', requesterCompany: 'TechPartners', reason: 'Security review for integration partnership', status: 'pending', ndaSigned: true, createdAt: '2026-05-16T14:20:00Z' },
@@ -177,7 +176,6 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ minHeight: '100vh', background: p.bg, fontFamily: baseFont }}>
-      {/* Nav bar */}
       <nav style={{
         background: p.surface, borderBottom: `1px solid ${p.border}`,
         padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -220,7 +218,6 @@ export default function AdminDashboard() {
       </nav>
 
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 24px' }}>
-        {/* Tabs */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 24 }}>
           {[
             { key: 'requests', label: 'Access Requests', count: pendingCount },
@@ -247,7 +244,6 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Requests Tab */}
         {tab === 'requests' && (
           <>
             <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
@@ -267,7 +263,6 @@ export default function AdminDashboard() {
             <div style={{
               background: p.surface, border: `1px solid ${p.border}`, borderRadius: 16, overflow: 'hidden',
             }}>
-              {/* Header */}
               <div style={{
                 display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 16,
                 padding: '12px 20px', borderBottom: `1px solid ${p.border}`,
@@ -294,7 +289,6 @@ export default function AdminDashboard() {
           </>
         )}
 
-        {/* Audit Tab */}
         {tab === 'audit' && (
           <div style={{
             background: p.surface, border: `1px solid ${p.border}`, borderRadius: 16, overflow: 'hidden',

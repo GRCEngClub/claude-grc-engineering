@@ -16,9 +16,6 @@ const EXIT = { OK: 0, USAGE: 2, AUTH: 2, PARTIAL: 4, NOT_CONFIGURED: 5 };
 async function main(argv) {
   const args = parseArgs(argv);
   let config; try { config = parseYaml(await fs.readFile(CONFIG_FILE, 'utf8')); } catch { fail(EXIT.NOT_CONFIGURED, `config missing (${CONFIG_FILE}). Run /snowflake-inspector:setup first.`); }
-  // Without an account the findings carry resource.id undefined, which
-  // JSON.stringify drops entirely, producing documents that fail the required
-  // resource.id constraint in schemas/finding.schema.json.
   if (!config.account) fail(EXIT.NOT_CONFIGURED, `config (${CONFIG_FILE}) has no 'account'. Re-run /snowflake-inspector:setup.`);
   const startedAt = Date.now(), runId = makeRunId(), collectedAt = new Date().toISOString();
   const ctx = { runId, collectedAt, account: String(config.account) };

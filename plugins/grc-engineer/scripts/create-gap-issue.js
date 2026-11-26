@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// Deliberately separate from report generation: one reviewed draft per invocation.
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
@@ -18,7 +17,6 @@ function main(args) {
   const labels = [];
   if (options.includes('--severity-label')) {
     if (preview.data_quality_warnings != null && !Array.isArray(preview.data_quality_warnings)) throw new Error('Invalid data quality warnings; no issue created');
-    // Legacy or ambiguous drafts carry no actionable severity: omit the label.
     if (issue.label_severity != null && !['critical', 'high', 'medium'].includes(issue.label_severity)) throw new Error('Invalid actionable severity; no issue created');
     if (issue.label_severity != null && !preview.data_quality_warnings?.length) labels.push(`severity:${issue.label_severity}`);
   }

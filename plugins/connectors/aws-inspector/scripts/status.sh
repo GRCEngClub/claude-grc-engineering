@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# aws-inspector:status
 set -uo pipefail
 
 CONFIG_FILE="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors/aws-inspector.yaml"
@@ -21,7 +20,6 @@ fi
 AWS_VERSION=$(aws --version 2>&1 | awk '{print $1}' | sed 's|aws-cli/||')
 printf '  aws:           %s %s\n' "$(command -v aws)" "$AWS_VERSION"
 
-# Extract profile from config
 PROFILE=$(awk -F'"' '/^profile:/ {print $2; exit}' "$CONFIG_FILE" 2>/dev/null || true)
 AWSENV=()
 [[ -n "${PROFILE:-}" ]] && AWSENV+=("AWS_PROFILE=$PROFILE")

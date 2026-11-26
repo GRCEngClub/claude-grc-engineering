@@ -1,12 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * azure-inspector:collect
- *
- * Runs Azure CLI read-only queries and emits findings conforming to
- * schemas/finding.schema.json v1.
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';

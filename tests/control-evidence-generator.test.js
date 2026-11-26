@@ -53,7 +53,6 @@ test('example validator checks each edge and rejects DTDs and entities', () => {
     const validate = () => spawnSync('python3', [validator, input], { encoding: 'utf8' });
     writeFileSync(input, xml);
     assert.equal(validate().status, 0);
-    // Preserve the set of endpoints while swapping their edge identities.
     const swapped = xml.replace('source="control" target="owner"', 'source="TEMP" target="TEMP"')
       .replace('source="owner" target="evidence"', 'source="control" target="owner"')
       .replace('source="TEMP" target="TEMP"', 'source="owner" target="evidence"');

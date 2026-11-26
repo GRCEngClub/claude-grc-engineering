@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// Never capture or forward provider or child output: either may contain secrets.
 import { spawnSync } from 'node:child_process';
 
 const args = process.argv.slice(2);
@@ -7,8 +6,6 @@ if (args[0] !== '--' || !args[1] || args[1].startsWith('-')) {
   console.error('Usage: node run.js -- <trusted-command> [args...]');
   process.exit(2);
 }
-// A provider-resolved value in a loader/runtime variable can execute code before
-// the intended child starts. Permit references only in fixed data variables.
 const allowed = new Set(['CONNECTOR_TOKEN', 'TOKEN', 'API_TOKEN', 'API_KEY', 'ACCESS_TOKEN', 'PASSWORD']);
 let hasReference = false;
 for (const [name, value] of Object.entries(process.env)) {

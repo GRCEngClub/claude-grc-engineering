@@ -1,13 +1,3 @@
-/**
- * Audit-Ready PR Reviewer CLI
- *
- * Usage: node scripts/review-pr.js <repo> <pr-number> [framework]
- *
- * Examples:
- *   node scripts/review-pr.js myorg/infrastructure 42 SOC2
- *   node scripts/review-pr.js myorg/infrastructure 42 ISO27001
- */
-
 import { reviewPR } from '../src/pr-reviewer.js';
 import fs from 'fs/promises';
 import path from 'path';
@@ -50,7 +40,6 @@ async function main() {
     console.log(`**Framework:** ${framework}\n`);
     console.log(`---\n`);
     
-    // Summary
     console.log(`## Summary\n`);
     console.log(`- Total Issues: ${result.summary.total}`);
     console.log(`- Critical: ${result.summary.critical}`);
@@ -62,7 +51,6 @@ async function main() {
     } else {
       console.log(`## Issues Found\n`);
       
-      // Group by file
       const byFile = {};
       result.issues.forEach(issue => {
         if (!byFile[issue.file]) {
@@ -96,7 +84,6 @@ async function main() {
       });
     }
     
-    // Save review to file
     const reviewFile = `pr_${prNumber}_review_${Date.now()}.md`;
     const reviewContent = `# PR Compliance Review\n\n` +
       `**PR:** #${result.pr.number} - ${result.pr.title}\n` +

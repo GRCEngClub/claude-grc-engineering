@@ -81,7 +81,7 @@ templates:
         echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
         echo ""
 
-        echo "--- Checking Azure AD MFA Status ---"
+        echo "--- Checking Entra ID multifactor authentication Status ---"
         # List all users and their authentication methods
         echo "Fetching user list..."
         az ad user list --query "[].{UPN:userPrincipalName,DisplayName:displayName,ID:id}" --output table

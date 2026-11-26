@@ -1,11 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * okta-inspector:collect
- *
- * Calls Okta REST API read-only and emits findings conforming to v1.
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -94,13 +88,10 @@ async function main(argv) {
   process.exit(errors.length ? EXIT.PARTIAL : EXIT.OK);
 }
 
-// ---------------------------------------------------------------------------
-
 const serviceHandlers = {
   async policies(ctx, log) {
     const findings = [];
 
-    // Password policies
     const pwdPolicies = await oktaGet(ctx, '/api/v1/policies?type=PASSWORD');
     log(`policies: ${pwdPolicies.length} password policies`);
     for (const p of pwdPolicies) {
@@ -130,13 +121,10 @@ const serviceHandlers = {
       findings.push(buildDoc(ctx, resource, evaluations));
     }
 
-    // MFA enroll policies
     const mfaPolicies = await oktaGet(ctx, '/api/v1/policies?type=MFA_ENROLL');
     log(`policies: ${mfaPolicies.length} MFA enrollment policies`);
     let mfaRequired = false;
     for (const p of mfaPolicies) {
-      // A policy "requires" MFA if it has enroll=REQUIRED for at least one factor and it's the default policy or has broad rules.
-      // We approximate: any active policy with REQUIRED enrollment for any factor.
       const settings = p.settings?.factors || {};
       const requiredFactors = Object.entries(settings).filter(([_, cfg]) => cfg?.enroll?.self === 'REQUIRED');
       if (p.status === 'ACTIVE' && requiredFactors.length > 0) mfaRequired = true;
@@ -152,19 +140,14 @@ const serviceHandlers = {
       }]));
     }
 
-    // Sign-on policies — session timeouts
     const soPolicies = await oktaGet(ctx, '/api/v1/policies?type=OKTA_SIGN_ON');
     log(`policies: ${soPolicies.length} sign-on policies`);
     for (const p of soPolicies) {
       if (p.status !== 'ACTIVE') continue;
       const resource = { type: 'okta_signon_policy', id: p.id, uri: `https://${ctx.domain}/admin/access/policies`, account_id: ctx.orgId };
       const evaluations = [];
-      // Fetch rules for session settings
       try {
         const rules = await oktaGet(ctx, `/api/v1/policies/${p.id}/rules`);
-        // Okta encodes "unlimited" as 0, so filter on presence rather than
-        // truthiness — filter(Boolean) would drop exactly the worst case and
-        // report it as a pass.
         const longest = mostPermissiveSessionValue(rules, 'maxSessionLifetimeMinutes');
         const longestIdle = mostPermissiveSessionValue(rules, 'maxSessionIdleMinutes');
         evaluations.push(sessionEvaluation({
@@ -197,14 +180,13 @@ const serviceHandlers = {
   },
 
   async users(ctx, log) {
-    // Inactive users: /api/v1/users with filter
     const threshold = ctx.inactiveThreshold;
     const thresholdDate = new Date(Date.now() - threshold * 86400000).toISOString();
     const users = await oktaGetPaginated(ctx, `/api/v1/users?filter=status eq "ACTIVE"&limit=200`);
     log(`users: ${users.length} active users`);
     const stale = users.filter(u => {
       const last = u.lastLogin ? Date.parse(u.lastLogin) : null;
-      if (!last) return false; // never logged in — that's a separate check
+      if (!last) return false;
       return last < Date.parse(thresholdDate);
     });
     const neverLogged = users.filter(u => !u.lastLogin && u.activated && Date.parse(u.activated) < Date.parse(thresholdDate));
@@ -232,13 +214,10 @@ const serviceHandlers = {
   },
 
   async factors(ctx, log) {
-    // Super admin users: /api/v1/iam/assignees/users?roleType=SUPER_ADMIN
     let admins;
     try {
       admins = await oktaGet(ctx, '/api/v1/iam/assignees/users?roleType=SUPER_ADMIN');
     } catch (err) {
-      // Older orgs have /api/v1/users?filter=... nope, actually the classic endpoint is /api/v1/roles
-      // Fall back to parsing group memberships for 'okta-admins' - coarse approximation
       return [buildDoc(ctx,
         { type: 'okta_admin_factors', id: `admin-factors-${ctx.orgId}`, account_id: ctx.orgId },
         [{ control_framework: 'SCF', control_id: 'IAC-01.2', status: 'inconclusive', severity: 'medium', message: `Super-admin enumeration failed: ${err.message}` }])];
@@ -288,8 +267,6 @@ const serviceHandlers = {
     return [buildDoc(ctx, resource, evaluations)];
   }
 };
-
-// ---------------------------------------------------------------------------
 
 function isFiniteNumber(v) {
   return typeof v === 'number' && Number.isFinite(v);

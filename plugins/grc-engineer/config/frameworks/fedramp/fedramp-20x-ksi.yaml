@@ -49,9 +49,6 @@ categories:
     indicator_count: 2
 
 controls:
-  # ============================================================================
-  # KSI-AFR: Authorization by FedRAMP
-  # ============================================================================
   KSI-AFR-01:
     title: Minimum Assessment Scope
     description: Define assessment scope and persistently address requirements
@@ -222,9 +219,6 @@ controls:
             description: "Check volume encryption"
             pass_criteria: "All volumes encrypted"
 
-  # ============================================================================
-  # KSI-CED: Cybersecurity Education
-  # ============================================================================
   KSI-CED-01:
     title: General Security Training
     description: Provide security awareness training for all employees
@@ -273,9 +267,6 @@ controls:
             description: "List incident response plans"
             pass_criteria: "IR team trained on procedures"
 
-  # ============================================================================
-  # KSI-CMT: Change Management
-  # ============================================================================
   KSI-CMT-01:
     title: Service Modification Logging
     description: Log and monitor all service modifications
@@ -363,9 +354,6 @@ controls:
             description: "List SSM automation documents"
             pass_criteria: "Change procedures documented"
 
-  # ============================================================================
-  # KSI-CNA: Cloud Native Architecture
-  # ============================================================================
   KSI-CNA-01:
     title: Network Traffic Restriction
     description: Restrict inbound and outbound network traffic
@@ -553,9 +541,6 @@ controls:
             description: "List SCC sources"
             pass_criteria: "Security Command Center enabled"
 
-  # ============================================================================
-  # KSI-IAM: Identity and Access Management
-  # ============================================================================
   KSI-IAM-01:
     title: Phishing-Resistant MFA
     description: Enforce phishing-resistant MFA for all user authentication
@@ -700,9 +685,6 @@ controls:
             description: "Check for IAM automation functions"
             pass_criteria: "Account lifecycle automated"
 
-  # ============================================================================
-  # KSI-INR: Incident Response
-  # ============================================================================
   KSI-INR-01:
     title: Documented Incident Procedures
     description: Always follow documented incident response procedures
@@ -742,9 +724,6 @@ controls:
             description: "List resolved incidents"
             pass_criteria: "Post-incident reviews conducted"
 
-  # ============================================================================
-  # KSI-MLA: Monitoring, Logging, and Auditing
-  # ============================================================================
   KSI-MLA-01:
     title: Centralized Logging (SIEM)
     description: Operate SIEM or similar for centralized tamper-resistant logging
@@ -837,9 +816,6 @@ controls:
             description: "Check log resource policies"
             pass_criteria: "Log access restricted"
 
-  # ============================================================================
-  # KSI-PIY: Policy and Inventory
-  # ============================================================================
   KSI-PIY-01:
     title: Real-Time Inventory
     description: Auto-maintain real-time inventories from authoritative sources

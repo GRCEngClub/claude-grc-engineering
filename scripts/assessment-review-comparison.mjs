@@ -1,4 +1,3 @@
-// Experimental comparison of supplied data, not a remediation determination.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { generateReview } from './assessment-review-draft.mjs';
@@ -28,7 +27,6 @@ function compareRecords(before, after) {
 }
 
 export function compareAssessments(before, after) {
-  // Reuse validation and review warnings, including missing context and links.
   const beforeReview = generateReview(before);
   const afterReview = generateReview(after);
   if (before.assessment_id !== after.assessment_id) throw new Error('Inputs must have the same assessment_id');

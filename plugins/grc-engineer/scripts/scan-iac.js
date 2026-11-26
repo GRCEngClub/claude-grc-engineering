@@ -1,20 +1,18 @@
 #!/usr/bin/env node
 
-/**
- * IaC Compliance Scanner
- *
- * Scans Infrastructure as Code for compliance violations:
- * - Terraform (.tf files)
- * - CloudFormation (.yaml, .json)
- * - Kubernetes (.yaml manifests)
- *
- * Checks against: SOC2, PCI-DSS, NIST 800-53, ISO 27001, etc.
- */
-
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import yaml from 'js-yaml';
+import {
+  appendResource,
+  blockAttributeValues,
+  companionCoverage,
+  hasBlock,
+  resourceAttribute,
+  setTopLevelAttribute,
+  terraformResources
+} from '../src/terraform-blocks.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,33 +23,29 @@ class IaCScanner {
     this.frameworks = frameworks.map(f => f.toUpperCase());
     this.options = options;
     this.violations = [];
+    this.pendingFixes = [];
+    this.terraformByDir = new Map();
     this.satisfied = [];
     this.partial = [];
     this.recommendations = [];
     this.filesScanned = 0;
 
-    // Load control crosswalk for compliance rules
     const crosswalkPath = path.join(__dirname, '../config/control-crosswalk.yaml');
     this.crosswalk = yaml.load(fs.readFileSync(crosswalkPath, 'utf8'));
 
-    // Compliance rules database
     this.rules = this.buildRulesDatabase();
   }
 
-  /**
-   * Build rules database from crosswalk
-   */
   buildRulesDatabase() {
     const rules = {
       encryption_at_rest: {
         name: 'Encryption at Rest',
-        frameworks: ['SOC2 CC6.7', 'PCI-DSS 3.4', 'NIST SC-28', 'ISO A.10.1'],
+        frameworks: ['SOC2 CC6.7', 'PCI-DSS 3.5.1', 'NIST SC-28', 'ISO A.8.24'],
         checks: [
           {
             type: 'terraform',
             resources: ['aws_s3_bucket', 'aws_ebs_volume', 'aws_rds_cluster', 'aws_rds_instance'],
-            validator: this.checkEncryption.bind(this),
-            remediation: this.remediateEncryption.bind(this)
+            validator: this.checkEncryption.bind(this)
           },
           {
             type: 'kubernetes',
@@ -63,33 +57,31 @@ class IaCScanner {
 
       logging_and_monitoring: {
         name: 'Security Logging and Monitoring',
-        frameworks: ['SOC2 CC7.2', 'PCI-DSS 10.1', 'NIST AU-2', 'ISO A.12.4'],
+        frameworks: ['SOC2 CC7.2', 'PCI-DSS 10.2.1', 'NIST AU-2', 'ISO A.8.15'],
         checks: [
           {
             type: 'terraform',
             resources: ['aws_cloudtrail', 'azurerm_monitor_activity_log_alert', 'google_logging_project_sink'],
-            validator: this.checkLogging.bind(this),
-            remediation: this.remediateLogging.bind(this)
+            validator: this.checkLogging.bind(this)
           }
         ]
       },
 
       network_security: {
         name: 'Network Security and Segmentation',
-        frameworks: ['PCI-DSS 1.2', 'NIST SC-7', 'SOC2 CC6.6', 'ISO A.13.1'],
+        frameworks: ['PCI-DSS 1.3.1', 'NIST SC-7', 'SOC2 CC6.6', 'ISO A.8.20'],
         checks: [
           {
             type: 'terraform',
             resources: ['aws_security_group', 'azurerm_network_security_group', 'google_compute_firewall'],
-            validator: this.checkNetworkSecurity.bind(this),
-            remediation: this.remediateNetworkSecurity.bind(this)
+            validator: this.checkNetworkSecurity.bind(this)
           }
         ]
       },
 
       access_control: {
         name: 'Access Control',
-        frameworks: ['NIST AC-2', 'ISO A.9.2', 'SOC2 CC6.1', 'PCI-DSS 8.1'],
+        frameworks: ['NIST AC-2', 'ISO A.5.18', 'SOC2 CC6.1', 'PCI-DSS 8.2.1'],
         checks: [
           {
             type: 'terraform',
@@ -101,13 +93,12 @@ class IaCScanner {
 
       data_protection: {
         name: 'Data Protection',
-        frameworks: ['PCI-DSS 3.1', 'SOC2 CC6.7', 'GDPR Art.32'],
+        frameworks: ['PCI-DSS 3.2.1', 'SOC2 CC6.7', 'GDPR Art.32'],
         checks: [
           {
             type: 'terraform',
             resources: ['aws_s3_bucket'],
-            validator: this.checkDataProtection.bind(this),
-            remediation: this.remediateDataProtection.bind(this)
+            validator: this.checkDataProtection.bind(this)
           }
         ]
       }
@@ -116,12 +107,10 @@ class IaCScanner {
     return rules;
   }
 
-  /**
-   * Scan directory for IaC files
-   */
   async scan() {
-    console.log(`Scanning: ${this.directory}`);
-    console.log(`Frameworks: ${this.frameworks.join(', ')}\n`);
+    // Progress goes to stderr so `json` and `sarif` output on stdout stays parseable.
+    console.error(`Scanning: ${this.directory}`);
+    console.error(`Frameworks: ${this.frameworks.join(', ')}\n`);
 
     const files = this.findIaCFiles(this.directory);
 
@@ -132,9 +121,6 @@ class IaCScanner {
     return this.generateReport();
   }
 
-  /**
-   * Find all IaC files in directory
-   */
   findIaCFiles(dir) {
     const files = [];
 
@@ -145,14 +131,12 @@ class IaCScanner {
         const fullPath = path.join(currentPath, entry.name);
 
         if (entry.isDirectory()) {
-          // Skip common ignored directories
           if (!['node_modules', '.git', '.terraform', 'dist', 'build'].includes(entry.name)) {
             walk(fullPath);
           }
         } else if (entry.isFile()) {
           const ext = path.extname(entry.name).toLowerCase();
 
-          // Check for IaC files
           if (['.tf', '.yaml', '.yml', '.json'].includes(ext)) {
             files.push(fullPath);
           }
@@ -164,9 +148,6 @@ class IaCScanner {
     return files;
   }
 
-  /**
-   * Scan individual file
-   */
   async scanFile(filePath) {
     this.filesScanned++;
 
@@ -182,26 +163,19 @@ class IaCScanner {
     }
   }
 
-  /**
-   * Scan Terraform file
-   */
   scanTerraform(filePath, content) {
-    // Simple regex-based parsing (production would use HCL parser)
-    const resourceRegex = /resource\s+"([^"]+)"\s+"([^"]+)"\s+{([^}]+)}/gs;
-    let match;
-
-    while ((match = resourceRegex.exec(content)) !== null) {
-      const [fullMatch, resourceType, resourceName, resourceBody] = match;
-      const lineNumber = content.substring(0, match.index).split('\n').length;
-
-      // Check against all rules
+    const moduleContent = [content, ...this.siblingTerraform(filePath)].join('\n');
+    for (const resource of terraformResources(content)) {
       for (const [controlId, rule] of Object.entries(this.rules)) {
         for (const check of rule.checks) {
-          if (check.type === 'terraform' && check.resources.includes(resourceType)) {
-            const result = check.validator(resourceType, resourceName, resourceBody, filePath, lineNumber);
+          if (check.type === 'terraform' && check.resources.includes(resource.type)) {
+            const result = check.validator(resource.type, resource.name, resource.body, filePath, resource.line, moduleContent, {
+              attribute: attribute => resourceAttribute(content, resource, attribute),
+              hasBlock: blockName => hasBlock(content, resource, blockName)
+            });
 
             if (result) {
-              this.recordFinding(controlId, rule, result, filePath, lineNumber, resourceType, resourceName);
+              this.recordFinding(controlId, rule, result, filePath, resource.line, resource.type, resource.name);
             }
           }
         }
@@ -209,39 +183,33 @@ class IaCScanner {
     }
   }
 
-  /**
-   * Scan YAML file (Kubernetes, CloudFormation)
-   */
+  siblingTerraform(filePath) {
+    const dir = path.dirname(filePath);
+    if (!this.terraformByDir.has(dir)) {
+      this.terraformByDir.set(dir, terraformFilesIn(dir));
+    }
+    return this.terraformByDir.get(dir).filter(f => f.file !== filePath).map(f => f.content);
+  }
+
   scanYaml(filePath, content) {
-    // Only the parse is guarded: a dispatch error must surface, not be
-    // swallowed as "not YAML" (that silence hid a missing-method bug that
-    // skipped every Kubernetes document).
     let docs;
     try {
       docs = yaml.loadAll(content);
     } catch (err) {
-      return; // Not a valid YAML file for our purposes
+      return;
     }
 
     for (const doc of docs) {
       if (!doc) continue;
 
-      // Detect type
       if (doc.kind) {
-        // Kubernetes
         this.scanKubernetesResource(doc, filePath);
       } else if (doc.AWSTemplateFormatVersion) {
-        // CloudFormation
         this.scanCloudFormation(doc, filePath);
       }
     }
   }
 
-  /**
-   * Scan a single parsed Kubernetes document against the kubernetes-type
-   * rules. The document is re-serialized to YAML so validators can use the
-   * same substring/regex checks they apply to Terraform resource bodies.
-   */
   scanKubernetesResource(doc, filePath) {
     const resourceType = doc.kind;
     const resourceName = doc.metadata?.name || 'unnamed';
@@ -261,9 +229,6 @@ class IaCScanner {
     }
   }
 
-  /**
-   * Scan JSON file (CloudFormation, ARM templates)
-   */
   scanJson(filePath, content) {
     try {
       const doc = JSON.parse(content);
@@ -271,71 +236,43 @@ class IaCScanner {
       if (doc.AWSTemplateFormatVersion) {
         this.scanCloudFormation(doc, filePath);
       } else if (doc.$schema && doc.$schema.includes('deploymentTemplate')) {
-        // Azure ARM template
         this.scanArmTemplate(doc, filePath);
       }
     } catch (err) {
-      // Not a valid JSON file for our purposes
     }
   }
 
-  /**
-   * Check encryption configuration
-   */
-  checkEncryption(resourceType, resourceName, resourceBody, filePath, lineNumber) {
+  checkEncryption(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '', own = UNPARSED_RESOURCE) {
     const issues = [];
 
-    if (resourceType === 'aws_s3_bucket') {
-      if (!resourceBody.includes('server_side_encryption_configuration')) {
-        issues.push({
-          severity: 'HIGH',
-          issue: 'S3 bucket does not have server-side encryption enabled',
-          remediation: 'Add server_side_encryption_configuration block with AES256 or aws:kms algorithm',
-          autoFixable: true
-        });
-      }
+    if (resourceType === 'aws_s3_bucket' && !own.hasBlock('server_side_encryption_configuration')) {
+      const issue = s3ProtectionIssue(fileContent, 'aws_s3_bucket_server_side_encryption_configuration', resourceName);
+      if (issue) issues.push(issue);
     }
 
     if (resourceType === 'aws_ebs_volume') {
-      if (!resourceBody.includes('encrypted') || resourceBody.includes('encrypted = false')) {
-        issues.push({
-          severity: 'HIGH',
-          issue: 'EBS volume is not encrypted',
-          remediation: 'Set encrypted = true and optionally specify kms_key_id',
-          autoFixable: true
-        });
-      }
+      const issue = booleanSettingIssue(own.attribute, 'encrypted', {
+        severity: 'HIGH',
+        issue: 'EBS volume is not encrypted',
+        remediation: 'Set encrypted = true and optionally specify kms_key_id'
+      });
+      if (issue) issues.push(issue);
     }
 
     if (resourceType === 'aws_rds_cluster' || resourceType === 'aws_rds_instance') {
-      if (!resourceBody.includes('storage_encrypted') || resourceBody.includes('storage_encrypted = false')) {
-        issues.push({
-          severity: 'HIGH',
-          issue: 'RDS database storage is not encrypted',
-          remediation: 'Set storage_encrypted = true and specify kms_key_id',
-          autoFixable: true
-        });
-      }
+      const issue = booleanSettingIssue(own.attribute, 'storage_encrypted', {
+        severity: 'HIGH',
+        issue: 'RDS database storage is not encrypted',
+        remediation: 'Set storage_encrypted = true and specify kms_key_id'
+      });
+      if (issue) issues.push(issue);
     }
 
     return issues.length > 0 ? issues : null;
   }
 
-  /**
-   * Check encryption on Kubernetes persistent storage.
-   *
-   * A PV/PVC is only encrypted at rest if its StorageClass says so, and the
-   * StorageClass usually lives in another manifest this scanner cannot
-   * resolve. So a bare storageClassName reference is NOT accepted as
-   * encryption evidence: it gets a manual-verification finding, while the
-   * absence of any indicator gets the stronger prompt. Both are MEDIUM,
-   * a review prompt rather than proof the volume is unencrypted.
-   */
   checkK8sEncryption(resourceType, resourceName, resourceBody, filePath, lineNumber) {
     const issues = [];
-    // Only affirmative declarations count as evidence. Bare mentions of
-    // "encryption" or "kms" (e.g. `encryption: disabled`, a description
-    // saying "encryption pending") must not suppress the finding.
     const declaresEncryption =
       /encrypted\s*[:=]\s*["']?true\b/i.test(resourceBody)
       || /encryption\s*:\s*["']?(true|enabled|aes256|aws:kms)\b/i.test(resourceBody)
@@ -345,6 +282,7 @@ class IaCScanner {
     if (!declaresEncryption) {
       if (referencesStorageClass) {
         issues.push({
+          check: 'storage-class-unresolved',
           severity: 'MEDIUM',
           issue: `${resourceType} '${resourceName}' references a StorageClass this scanner cannot resolve; encryption at rest is unverified`,
           remediation: 'Confirm the referenced StorageClass provisions encrypted volumes (e.g. EBS/PD parameters with encrypted: "true"), or add an explicit encryption indicator to the manifest.',
@@ -352,6 +290,7 @@ class IaCScanner {
         });
       } else {
         issues.push({
+          check: 'storage-class-unencrypted',
           severity: 'MEDIUM',
           issue: `${resourceType} '${resourceName}' does not reference an encrypted StorageClass`,
           remediation: 'Set storageClassName to a StorageClass whose provisioner enables encryption at rest (e.g. an EBS/PD class with encrypted: "true").',
@@ -363,35 +302,28 @@ class IaCScanner {
     return issues.length > 0 ? issues : null;
   }
 
-  /**
-   * Check logging configuration
-   */
-  checkLogging(resourceType, resourceName, resourceBody, filePath, lineNumber) {
+  checkLogging(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '', own = UNPARSED_RESOURCE) {
     const issues = [];
 
     if (resourceType === 'aws_cloudtrail') {
-      if (!resourceBody.includes('is_multi_region_trail = true')) {
-        issues.push({
+      const settings = [
+        booleanSettingIssue(own.attribute, 'is_multi_region_trail', {
           severity: 'MEDIUM',
           issue: 'CloudTrail is not configured for all regions',
-          remediation: 'Set is_multi_region_trail = true',
-          autoFixable: true
-        });
-      }
-
-      if (!resourceBody.includes('enable_log_file_validation')) {
-        issues.push({
+          remediation: 'Set is_multi_region_trail = true'
+        }),
+        booleanSettingIssue(own.attribute, 'enable_log_file_validation', {
           severity: 'MEDIUM',
           issue: 'CloudTrail log file validation is not enabled',
-          remediation: 'Set enable_log_file_validation = true',
-          autoFixable: true
-        });
-      }
+          remediation: 'Set enable_log_file_validation = true'
+        })
+      ];
+      issues.push(...settings.filter(Boolean));
 
-      // Check for retention (this would need to check associated S3 lifecycle)
       issues.push({
+        check: 'cloudtrail-retention',
         severity: 'INFO',
-        issue: 'Verify CloudTrail logs are retained for 1 year (PCI-DSS 10.7)',
+        issue: 'Verify CloudTrail logs are retained for 1 year (PCI-DSS 10.5.1)',
         remediation: 'Check S3 bucket lifecycle configuration for 365-day retention',
         autoFixable: false
       });
@@ -400,21 +332,17 @@ class IaCScanner {
     return issues.length > 0 ? issues : null;
   }
 
-  /**
-   * Check network security configuration
-   */
   checkNetworkSecurity(resourceType, resourceName, resourceBody, filePath, lineNumber) {
     const issues = [];
 
     if (resourceType === 'aws_security_group') {
-      // Check for overly permissive rules
       const ingressRegex = /ingress\s*{[^}]*cidr_blocks\s*=\s*\["0\.0\.0\.0\/0"\][^}]*}/g;
       const ingressMatches = resourceBody.match(ingressRegex) || [];
 
       for (const ingress of ingressMatches) {
-        // Check if SSH (22) or RDP (3389) is open to the world
         if (ingress.includes('from_port   = 22') || ingress.includes('from_port = 22')) {
           issues.push({
+            check: 'open-ssh',
             severity: 'CRITICAL',
             issue: 'Security group allows unrestricted SSH access (0.0.0.0/0:22)',
             remediation: 'Restrict SSH to specific IP ranges or remove rule entirely',
@@ -424,6 +352,7 @@ class IaCScanner {
 
         if (ingress.includes('from_port   = 3389') || ingress.includes('from_port = 3389')) {
           issues.push({
+            check: 'open-rdp',
             severity: 'CRITICAL',
             issue: 'Security group allows unrestricted RDP access (0.0.0.0/0:3389)',
             remediation: 'Restrict RDP to specific IP ranges or remove rule entirely',
@@ -433,6 +362,7 @@ class IaCScanner {
 
         if (ingress.includes('from_port   = 0') || ingress.includes('to_port   = 65535')) {
           issues.push({
+            check: 'open-all-ports',
             severity: 'HIGH',
             issue: 'Security group allows all ports from 0.0.0.0/0',
             remediation: 'Apply principle of least privilege - only allow necessary ports',
@@ -445,16 +375,13 @@ class IaCScanner {
     return issues.length > 0 ? issues : null;
   }
 
-  /**
-   * Check access control configuration
-   */
   checkAccessControl(resourceType, resourceName, resourceBody, filePath, lineNumber) {
     const issues = [];
 
     if (resourceType === 'aws_iam_policy') {
-      // Check for overly permissive policies
       if (resourceBody.includes('"*"') && resourceBody.includes('"Effect": "Allow"')) {
         issues.push({
+          check: 'wildcard-policy',
           severity: 'HIGH',
           issue: 'IAM policy allows full access to all resources (*)',
           remediation: 'Apply least privilege principle - restrict to specific resources',
@@ -466,42 +393,26 @@ class IaCScanner {
     return issues.length > 0 ? issues : null;
   }
 
-  /**
-   * Check data protection configuration
-   */
-  checkDataProtection(resourceType, resourceName, resourceBody, filePath, lineNumber) {
+  checkDataProtection(resourceType, resourceName, resourceBody, filePath, lineNumber, fileContent = '', own = UNPARSED_RESOURCE) {
     const issues = [];
 
     if (resourceType === 'aws_s3_bucket') {
-      if (!resourceBody.includes('versioning')) {
-        issues.push({
-          severity: 'MEDIUM',
-          issue: 'S3 bucket versioning is not enabled',
-          remediation: 'Enable versioning for data protection and recovery',
-          autoFixable: true
-        });
-      }
-
-      if (!resourceBody.includes('public_access_block') && !resourceBody.includes('aws_s3_bucket_public_access_block')) {
-        issues.push({
-          severity: 'HIGH',
-          issue: 'S3 bucket does not have public access blocks configured',
-          remediation: 'Add aws_s3_bucket_public_access_block resource',
-          autoFixable: true
-        });
-      }
+      const protections = [
+        own.hasBlock('versioning') ? null : s3ProtectionIssue(fileContent, 'aws_s3_bucket_versioning', resourceName),
+        s3ProtectionIssue(fileContent, 'aws_s3_bucket_public_access_block', resourceName)
+      ];
+      issues.push(...protections.filter(Boolean));
     }
 
     return issues.length > 0 ? issues : null;
   }
 
-  /**
-   * Record finding
-   */
   recordFinding(controlId, rule, issues, filePath, lineNumber, resourceType, resourceName) {
     for (const issue of issues) {
       const finding = {
         controlId,
+        check: issue.check,
+        help: issue.help,
         controlName: rule.name,
         frameworks: rule.frameworks.filter(f =>
           this.frameworks.some(selected => f.includes(selected))
@@ -515,6 +426,10 @@ class IaCScanner {
         autoFixable: issue.autoFixable
       };
 
+      if (issue.fix) {
+        this.pendingFixes.push({ file: filePath, resourceType, resourceName, ...issue.fix });
+      }
+
       if (issue.severity === 'INFO') {
         this.recommendations.push(finding);
       } else {
@@ -523,13 +438,19 @@ class IaCScanner {
     }
   }
 
-  /**
-   * Generate scan report
-   */
   generateReport() {
     const totalControls = Object.keys(this.rules).length * this.frameworks.length;
     const violationCount = this.violations.length;
-    const satisfiedCount = totalControls - violationCount - this.partial.length;
+    // Score by (rule, framework) pair, matching calculateFrameworkCompliance: one
+    // finding mapped to three frameworks fails three checks, and ten findings
+    // against the same rule still fail that rule only once per framework.
+    const failedChecks = new Set();
+    for (const v of this.violations) {
+      for (const framework of this.frameworks) {
+        if (v.frameworks.some(f => f.includes(framework))) failedChecks.add(`${v.controlId}|${framework}`);
+      }
+    }
+    const satisfiedCount = Math.max(0, totalControls - failedChecks.size - this.partial.length);
 
     const compliancePercentage = Math.round((satisfiedCount / totalControls) * 100);
 
@@ -554,9 +475,67 @@ class IaCScanner {
     };
   }
 
-  /**
-   * Calculate compliance per framework
-   */
+  // SARIF 2.1.0 for GitHub code scanning and other SARIF consumers.
+  // Only violations become results; INFO recommendations are left out.
+  toSarif(report) {
+    const levelFor = { CRITICAL: 'error', HIGH: 'error', MEDIUM: 'warning', LOW: 'note' };
+    const securitySeverity = { CRITICAL: '9.5', HIGH: '7.5', MEDIUM: '5.0', LOW: '2.0' };
+    const rules = new Map();
+
+    const results = report.violations.map(v => {
+      // One SARIF rule per distinct check, so each rule's help and score fit every
+      // result filed under it (versioning and public access are different checks
+      // under the same data_protection control).
+      const ruleId = v.check ? `${v.controlId}/${v.check}` : v.controlId;
+      if (!rules.has(ruleId)) {
+        rules.set(ruleId, {
+          id: ruleId,
+          name: v.controlName,
+          shortDescription: { text: v.check ? `${v.controlName} (${v.check})` : v.controlName },
+          help: { text: v.help || v.remediation || v.controlName },
+          properties: {
+            tags: ['compliance', ...v.frameworks],
+            'security-severity': securitySeverity[v.severity] || '5.0'
+          }
+        });
+      }
+      // Repo-relative URIs let GitHub map results onto files; anything outside
+      // the working directory falls back to an absolute file:// URI.
+      const absolute = path.resolve(v.file);
+      const relative = path.relative(process.cwd(), absolute);
+      const uri = !relative || relative.startsWith('..') || path.isAbsolute(relative)
+        ? pathToFileURL(absolute).href
+        : relative.split(path.sep).map(segment => encodeURIComponent(segment)).join('/');
+      return {
+        ruleId,
+        level: levelFor[v.severity] || 'warning',
+        message: { text: `${v.resource}: ${v.issue}` },
+        locations: [{
+          physicalLocation: {
+            artifactLocation: { uri },
+            region: { startLine: Math.max(1, Number(v.line) || 1) }
+          }
+        }],
+        properties: { severity: v.severity, frameworks: v.frameworks, autoFixable: Boolean(v.autoFixable) }
+      };
+    });
+
+    return {
+      $schema: 'https://json.schemastore.org/sarif-2.1.0.json',
+      version: '2.1.0',
+      runs: [{
+        tool: {
+          driver: {
+            name: 'grc-engineer scan-iac',
+            informationUri: 'https://github.com/GRCEngClub/claude-grc-engineering',
+            rules: [...rules.values()]
+          }
+        },
+        results
+      }]
+    };
+  }
+
   calculateFrameworkCompliance() {
     const compliance = {};
 
@@ -574,67 +553,204 @@ class IaCScanner {
     return compliance;
   }
 
-  /**
-   * Apply auto-fixes
-   */
   async applyFixes() {
+    const fixesByFile = new Map();
+    for (const fix of this.pendingFixes) {
+      fixesByFile.set(fix.file, [...(fixesByFile.get(fix.file) ?? []), fix]);
+    }
     let fixCount = 0;
 
-    for (const violation of this.violations) {
-      if (violation.autoFixable) {
-        // Create backup
-        const backupPath = `${violation.file}.backup`;
-        if (!fs.existsSync(backupPath)) {
-          fs.copyFileSync(violation.file, backupPath);
-        }
+    for (const [file, fixes] of fixesByFile) {
+      const original = fs.readFileSync(file, 'utf8');
+      let content = original;
 
-        // Apply fix (simplified - production would use HCL parser/modifier)
-        // This is just a demonstration
-        fixCount++;
+      const siblings = terraformFilesIn(path.dirname(file)).filter(f => f.file !== file).map(f => f.content);
+
+      for (const fix of fixes) {
+        const fixed = applyTerraformFix(content, fix, siblings);
+        if (fixed !== content) fixCount++;
+        content = fixed;
+      }
+
+      if (content !== original) {
+        const backupPath = `${file}.backup`;
+        if (!fs.existsSync(backupPath)) {
+          fs.writeFileSync(backupPath, original);
+        }
+        fs.writeFileSync(file, content);
       }
     }
 
     return fixCount;
   }
-
-  // Remediation functions
-
-  remediateEncryption(resourceType, content) {
-    if (resourceType === 'aws_s3_bucket') {
-      // Add encryption configuration
-      return content.replace(
-        /(resource "aws_s3_bucket" "[^"]*" {)/,
-        '$1\n  server_side_encryption_configuration {\n    rule {\n      apply_server_side_encryption_by_default {\n        sse_algorithm = "AES256"\n      }\n    }\n  }\n'
-      );
-    }
-    return content;
-  }
-
-  remediateLogging(resourceType, content) {
-    // Add logging configurations
-    return content;
-  }
-
-  remediateNetworkSecurity(resourceType, content) {
-    // Cannot auto-fix security group rules (requires manual review)
-    return content;
-  }
-
-  remediateDataProtection(resourceType, content) {
-    if (resourceType === 'aws_s3_bucket') {
-      // Add versioning
-      if (!content.includes('versioning')) {
-        content = content.replace(
-          /(resource "aws_s3_bucket" "[^"]*" {)/,
-          '$1\n  versioning {\n    enabled = true\n  }\n'
-        );
-      }
-    }
-    return content;
-  }
 }
 
-// CLI Interface
+
+function applyTerraformFix(content, fix, siblings) {
+  if (fix.attribute) {
+    return setTopLevelAttribute(content, fix.resourceType, fix.resourceName, fix.attribute, fix.value);
+  }
+  const moduleContent = [content, ...siblings].join('\n');
+  const coverage = companionCoverage(moduleContent, fix.companion, fix.resourceName);
+  if (coverage.resources.length > 0 || coverage.unresolved.length > 0) return content;
+  const bucket = terraformResources(content).find(r => r.type === 'aws_s3_bucket' && r.name === fix.resourceName);
+  if (!bucket) return content;
+
+  const taken = new Set(terraformResources(moduleContent).filter(r => r.type === fix.companion).map(r => r.name));
+  const block = [
+    `resource "${fix.companion}" "${unusedLabel(fix.resourceName, taken)}" {`,
+    ...bucketReference(content, bucket),
+    '',
+    ...S3_COMPANION_SETTINGS[fix.companion],
+    '}'
+  ].join('\n');
+  return appendResource(content, block);
+}
+
+function bucketReference(content, bucket) {
+  if (resourceAttribute(content, bucket, 'for_each') !== null) {
+    return [`  for_each = aws_s3_bucket.${bucket.name}`, '  bucket   = each.value.id'];
+  }
+  if (resourceAttribute(content, bucket, 'count') !== null) {
+    return [`  count  = length(aws_s3_bucket.${bucket.name})`, `  bucket = aws_s3_bucket.${bucket.name}[count.index].id`];
+  }
+  return [`  bucket = aws_s3_bucket.${bucket.name}.id`];
+}
+
+function unusedLabel(preferred, taken) {
+  if (!taken.has(preferred)) return preferred;
+  let suffix = 2;
+  while (taken.has(`${preferred}_${suffix}`)) suffix++;
+  return `${preferred}_${suffix}`;
+}
+
+function terraformFilesIn(dir) {
+  return fs.readdirSync(dir)
+    .filter(name => name.endsWith('.tf'))
+    .map(name => path.join(dir, name))
+    .filter(file => fs.statSync(file).isFile())
+    .map(file => ({ file, content: fs.readFileSync(file, 'utf8') }));
+}
+
+function addresses(resources) {
+  return resources.map(r => `${r.type}.${r.name}`).join(', ');
+}
+
+function booleanSettingIssue(attributeOf, attribute, { severity, issue, remediation }) {
+  const value = withoutWrappingParentheses(attributeOf(attribute));
+  if (value === 'true') return null;
+  if (value === null || value === 'false') {
+    return { check: attribute, severity, issue, remediation, autoFixable: true, fix: { attribute, value: 'true' } };
+  }
+  return {
+    check: `${attribute}-unresolved`,
+    severity,
+    issue: `${issue}: ${attribute} is set by an expression this scanner cannot resolve`,
+    remediation: `Confirm ${attribute} evaluates to true`,
+    autoFixable: false
+  };
+}
+
+function withoutWrappingParentheses(value) {
+  let inner = value;
+  while (inner !== null && /^\([^()]*\)$/.test(inner)) {
+    inner = inner.slice(1, -1).trim();
+  }
+  return inner;
+}
+
+function s3ProtectionIssue(moduleContent, companionType, bucketName) {
+  const protection = S3_PROTECTIONS[companionType];
+  const { resources, unresolved } = companionCoverage(moduleContent, companionType, bucketName);
+
+  if (resources.some(resource => protection.enabled(moduleContent, resource))) return null;
+  const check = companionType.replace(/^aws_s3_bucket_/, '');
+  if (resources.length > 0) {
+    return {
+      check: `${check}-disabled`,
+      help: protection.disabledRemediation,
+      severity: protection.severity,
+      issue: protection.disabledIssue,
+      remediation: `${protection.disabledRemediation} in ${addresses(resources)}`,
+      autoFixable: false
+    };
+  }
+  if (unresolved.length > 0) {
+    return {
+      check: `${check}-unresolved`,
+      help: 'Confirm the companion resource targets this bucket, or reference the bucket directly',
+      severity: protection.severity,
+      issue: `${protection.missingIssue}: ${addresses(unresolved)} refers to this bucket through an expression this scanner cannot resolve`,
+      remediation: `Confirm ${addresses(unresolved)} targets this bucket, or reference it directly`,
+      autoFixable: false
+    };
+  }
+  return {
+    check: `${check}-missing`,
+    severity: protection.severity,
+    issue: protection.missingIssue,
+    remediation: protection.missingRemediation,
+    autoFixable: true,
+    fix: { companion: companionType }
+  };
+}
+
+const UNPARSED_RESOURCE = { attribute: () => null, hasBlock: () => false };
+
+const PUBLIC_ACCESS_FLAGS = ['block_public_acls', 'block_public_policy', 'ignore_public_acls', 'restrict_public_buckets'];
+
+const S3_PROTECTIONS = {
+  aws_s3_bucket_server_side_encryption_configuration: {
+    severity: 'HIGH',
+    missingIssue: 'S3 bucket does not have server-side encryption enabled',
+    missingRemediation: 'Add an aws_s3_bucket_server_side_encryption_configuration resource with AES256 or aws:kms algorithm',
+    disabledIssue: 'S3 bucket encryption configuration does not set a recognised sse_algorithm; encryption is unverified',
+    disabledRemediation: 'Set sse_algorithm to AES256 or aws:kms',
+    enabled: (content, resource) => blockAttributeValues(content, resource, ['rule', 'apply_server_side_encryption_by_default'], 'sse_algorithm')
+      .some(value => ['"AES256"', '"aws:kms"', '"aws:kms:dsse"'].includes(value))
+  },
+  aws_s3_bucket_versioning: {
+    severity: 'MEDIUM',
+    missingIssue: 'S3 bucket versioning is not enabled',
+    missingRemediation: 'Add an aws_s3_bucket_versioning resource for data protection and recovery',
+    disabledIssue: 'S3 bucket versioning is configured but its status is not "Enabled"',
+    disabledRemediation: 'Set status = "Enabled"',
+    enabled: (content, resource) => blockAttributeValues(content, resource, ['versioning_configuration'], 'status')
+      .some(value => value === '"Enabled"')
+  },
+  aws_s3_bucket_public_access_block: {
+    severity: 'HIGH',
+    missingIssue: 'S3 bucket does not have public access blocks configured',
+    missingRemediation: 'Add aws_s3_bucket_public_access_block resource',
+    disabledIssue: 'S3 bucket public access block does not set all four flags to true',
+    disabledRemediation: `Set ${PUBLIC_ACCESS_FLAGS.join(', ')} to true`,
+    enabled: (content, resource) => PUBLIC_ACCESS_FLAGS.every(flag => resourceAttribute(content, resource, flag) === 'true')
+  }
+};
+
+const S3_COMPANION_SETTINGS = {
+  aws_s3_bucket_server_side_encryption_configuration: [
+    '  rule {',
+    '    apply_server_side_encryption_by_default {',
+    '      sse_algorithm = "AES256"',
+    '    }',
+    '  }'
+  ],
+  aws_s3_bucket_versioning: [
+    '  versioning_configuration {',
+    '    status = "Enabled"',
+    '  }'
+  ],
+  aws_s3_bucket_public_access_block: [
+    '  block_public_acls       = true',
+    '  block_public_policy     = true',
+    '  ignore_public_acls      = true',
+    '  restrict_public_buckets = true'
+  ]
+};
+
+// The CLI entry point sits at the bottom of the module so every constant above it
+// (S3_PROTECTIONS and friends) is initialized before a scan runs.
 // `process.argv[1]` is undefined under `node --eval` and some embedders, where
 // pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -659,12 +775,13 @@ if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.a
   scanner.scan().then(report => {
     if (outputFormat === 'json') {
       console.log(JSON.stringify(report, null, 2));
+    } else if (outputFormat === 'sarif') {
+      console.log(JSON.stringify(scanner.toSarif(report), null, 2));
     } else if (outputFormat === 'summary') {
       console.log(`\nCompliance: ${report.summary.compliancePercentage}% (${report.summary.satisfied}/${report.summary.totalControls} controls)`);
       console.log(`\nViolations: ${report.violations.length}`);
       console.log(`Files scanned: ${report.filesScanned}`);
     } else {
-      // Detailed output
       console.log('\n' + '='.repeat(60));
       console.log('IaC COMPLIANCE SCAN RESULTS');
       console.log('='.repeat(60));
@@ -695,9 +812,10 @@ if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.a
     }
 
     if (options.fix && report.violations.some(v => v.autoFixable)) {
-      console.log('\nApplying auto-fixes...');
+      // stderr keeps machine-readable stdout clean when --fix is combined with json/sarif.
+      console.error('\nApplying auto-fixes...');
       scanner.applyFixes().then(count => {
-        console.log(`Applied ${count} fixes. Re-run scan to verify.`);
+        console.error(`Applied ${count} fixes. Re-run scan to verify.`);
       });
     }
   });

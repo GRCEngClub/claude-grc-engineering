@@ -101,7 +101,7 @@ Deep expertise in Canadian Protected B, Medium Integrity, Medium Availability (P
 **Implementation**:
 
 - **AWS**: IAM MFA, AWS SSO with MFA
-- **Azure**: Azure AD Conditional Access with MFA
+- **Azure**: Microsoft Entra Conditional Access with MFA
 - **GCP**: 2-Step Verification, Context-Aware Access
 
 **Enforcement**: No MFA = No access

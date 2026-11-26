@@ -10,7 +10,7 @@ Most GRC programs run 3 to 8 frameworks. Presenting each one in full is how lead
 
 ## The SCF crosswalk is the unifier
 
-Most "different" controls across frameworks map back to the same SCF control. `SCF IAC-01` shows up as SOC 2 CC6.1, NIST AC-2, ISO A.9.2, CMMC AC.L2-3.1.1, and more. When you report the portfolio, collapse down to SCF first, then expand back to frameworks for the appendix.
+Most "different" controls across frameworks map back to the same SCF control. `SCF IAC-01` shows up as SOC 2 CC6.1, NIST AC-2, ISO A.5.16, CMMC AC.L2-3.1.1, and more. When you report the portfolio, collapse down to SCF first, then expand back to frameworks for the appendix.
 
 A 15-framework program is usually a 400 SCF control program. That's the denominator that matters.
 

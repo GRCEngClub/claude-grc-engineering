@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 
-// ─── Configuration ──────────────────────────────────────────
-// In production these come from environment variables or the /api/config endpoint.
-// Demo mode uses generic sample data. Replace with your own via the seed script
-// or the /api/admin/config endpoint after deploying.
 const DEMO_MODE = true;
 
 const DEMO_CONFIG = {
@@ -117,7 +113,6 @@ const DEMO_DOCUMENTS = [
   },
 ];
 
-// ─── Styles ─────────────────────────────────────────────────
 const baseFont =
   "'DM Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif";
 const monoFont = "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace";
@@ -140,7 +135,6 @@ const palette = {
   red: "#ef4444",
 };
 
-// ─── Icons (inline SVG) ─────────────────────────────────────
 const ShieldIcon = ({ size = 20, color = "currentColor" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -189,8 +183,6 @@ const SendIcon = ({ size = 16, color = "currentColor" }) => (
     <polygon points="22 2 15 22 11 13 2 9 22 2" />
   </svg>
 );
-
-// ─── Components ─────────────────────────────────────────────
 
 function CertBadge({ cert }) {
   return (
@@ -700,11 +692,10 @@ function AccessRequestModal({ document: doc, onClose, onSubmit }) {
   );
 }
 
-// ─── Main App ───────────────────────────────────────────────
 export default function TrustCenter() {
   const [config, setConfig] = useState(DEMO_MODE ? DEMO_CONFIG : null);
   const [documents, setDocuments] = useState(DEMO_MODE ? DEMO_DOCUMENTS : []);
-  const [filter, setFilter] = useState("all"); // "all" | "reports" | "policies"
+  const [filter, setFilter] = useState("all");
   const [requestModal, setRequestModal] = useState(null);
   const [loading, setLoading] = useState(!DEMO_MODE);
 
@@ -764,7 +755,6 @@ export default function TrustCenter() {
         fontFamily: baseFont,
       }}
     >
-      {/* ── Ambient glow ── */}
       <div
         style={{
           position: "fixed",
@@ -790,7 +780,6 @@ export default function TrustCenter() {
           zIndex: 1,
         }}
       >
-        {/* ── Header ── */}
         <header
           style={{
             padding: "48px 0 20px",
@@ -851,7 +840,6 @@ export default function TrustCenter() {
           </p>
         </header>
 
-        {/* ── Certifications ── */}
         <section style={{ padding: "40px 0 0" }}>
           <h2
             style={{
@@ -879,7 +867,6 @@ export default function TrustCenter() {
           </div>
         </section>
 
-        {/* ── Compliance Stats ── */}
         {stats && (
           <section style={{ padding: "36px 0 0" }}>
             <h2
@@ -910,7 +897,6 @@ export default function TrustCenter() {
           </section>
         )}
 
-        {/* ── Documents ── */}
         <section style={{ padding: "40px 0 60px" }}>
           <div
             style={{
@@ -1013,7 +999,6 @@ export default function TrustCenter() {
           </div>
         </section>
 
-        {/* ── Footer ── */}
         <footer
           style={{
             borderTop: `1px solid ${palette.border}`,
@@ -1040,7 +1025,6 @@ export default function TrustCenter() {
         </footer>
       </div>
 
-      {/* ── Access Request Modal ── */}
       {requestModal && (
         <AccessRequestModal
           document={requestModal}
@@ -1049,7 +1033,6 @@ export default function TrustCenter() {
         />
       )}
 
-      {/* ── Google Fonts ── */}
       <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         rel="stylesheet"

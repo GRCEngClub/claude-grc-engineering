@@ -22,8 +22,9 @@ grc-data/
 │   └── *.json | *.yaml
 ├── policies/
 │   └── *.json | *.yaml
-└── incidents/
-    └── *.md
+├── incidents/
+│   └── *.md
+└── obligations.yaml
 ```
 
 - `metrics/` stores time-series KPI and KRI rows.
@@ -34,6 +35,10 @@ grc-data/
   in the repo.
 - `incidents/` remains Markdown by convention because postmortems are primarily
   narrative artifacts.
+- `obligations.yaml` lists dated commitments that connectors cannot see: audit
+  windows, certificate renewals, regulatory filings, and recurring control
+  activities. `/grc-internal:track-compliance` reads it; its format is
+  documented in that command. It has no JSON schema yet.
 
 ## Schemas
 

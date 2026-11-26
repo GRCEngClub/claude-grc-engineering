@@ -1,4 +1,3 @@
-// Experimental CSV review aids, not FedRAMP templates or assessment conclusions.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { generateReview } from './assessment-review-draft.mjs';
@@ -20,7 +19,7 @@ function csvCell(value) {
 
 export function generateReviewCsvWithWarnings(input, type) {
   if (!Object.hasOwn(headers, type)) throw new Error('Export type must be traceability or risks');
-  const review = generateReview(input); // validates the entire input, including all references
+  const review = generateReview(input);
   const problems = [];
   if (!review.traceability.length) problems.push('no observations supplied');
   for (const row of review.traceability) {
@@ -50,7 +49,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     if (process.argv.length !== 5) throw new Error('Usage: node scripts/assessment-review-csv.mjs <traceability|risks> <input.json> <new-output.csv>');
     const data = JSON.parse(readFileSync(process.argv[3], 'utf8'));
     const { csv, warnings } = generateReviewCsvWithWarnings(data, process.argv[2]);
-    // Exclusive creation prevents overwriting files, including the input or symlinks.
     writeFileSync(process.argv[4], csv, { flag: 'wx', mode: 0o600 });
     for (const warning of warnings) console.error(`Warning: ${warning}`);
   } catch (error) {

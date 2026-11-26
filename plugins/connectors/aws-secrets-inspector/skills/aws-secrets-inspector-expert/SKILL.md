@@ -36,10 +36,10 @@ Note: the SCF IDs above were verified against the live SCF API at `https://grcen
 
 `/grc-engineer:gap-assessment` handles these automatically. For quick reference:
 
-- **CRY-09 (rotation)** → SOC 2 CC6.1, CC7.2 · NIST 800-53 SC-12, IA-05(07) · ISO 27002 A.8.24 · PCI 3.6.4
-- **CRY-09 (CMK)** → SOC 2 CC6.1, CC6.7 · NIST 800-53 SC-12, SC-13 · FedRAMP SC-12 · PCI 3.5.3
-- **IAC-21 (no public access)** → SOC 2 CC6.6, CC6.7 · NIST 800-53 AC-03, AC-06, SC-07 · PCI 1.3.4, 7.2.1
-- **IAC-15.3 (active access)** → SOC 2 CC6.2, CC7.2 · NIST 800-53 AC-02, AU-12 · PCI 8.1.4
+- **CRY-09 (rotation)** → SOC 2 CC6.1, CC7.2 · NIST 800-53 SC-12, IA-05(07) · ISO 27002 A.8.24 · PCI 3.7.4
+- **CRY-09 (CMK)** → SOC 2 CC6.1, CC6.7 · NIST 800-53 SC-12, SC-13 · FedRAMP SC-12 · PCI 3.6.1.2
+- **IAC-21 (no public access)** → SOC 2 CC6.6, CC6.7 · NIST 800-53 AC-03, AC-06, SC-07 · PCI 1.3.1, 7.2.1
+- **IAC-15.3 (active access)** → SOC 2 CC6.2, CC7.2 · NIST 800-53 AC-02, AU-12 · PCI 8.2.6
 
 ## Mode selection — inspector vs retrieve
 

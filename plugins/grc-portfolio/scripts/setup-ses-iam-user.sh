@@ -1,17 +1,5 @@
 #!/bin/bash
 
-# Setup IAM User for SES Email Sending
-# Creates an IAM user scoped to ses:SendEmail/SendRawEmail, then prints a
-# fresh access key + secret for the Lambda contact-form path.
-#
-# Usage:
-#   ./setup-ses-iam-user.sh [aws-profile] [user-name] [policy-name]
-#
-# Examples:
-#   ./setup-ses-iam-user.sh
-#   ./setup-ses-iam-user.sh my-aws-profile
-#   ./setup-ses-iam-user.sh my-aws-profile my-portfolio-ses-mailer MyPortfolioSesPolicy
-
 set -e
 
 PROFILE="${1:-default}"
@@ -23,14 +11,12 @@ echo "Profile: $PROFILE"
 echo "User: $USER_NAME"
 echo ""
 
-# Create IAM user
 echo "📝 Creating IAM user: $USER_NAME"
 aws iam create-user \
   --user-name "$USER_NAME" \
   --profile "$PROFILE" \
   2>/dev/null || echo "User already exists, continuing..."
 
-# Create policy document
 POLICY_DOCUMENT='{
   "Version": "2012-10-17",
   "Statement": [
@@ -45,7 +31,6 @@ POLICY_DOCUMENT='{
   ]
 }'
 
-# Create and attach policy
 echo "📋 Creating and attaching SES send policy..."
 POLICY_ARN=$(aws iam create-policy \
   --policy-name "$POLICY_NAME" \
@@ -62,7 +47,6 @@ POLICY_ARN=$(aws iam create-policy \
 
 echo "Policy ARN: $POLICY_ARN"
 
-# Attach policy to user
 echo "🔗 Attaching policy to user..."
 aws iam attach-user-policy \
   --user-name "$USER_NAME" \
@@ -70,7 +54,6 @@ aws iam attach-user-policy \
   --profile "$PROFILE" \
   2>/dev/null || echo "Policy already attached"
 
-# Pre-check existing access keys (AWS allows at most 2 per user).
 echo "🔍 Checking existing access keys..."
 EXISTING_KEYS=$(aws iam list-access-keys \
   --user-name "$USER_NAME" \
@@ -86,7 +69,6 @@ if [ "${EXISTING_KEYS:-0}" -ge 2 ]; then
     exit 1
 fi
 
-# Create access key
 echo "🔑 Creating access key..."
 ACCESS_KEY_OUTPUT=$(aws iam create-access-key \
   --user-name "$USER_NAME" \

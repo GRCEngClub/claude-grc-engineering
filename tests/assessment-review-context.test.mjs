@@ -59,7 +59,6 @@ test('rejects unsupported assessment context fields', () => {
 test('CLI emits context for synthetic input and no JSON for conflicting references', () => {
   const data = input();
   data.assessment_context = context();
-  // Exercise the actual CLI against a synthetic fixture.
   const tmp = new URL('./fixtures/assessment-observations/synthetic-context.json', import.meta.url);
   const ok = spawnSync(process.execPath, ['scripts/assessment-review-draft.mjs', tmp.pathname], { encoding: 'utf8' });
   assert.equal(ok.status, 0, ok.stderr);

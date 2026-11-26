@@ -116,10 +116,6 @@ async function main(argv) {
 }
 
 function indexFinding(index, ctx) {
-  // maxGlobalDataSizeMB is a size cap, not a time window, so it cannot stand
-  // in for frozenTimePeriodInSecs — dividing megabytes by 86400 produced a
-  // "retention in days" figure unrelated to how long the index actually keeps
-  // data. Without the seconds field the retention is simply unknown.
   const frozenRaw = index.content?.frozenTimePeriodInSecs;
   const frozenSeconds = Number(frozenRaw);
   const retentionDays = frozenRaw !== undefined && frozenRaw !== null && Number.isFinite(frozenSeconds) && frozenSeconds > 0

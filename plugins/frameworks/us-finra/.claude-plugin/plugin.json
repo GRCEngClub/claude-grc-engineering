@@ -1,8 +1,10 @@
 {
   "name": "us-finra",
-  "description": "FINRA Plugin - Broker-dealer cybersecurity guidance (builds on SEC Reg S-P, SEC 17a-4)",
+  "description": "FINRA Plugin - Broker-dealer cybersecurity obligations under FINRA rules, SEC Reg S-P, Reg S-ID, and SEA Rule 17a-4",
   "version": "0.1.0",
-  "author": {"name": "GRC Engineering Club Contributors"},
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
   "framework_metadata": {
@@ -10,10 +12,13 @@
     "display_name": "FINRA Broker-Dealer Cybersecurity Guidance",
     "region": "Americas",
     "country": "US",
-    "depth": "stub",
+    "depth": "reference",
     "scf_controls_mapped": 17,
     "framework_controls_mapped": 39,
-    "industry": ["financial-services", "broker-dealer"],
+    "industry": [
+      "financial-services",
+      "broker-dealer"
+    ],
     "regulator": "FINRA"
   }
 }

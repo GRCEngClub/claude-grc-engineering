@@ -1,12 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Assessment Interview Question Generator CLI
- *
- * Usage:
- *   node plugins/grc-engineer/scripts/generate-interview-questions.js "<stack>" [frameworks] [--format=markdown|json] [--limit=N]
- */
-
 import {
   generateInterviewQuestions,
   renderInterviewQuestionsMarkdown

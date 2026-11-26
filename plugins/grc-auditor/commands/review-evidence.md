@@ -35,5 +35,5 @@ Reviews evidence artifacts to validate they satisfy control requirements.
 /grc-auditor:review-evidence ./evidence/mfa-logs.pdf 8.4.2
 
 # Review ISO 27001 evidence
-/grc-auditor:review-evidence ./evidence/backup-policy.pdf A.12.3.1
+/grc-auditor:review-evidence ./evidence/backup-policy.pdf A.8.13
 ```

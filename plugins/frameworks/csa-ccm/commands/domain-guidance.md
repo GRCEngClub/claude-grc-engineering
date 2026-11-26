@@ -265,7 +265,7 @@ Controlling who has access to what resources.
 
 **Key Implementation**:
 
-- SSO with SAML/OIDC (Okta, Azure AD, Auth0)
+- SSO with SAML/OIDC (Okta, Entra ID, Auth0)
 - MFA for all accounts (hardware tokens, authenticator apps)
 - Privileged Access Management (PAM) solution
 - Quarterly access reviews and recertification

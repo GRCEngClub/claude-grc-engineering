@@ -1,10 +1,3 @@
-/**
- * Trust Center API Client
- *
- * All backend calls go through here. When VITE_API_URL is set,
- * calls hit the real Lambda. Otherwise falls back to demo data.
- */
-
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const IS_DEMO = !API_BASE
 
@@ -29,8 +22,6 @@ async function request(path, options = {}) {
   return res.json()
 }
 
-// ── Public endpoints ────────────────────────────────────────
-
 export async function getConfig() {
   return request('/config')
 }
@@ -54,8 +45,6 @@ export async function requestAccess(docId, form) {
 export async function downloadDocument(docId, token) {
   return request(`/documents/${docId}/download`, { token })
 }
-
-// ── Admin endpoints ─────────────────────────────────────────
 
 export async function updateConfig(config, token) {
   return request('/admin/config', {

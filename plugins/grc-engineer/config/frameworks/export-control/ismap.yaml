@@ -412,14 +412,14 @@ controls:
 
 japan_regions:
   aws:
-    - ap-northeast-1  # Tokyo
-    - ap-northeast-3  # Osaka
+    - ap-northeast-1
+    - ap-northeast-3
   azure:
-    - japaneast       # Tokyo
-    - japanwest       # Osaka
+    - japaneast
+    - japanwest
   gcp:
-    - asia-northeast1 # Tokyo
-    - asia-northeast2 # Osaka
+    - asia-northeast1
+    - asia-northeast2
 
 ismap_certified_services:
   aws:

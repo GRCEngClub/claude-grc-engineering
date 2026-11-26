@@ -1,18 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Generate docs/FRAMEWORK-COVERAGE.md from the live state of the repo.
- *
- * Produces the canonical status page for "which of the 249 SCF-mapped
- * frameworks have dedicated plugins." Intended to run on every release
- * (or as a weekly cron) so the doc never drifts from reality.
- *
- * Usage:
- *   node scripts/generate-coverage.js [--out=<path>] [--offline]
- *
- * Defaults to writing docs/FRAMEWORK-COVERAGE.md at repo root.
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -44,8 +31,8 @@ function regionFromFrameworkId(frameworkId) {
 
 async function loadShippedPlugins() {
   const entries = await fs.readdir(FRAMEWORKS_DIR, { withFileTypes: true });
-  const plugins = new Map();  // scf_framework_id → { slug, depth, display_name }
-  const unmapped = [];        // [{slug, description}]
+  const plugins = new Map();
+  const unmapped = [];
   for (const e of entries) {
     if (!e.isDirectory()) continue;
     const pluginFile = path.join(FRAMEWORKS_DIR, e.name, '.claude-plugin', 'plugin.json');
@@ -62,7 +49,6 @@ async function loadShippedPlugins() {
         unmapped.push({ slug: e.name, description: data.description || '' });
       }
     } catch {
-      // ignore unreadable plugins
     }
   }
   return { plugins, unmapped };
@@ -81,7 +67,6 @@ function render({ scfFrameworks, shipped, generatedAt }) {
   lines.push('This page tracks which of the 249 frameworks in the [Secure Controls Framework](https://securecontrolsframework.com) crosswalk have a dedicated plugin in this repo. Frameworks without a dedicated plugin are **already usable today** via `/grc-engineer:gap-assessment <scf-framework-id>` through the SCF crosswalk.');
   lines.push('');
 
-  // Summary
   const totalScf = scfFrameworks.length;
   const shippedCount = plugins.size;
   const notStarted = totalScf - shippedCount;
@@ -99,7 +84,6 @@ function render({ scfFrameworks, shipped, generatedAt }) {
   }
   lines.push('');
 
-  // Depth breakdown
   const depthCounts = { full: 0, reference: 0, stub: 0, unknown: 0 };
   for (const p of plugins.values()) depthCounts[p.depth] = (depthCounts[p.depth] || 0) + 1;
   lines.push('### By depth');
@@ -116,7 +100,6 @@ function render({ scfFrameworks, shipped, generatedAt }) {
   lines.push('See [Framework Plugin Guide](FRAMEWORK-PLUGIN-GUIDE.md) for depth definitions and level-up checklists.');
   lines.push('');
 
-  // Shipped plugins table
   lines.push('## Shipped plugins');
   lines.push('');
   if (plugins.size === 0) {
@@ -152,7 +135,6 @@ function render({ scfFrameworks, shipped, generatedAt }) {
     lines.push('');
   }
 
-  // Not started, grouped by region
   const grouped = { Americas: [], APAC: [], EMEA: [], Global: [] };
   for (const f of scfFrameworks) {
     if (plugins.has(f.framework_id)) continue;

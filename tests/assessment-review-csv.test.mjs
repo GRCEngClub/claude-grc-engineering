@@ -12,7 +12,6 @@ const complete = () => {
   Object.assign(input.deficiencies[0], { likelihood: 'supplied', impact: 'supplied', risk_rating: 'unverified', owner: 'example owner', remediation: 'example plan', due_date: '2027-01-01' });
   return input;
 };
-// Parse with Python's standard CSV reader to exercise actual interoperability.
 function parse(csv) {
   const p = spawnSync('python3', ['-c', 'import csv,io,json,sys; print(json.dumps(list(csv.DictReader(io.StringIO(sys.stdin.read(), newline="")))))'], { input: csv, encoding: 'utf8' });
   assert.equal(p.status, 0, p.stderr);

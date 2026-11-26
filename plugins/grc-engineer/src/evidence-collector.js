@@ -1,11 +1,3 @@
-/**
- * Evidence Artifact Collector
- * Generates scripts to collect audit evidence from multiple cloud providers
- *
- * Supported providers: AWS, Azure, GCP, Kubernetes
- * Supported formats: python, bash
- */
-
 import {
   loadProvider,
   listProviders,
@@ -18,7 +10,6 @@ import {
   generateEvidenceScript as generateBaselineEvidenceScript
 } from './config-loader.js';
 
-// Legacy templates for backward compatibility (will be deprecated)
 const LEGACY_TEMPLATES = {
   aws: {
     python: {
@@ -79,7 +70,6 @@ export async function generateEvidenceScript(control, provider = 'aws', format =
   const normalizedProvider = provider.toLowerCase();
   const normalizedFormat = format.toLowerCase();
 
-  // Validate format
   if (!['python', 'bash'].includes(normalizedFormat)) {
     throw new Error(`Unsupported format: ${format}. Supported: python, bash`);
   }
@@ -89,24 +79,20 @@ export async function generateEvidenceScript(control, provider = 'aws', format =
   let instructions;
 
   try {
-    // Try to load from YAML config
     const providerConfig = await loadProvider(normalizedProvider);
     const { key, template } = findMatchingTemplate(control, providerConfig);
 
     templateKey = key;
 
-    // Get the script for the requested format
     if (template.formats && template.formats[normalizedFormat]) {
       script = template.formats[normalizedFormat];
       instructions = template.instructions || generateDefaultInstructions(normalizedProvider, normalizedFormat);
     } else {
-      // Fall back to legacy templates
       script = LEGACY_TEMPLATES[normalizedProvider]?.[normalizedFormat]?.default ||
                LEGACY_TEMPLATES.aws[normalizedFormat]?.default;
       instructions = generateDefaultInstructions(normalizedProvider, normalizedFormat);
     }
   } catch (error) {
-    // Fall back to legacy templates if config not found
     console.warn(`Config not found for ${provider}, using legacy template: ${error.message}`);
     script = LEGACY_TEMPLATES[normalizedProvider]?.[normalizedFormat]?.default ||
              LEGACY_TEMPLATES.aws[normalizedFormat]?.default;
@@ -118,7 +104,6 @@ export async function generateEvidenceScript(control, provider = 'aws', format =
     throw new Error(`No template available for provider: ${provider}, format: ${format}`);
   }
 
-  // Replace placeholders
   const processedScript = script
     .replace(/{timestamp}/g, timestamp)
     .replace(/{control}/g, control)
@@ -138,12 +123,6 @@ export async function generateEvidenceScript(control, provider = 'aws', format =
   };
 }
 
-/**
- * Generate default instructions for a provider/format combination
- * @param {string} provider - Cloud provider
- * @param {string} format - Script format
- * @returns {string} Instructions markdown
- */
 function generateDefaultInstructions(provider, format) {
   const instructions = {
     aws: {
@@ -333,10 +312,6 @@ export async function getAvailableProviders() {
   return listProviders();
 }
 
-// ============================================================================
-// NIST 800-53 Control Evidence Collection
-// ============================================================================
-
 /**
  * Generate evidence collection commands for a specific NIST 800-53 control
  * @param {string} controlId - NIST control ID (e.g., "AC-2", "AU-6")
@@ -349,7 +324,6 @@ export async function generateNISTControlEvidence(controlId, provider = 'aws') {
 
   const commandInfo = await getCloudCommands(controlId, normalizedProvider);
 
-  // Build a standalone evidence script from the commands
   let script = `#!/bin/bash
 # NIST 800-53 Evidence Collection Script
 # Control: ${commandInfo.controlId}
@@ -433,10 +407,6 @@ export async function generateNISTControlEvidenceAllProviders(controlId) {
   return result;
 }
 
-// ============================================================================
-// FedRAMP Baseline Evidence Collection
-// ============================================================================
-
 /**
  * Generate a complete evidence collection script for a FedRAMP baseline
  * @param {string} baseline - FedRAMP baseline (low, moderate, high)
@@ -448,13 +418,10 @@ export async function generateFedRAMPBaselineEvidence(baseline, provider = 'aws'
   const normalizedBaseline = baseline.toLowerCase();
   const normalizedProvider = provider.toLowerCase();
 
-  // Get all controls for this baseline
   const controls = await getControlsByFedRAMPBaseline(normalizedBaseline);
 
-  // Generate the combined script
   const script = await generateBaselineEvidenceScript(normalizedBaseline, normalizedProvider);
 
-  // Count controls with automated evidence
   let automatedCount = 0;
   let manualCount = 0;
 
@@ -498,7 +465,6 @@ export async function getFedRAMPBaselineSummary(baseline, provider = 'aws') {
 
   const controls = await getControlsByFedRAMPBaseline(normalizedBaseline);
 
-  // Group by family
   const byFamily = {};
   for (const control of controls) {
     const family = control.family || 'Unknown';
@@ -532,10 +498,6 @@ export async function getFedRAMPBaselineSummary(baseline, provider = 'aws') {
   };
 }
 
-// ============================================================================
-// Export Control Framework Evidence Collection
-// ============================================================================
-
 /**
  * Generate evidence collection for export control framework
  * @param {string} framework - Framework name (itar, irap, ismap)
@@ -548,7 +510,6 @@ export async function generateExportControlEvidence(framework, provider = 'aws')
 
   const frameworkData = await getExportControlCommands(framework, normalizedProvider);
 
-  // Build evidence script
   let script = `#!/bin/bash
 # Export Control Evidence Collection Script
 # Framework: ${frameworkData.framework}

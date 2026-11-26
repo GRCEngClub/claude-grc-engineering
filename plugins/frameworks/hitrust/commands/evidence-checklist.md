@@ -28,7 +28,7 @@ Generates comprehensive evidence collection checklists for HITRUST Common Securi
 HITRUST CSF Evidence Checklist
 Control: 01.a - User Registration
 Implementation Level: Level 2 (HIPAA-aligned)
-Mapped Frameworks: HIPAA §164.312(a)(2)(i), NIST 800-53 AC-2, ISO 27001 A.9.2.1
+Mapped Frameworks: HIPAA §164.312(a)(2)(i), NIST 800-53 AC-2, ISO 27001 A.5.16
 Assessment Type: Validated (third-party)
 Certification Validity: 2 years
 
@@ -111,7 +111,7 @@ aws iam list-users | jq -r '.Users[].UserName' | while read user; do
   fi
 done
 
-# Azure AD users (healthcare organizations)
+# Entra ID users (healthcare organizations)
 az ad user list --output json > evidence/hitrust-01a-azure-users-$(date +%Y%m%d).json
 
 # Filter guest users (external access to PHI requires scrutiny)
@@ -149,7 +149,7 @@ for event in AttachUserPolicy DetachUserPolicy; do
     --output json >> evidence/hitrust-01a-permission-changes-$(date +%Y%m).json
 done
 
-# Azure AD audit logs
+# Entra ID audit logs
 az monitor activity-log list \
   --caller 'Microsoft.Authorization' \
   --start-time $(date -u -d '90 days ago' +%Y-%m-%dT%H:%M:%S) \
@@ -175,7 +175,7 @@ done
 aws sso-admin list-permission-sets --instance-arn <INSTANCE-ARN> \
   --output json > evidence/hitrust-01a-sso-permission-sets-$(date +%Y%m%d).json
 
-# Azure AD role assignments
+# Entra ID role assignments
 az role assignment list --all --output json \
   > evidence/hitrust-01a-azure-role-assignments-$(date +%Y%m%d).json
 ```
@@ -293,7 +293,7 @@ HITRUST Validated Assessors will verify:
 
 ### Audit Trail
 
-✓ CloudTrail/Azure AD logs show all access changes
+✓ CloudTrail/Entra ID logs show all access changes
 ✓ Logs retained for 6 years (HIPAA requirement)
 ✓ Logs centrally stored and protected from tampering
 

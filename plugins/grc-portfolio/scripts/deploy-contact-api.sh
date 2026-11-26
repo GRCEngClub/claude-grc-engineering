@@ -1,20 +1,5 @@
 #!/bin/bash
 
-# Deploy Contact Form API (Lambda + API Gateway)
-# Packages the Lambda handler with its SES dependency, deploys the
-# CloudFormation stack, and pushes the function code.
-#
-# Usage:
-#   ./deploy-contact-api.sh <ses-from-email> <ses-to-email> [profile] [stack-name] [region]
-#
-# Examples:
-#   ./deploy-contact-api.sh hello@example.com inbox@example.com
-#   ./deploy-contact-api.sh hello@example.com inbox@example.com my-aws-profile my-contact-api us-east-1
-#
-# The script is intended to be run from the project root that contains
-# the plugin's cloudformation/ and lambda/ directories — i.e. the
-# grc-portfolio plugin itself, or a project that has copied them locally.
-
 set -e
 
 if [ "$#" -lt 2 ]; then
@@ -42,7 +27,6 @@ echo "From:       $SES_FROM_EMAIL"
 echo "To:         $SES_TO_EMAIL"
 echo ""
 
-# Check if AWS CLI is installed
 if ! command -v aws &> /dev/null; then
     echo "❌ AWS CLI is not installed. Please install it first."
     exit 1
@@ -58,14 +42,11 @@ if [ ! -f "$TEMPLATE_FILE" ]; then
     exit 1
 fi
 
-# Create temporary directory for packaging
 TEMP_DIR=$(mktemp -d)
 echo "📦 Creating Lambda deployment package..."
 
-# Copy Lambda function
 cp "$LAMBDA_DIR/contact-form-handler.js" "$TEMP_DIR/index.js"
 
-# Install dependencies in temp directory
 # The Lambda layer's dependencies are pinned via the checked-in
 # contact-lambda/package-lock.json (npm security principle: hash-pinned
 # installs, required by OpenSSF Scorecard's PinnedDependencies check).
@@ -73,16 +54,13 @@ cd "$TEMP_DIR"
 cp "$SCRIPT_DIR"/contact-lambda/package.json "$SCRIPT_DIR"/contact-lambda/package-lock.json .
 npm ci --ignore-scripts --no-audit --no-fund > /dev/null 2>&1
 
-# Create zip file
 zip -r function.zip . > /dev/null 2>&1
 
-# Go back to original directory
 cd - > /dev/null
 
 echo "✅ Package created"
 echo ""
 
-# Deploy CloudFormation stack
 echo "☁️  Deploying CloudFormation stack..."
 aws cloudformation deploy \
   --template-file "$TEMPLATE_FILE" \
@@ -96,7 +74,6 @@ aws cloudformation deploy \
 echo "✅ Stack deployed"
 echo ""
 
-# Update Lambda function code
 echo "📤 Updating Lambda function code..."
 aws lambda update-function-code \
   --function-name "$FUNCTION_NAME" \
@@ -108,14 +85,12 @@ aws lambda update-function-code \
 echo "✅ Function code updated"
 echo ""
 
-# Wait for function to be ready
 echo "⏳ Waiting for function to be ready..."
 aws lambda wait function-updated \
   --function-name "$FUNCTION_NAME" \
   --profile "$PROFILE" \
   --region "$REGION"
 
-# Get API endpoint
 API_ENDPOINT=$(aws cloudformation describe-stacks \
   --stack-name "$STACK_NAME" \
   --profile "$PROFILE" \
@@ -123,7 +98,6 @@ API_ENDPOINT=$(aws cloudformation describe-stacks \
   --query 'Stacks[0].Outputs[?OutputKey==`ApiEndpoint`].OutputValue' \
   --output text)
 
-# Cleanup
 rm -rf "$TEMP_DIR"
 
 echo ""

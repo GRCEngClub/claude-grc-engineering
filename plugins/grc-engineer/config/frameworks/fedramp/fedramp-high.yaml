@@ -5,6 +5,8 @@ description: |
   operations, assets, individuals, and the Nation. Approximately 421 controls.
 
 impact_level: High
+includes:
+  - fedramp-moderate.yaml
 applicable_to:
   - High impact federal information systems
   - Law enforcement and emergency services data
@@ -14,10 +16,7 @@ applicable_to:
   - Any system where loss of confidentiality, integrity, or availability could have severe effects
 
 controls:
-  # This file includes all Moderate controls plus additional High-specific controls
-  # For brevity, listing only the additional controls beyond Moderate
 
-  # Access Control (AC) - High additions
   AC-2(5): { required: true, notes: "Inactivity Logout" }
   AC-2(11): { required: true, notes: "Usage Conditions" }
   AC-2(12): { required: true, notes: "Account Monitoring for Atypical Usage" }
@@ -27,24 +26,20 @@ controls:
   AC-6(3): { required: true, notes: "Network Access to Privileged Commands" }
   AC-17(9): { required: true, notes: "Disconnect/Disable Access" }
 
-  # Awareness and Training (AT) - High additions
   AT-2(1): { required: true, notes: "Practical Exercises" }
   AT-2(3): { required: true, notes: "Social Engineering and Mining" }
   AT-2(5): { required: true, notes: "Advanced Persistent Threat" }
   AT-3(3): { required: true, notes: "Practical Exercises" }
 
-  # Audit and Accountability (AU) - High additions
   AU-9(2): { required: true, notes: "Store on Separate Physical Systems" }
   AU-10: { required: true, notes: "Non-repudiation" }
   AU-12(1): { required: true, notes: "System-Wide/Time-Correlated Audit Trail" }
   AU-12(3): { required: true, notes: "Changes by Authorized Individuals" }
 
-  # Security Assessment (CA) - High additions
   CA-2(2): { required: true, notes: "Specialized Assessments" }
   CA-8: { required: true, notes: "Penetration Testing" }
   CA-8(1): { required: true, notes: "Independent Penetration Agent" }
 
-  # Configuration Management (CM) - High additions
   CM-3(1): { required: true, notes: "Automated Documentation/Notification/Prohibition" }
   CM-3(4): { required: true, notes: "Security Representative" }
   CM-5(1): { required: true, notes: "Automated Access Enforcement/Audit Records" }
@@ -55,7 +50,6 @@ controls:
   CM-12: { required: true, notes: "Information Location" }
   CM-14: { required: true, notes: "Signed Components" }
 
-  # Contingency Planning (CP) - High additions
   CP-2(5): { required: true, notes: "Continue Mission Functions" }
   CP-6(2): { required: true, notes: "Recovery Time/Point Objectives" }
   CP-7(4): { required: true, notes: "Preparation for Use" }
@@ -69,7 +63,6 @@ controls:
   CP-12: { required: true, notes: "Safe Mode" }
   CP-13: { required: true, notes: "Alternative Security Mechanisms" }
 
-  # Identification and Authentication (IA) - High additions
   IA-2(6): { required: true, notes: "Access to Accounts - Separate Device" }
   IA-3(1): { required: true, notes: "Cryptographic Bidirectional Authentication" }
   IA-5(7): { required: true, notes: "No Embedded Unencrypted Static Authenticators" }
@@ -80,7 +73,6 @@ controls:
   IA-12(2): { required: true, notes: "Identity Evidence" }
   IA-12(3): { required: true, notes: "Identity Evidence Validation and Verification" }
 
-  # Incident Response (IR) - High additions
   IR-3(1): { required: true, notes: "Automated Testing" }
   IR-4(3): { required: true, notes: "Continuity of Operations" }
   IR-4(4): { required: true, notes: "Information Correlation" }
@@ -95,12 +87,10 @@ controls:
   IR-9(4): { required: true, notes: "Exposure to Unauthorized Personnel" }
   IR-10: { required: true, notes: "Integrated Information Security Analysis Team" }
 
-  # Maintenance (MA) - High additions
   MA-3(3): { required: true, notes: "Prevent Unauthorized Removal" }
   MA-4(3): { required: true, notes: "Comparable Security/Sanitization" }
   MA-5(1): { required: true, notes: "Individuals Without Appropriate Access" }
 
-  # Media Protection (MP) - High additions
   MP-4(2): { required: true, notes: "Automated Restricted Access" }
   MP-5(3): { required: true, notes: "Custodians" }
   MP-5(4): { required: true, notes: "Cryptographic Protection" }
@@ -111,7 +101,6 @@ controls:
   MP-8(2): { required: true, notes: "Equipment Testing" }
   MP-8(3): { required: true, notes: "Controlled Unclassified Information" }
 
-  # Physical and Environmental Protection (PE) - High additions
   PE-2(1): { required: true, notes: "Access by Position/Role" }
   PE-2(2): { required: true, notes: "Two Forms of Identification" }
   PE-3(1): { required: true, notes: "System Access" }
@@ -126,17 +115,14 @@ controls:
   PE-18: { required: true, notes: "Location of System Components" }
   PE-18(1): { required: true, notes: "Facility Site" }
 
-  # Planning (PL) - High additions
   PL-8(1): { required: true, notes: "Defense in Depth" }
   PL-8(2): { required: true, notes: "Supplier Diversity" }
 
-  # Personnel Security (PS) - High additions
   PS-3(3): { required: true, notes: "Information Requiring Special Protective Measures" }
   PS-4(2): { required: true, notes: "Automated Actions" }
   PS-6(2): { required: true, notes: "Classified Information Requiring Special Protection" }
   PS-9: { required: true, notes: "Position Descriptions" }
 
-  # Risk Assessment (RA) - High additions
   RA-3(1): { required: true, notes: "Supply Chain Risk Assessment" }
   RA-5(3): { required: true, notes: "Breadth/Depth of Coverage" }
   RA-5(4): { required: true, notes: "Discoverable Information" }
@@ -144,7 +130,6 @@ controls:
   RA-7: { required: true, notes: "Risk Response" }
   RA-9: { required: true, notes: "Criticality Analysis" }
 
-  # System and Services Acquisition (SA) - High additions
   SA-4(5): { required: true, notes: "System/Component/Service Configurations" }
   SA-8(1): { required: true, notes: "Clear Abstractions" }
   SA-8(2): { required: true, notes: "Least Common Mechanism" }
@@ -160,7 +145,6 @@ controls:
   SA-15(9): { required: true, notes: "Use of Live Data" }
   SA-17: { required: true, notes: "Developer Security and Privacy Architecture" }
 
-  # System and Communications Protection (SC) - High additions
   SC-3: { required: true, notes: "Security Function Isolation" }
   SC-3(1): { required: true, notes: "Hardware Separation" }
   SC-3(2): { required: true, notes: "Access/Flow Control Functions" }
@@ -182,7 +166,6 @@ controls:
   SC-28(2): { required: true, notes: "Offline Storage" }
   SC-43: { required: true, notes: "Usage Restrictions" }
 
-  # System and Information Integrity (SI) - High additions
   SI-2(1): { required: true, notes: "Central Management" }
   SI-3(7): { required: true, notes: "Nonsignature-Based Detection" }
   SI-3(8): { required: true, notes: "Detect Unauthorized Commands" }
@@ -199,10 +182,6 @@ controls:
   SI-7(14): { required: true, notes: "Binary or Machine Executable Code" }
   SI-7(15): { required: true, notes: "Code Authentication" }
   SI-10(1): { required: true, notes: "Manual Override Capability" }
-
-  # All controls from Low and Moderate are also required
-  includes:
-    - fedramp-moderate.yaml
 
 fedramp_additional:
   continuous_monitoring_frequency: monthly

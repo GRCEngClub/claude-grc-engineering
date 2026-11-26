@@ -5,18 +5,15 @@ defaults:
     audience: ciso-weekly
 
 entries:
-  # Derived FedRAMP entries produce measurement_scope: tooling-capability.
   - framework: fedramp-moderate
     provider: aws
 
-  # Manual entries produce measurement_scope: operator-observed.
   - framework: soc2
     controls_automated: 22
     from_framework_metadata: true
     dimensions:
       business_unit: platform
 
-  # Manual entries should use counts validated against the target environment.
   - framework: iso27001
     controls_automated: 40
     from_framework_metadata: true

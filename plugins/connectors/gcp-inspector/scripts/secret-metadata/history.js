@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// Read one global secret's metadata only; never access a payload.
 import { spawnSync } from 'node:child_process';
 import { projectScope } from './project-scope.js';
 
@@ -32,7 +31,6 @@ function optionalTime(source, dest, key) {
   if (source[key] !== undefined) dest[key] = timestamp(source[key]);
 }
 try {
-  // A resource name cannot be mistaken for a flag even when the ID starts with '-'.
   const resource = `projects/${project}/secrets/${secret}`;
   const data = query(['secrets', 'describe', resource]);
   const versions = query(['secrets', 'versions', 'list', resource]);

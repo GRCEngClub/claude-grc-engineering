@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# drata-inspector:status
 set -uo pipefail
 
 CONFIG_FILE="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors/drata-inspector.yaml"
