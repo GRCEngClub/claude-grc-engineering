@@ -42,7 +42,7 @@ CIS Controls® is a registered trademark of the Center for Internet Security, In
 
 - **IS CIS-derived** (CC BY-SA 4.0):
   - `skills/cis-expert/SKILL.md` — the safeguard explanations, implementation group definitions, and control summaries.
-  - `commands/*.md` — command documents that reference specific CIS safeguards, IG levels, and crosswalk mappings.
+  - `skills/*/SKILL.md` — skill documents, including the former `commands/*.md`, that reference specific CIS safeguards, IG levels, and crosswalk mappings.
 
 - **NOT CIS-derived** (MIT):
   - `.claude-plugin/plugin.json` — plugin metadata.

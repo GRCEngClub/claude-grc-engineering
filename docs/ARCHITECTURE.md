@@ -122,7 +122,7 @@ One plugin holds the cross-cutting commands. Other plugins either *feed* the hub
 | `/engineer:scan-iac` | Scan Terraform/CloudFormation/K8s for violations (emits Findings) |
 | `/engineer:test-control` | Validate a control is working end-to-end |
 | `/engineer:generate-implementation` | Produce remediation code (Terraform, Python, policy-as-code) |
-| `/engineer:generate-policy` | Select draft templates for two supported phrases in Rego, Sentinel, or AWS Config; [availability varies by phrase](../plugins/personas/engineer/commands/generate-policy.md) |
+| `/engineer:generate-policy` | Select draft templates for two supported phrases in Rego, Sentinel, or AWS Config; [availability varies by phrase](../plugins/personas/engineer/skills/generate-policy/SKILL.md) |
 | `/engineer:monitor-continuous` | Schedule recurring gap-assessment with alerting |
 | `/engineer:map-controls-unified` | Show one control across every framework it maps to |
 | `/engineer:find-conflicts` | Surface conflicting requirements across frameworks |
@@ -167,7 +167,7 @@ This is what separates a working tool from a demo. Every connector must meet all
 Most frameworks already exist. To add a new one:
 
 1. Create `plugins/frameworks/<name>/` with `.claude-plugin/plugin.json`.
-2. Add commands as markdown with frontmatter (see `plugins/frameworks/soc2/commands/assess.md` for reference).
+2. Add commands as markdown with frontmatter (see `plugins/frameworks/soc2/skills/assess/SKILL.md` for reference).
 3. Create `skills/<name>-expert/SKILL.md` with paraphrased domain knowledge (never verbatim copy from a licensed standard).
 4. Register the plugin in `.claude-plugin/marketplace.json`.
 5. Confirm its framework_id resolves in SCF crosswalks (`curl https://grcengclub.github.io/scf-api/api/crosswalks.json | jq '.frameworks[].framework_id' | grep <yourframework>`).

@@ -4,7 +4,7 @@ A maintainer tool. It edits this repository, so it runs from a clone, not from a
 
 Generates a new framework plugin directory under `plugins/frameworks/<slug>/` from templates, filling in framework metadata from the SCF crosswalk ({{SCF_FRAMEWORK_ID}} → 249 possible frameworks).
 
-Turns the usual half-day of hand-authoring `plugin.json` + `SKILL.md` + `commands/*.md` + `README.md` + marketplace registration into a one-command operation. The output is intentionally a starting point, not a finished plugin — you add the framework-specific expertise (`TODO:` markers throughout the templates point at what to fill in).
+Turns the usual half-day of hand-authoring `plugin.json` + `skills/*/SKILL.md` + `README.md` + marketplace registration into a one-command operation. The output is intentionally a starting point, not a finished plugin — you add the framework-specific expertise (`TODO:` markers throughout the templates point at what to fill in).
 
 ## Usage
 
@@ -31,7 +31,7 @@ node tools/scaffold-framework.js <scf-framework-id-or-label> [options]
 ```
 plugins/frameworks/<slug>/
 ├── .claude-plugin/plugin.json             # Plugin metadata + metadata.framework block
-├── commands/assess.md                     # Routes to /engineer:gap-assessment
+├── skills/assess/SKILL.md                 # Routes to /engineer:gap-assessment
 ├── skills/<slug>-expert/SKILL.md          # Framework identity + TODO sections
 └── README.md                              # Install + level-up instructions
 ```
@@ -44,9 +44,9 @@ Stub, plus:
 
 ```
 plugins/frameworks/<slug>/
-├── commands/scope.md                      # Applicability determination
-├── commands/evidence-checklist.md         # Evidence baseline by control family
-└── skills/...                             # Richer SKILL.md with TODO scaffolding
+├── skills/scope/SKILL.md                  # Applicability determination
+├── skills/evidence-checklist/SKILL.md     # Evidence baseline by control family
+└── skills/<slug>-expert/SKILL.md          # Richer expert skill with TODO scaffolding
 ```
 
 Full depth (framework-specific workflow commands, persona-specific UX) is not auto-scaffolded — add those commands manually when promoting a Reference plugin to Full.
@@ -84,6 +84,6 @@ See [`docs/SCF-ATTRIBUTION.md`](SCF-ATTRIBUTION.md) for licensing detail.
 ## Next steps after scaffolding
 
 1. Edit `skills/<slug>-expert/SKILL.md` — fill in the `TODO:` sections with framework-specific context.
-2. At Reference depth, edit `commands/assess.md`, `commands/scope.md`, `commands/evidence-checklist.md` for framework-specific guidance.
+2. At Reference depth, edit `skills/assess/SKILL.md`, `skills/scope/SKILL.md`, `skills/evidence-checklist/SKILL.md` for framework-specific guidance.
 3. Commit. Markdown lint + CODEOWNERS review run on every PR.
 4. Claim the matching issue in the [framework coverage tracker](https://github.com/GRCEngClub/claude-grc-engineering/issues/12).

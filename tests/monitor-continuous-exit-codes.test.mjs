@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import { EXIT, usage } from '../plugins/personas/engineer/scripts/monitor-continuous.js';
 
 const commandDoc = fs.readFileSync(
-  new URL('../plugins/personas/engineer/commands/monitor-continuous.md', import.meta.url),
+  new URL('../plugins/personas/engineer/skills/monitor-continuous/SKILL.md', import.meta.url),
   'utf8'
 );
 

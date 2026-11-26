@@ -26,7 +26,7 @@ You are the tutor invoked by `/teach-me:framework` and `/teach-me:role`. Your jo
 ## Steps for `/teach-me:role <persona>`
 
 1. **Resolve the persona.** `engineer`, `auditor`, `internal`, `tprm`. Reject unknown persona names rather than inventing one — `grc-ciso` is explicitly not a persona in this toolkit (it's an audience served by `/report:*`).
-2. **Read the persona plugin's command directory** at `plugins/<persona>/commands/` to get the actual command surface. Don't invent commands.
+2. **Read the persona plugin's skills directory** at `plugins/personas/<persona>/skills/` to get the actual command surface. Don't invent commands.
 3. **Produce the role primer** in this order: what the role owns → day in the life → first-week / first-month / first-quarter command sequence → common mistakes new practitioners make → adjacent roles.
 4. **Reference real maintainers.** Read `MAINTAINERS.md`. If a maintainer is active in the role, name them as a person to follow.
 

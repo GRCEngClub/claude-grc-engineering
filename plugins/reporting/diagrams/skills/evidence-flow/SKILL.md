@@ -1,0 +1,96 @@
+---
+name: evidence-flow
+description: Use when creating a draw.io diagram for evidence collection, evidence lifecycle, audit evidence pipelines, and systems of record in a GRC, security, audit, compliance, privacy, cloud, or risk context.
+allowed-tools: Write, Bash, Read, WebFetch
+---
+
+# GRC evidence flow diagram
+
+Use this skill to structure the GRC content and visual pattern for evidence collection, evidence lifecycle, audit evidence pipelines, and systems of record. Then use the `drawio` skill to generate the native editable `.drawio` file and optional PNG/SVG/PDF export.
+
+## Common Requests
+
+- AWS Config to evidence repository to auditor review
+- GitHub branch protection evidence
+- quarterly access review lifecycle
+
+## Control-to-evidence example
+
+For an auditor-facing map, request the control, responsible owner, evidence artifact, review cadence and reviewer. Do not include actual evidence, credentials, sensitive paths or identifying details without authorization. If an input is unknown, label it unknown rather than inventing it. Create editable nodes and labeled relationships, not a screenshot. The fictional [control-to-evidence example](../../examples/control-evidence-flow.drawio) shows an access review; it is not a claim that a real control operates effectively.
+
+For a simple, single control-to-evidence flow with supplied labels, the optional local generator described in the [plugin README](../../README.md#generate-a-control-to-evidence-flow) creates the editable model deterministically. Use it only when this fixed four-node pattern fits; the general workflow below remains available for other diagrams. Ask for missing fields rather than guessing, and review inputs for sensitive information. It does not scan for secrets or validate the truth of the relationships.
+
+Validate the example from the repository root:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/examples/validate-control-evidence.py"
+```
+
+The parser checks escaping, cell IDs, edge references and geometry for this specific uncompressed example; it is not a general draw.io validator or a secret scanner. Open the file in draw.io to inspect layout and editability. The example does not model exceptions, retention, or evidence access controls; adapt it to the actual engagement and review for sensitive content before sharing.
+
+## Recommended Elements
+
+Include these when relevant:
+
+- evidence sources
+- collectors
+- repositories
+- reviewers
+- approvers
+- auditors
+- retention
+- freshness
+- cadence
+
+## Recommended Output Pattern
+
+Produce a Swimlane evidence lifecycle or evidence data-flow diagram. Choose a layout that matches the audience:
+
+- Executive: compact lifecycle/capability view with business impact labels.
+- Auditor/assessor: explicit evidence, owner, control, cadence, and scope labels.
+- Practitioner/engineering: operational systems, data paths, automation, failure/exception paths, and implementation detail.
+
+## draw.io Instructions
+
+1. Load and follow the `drawio` skill.
+2. Generate native mxGraphModel XML directly. Do not generate Mermaid as the final artifact.
+3. Use descriptive lowercase hyphenated filenames.
+4. Include a legend when colors, edge styles, or containers have compliance meaning.
+5. Validate XML well-formedness before finalizing.
+6. If PNG/SVG/PDF is requested, export with embedded diagram XML when the draw.io CLI is available.
+
+## Visual Conventions
+
+- Blue: systems, platforms, services, and automated collectors.
+- Green: implemented controls, approvals, validated evidence, and compliant outcomes.
+- Orange/red: risks, findings, exceptions, overdue items, gaps, and failed controls.
+- Gray: manual tasks, external parties, optional steps, and out-of-scope areas.
+- Dashed containers: audit scope, trust boundaries, authorization boundary, or responsibility boundary.
+- Solid edges: primary process or system flow.
+- Dashed edges: evidence or attestation flow.
+- Dotted edges: optional, manual, exception, or escalation flow.
+
+## Quality Bar
+
+- Make ownership explicit.
+- Label regulated data, control IDs, frameworks, and evidence repositories when known.
+- Show decision criteria where the process branches.
+- Avoid generic boxes like "Compliance" without a role, system, artifact, or action.
+- Prefer editable source of truth over screenshots.
+
+## When invoked as `/diagrams:evidence-flow`
+
+- `$ARGUMENTS` - Scope, framework(s), system(s), audience, and optional export format such as `png`, `svg`, or `pdf`.
+
+1. Use the `drawio` skill to generate the native `.drawio` file.
+2. Include owners, control IDs, evidence sources, systems, risks, scope boundaries, and decision points when relevant.
+3. If the user requested PNG/SVG/PDF, export with embedded diagram XML when the draw.io CLI is available.
+4. Return the absolute path to the created file.
+
+### Examples
+
+```text
+/diagrams:evidence-flow SOC 2 access controls for AWS, Okta, and GitHub
+/diagrams:evidence-flow FedRAMP moderate cloud platform, auditor audience, svg
+/diagrams:evidence-flow startup SaaS, executive overview, png
+```

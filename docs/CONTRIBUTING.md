@@ -30,11 +30,10 @@ A connector is a plugin that wraps an external inspector tool and emits conforma
 plugins/connectors/<tool>/
 ├── .claude-plugin/
 │   └── plugin.json
-├── commands/
-│   ├── setup.md          # /my-tool:setup
-│   ├── collect.md        # /my-tool:collect
-│   └── status.md         # /my-tool:status
 ├── skills/
+│   ├── setup/SKILL.md    # /my-tool:setup
+│   ├── collect/SKILL.md  # /my-tool:collect
+│   ├── status/SKILL.md   # /my-tool:status
 │   └── <tool>-expert/
 │       └── SKILL.md      # teaches Claude the tool's output + failure modes
 ├── scripts/
@@ -176,10 +175,10 @@ Framework plugins are for implementation guidance, assessment workflows, and evi
 Claude Code installs a plugin by copying its folder, alone, into a cache. These rules follow from that and from how Claude Code reads plugin files. `npm run test:unit` and `npm run test:claude-validate` check them.
 
 - **A plugin is self-contained.** Scripts import only Node built-ins and files inside their own plugin folder. No npm packages, no `../../` paths into another plugin or the repo root. Vendor a dependency into the plugin if you need one.
-- **Call scripts through the plugin root.** In commands, skills and hooks, write `node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js"`, not `node plugins/connectors/<name>/scripts/collect.js`. The second form only exists inside a clone. CI examples that check out this repo are the exception; put them under a heading that says CI.
+- **Call scripts through the plugin root.** In skills and hooks, write `node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js"`, not `node plugins/connectors/<name>/scripts/collect.js`. The second form only exists inside a clone. CI examples that check out this repo are the exception; put them under a heading that says CI.
 - **Every script handles `--help`** without collecting, writing or using the network.
-- **Every command and `SKILL.md` starts with frontmatter** that has a `description`.
-- **Escape literal dollar-digit text in commands.** Claude Code replaces `$0`, `$1`, ... with the arguments typed after the command, counting from 0, anywhere in the file. Write `\$1,000` and `awk '{print \$1}'`. Describe arguments in words ("Argument 1 - repository"), and use `$ARGUMENTS` where the command needs the typed text.
+- **Plugins ship skills only.** There is no `commands/` folder: a skill at `skills/<name>/SKILL.md` is invoked as `/<plugin>:<name>` and Claude can also pick it up on its own. Every `SKILL.md` starts with frontmatter that has a `description` and a `name` matching its folder.
+- **Escape literal dollar-digit text in skills.** Claude Code replaces `$0`, `$1`, ... with the arguments typed after the skill's name, counting from 0, anywhere in the file. Write `\$1,000` and `awk '{print \$1}'`. Describe arguments in words ("Argument 1 - repository"), and use `$ARGUMENTS` where the command needs the typed text.
 - **`plugin.json` uses only fields Claude Code knows.** Repo-specific data goes under `metadata`, for example `metadata.framework`.
 
 ## Quality bar

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-const path = 'plugins/frameworks/pci-dss/commands/evidence-checklist.md';
+const path = 'plugins/frameworks/pci-dss/skills/evidence-checklist/SKILL.md';
 const text = readFileSync(path, 'utf8');
 const examples = [
   { heading: 'Requirement 4, merchant D', requirement: '4', saq: 'D merchant' },

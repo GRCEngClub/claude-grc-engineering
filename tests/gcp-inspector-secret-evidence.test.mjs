@@ -32,7 +32,7 @@ else process.exit(1);
     writeFileSync(preload, "let n=0; Object.defineProperty(performance, 'now', {value: () => ++n < 3 ? 0 : 300001});\n");
     const nodeOptions = mode === 'deadline' ? `--require=${preload}` : '';
     const env = { ...process.env, NODE_OPTIONS: nodeOptions, HOME: dir, CLAUDE_PLUGIN_ROOT: installed, CLAUDE_GRC_CONFIG_DIR: join(dir, 'config'), PATH: `${join(dir, 'bin')}:${process.env.PATH}`, RECORD: record, MODE: mode };
-    const doc = readFileSync(join(installed, 'commands', 'collect.md'), 'utf8');
+    const doc = readFileSync(join(installed, 'skills', 'collect', 'SKILL.md'), 'utf8');
     const command = doc.match(/^node .* \[options\]$/m)?.[0].replace(' [options]', '');
     assert.ok(command, 'documented collector invocation not found');
     const r = documented

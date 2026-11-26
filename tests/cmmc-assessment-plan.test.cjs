@@ -2,8 +2,8 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
-const root = join(__dirname, '../plugins/frameworks/cmmc/commands');
-const read = name => readFileSync(join(root, name), 'utf8');
+const root = join(__dirname, '../plugins/frameworks/cmmc/skills');
+const read = name => readFileSync(join(root, name.replace(/\.md$/, ''), 'SKILL.md'), 'utf8');
 
 test('Level 2 draft plan has source-linked scope, methods and review gates', () => {
   const plan = read('assessment-plan.md');

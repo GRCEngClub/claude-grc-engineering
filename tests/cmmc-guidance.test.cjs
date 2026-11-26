@@ -6,8 +6,8 @@ const root = join(__dirname, '../plugins/frameworks/cmmc');
 const read = p => readFileSync(join(root, p), 'utf8');
 
 test('MFA and password examples use the correct control identifiers', () => {
-  const practice = read('commands/practice-check.md');
-  const domain = read('commands/domain-guidance.md');
+  const practice = read('skills/practice-check/SKILL.md');
+  const domain = read('skills/domain-guidance/SKILL.md');
   assert.match(practice, /IA\.L2-3\.5\.3\*\*: MFA/);
   assert.match(practice, /IA\.L2-3\.5\.7\*\*: Password complexity/);
   assert.match(domain, /IA\.L2-3\.5\.3: Multi-factor/);
@@ -30,13 +30,13 @@ test('weighted scoring, eligibility and CUI are not inferred from shortcuts', ()
 });
 
 test('working aids require qualified review and no invented assessment selection', () => {
-  for (const path of ['commands/practice-check.md', 'commands/domain-guidance.md', 'commands/level-select.md', 'skills/cmmc-expert/SKILL.md', 'skills/cmmc-assessment-objectives/SKILL.md']) {
+  for (const path of ['skills/practice-check/SKILL.md', 'skills/domain-guidance/SKILL.md', 'skills/level-select/SKILL.md', 'skills/cmmc-expert/SKILL.md', 'skills/cmmc-assessment-objectives/SKILL.md']) {
     const text = read(path);
     assert.match(text, /Review required/);
     assert.match(text, /qualified CMMC/);
     assert.match(text, /unverified/);
   }
-  const level = read('commands/level-select.md');
+  const level = read('skills/level-select/SKILL.md');
   assert.match(level, /Level 2 may be self-assessed or C3PAO-assessed/);
   assert.doesNotMatch(level, /CUI \| Prime\/Sub \| Level 2 \| Triennial C3PAO/);
 });
@@ -70,8 +70,8 @@ test('staffing, affirmation and legal risk retain regulatory distinctions', () =
 
 
 test('Level 1 uses FAR identifiers and preserves mapped Level 2 requirements', () => {
-  const domain = read('commands/domain-guidance.md');
-  const practice = read('commands/practice-check.md');
+  const domain = read('skills/domain-guidance/SKILL.md');
+  const practice = read('skills/practice-check/SKILL.md');
   for (const text of [domain, practice]) {
     assert.match(text, /32 CFR 170\.15\(c\)\(1\)\(ii\)/);
     assert.match(text, /AC\.L1-b\.1\.iii[^\n]*3\.1\.20/);
@@ -86,7 +86,7 @@ test('Level 1 uses FAR identifiers and preserves mapped Level 2 requirements', (
 });
 
 test('selection remains contract-qualified and clock synchronization is protocol-neutral', () => {
-  const level = read('commands/level-select.md');
+  const level = read('skills/level-select/SKILL.md');
   const expert = read('skills/cmmc-expert/SKILL.md');
   const objectives = read('skills/cmmc-assessment-objectives/SKILL.md');
   assert.match(level, /Without the contract, the requirement is unverified/);
@@ -122,7 +122,7 @@ test('MFA and account review prompts do not assert unsupported automatic failure
 test('unverified catalogs and mappings are disabled; use official objective source', () => {
   const objectives = read('skills/cmmc-assessment-objectives/SKILL.md');
   const expert = read('skills/cmmc-expert/SKILL.md');
-  const checklist = read('commands/evidence-checklist.md');
+  const checklist = read('skills/evidence-checklist/SKILL.md');
   for (const text of [objectives, expert]) {
     assert.match(text, /3\.13\.11[^\n]*unlettered/);
     assert.match(text, /doi\.org\/10\.6028\/NIST\.SP\.800-171A/);
@@ -148,7 +148,7 @@ test('Level 2 C3PAO artifact retention and upload have distinct responsible part
 });
 
 test('DFARS flow-down references the corresponding eCFR clause', () => {
-  for (const path of ['commands/level-select.md', 'skills/cmmc-expert/SKILL.md']) {
+  for (const path of ['skills/level-select/SKILL.md', 'skills/cmmc-expert/SKILL.md']) {
     assert.match(read(path), /ecfr\.gov\/current\/title-48\/section-252\.204-7021#p-252\.204-7021\(f\)/);
   }
 });

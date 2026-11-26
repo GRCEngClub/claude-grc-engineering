@@ -45,10 +45,10 @@ Deep expertise in the Health Insurance Portability and Accountability Act (HIPAA
 
 **Penalty Tiers (per violation category per year)**:
 
-- **Tier 1**: Lack of knowledge (reasonable diligence would not have known) - Minimum $100 per violation, max $25,000
-- **Tier 2**: Reasonable cause (not willful neglect) - Minimum $1,000 per violation, max $100,000
-- **Tier 3**: Willful neglect corrected within 30 days - Minimum $10,000 per violation, max $250,000
-- **Tier 4**: Willful neglect not corrected - Minimum $50,000 per violation, max $1.9 million
+- **Tier 1**: Lack of knowledge (reasonable diligence would not have known) - Minimum \$100 per violation, max \$25,000
+- **Tier 2**: Reasonable cause (not willful neglect) - Minimum \$1,000 per violation, max \$100,000
+- **Tier 3**: Willful neglect corrected within 30 days - Minimum \$10,000 per violation, max \$250,000
+- **Tier 4**: Willful neglect not corrected - Minimum \$50,000 per violation, max \$1.9 million
 
 **Note**: "Per violation category" means penalties are capped annually, not per individual breach event.
 

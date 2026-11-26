@@ -71,7 +71,7 @@ Almost always means the caller lacks the IAM permission. Common culprits:
 - `cloudtrail:GetTrailStatus` requires `cloudtrail:GetTrailStatus`, separate from `DescribeTrails`.
 - Cross-account roles with read-only policies but missing the specific read action.
 
-Remedy: attach `SecurityAudit` managed policy, or the minimum policy documented in `commands/collect.md`.
+Remedy: attach `SecurityAudit` managed policy, or the minimum policy documented in the `collect` skill.
 
 ### Account-level resources
 

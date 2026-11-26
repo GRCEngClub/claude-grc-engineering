@@ -33,9 +33,9 @@ Every plugin, regardless of depth, ships this skeleton:
 plugins/frameworks/<slug>/
 ├── .claude-plugin/
 │   └── plugin.json               # name + metadata.framework
-├── commands/
-│   └── assess.md                 # always present; routes to gap-assessment
 ├── skills/
+│   ├── assess/
+│   │   └── SKILL.md              # always present; routes to gap-assessment
 │   └── <slug>-expert/
 │       └── SKILL.md              # framework identity + tier-dependent detail
 └── README.md                     # install + depth + metadata
@@ -83,7 +83,7 @@ node tools/scaffold-framework.js <scf-framework-id>
 
 That's it. The scaffold generates valid files, registers in marketplace.json, and prints what to do next. Commit, open PR, merge. **Do not hand-author a Stub** — use the scaffold command every time.
 
-**Files shipped** (4): `plugin.json`, `commands/assess.md`, `skills/<slug>-expert/SKILL.md`, `README.md`.
+**Files shipped** (4): `plugin.json`, `skills/assess/SKILL.md`, `skills/<slug>-expert/SKILL.md`, `README.md`.
 
 **What's acceptable to leave as TODO**: the SKILL.md's "Scope and posture" section. That's what a Reference-depth contributor fills in.
 
@@ -103,15 +103,15 @@ node tools/scaffold-framework.js <scf-framework-id> --depth=reference
 
 Then fill in the scaffolded TODOs. At Reference depth, expect to write 300-800 lines of framework-specific Markdown.
 
-**Files shipped** (6): Stub's 4 files plus `commands/scope.md` and `commands/evidence-checklist.md`.
+**Files shipped** (6): Stub's 4 files plus `skills/scope/SKILL.md` and `skills/evidence-checklist/SKILL.md`.
 
 ### Level-up checklist (Stub → Reference)
 
 A Stub levels up to Reference when all of these land in one PR:
 
 - [ ] `plugin.json` `metadata.framework.depth` changes to `"reference"`
-- [ ] `commands/scope.md` present — framework-specific applicability determination (not generic)
-- [ ] `commands/evidence-checklist.md` present — evidence patterns organized by the framework's own control families
+- [ ] `skills/scope/SKILL.md` present — framework-specific applicability determination (not generic)
+- [ ] `skills/evidence-checklist/SKILL.md` present — evidence patterns organized by the framework's own control families
 - [ ] `skills/<slug>-expert/SKILL.md` has substantive content in every section; no `TODO:` markers in the body
 - [ ] Framework identity data filled in: regulator name, industry tags if applicable
 - [ ] `README.md` updated to reflect Reference depth + install/usage flow
