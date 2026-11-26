@@ -1,3 +1,7 @@
+---
+description: "Generates comprehensive evidence collection checklists for HITRUST Common Security Framework (CSF) certification with focus on healthcare and HIPAA alignment (implementation levels 1-3)"
+---
+
 # HITRUST CSF Evidence Checklist
 
 Generates comprehensive evidence collection checklists for HITRUST Common Security Framework (CSF) certification with focus on healthcare and HIPAA alignment (implementation levels 1-3).
@@ -379,26 +383,26 @@ HITRUST Validated Assessors will verify:
 
 ### HITRUST CSF i1 Certification (Level 2, Small-Medium Healthcare Org)
 
-- HITRUST readiness assessment: 80 hours ($8,000)
-- Access control implementation (01.a + related): 120 hours ($12,000)
-- RBAC matrix development: 40 hours ($4,000)
-- HR system integration (automated provisioning): 80 hours ($8,000)
-- Quarterly access reviews: 40 hours/quarter ($4,000/quarter)
-- Validated assessment (external): $40k-$80k (depends on org size)
-- **Total Year 1**: ~$72k-$112k (one-time) + $16k/year (quarterly reviews)
+- HITRUST readiness assessment: 80 hours (\$8,000)
+- Access control implementation (01.a + related): 120 hours (\$12,000)
+- RBAC matrix development: 40 hours (\$4,000)
+- HR system integration (automated provisioning): 80 hours (\$8,000)
+- Quarterly access reviews: 40 hours/quarter (\$4,000/quarter)
+- Validated assessment (external): \$40k-\$80k (depends on org size)
+- **Total Year 1**: ~\$72k-\$112k (one-time) + \$16k/year (quarterly reviews)
 
 ### HITRUST i1 Certification Ongoing
 
-- Annual assessment: $40k-$80k/year
-- Quarterly access reviews: $16k/year
-- RBAC matrix updates: $2k/year
-- **Ongoing**: ~$58k-$98k/year
+- Annual assessment: \$40k-\$80k/year
+- Quarterly access reviews: \$16k/year
+- RBAC matrix updates: \$2k/year
+- **Ongoing**: ~\$58k-\$98k/year
 
 ### Tools
 
-- Identity governance platform: $10k-$50k/year
-- HR system integration: $5k-$15k/year
-- GRC platform with HITRUST MyCSF: $15k-$40k/year
+- Identity governance platform: \$10k-\$50k/year
+- HR system integration: \$5k-\$15k/year
+- GRC platform with HITRUST MyCSF: \$15k-\$40k/year
 
 ## Evidence Package Structure
 

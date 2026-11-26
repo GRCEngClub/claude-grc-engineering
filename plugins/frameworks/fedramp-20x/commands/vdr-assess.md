@@ -8,8 +8,8 @@ Evaluates Vulnerability Detection and Response capabilities per FedRAMP 20X.
 
 ## Arguments
 
-- `$1` - Assessment scope (optional: scanning, response, reporting)
-- `$2` - Evidence path (optional)
+- Argument 1 - Assessment scope (optional: scanning, response, reporting)
+- Argument 2 - Evidence path (optional)
 
 ## VDR Requirements
 

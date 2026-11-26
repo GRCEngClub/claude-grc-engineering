@@ -14,8 +14,8 @@ Generates a comprehensive Risk Treatment Plan for identified information securit
 
 ## Arguments
 
-- `$1` - Risk level filter (optional): "critical", "high", "medium", "low", or "all" (default: "all")
-- `$2` - Options (optional): `--format=docx|xlsx|markdown`, `--include-costs`, `--show-residual-only`
+- Argument 1 - Risk level filter (optional): "critical", "high", "medium", "low", or "all" (default: "all")
+- Argument 2 - Options (optional): `--format=docx|xlsx|markdown`, `--include-costs`, `--show-residual-only`
 
 ## Examples
 
@@ -67,7 +67,7 @@ Implementation Status:
   ⏳ In Progress: 5 risks (14%)
   ⏸ Planned: 2 risks (6%)
 
-Total Treatment Cost: $127,000 (initial) + $48,000/year (ongoing)
+Total Treatment Cost: \$127,000 (initial) + \$48,000/year (ongoing)
 Risk Reduction: 78% (inherent risk → residual risk)
 
 Residual Risk Level: MEDIUM (acceptable per risk appetite)
@@ -115,7 +115,7 @@ Vulnerability:
 Impact if Realized:
   - Extended service outage (>8 hours)
   - Customer data loss (up to 4 hours)
-  - Revenue loss: $50,000/day
+  - Revenue loss: \$50,000/day
   - Reputation damage
   - SLA breach penalties
   - Regulatory reporting requirements (if >72 hours)
@@ -159,8 +159,8 @@ Responsibility:
   Reviewer: CISO
 
 Budget:
-  Initial: $35,000 (DR infrastructure setup, testing)
-  Ongoing: $12,000/year (DR region running costs)
+  Initial: \$35,000 (DR infrastructure setup, testing)
+  Ongoing: \$12,000/year (DR region running costs)
 
 Expected Residual Risk:
   Level: 🟡 MEDIUM (Likelihood: 2, Impact: 3) = Risk Score 6
@@ -222,7 +222,7 @@ Planned Controls:
      - Data protection clauses (GDPR Article 28 compliant)
      - Right to audit clause
      - Breach notification requirements (24 hours)
-     - Cyber insurance requirements ($5M minimum for high-risk vendors)
+     - Cyber insurance requirements (\$5M minimum for high-risk vendors)
 
   3. Continuous Vendor Monitoring
      - SecurityScorecard or BitSight ratings (automated)
@@ -248,8 +248,8 @@ Responsibility:
   Reviewer: Risk Committee
 
 Budget:
-  Initial: $18,000 (SecurityScorecard subscription, assessments)
-  Ongoing: $15,000/year (monitoring platform, annual reassessments)
+  Initial: \$18,000 (SecurityScorecard subscription, assessments)
+  Ongoing: \$15,000/year (monitoring platform, annual reassessments)
 
 Expected Residual Risk:
   Level: 🟡 MEDIUM (Likelihood: 2, Impact: 3) = Risk Score 6
@@ -329,8 +329,8 @@ Responsibility:
   Training Provider: KnowBe4 or similar
 
 Budget:
-  Initial: $8,000 (platform setup, initial content)
-  Ongoing: $12,000/year ($7/user/month for 142 users)
+  Initial: \$8,000 (platform setup, initial content)
+  Ongoing: \$12,000/year (\$7/user/month for 142 users)
 
 Expected Residual Risk:
   Level: 🟢 LOW (Likelihood: 2, Impact: 2) = Risk Score 4
@@ -385,8 +385,8 @@ Responsibility:
   Implementer: DevOps Team
 
 Budget:
-  Initial: $5,000 (SSM setup, testing automation)
-  Ongoing: $2,000/year (Inspector costs)
+  Initial: \$5,000 (SSM setup, testing automation)
+  Ongoing: \$2,000/year (Inspector costs)
 
 Expected Residual Risk:
   Level: 🟢 LOW (Likelihood: 1, Impact: 3) = Risk Score 3
@@ -421,7 +421,7 @@ Vulnerability:
 Treatment Option: ⚠ ACCEPT (for now)
 
 Justification for Acceptance:
-  - Cost of threat intelligence platform ($15,000/year) outweighs immediate
+  - Cost of threat intelligence platform (\$15,000/year) outweighs immediate
     benefit given current threat landscape
   - Compensating controls provide adequate protection:
     * AWS GuardDuty for anomaly detection
@@ -473,15 +473,15 @@ Treatment Option: → TRANSFER (via insurance and contracts)
 
 Transfer Mechanisms:
   1. Cyber Insurance Policy
-     - Coverage: $5M per incident, $10M aggregate
-     - Deductible: $100,000
+     - Coverage: \$5M per incident, \$10M aggregate
+     - Deductible: \$100,000
      - Covers: Data breach response, notification, legal fees, fines
-     - Premium: $25,000/year
+     - Premium: \$25,000/year
      - Carrier: Marsh (A-rated)
 
   2. Vendor Contracts
      - Indemnification clauses in vendor agreements
-     - Vendor cyber insurance requirements ($5M minimum)
+     - Vendor cyber insurance requirements (\$5M minimum)
      - Liability caps negotiated
 
   3. Mitigation Controls (to reduce insurance premium):
@@ -494,8 +494,8 @@ Residual Risk: 🟡 MEDIUM (Likelihood: 2, Impact: 2) = Risk Score 4
   (Financial impact transferred; operational impact remains)
 
 Cost:
-  Cyber Insurance: $25,000/year
-  Legal review of vendor contracts: $10,000 (one-time)
+  Cyber Insurance: \$25,000/year
+  Legal review of vendor contracts: \$10,000 (one-time)
 
 Evidence:
   - Cyber insurance policy document

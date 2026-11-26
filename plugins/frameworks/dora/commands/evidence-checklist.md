@@ -1,3 +1,7 @@
+---
+description: "Generates comprehensive evidence collection checklists for EU Digital Operational Resilience Act (DORA) requirements, tailored for financial entities operating in the EU with ICT risk management focus"
+---
+
 # DORA Evidence Checklist
 
 Generates comprehensive evidence collection checklists for EU Digital Operational Resilience Act (DORA) requirements, tailored for financial entities operating in the EU with ICT risk management focus.
@@ -467,29 +471,29 @@ National competent authorities (NCAs) will expect:
 
 ### ICT Risk Framework Implementation (For Medium Bank)
 
-- Framework development and approval: 200 hours ($20,000)
-- Asset inventory and classification: 160 hours ($16,000)
-- Risk assessment process: 120 hours ($12,000)
-- Policy and procedure documentation: 200 hours ($20,000)
-- GRC tool implementation: 160 hours + $50k software ($66,000)
-- **Total Year 1**: ~$134k
+- Framework development and approval: 200 hours (\$20,000)
+- Asset inventory and classification: 160 hours (\$16,000)
+- Risk assessment process: 120 hours (\$12,000)
+- Policy and procedure documentation: 200 hours (\$20,000)
+- GRC tool implementation: 160 hours + \$50k software (\$66,000)
+- **Total Year 1**: ~\$134k
 
 ### Ongoing Compliance (Annual)
 
-- Quarterly risk assessments: 160 hours/year ($16,000)
-- Annual Board reporting: 40 hours ($4,000)
-- DR testing: 80 hours ($8,000)
-- Vulnerability management: 240 hours/year ($24,000)
-- Incident management: 120 hours/year ($12,000)
-- **Total Ongoing**: ~$64k/year
+- Quarterly risk assessments: 160 hours/year (\$16,000)
+- Annual Board reporting: 40 hours (\$4,000)
+- DR testing: 80 hours (\$8,000)
+- Vulnerability management: 240 hours/year (\$24,000)
+- Incident management: 120 hours/year (\$12,000)
+- **Total Ongoing**: ~\$64k/year
 
 ### Tools/Services
 
-- GRC platform: $50k-$150k/year (medium org)
-- Vulnerability scanning: $10k-$30k/year
-- SIEM/monitoring: $50k-$200k/year
-- Third-party audit (ISO 27001): $30k-$80k
-- TLPT testing (significant entities): $100k-$300k (every 3 years)
+- GRC platform: \$50k-\$150k/year (medium org)
+- Vulnerability scanning: \$10k-\$30k/year
+- SIEM/monitoring: \$50k-\$200k/year
+- Third-party audit (ISO 27001): \$30k-\$80k
+- TLPT testing (significant entities): \$100k-\$300k (every 3 years)
 
 ## Evidence Package Structure
 

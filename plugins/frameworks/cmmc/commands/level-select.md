@@ -10,8 +10,8 @@ Helps determine the appropriate CMMC level required for your organization based 
 
 ## Arguments
 
-- `$1` - Contract type (optional: prime, subcontractor, service-provider)
-- `$2` - Data type (optional: FCI, CUI, classified)
+- Argument 1 - Contract type (optional: prime, subcontractor, service-provider)
+- Argument 2 - Data type (optional: FCI, CUI, classified)
 
 ## Selection Criteria
 

@@ -8,9 +8,9 @@ Creates a prioritized implementation and maturity improvement roadmap for Essent
 
 ## Arguments
 
-- `$1` - Current maturity level (required: 0, 1, or 2)
-- `$2` - Target maturity level (required: 1, 2, or 3)
-- `$3` - Timeline (optional: aggressive, standard, conservative)
+- Argument 1 - Current maturity level (required: 0, 1, or 2)
+- Argument 2 - Target maturity level (required: 1, 2, or 3)
+- Argument 3 - Timeline (optional: aggressive, standard, conservative)
 
 ## Roadmap Timeline Options
 
@@ -356,11 +356,11 @@ Each roadmap includes:
 
 **Budget**:
 
-- Tools/Software: $10K-$50K
-- Consulting: $25K-$75K
-- Training: $5K-$15K
-- Hardware (MFA tokens): $5K-$20K
-- **Total**: $45K-$160K
+- Tools/Software: \$10K-\$50K
+- Consulting: \$25K-\$75K
+- Training: \$5K-\$15K
+- Hardware (MFA tokens): \$5K-\$20K
+- **Total**: \$45K-\$160K
 
 ### Maturity Level 2 Implementation
 
@@ -373,11 +373,11 @@ Each roadmap includes:
 
 **Budget**:
 
-- Tools/Software: $50K-$150K
-- Consulting: $75K-$200K
-- Training: $15K-$40K
-- Hardware: $20K-$60K
-- **Total**: $160K-$450K
+- Tools/Software: \$50K-\$150K
+- Consulting: \$75K-\$200K
+- Training: \$15K-\$40K
+- Hardware: \$20K-\$60K
+- **Total**: \$160K-\$450K
 
 ### Maturity Level 3 Implementation
 
@@ -391,12 +391,12 @@ Each roadmap includes:
 
 **Budget**:
 
-- Tools/Software: $150K-$500K
-- Consulting: $200K-$500K
-- Assessment/Testing: $50K-$150K
-- Training: $30K-$80K
-- Hardware: $50K-$150K
-- **Total**: $480K-$1.38M
+- Tools/Software: \$150K-\$500K
+- Consulting: \$200K-\$500K
+- Assessment/Testing: \$50K-\$150K
+- Training: \$30K-\$80K
+- Hardware: \$50K-\$150K
+- **Total**: \$480K-\$1.38M
 
 ---
 

@@ -10,7 +10,7 @@ Deep dive assessment for International Traffic in Arms Regulations (ITAR) compli
 
 ## Arguments
 
-- `$1` - Assessment type (optional: readiness, remediation, certification) - defaults to "readiness"
+- Argument 1 - Assessment type (optional: readiness, remediation, certification) - defaults to "readiness"
 
 ## ITAR Control Assessment
 
@@ -109,7 +109,7 @@ Deep dive assessment for International Traffic in Arms Regulations (ITAR) compli
 
 **Requirement**: Most organizations handling ITAR data must register with DDTC.
 
-**Annual Fee**: $3,000 per year
+**Annual Fee**: \$3,000 per year
 **Form**: DS-2032 (Statement of Registration)
 **Renewal**: Annual before expiration
 

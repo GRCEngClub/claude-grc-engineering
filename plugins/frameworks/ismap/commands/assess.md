@@ -8,7 +8,7 @@ Evaluates readiness for Information System Security Management and Assessment Pr
 
 ## Arguments
 
-- `$1` - Assessment scope (optional: full, iso-mapping, readiness) - defaults to "full"
+- Argument 1 - Assessment scope (optional: full, iso-mapping, readiness) - defaults to "full"
 
 ## ISMAP Overview
 

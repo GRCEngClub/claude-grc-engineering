@@ -1,3 +1,7 @@
+---
+description: "Collect Splunk security posture and write Finding documents to the shared findings cache"
+---
+
 # /splunk-inspector:collect
 
 Collect Splunk security posture and write Finding documents to:

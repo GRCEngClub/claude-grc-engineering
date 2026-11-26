@@ -7,17 +7,19 @@
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
-  "framework_metadata": {
-    "scf_framework_id": "apac-aus-ism-2024-june",
-    "display_name": "Australia - Information Security Manual (ISM) (June 2024)",
-    "region": "APAC",
-    "country": "AU",
-    "depth": "reference",
-    "scf_controls_mapped": 336,
-    "framework_controls_mapped": 802,
-    "industry": [
-      "government"
-    ],
-    "regulator": "Australian Signals Directorate (ASD)"
+  "metadata": {
+    "framework": {
+      "scf_framework_id": "apac-aus-ism-2024-june",
+      "display_name": "Australia - Information Security Manual (ISM) (June 2024)",
+      "region": "APAC",
+      "country": "AU",
+      "depth": "reference",
+      "scf_controls_mapped": 336,
+      "framework_controls_mapped": 802,
+      "industry": [
+        "government"
+      ],
+      "regulator": "Australian Signals Directorate (ASD)"
+    }
   }
 }

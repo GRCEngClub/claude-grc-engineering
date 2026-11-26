@@ -1,3 +1,7 @@
+---
+description: "Collect Tenable vulnerability-management posture and write Finding documents to the shared findings cache"
+---
+
 # /tenable-inspector:collect
 
 Collect Tenable vulnerability-management posture and write Finding documents to:

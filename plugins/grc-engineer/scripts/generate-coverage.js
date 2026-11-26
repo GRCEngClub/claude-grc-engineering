@@ -82,7 +82,7 @@ function render({ scfFrameworks, shipped, generatedAt }) {
   lines.push(`| Reference | ${depthCounts.reference || 0} | Scope + evidence checklist + framework-specific SKILL |`);
   lines.push(`| Stub | ${depthCounts.stub || 0} | Scaffolded delegation to \`/grc-engineer:gap-assessment\` |`);
   if (depthCounts.unknown) {
-    lines.push(`| Unknown | ${depthCounts.unknown} | Plugins without \`framework_metadata.depth\` — needs backfill |`);
+    lines.push(`| Unknown | ${depthCounts.unknown} | Plugins without \`metadata.framework.depth\` — needs backfill |`);
   }
   lines.push('');
   lines.push('See [Framework Plugin Guide](FRAMEWORK-PLUGIN-GUIDE.md) for depth definitions and level-up checklists.');
@@ -111,7 +111,7 @@ function render({ scfFrameworks, shipped, generatedAt }) {
   if (unmapped.length > 0) {
     lines.push('### Shipped without SCF mapping');
     lines.push('');
-    lines.push('These plugins exist in the marketplace but do not have a `framework_metadata.scf_framework_id` in their `plugin.json`. Either no single SCF entry applies (e.g. the plugin spans multiple baselines), or the metadata block hasn\'t been backfilled yet. Contributions to add metadata are welcome.');
+    lines.push('These plugins exist in the marketplace but do not have a `metadata.framework.scf_framework_id` in their `plugin.json`. Either no single SCF entry applies (e.g. the plugin spans multiple baselines), or the metadata block hasn\'t been backfilled yet. Contributions to add metadata are welcome.');
     lines.push('');
     lines.push('| Namespace | Description |');
     lines.push('|---|---|');

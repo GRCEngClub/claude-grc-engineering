@@ -10,8 +10,8 @@ Provides detailed implementation guidance for CMMC v2.0 domains and their associ
 
 ## Arguments
 
-- `$1` - Domain abbreviation (required: AC, AT, AU, CM, IA, IR, MA, MP, PS, PE, RA, CA, SC, SI)
-- `$2` - CMMC level (optional: 1, 2, 3 - shows practices for that level)
+- Argument 1 - Domain abbreviation (required: AC, AT, AU, CM, IA, IR, MA, MP, PS, PE, RA, CA, SC, SI)
+- Argument 2 - CMMC level (optional: 1, 2, 3 - shows practices for that level)
 
 See the [DoD CMMC Model Overview v2.13](https://dodcio.defense.gov/Portals/0/Documents/CMMC/ModelOverviewv2.pdf) for Levels 1–3 and [32 CFR 170.14](https://www.ecfr.gov/current/title-32/section-170.14) for regulatory requirements. Level 1 identifiers map to NIST assessment objectives as specified in [32 CFR 170.15(c)(1)(ii)](https://www.ecfr.gov/current/title-32/section-170.15).
 

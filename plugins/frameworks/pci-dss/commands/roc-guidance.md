@@ -8,8 +8,8 @@ Provides guidance for completing the PCI DSS Report on Compliance.
 
 ## Arguments
 
-- `$1` - ROC section or requirement number (optional)
-- `$2` - Topic (optional: testing, evidence, findings)
+- Argument 1 - ROC section or requirement number (optional)
+- Argument 2 - Topic (optional: testing, evidence, findings)
 
 ## ROC Template Sections
 

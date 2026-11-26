@@ -8,8 +8,8 @@ Provides detailed implementation guidance and verification for a specific Essent
 
 ## Arguments
 
-- `$1` - Strategy number (required: 1-8) or name
-- `$2` - Target maturity level (optional: 1, 2, or 3)
+- Argument 1 - Strategy number (required: 1-8) or name
+- Argument 2 - Target maturity level (optional: 1, 2, or 3)
 
 ## Strategy Selection
 

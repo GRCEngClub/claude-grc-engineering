@@ -8,8 +8,8 @@ Evaluates organizational readiness for General Data Protection Regulation (GDPR)
 
 ## Arguments
 
-- `$1` - Assessment scope (optional: full, data-mapping, rights-management, security-measures)
-- `$2` - Organization type (optional: controller, processor, joint-controller)
+- Argument 1 - Assessment scope (optional: full, data-mapping, rights-management, security-measures)
+- Argument 2 - Organization type (optional: controller, processor, joint-controller)
 
 ## GDPR Applicability
 

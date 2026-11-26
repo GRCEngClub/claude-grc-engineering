@@ -23,7 +23,7 @@ Use it in one of three modes:
 2. **Manual mode** for any framework alias, where you provide the total and
    automated counts directly. Use this for operator-observed reporting.
 3. **Framework metadata total mode** for framework plugins that publish
-   `framework_metadata.framework_controls_mapped`, where you provide only the
+   `metadata.framework.framework_controls_mapped`, where you provide only the
    operator-observed automated count and the command derives the total.
 4. **Batch mode** with `--config=<path>`, where a scheduler can write multiple
    framework snapshots in one run.
@@ -39,8 +39,8 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../docs/GRC-DATA.md) and
 
 ## Arguments
 
-- `$1` - Framework alias or FedRAMP scope
-- `$2` - Provider in derived mode (optional, defaults to `aws`)
+- Argument 1 - Framework alias or FedRAMP scope
+- Argument 2 - Provider in derived mode (optional, defaults to `aws`)
 
 ## Common options
 

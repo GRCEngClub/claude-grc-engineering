@@ -1,3 +1,7 @@
+---
+description: "Collect Slack workspace posture and write Finding documents to the shared findings cache"
+---
+
 # /slack-inspector:collect
 
 Collect Slack workspace posture and write Finding documents to the shared cache:

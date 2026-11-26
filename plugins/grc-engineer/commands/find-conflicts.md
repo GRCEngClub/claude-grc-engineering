@@ -14,8 +14,8 @@ Analyzes your selected compliance frameworks to identify conflicting requirement
 
 ## Arguments
 
-- `$1` - Comma-separated list of frameworks (e.g., "SOC2,PCI-DSS,NIST")
-- `$2` - Detail level (optional): "summary" or "detailed" (default: "detailed")
+- Argument 1 - Comma-separated list of frameworks (e.g., "SOC2,PCI-DSS,NIST")
+- Argument 2 - Detail level (optional): "summary" or "detailed" (default: "detailed")
 
 ## Framework Codes
 

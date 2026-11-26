@@ -8,8 +8,8 @@ Provides detailed guidance on specific PCI DSS v4.0.1 requirements.
 
 ## Arguments
 
-- `$1` - Requirement number (required: 1-12 or specific like 3.4.2)
-- `$2` - Focus area (optional: controls, testing, evidence)
+- Argument 1 - Requirement number (required: 1-12 or specific like 3.4.2)
+- Argument 2 - Focus area (optional: controls, testing, evidence)
 
 ## Requirements Overview
 

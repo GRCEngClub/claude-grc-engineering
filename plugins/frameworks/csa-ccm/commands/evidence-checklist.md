@@ -1,3 +1,7 @@
+---
+description: "Generates comprehensive evidence collection checklists for CSA CCM v4 controls, optimized for cloud-native environments (AWS, Azure, GCP) with STAR attestation guidance"
+---
+
 # CSA Cloud Controls Matrix (CCM) Evidence Checklist
 
 Generates comprehensive evidence collection checklists for CSA CCM v4 controls, optimized for cloud-native environments (AWS, Azure, GCP) with STAR attestation guidance.
@@ -152,17 +156,17 @@ Purpose: Non-human identity inventory
 ```bash
 # Access keys older than 90 days (non-compliant)
 aws iam get-credential-report --output text | base64 -d | \
-  awk -F',' '$10 == "true" {split($11,a,"T"); if ((systime() - mktime(gensub(/[-:]/," ","g",a[1]" "substr(a[2],1,8)))) > 90*86400) print $1, $11}' \
+  awk -F',' '\$10 == "true" {split(\$11,a,"T"); if ((systime() - mktime(gensub(/[-:]/," ","g",a[1]" "substr(a[2],1,8)))) > 90*86400) print \$1, \$11}' \
   > evidence/ccm-iam-02-old-access-keys-$(date +%Y%m%d).txt
 
 # Passwords older than 90 days
 aws iam get-credential-report --output text | base64 -d | \
-  awk -F',' '$4 == "true" {split($5,a,"T"); if ((systime() - mktime(gensub(/[-:]/," ","g",a[1]" "substr(a[2],1,8)))) > 90*86400) print $1, $5}' \
+  awk -F',' '\$4 == "true" {split(\$5,a,"T"); if ((systime() - mktime(gensub(/[-:]/," ","g",a[1]" "substr(a[2],1,8)))) > 90*86400) print \$1, \$5}' \
   > evidence/ccm-iam-02-old-passwords-$(date +%Y%m%d).txt
 
 # Users without MFA (non-compliant)
 aws iam get-credential-report --output text | base64 -d | \
-  awk -F',' '$4 == "true" && $8 == "false" {print $1}' \
+  awk -F',' '\$4 == "true" && \$8 == "false" {print \$1}' \
   > evidence/ccm-iam-02-no-mfa-$(date +%Y%m%d).txt
 ```
 
@@ -371,9 +375,9 @@ For CSA STAR Level 2 (Third-Party Audit), auditor will verify:
 ### If No Automated Provisioning
 
 1. **Select Identity Provider** (if none exists)
-   - Small orgs: Okta Workforce Identity ($2-8/user/month)
-   - Microsoft shops: Microsoft Entra ID P1 ($6/user/month)
-   - Google Workspace: Cloud Identity Premium ($6/user/month)
+   - Small orgs: Okta Workforce Identity (\$2-8/user/month)
+   - Microsoft shops: Microsoft Entra ID P1 (\$6/user/month)
+   - Google Workspace: Cloud Identity Premium (\$6/user/month)
 
 2. **Configure SAML/SCIM Integration**
    - AWS: AWS IAM Identity Center (free with AWS account)
@@ -460,21 +464,21 @@ def lambda_handler(event, context):
 
 ### Identity Platform (Annual)
 
-- Okta Workforce: $6-10/user/month ($1,200-2,000/yr for 20 users)
-- Microsoft Entra ID P1: $6/user/month ($1,440/yr for 20 users)
-- Google Cloud Identity Premium: $6/user/month ($1,440/yr for 20 users)
+- Okta Workforce: \$6-10/user/month (\$1,200-2,000/yr for 20 users)
+- Microsoft Entra ID P1: \$6/user/month (\$1,440/yr for 20 users)
+- Google Cloud Identity Premium: \$6/user/month (\$1,440/yr for 20 users)
 
 ### Implementation (One-Time)
 
-- IdP setup and SCIM integration: 80 hours ($8,000)
-- Automated credential rotation: 40 hours ($4,000)
-- Evidence collection automation: 24 hours ($2,400)
+- IdP setup and SCIM integration: 80 hours (\$8,000)
+- Automated credential rotation: 40 hours (\$4,000)
+- Evidence collection automation: 24 hours (\$2,400)
 
 ### CSA STAR Assessment (If pursuing certification)
 
 - Level 1 (Self-Assessment): Free
-- Level 2 (Third-Party Audit): $25k-$75k (varies by organization size)
-- Annual surveillance: $15k-$30k/year
+- Level 2 (Third-Party Audit): \$25k-\$75k (varies by organization size)
+- Annual surveillance: \$15k-\$30k/year
 
 ## Automation Script
 

@@ -14,8 +14,8 @@ Generates a comprehensive, auditor-ready evidence package for SOC 2 Type I or Ty
 
 ## Arguments
 
-- `$1` - Audit period (optional): "2024", "2024-Q1-Q4", or "2024-01-01:2024-12-31" (default: current year)
-- `$2` - Options (optional): `--type=type1|type2`, `--output-dir=path`, `--controls=CC6,CC7`, `--format=zip|tar`
+- Argument 1 - Audit period (optional): "2024", "2024-Q1-Q4", or "2024-01-01:2024-12-31" (default: current year)
+- Argument 2 - Options (optional): `--type=type1|type2`, `--output-dir=path`, `--controls=CC6,CC7`, `--format=zip|tar`
 
 ## Examples
 

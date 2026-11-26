@@ -7,15 +7,17 @@
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
-  "framework_metadata": {
-    "scf_framework_id": "usa-state-ny-dfs-23-nycrr500-2023-amd2",
-    "display_name": "New York Department of Financial Services 23NYCRR Part 500 (2023 Amendment 2)",
-    "region": "Americas",
-    "country": "US",
-    "depth": "reference",
-    "scf_controls_mapped": 156,
-    "framework_controls_mapped": 145,
-    "industry": [],
-    "regulator": ""
+  "metadata": {
+    "framework": {
+      "scf_framework_id": "usa-state-ny-dfs-23-nycrr500-2023-amd2",
+      "display_name": "New York Department of Financial Services 23NYCRR Part 500 (2023 Amendment 2)",
+      "region": "Americas",
+      "country": "US",
+      "depth": "reference",
+      "scf_controls_mapped": 156,
+      "framework_controls_mapped": 145,
+      "industry": [],
+      "regulator": ""
+    }
   }
 }

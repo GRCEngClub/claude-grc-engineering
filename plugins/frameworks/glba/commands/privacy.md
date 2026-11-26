@@ -8,8 +8,8 @@ Provides guidance on implementing the GLBA Privacy Rule (16 CFR Part 313) requir
 
 ## Arguments
 
-- `$1` - Focus area (required: all, initial-notice, annual-notice, opt-out, sharing-practices, exceptions)
-- `$2` - Delivery method (optional: paper, electronic, website)
+- Argument 1 - Focus area (required: all, initial-notice, annual-notice, opt-out, sharing-practices, exceptions)
+- Argument 2 - Delivery method (optional: paper, electronic, website)
 
 ## Privacy Rule Overview
 
@@ -353,7 +353,7 @@ Provides guidance on implementing the GLBA Privacy Rule (16 CFR Part 313) requir
 
 **Recent Actions**:
 
-- **Credit Karma (2022)**: $3M penalty for deceptive pre-approved claims and privacy violations
+- **Credit Karma (2022)**: \$3M penalty for deceptive pre-approved claims and privacy violations
 - **CafePress (2021)**: Data breach, inadequate security, misleading privacy claims
 - **PayPal (2018)**: Venmo privacy settings misleading
 - **TaxSlayer (2017)**: Data breach, inadequate security despite privacy promises

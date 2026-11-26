@@ -8,6 +8,14 @@ JSON output from `/grc-engineer:monitor-continuous`, serves a local web UI, and
 derives current posture, framework health, alerts, and run-over-run deltas
 outside Claude's context window.
 
+## Install
+
+```text
+/plugin install compliance-posture-dashboard --marketplace GRCEngClub/claude-grc-engineering
+```
+
+On Claude Code older than 2.1.275, add the marketplace first with `/plugin marketplace add GRCEngClub/claude-grc-engineering`, then run `/plugin install compliance-posture-dashboard@grc-engineering-suite`.
+
 ## Run It
 
 Generate one or more monitor runs:

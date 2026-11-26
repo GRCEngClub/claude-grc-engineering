@@ -8,8 +8,8 @@ Provides comprehensive guidance on DORA's incident management and reporting requ
 
 ## Arguments
 
-- `$1` - Incident severity (required: major, non-major, cyber-threat)
-- `$2` - Reporting stage (optional: initial, intermediate, final, update)
+- Argument 1 - Incident severity (required: major, non-major, cyber-threat)
+- Argument 2 - Reporting stage (optional: initial, intermediate, final, update)
 
 ## Incident Reporting Overview
 

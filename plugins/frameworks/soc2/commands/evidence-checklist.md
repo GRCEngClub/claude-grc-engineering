@@ -16,8 +16,8 @@ Generates detailed evidence collection checklists for SOC 2 Trust Service Criter
 
 ## Arguments
 
-- `$1` - Control ID (e.g., "CC6.1", "CC7.2", "A1.1") or category (e.g., "CC6", "security")
-- `$2` - Audit type (optional): "type1" (point-in-time) or "type2" (period) - default: "type2"
+- Argument 1 - Control ID (e.g., "CC6.1", "CC7.2", "A1.1") or category (e.g., "CC6", "security")
+- Argument 2 - Audit type (optional): "type1" (point-in-time) or "type2" (period) - default: "type2"
 
 ## Examples
 

@@ -1,3 +1,7 @@
+---
+description: "Configure slack-inspector for a Slack workspace"
+---
+
 # /slack-inspector:setup
 
 Configure `slack-inspector` for a Slack workspace.

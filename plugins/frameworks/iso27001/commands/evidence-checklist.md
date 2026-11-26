@@ -1,3 +1,7 @@
+---
+description: "Generates an evidence collection checklist for ISO/IEC 27001:2022 Annex A controls, tailored to the organization's ISMS scope and Statement of Applicability (SoA)"
+---
+
 # ISO 27001 Evidence Checklist
 
 Generates an evidence collection checklist for ISO/IEC 27001:2022 Annex A controls, tailored to the organization's ISMS scope and Statement of Applicability (SoA).

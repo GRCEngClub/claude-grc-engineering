@@ -1,3 +1,7 @@
+---
+description: "Run curated drata-cli workflows and write Finding documents to the shared findings cache"
+---
+
 # /drata-inspector:collect
 
 Run curated `drata-cli` workflows and write Finding documents to:

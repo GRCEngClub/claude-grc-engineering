@@ -10,8 +10,8 @@ Helps determine whether ITAR, EAR, or both apply to your products, technology, a
 
 ## Arguments
 
-- `$1` - Product/technology description (required)
-- `$2` - Industry (optional: defense, commercial, technology, aerospace)
+- Argument 1 - Product/technology description (required)
+- Argument 2 - Industry (optional: defense, commercial, technology, aerospace)
 
 ## Decision Framework
 

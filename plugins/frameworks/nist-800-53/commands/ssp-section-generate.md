@@ -14,9 +14,9 @@ Generates production-ready System Security Plan (SSP) sections for NIST 800-53 c
 
 ## Arguments
 
-- `$1` - Control ID (e.g., "AC-2", "AU-2") or family (e.g., "AC", "AU")
-- `$2` - Template (optional): "fedramp", "nist", "dod", "custom" (default: "fedramp")
-- `$3` - Options (optional): `--format=docx|markdown|yaml`, `--include-evidence`
+- Argument 1 - Control ID (e.g., "AC-2", "AU-2") or family (e.g., "AC", "AU")
+- Argument 2 - Template (optional): "fedramp", "nist", "dod", "custom" (default: "fedramp")
+- Argument 3 - Options (optional): `--format=docx|markdown|yaml`, `--include-evidence`
 
 ## Examples
 

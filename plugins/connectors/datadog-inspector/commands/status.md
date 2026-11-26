@@ -1,3 +1,7 @@
+---
+description: "Show whether Datadog credentials are configured, whether they validate, and whether cached findings are fresh"
+---
+
 # /datadog-inspector:status
 
 Show whether Datadog credentials are configured, whether they validate, and whether cached findings are fresh.

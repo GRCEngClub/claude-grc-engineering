@@ -14,8 +14,8 @@ Generates a comprehensive roadmap for achieving and maintaining ISO 27001:2022 c
 
 ## Arguments
 
-- `$1` - Target certification date (optional): "2025-12-31" or "12-months" (default: "12-months")
-- `$2` - Options (optional): `--current-maturity=low|medium|high`, `--scope=cloud-only|hybrid`, `--fast-track`
+- Argument 1 - Target certification date (optional): "2025-12-31" or "12-months" (default: "12-months")
+- Argument 2 - Options (optional): `--current-maturity=low|medium|high`, `--scope=cloud-only|hybrid`, `--fast-track`
 
 ## Examples
 
@@ -59,9 +59,9 @@ Timeline: 12 months total
   - Month 12:     Certification issuance
   - Ongoing:      Annual surveillance audits
 
-Total Estimated Cost: $95,000 - $145,000
-  - Internal effort: $55,000 - $85,000 (550-850 hours @ $100/hour)
-  - External costs: $40,000 - $60,000 (certification body, consultants)
+Total Estimated Cost: \$95,000 - \$145,000
+  - Internal effort: \$55,000 - \$85,000 (550-850 hours @ \$100/hour)
+  - External costs: \$40,000 - \$60,000 (certification body, consultants)
 
 Key Milestones:
   ✓ Month 3:  Gap remediation complete, ISMS documented
@@ -75,7 +75,7 @@ Success Factors:
   - Executive management commitment and sponsorship
   - Dedicated ISMS owner (30-50% time commitment)
   - Cross-functional team involvement
-  - Budget approved ($95k-$145k)
+  - Budget approved (\$95k-\$145k)
   - Realistic timeline (12+ months for first-time certification)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -142,7 +142,7 @@ Week 3-4: Planning & Prioritization
       - Accreditation (ANAB, UKAS, etc.)
       - Experience with cloud/SaaS companies
       - Geographic coverage
-      - Cost ($25k-$40k for initial certification)
+      - Cost (\$25k-\$40k for initial certification)
       - Timeline (can they meet your target date?)
 
     RFP Questions:
@@ -156,11 +156,11 @@ Deliverables:
   ✓ Gap analysis report (detailed findings)
   ✓ ISMS scope statement (approved by management)
   ✓ Implementation roadmap (12-month plan)
-  ✓ Budget approval ($95k-$145k)
+  ✓ Budget approval (\$95k-\$145k)
   ✓ Certification body RFP (responses due Month 3)
 
 Effort: 120 hours (2-3 people full-time for 1 month)
-Cost: $12,000 internal + $5,000 external (optional consultant)
+Cost: \$12,000 internal + \$5,000 external (optional consultant)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 MONTH 3-4: POLICY DEVELOPMENT & DOCUMENTATION
@@ -297,7 +297,7 @@ Deliverables:
   ✓ Document control system (version control, approval workflow)
 
 Effort: 200 hours (CISO 50%, Security team 50%, Legal review)
-Cost: $20,000 internal + $8,000 external (legal review, templates)
+Cost: \$20,000 internal + \$8,000 external (legal review, templates)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 MONTH 5-6: CONTROL IMPLEMENTATION (Build Phase)
@@ -315,35 +315,35 @@ Priority 1: Critical Controls (Must implement first)
     - Privileged access management
     - Quarterly access reviews
     Effort: 60 hours
-    Cost: $10,000 (Okta licenses, implementation)
+    Cost: \$10,000 (Okta licenses, implementation)
 
   □ Cryptography (A.8.24)
     - Encrypt all data at rest (S3, RDS, EBS)
     - TLS 1.2+ for all data in transit
     - KMS key management
     Effort: 24 hours
-    Cost: $2,000 (KMS, implementation)
+    Cost: \$2,000 (KMS, implementation)
 
   □ Logging and Monitoring (A.8.15, A.8.16)
     - CloudTrail multi-region enabled
     - 1-year log retention
     - GuardDuty threat detection
     Effort: 32 hours
-    Cost: $6,000/year (storage, GuardDuty)
+    Cost: \$6,000/year (storage, GuardDuty)
 
   □ Configuration Management (A.8.9)
     - Infrastructure as Code (Terraform)
     - AWS Config compliance monitoring
     - Change management process
     Effort: 80 hours
-    Cost: $8,000 (Config, implementation)
+    Cost: \$8,000 (Config, implementation)
 
   □ Backup and Recovery (A.8.13)
     - Automated backups (RDS, S3 versioning)
     - Cross-region replication
     - Quarterly recovery testing
     Effort: 40 hours
-    Cost: $12,000/year (DR infrastructure)
+    Cost: \$12,000/year (DR infrastructure)
 
 Priority 2: High-Priority Controls
   □ Vulnerability Management (A.8.8)
@@ -351,21 +351,21 @@ Priority 2: High-Priority Controls
     - 30-day patching SLA
     - Automated patch management
     Effort: 40 hours
-    Cost: $3,000/year
+    Cost: \$3,000/year
 
   □ Incident Management (A.5.24, A.5.25, A.5.26)
     - Incident response procedure
     - PagerDuty alerting
     - Quarterly incident response drills
     Effort: 32 hours
-    Cost: $3,000/year (PagerDuty)
+    Cost: \$3,000/year (PagerDuty)
 
   □ Endpoint Security (A.8.1)
     - MDM (Jamf Pro)
     - Endpoint protection (CrowdStrike)
     - Full disk encryption (100%)
     Effort: 24 hours
-    Cost: $8,000/year
+    Cost: \$8,000/year
 
 Training and Awareness:
   □ Security awareness training (A.6.3)
@@ -373,7 +373,7 @@ Training and Awareness:
     - Quarterly refresher training
     - Phishing simulation testing
     Platform: KnowBe4 or similar
-    Cost: $12,000/year
+    Cost: \$12,000/year
 
   □ Role-specific training
     - Developers: Secure coding training
@@ -387,7 +387,7 @@ Deliverables:
   ✓ Evidence collection process established
 
 Effort: 350 hours (multiple teams in parallel)
-Cost: $35,000 internal + $64,000/year (tools and services)
+Cost: \$35,000 internal + \$64,000/year (tools and services)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 MONTH 7-9: ISMS OPERATION & EVIDENCE COLLECTION
@@ -526,7 +526,7 @@ Deliverables:
   ✓ Corrective actions from internal audit closed
 
 Effort: 120 hours (ongoing operations + internal audit)
-Cost: $12,000 internal + $10,000 (external internal auditor)
+Cost: \$12,000 internal + \$10,000 (external internal auditor)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 MONTH 10: STAGE 1 AUDIT (Documentation Review)
@@ -588,7 +588,7 @@ Post-Stage 1 Actions:
 Deliverable: Stage 1 audit report (from certification body)
 
 Effort: 40 hours (preparation + audit participation)
-Cost: Included in certification body fee ($25k-$40k total)
+Cost: Included in certification body fee (\$25k-\$40k total)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 MONTH 11: STAGE 2 AUDIT (On-Site Assessment)
@@ -743,7 +743,7 @@ Surveillance Audit Scope:
   - Verification of previous findings corrected
 
 Typical Duration: 1-2 days (less than Stage 2)
-Cost: $8,000 - $15,000 per year
+Cost: \$8,000 - \$15,000 per year
 
 Annual ISMS Activities:
   □ Quarterly access reviews (4 per year)
@@ -757,7 +757,7 @@ Annual ISMS Activities:
   □ DR testing (at least 1 per year)
 
 Ongoing Effort: 200-300 hours/year
-Ongoing Cost: $20,000 - $30,000/year (internal) + $8,000-$15,000 (surveillance)
+Ongoing Cost: \$20,000 - \$30,000/year (internal) + \$8,000-\$15,000 (surveillance)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 TOTAL COST SUMMARY
@@ -765,48 +765,48 @@ TOTAL COST SUMMARY
 
 Year 1 (Certification):
   Internal Effort:
-    Gap analysis & planning:          $12,000 (120 hours)
-    Policy development:                $20,000 (200 hours)
-    Control implementation:            $35,000 (350 hours)
-    ISMS operation & evidence:         $12,000 (120 hours)
-    Internal audit:                    $10,000 (external auditor)
-    Stage 1 & 2 preparation:           $14,000 (140 hours)
-    Corrective actions:                 $8,000 (80 hours)
+    Gap analysis & planning:          \$12,000 (120 hours)
+    Policy development:                \$20,000 (200 hours)
+    Control implementation:            \$35,000 (350 hours)
+    ISMS operation & evidence:         \$12,000 (120 hours)
+    Internal audit:                    \$10,000 (external auditor)
+    Stage 1 & 2 preparation:           \$14,000 (140 hours)
+    Corrective actions:                 \$8,000 (80 hours)
     ──────────────────────────────────────────────
-    Total Internal: $111,000
+    Total Internal: \$111,000
 
   External Costs:
-    Certification body fee:            $32,000 (BSI, average)
-    Consultant (optional):              $8,000 (policy review, gap analysis)
+    Certification body fee:            \$32,000 (BSI, average)
+    Consultant (optional):              \$8,000 (policy review, gap analysis)
     ──────────────────────────────────────────────
-    Total External: $40,000
+    Total External: \$40,000
 
   Technology Costs (Annual):
-    Okta (MFA, SSO):                    $7,000
-    Endpoint protection:                $7,100
-    AWS Config:                         $2,400
-    Logging & monitoring:               $6,000
-    Encryption (KMS):                     $120
-    Backup & DR:                       $12,000
-    Vulnerability scanning:             $2,400
-    Security training:                 $12,000
-    Other tools:                        $5,000
+    Okta (MFA, SSO):                    \$7,000
+    Endpoint protection:                \$7,100
+    AWS Config:                         \$2,400
+    Logging & monitoring:               \$6,000
+    Encryption (KMS):                     \$120
+    Backup & DR:                       \$12,000
+    Vulnerability scanning:             \$2,400
+    Security training:                 \$12,000
+    Other tools:                        \$5,000
     ──────────────────────────────────────────────
-    Total Technology: $54,020
+    Total Technology: \$54,020
 
-  Year 1 Total: $205,020
+  Year 1 Total: \$205,020
 
 Year 2-3 (Maintenance):
-  Internal Effort:                    $25,000/year (250 hours)
-  Surveillance Audit:                 $12,000/year
-  Technology Costs:                   $54,020/year
+  Internal Effort:                    \$25,000/year (250 hours)
+  Surveillance Audit:                 \$12,000/year
+  Technology Costs:                   \$54,020/year
   ──────────────────────────────────────────────
-  Annual Total: $91,020/year
+  Annual Total: \$91,020/year
 
-3-Year Total Cost of Ownership: $387,060
+3-Year Total Cost of Ownership: \$387,060
 
 ROI Justification:
-  - Customer requirements (enables $2M+ in contracts)
+  - Customer requirements (enables \$2M+ in contracts)
   - Competitive differentiation
   - Reduced security risk
   - Operational efficiency (mature processes)

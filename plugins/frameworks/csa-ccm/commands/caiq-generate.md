@@ -8,9 +8,9 @@ Generates responses for the Cloud Security Alliance Consensus Assessments Initia
 
 ## Arguments
 
-- `$1` - CAIQ version (required: v4.0, lite)
-- `$2` - Output format (optional: markdown, json, excel, csv)
-- `$3` - Response mode (optional: full, draft, template)
+- Argument 1 - CAIQ version (required: v4.0, lite)
+- Argument 2 - Output format (optional: markdown, json, excel, csv)
+- Argument 3 - Response mode (optional: full, draft, template)
 
 ## CAIQ Overview
 

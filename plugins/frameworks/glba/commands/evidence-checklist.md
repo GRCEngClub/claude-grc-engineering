@@ -1,3 +1,7 @@
+---
+description: "Generates comprehensive evidence collection checklists for Gramm-Leach-Bliley Act (GLBA) Safeguards Rule and Privacy Rule compliance for financial institutions"
+---
+
 # GLBA Evidence Checklist
 
 Generates comprehensive evidence collection checklists for Gramm-Leach-Bliley Act (GLBA) Safeguards Rule and Privacy Rule compliance for financial institutions.
@@ -30,7 +34,7 @@ Regulation: Safeguards Rule (16 CFR Part 314)
 Institution Type: Bank / Credit Union
 Regulator: FTC (Federal Trade Commission) / FDIC / OCC / NCUA (depending on charter)
 Effective Date: December 9, 2022 (amended rule)
-Penalties: Up to $46,517 per violation per day
+Penalties: Up to \$46,517 per violation per day
 
 ## Safeguards Rule Requirements
 
@@ -199,12 +203,12 @@ aws iam get-credential-report --output text | base64 -d \
 
 # Users without MFA (non-compliant)
 aws iam get-credential-report --output text | base64 -d | \
-  awk -F',' '$4 == "true" && $8 == "false" {print $1}' \
+  awk -F',' '\$4 == "true" && \$8 == "false" {print \$1}' \
   > evidence/glba-no-mfa-$(date +%Y%m%d).txt
 
 # Count MFA compliance
 total_users=$(aws iam get-credential-report --output text | base64 -d | tail -n +2 | wc -l)
-mfa_users=$(aws iam get-credential-report --output text | base64 -d | awk -F',' '$8 == "true"' | wc -l)
+mfa_users=$(aws iam get-credential-report --output text | base64 -d | awk -F',' '\$8 == "true"' | wc -l)
 echo "MFA Compliance: $mfa_users / $total_users users" > evidence/glba-mfa-summary-$(date +%Y%m%d).txt
 ```
 
@@ -503,29 +507,29 @@ Regulators (FTC, FDIC, OCC, NCUA) will verify:
 
 ### GLBA Safeguards Rule Compliance (Small Financial Institution)
 
-- WISP development: 80 hours ($8,000)
-- Annual risk assessment: 60 hours ($6,000/year)
-- Penetration testing: $15k-$30k/year
-- Vulnerability scanning: $5k-$10k/year
-- MFA implementation: 40 hours + $5k software ($9,000 one-time, $2k/year ongoing)
-- Security awareness training: 16 hours development + 2 hours per employee ($2,000 + $100/person)
-- Service provider due diligence: 40 hours ($4,000/year)
-- Incident response plan: 40 hours ($4,000)
-- **Total Year 1**: ~$48k-$63k (one-time) + $28k-$38k (ongoing)
-- **Ongoing**: ~$28k-$38k/year
+- WISP development: 80 hours (\$8,000)
+- Annual risk assessment: 60 hours (\$6,000/year)
+- Penetration testing: \$15k-\$30k/year
+- Vulnerability scanning: \$5k-\$10k/year
+- MFA implementation: 40 hours + \$5k software (\$9,000 one-time, \$2k/year ongoing)
+- Security awareness training: 16 hours development + 2 hours per employee (\$2,000 + \$100/person)
+- Service provider due diligence: 40 hours (\$4,000/year)
+- Incident response plan: 40 hours (\$4,000)
+- **Total Year 1**: ~\$48k-\$63k (one-time) + \$28k-\$38k (ongoing)
+- **Ongoing**: ~\$28k-\$38k/year
 
 ### Qualified Individual
 
-- Dedicated CISO (if hired): $120k-$200k/year + benefits
-- Virtual CISO (outsourced): $5k-$15k/month ($60k-$180k/year)
-- Existing IT Director (additional responsibilities): +$10k-$30k/year
+- Dedicated CISO (if hired): \$120k-\$200k/year + benefits
+- Virtual CISO (outsourced): \$5k-\$15k/month (\$60k-\$180k/year)
+- Existing IT Director (additional responsibilities): +\$10k-\$30k/year
 
 ### Tools
 
-- GRC platform: $15k-$50k/year
-- SIEM: $20k-$100k/year
-- Vulnerability management: $5k-$15k/year
-- MFA solution: $3-10/user/month
+- GRC platform: \$15k-\$50k/year
+- SIEM: \$20k-\$100k/year
+- Vulnerability management: \$5k-\$15k/year
+- MFA solution: \$3-10/user/month
 
 ## Evidence Package Structure
 
@@ -782,6 +786,6 @@ if __name__ == "__main__":
 **GLBA Regulation**: 16 CFR Part 314 (Safeguards Rule)
 **Regulator**: FTC, FDIC, OCC, NCUA, SEC (depending on institution type)
 **Effective Date**: December 9, 2022 (amended rule)
-**Penalties**: Up to $46,517 per violation per day
+**Penalties**: Up to \$46,517 per violation per day
 **Evidence Retention**: 5 years (financial services standard)
 **Priority**: 🔴 CRITICAL (US financial institutions)

@@ -32,7 +32,7 @@ Turns the usual half-day of hand-authoring `plugin.json` + `SKILL.md` + `command
 
 ```
 plugins/frameworks/<slug>/
-├── .claude-plugin/plugin.json             # Plugin metadata + framework_metadata block
+├── .claude-plugin/plugin.json             # Plugin metadata + metadata.framework block
 ├── commands/assess.md                     # Routes to /grc-engineer:gap-assessment
 ├── skills/<slug>-expert/SKILL.md          # Framework identity + TODO sections
 └── README.md                              # Install + level-up instructions

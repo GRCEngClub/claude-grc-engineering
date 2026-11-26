@@ -10,8 +10,8 @@ Evaluates readiness for US export controls compliance across both ITAR (defense 
 
 ## Arguments
 
-- `$1` - Scope (optional: itar, ear, both) - defaults to "both"
-- `$2` - Assessment depth (optional: quick, detailed) - defaults to "detailed"
+- Argument 1 - Scope (optional: itar, ear, both) - defaults to "both"
+- Argument 2 - Assessment depth (optional: quick, detailed) - defaults to "detailed"
 
 ## Framework Selection
 

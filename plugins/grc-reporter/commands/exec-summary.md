@@ -9,8 +9,8 @@ Draft a weekly 1-page update for the CISO or direct leadership. Every section is
 
 ## Arguments
 
-- `$1` - Period (optional, defaults to current week, e.g. `2026-W16`)
-- `$2` - Audience (optional: `ciso`, `cio`, `ceo-weekly`, defaults to `ciso`)
+- Argument 1 - Period (optional, defaults to current week, e.g. `2026-W16`)
+- Argument 2 - Audience (optional: `ciso`, `cio`, `ceo-weekly`, defaults to `ciso`)
 
 ## Instructions
 
@@ -39,7 +39,7 @@ Ask the user for what Claude cannot infer:
 - Wins this week - automations shipped, controls closed, audits passed, programs launched. This is where GRC engineers show their work. If the user says "nothing" push once: closing even one finding is a win worth naming.
 - Material events this week (incidents, new regulatory hits, customer escalations) - paste bullets or say "none"
 - Leadership asks - decisions you need from the audience, budget requests, or "none"
-- Audience-specific framing - if `$2` is `ceo-weekly`, confirm whether to include board-facing language
+- Audience-specific framing - if argument 2 is `ceo-weekly`, confirm whether to include board-facing language
 
 Skip questions the args already answered.
 

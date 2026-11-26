@@ -8,8 +8,8 @@ Explains what goes into a GovRAMP submission for each verification status and ho
 
 ## Arguments
 
-- `$1` - Document (optional: `ssp`, `rar`, `sar`, `poam`, `conmon`, `all`; default `all`)
-- `$2` - Target status (optional: `core`, `ready`, `authorized`; default `core`)
+- Argument 1 - Document (optional: `ssp`, `rar`, `sar`, `poam`, `conmon`, `all`; default `all`)
+- Argument 2 - Target status (optional: `core`, `ready`, `authorized`; default `core`)
 
 ## Templates come from GovRAMP
 

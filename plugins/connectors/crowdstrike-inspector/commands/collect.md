@@ -1,3 +1,7 @@
+---
+description: "Collect CrowdStrike Falcon endpoint posture and write Finding documents to the shared findings cache"
+---
+
 # /crowdstrike-inspector:collect
 
 Collect CrowdStrike Falcon endpoint posture and write Finding documents to:

@@ -15,7 +15,7 @@ Deployment takes ~5–15 minutes. Stack outputs (bucket name, distribution ID, C
 
 ## Arguments
 
-- `$1` — Project directory containing `site-config.json` (optional; defaults to current directory)
+- Argument 1 — Project directory containing `site-config.json` (optional; defaults to current directory)
 
 ## Prerequisite
 

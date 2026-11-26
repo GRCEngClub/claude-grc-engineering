@@ -8,8 +8,8 @@ Guides the execution of a Data Protection Impact Assessment as required by GDPR 
 
 ## Arguments
 
-- `$1` - Processing activity name (required)
-- `$2` - DPIA stage (optional: screening, assessment, review)
+- Argument 1 - Processing activity name (required)
+- Argument 2 - DPIA stage (optional: screening, assessment, review)
 
 ## When DPIA Required
 

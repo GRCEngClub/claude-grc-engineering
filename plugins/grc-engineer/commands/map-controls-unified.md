@@ -14,7 +14,7 @@ Maps a single security control across ALL compliance frameworks to identify over
 
 ## Arguments
 
-- `$1` - Control name or ID (e.g., "access_control_account_management", "AC-2", "CC6.1", "encryption")
+- Argument 1 - Control name or ID (e.g., "access_control_account_management", "AC-2", "CC6.1", "encryption")
 
 ## Examples
 

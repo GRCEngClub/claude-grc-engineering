@@ -8,7 +8,7 @@ Generates a complete React/Vite project from the `site-config.json` created by `
 
 ## Arguments
 
-- `$1` — Project directory containing `site-config.json` (optional; defaults to current directory)
+- Argument 1 — Project directory containing `site-config.json` (optional; defaults to current directory)
 
 ## What It Creates
 

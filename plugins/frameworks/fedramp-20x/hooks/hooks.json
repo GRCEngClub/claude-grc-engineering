@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/check-fedramp-updates.js --quiet"
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-fedramp-updates.js\" --quiet"
           }
         ]
       }

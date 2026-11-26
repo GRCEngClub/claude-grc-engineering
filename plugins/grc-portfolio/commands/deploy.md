@@ -14,7 +14,7 @@ Your live URL is printed at the end.
 
 ## Arguments
 
-- `$1` — Project directory containing `site-config.json` (optional; defaults to current directory)
+- Argument 1 — Project directory containing `site-config.json` (optional; defaults to current directory)
 
 ## Prerequisites
 

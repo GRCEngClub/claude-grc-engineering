@@ -11,7 +11,11 @@
       { "required": ["namespace"] },
       { "required": ["commands"] },
       { "required": ["skills"] },
-      { "required": ["hooks"] }
+      { "required": ["hooks"] },
+      { "required": ["framework_metadata"] },
+      { "required": ["knowledge_source_metadata"] },
+      { "required": ["license_note"] },
+      { "required": ["tags"] }
     ]
   },
   "properties": {
@@ -46,6 +50,22 @@
     "keywords": {
       "type": "array",
       "items": { "type": "string" }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Free-form data that Claude Code does not read. Repo-specific fields go here: `framework` (SCF mapping and depth, read by /grc-engineer:frameworks), `knowledge_source`, `license_note`.",
+      "properties": {
+        "framework": {
+          "type": "object",
+          "properties": {
+            "scf_framework_id": { "type": "string" },
+            "display_name": { "type": "string" },
+            "depth": { "enum": ["stub", "reference", "full"] },
+            "scf_controls_mapped": { "type": "integer", "minimum": 0 },
+            "framework_controls_mapped": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
     }
   }
 }

@@ -10,8 +10,8 @@ Helps determine the appropriate Implementation Group (IG1, IG2, or IG3) for your
 
 ## Arguments
 
-- `$1` - Organization size (optional: small, medium, large)
-- `$2` - Risk profile (optional: low, moderate, high, critical)
+- Argument 1 - Organization size (optional: small, medium, large)
+- Argument 2 - Risk profile (optional: low, moderate, high, critical)
 
 ## Implementation Group Decision Framework
 
@@ -29,7 +29,7 @@ Helps determine the appropriate Implementation Group (IG1, IG2, or IG3) for your
 
 - Part-time security focus (can be handled by IT staff)
 - Basic security tools (antivirus, firewall, backup)
-- Budget: $10K-$50K annually
+- Budget: \$10K-\$50K annually
 - Minimal specialized expertise needed
 
 **Threat Profile**:
@@ -61,7 +61,7 @@ Helps determine the appropriate Implementation Group (IG1, IG2, or IG3) for your
 
 - Dedicated security staff (1-3 FTEs)
 - Enterprise security tools (SIEM, EDR, vulnerability scanner)
-- Budget: $100K-$500K annually
+- Budget: \$100K-\$500K annually
 - Some specialized security expertise
 
 **Threat Profile**:
@@ -94,7 +94,7 @@ Helps determine the appropriate Implementation Group (IG1, IG2, or IG3) for your
 
 - Security Operations Center (SOC) team (5+ FTEs)
 - Advanced security tools (threat intelligence, behavioral analysis, SOAR)
-- Budget: $1M+ annually
+- Budget: \$1M+ annually
 - Highly specialized security expertise (threat hunters, forensics, IR)
 
 **Threat Profile**:
@@ -119,11 +119,11 @@ Helps determine the appropriate Implementation Group (IG1, IG2, or IG3) for your
 |--------|-----|-----|-----|
 | **Employees** | <100 | 100-1,000 | 1,000+ |
 | **IT Staff** | 1-2 generalists | 3-10 with security focus | 10+ dedicated security |
-| **Annual Revenue** | <$10M | $10M-$1B | $1B+ |
+| **Annual Revenue** | <\$10M | \$10M-\$1B | \$1B+ |
 | **Data Sensitivity** | Basic business data | Customer PII, PHI | Trade secrets, critical infrastructure |
 | **Regulatory** | Minimal | Moderate (HIPAA, SOX) | High (CMMC, NERC CIP) |
 | **Threat Level** | Opportunistic | Targeted | Advanced/persistent |
-| **Security Budget** | <$50K | $100K-$500K | $1M+ |
+| **Security Budget** | <\$50K | \$100K-\$500K | \$1M+ |
 | **Downtime Tolerance** | Hours-days | Hours | Minutes |
 
 ## Progressive Implementation Approach

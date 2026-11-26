@@ -11,8 +11,8 @@ This is where GRC engineers prove their worth. Manual evidence is expensive and 
 
 ## Arguments
 
-- `$1` - Period (optional, defaults to current week, e.g. `2026-W16`)
-- `$2` - Frameworks (optional, comma-separated framework aliases accepted by `/grc-engineer:gap-assessment`; defaults to all with current runs)
+- Argument 1 - Period (optional, defaults to current week, e.g. `2026-W16`)
+- Argument 2 - Frameworks (optional, comma-separated framework aliases accepted by `/grc-engineer:gap-assessment`; defaults to all with current runs)
 
 ## Instructions
 

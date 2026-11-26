@@ -1,3 +1,7 @@
+---
+description: "Generates comprehensive evidence collection checklists for CIS Controls v8 safeguards, organized by Implementation Group (IG1, IG2, IG3) with automated and manual collection guidance"
+---
+
 # CIS Controls v8 Evidence Checklist
 
 Generates comprehensive evidence collection checklists for CIS Controls v8 safeguards, organized by Implementation Group (IG1, IG2, IG3) with automated and manual collection guidance.
@@ -67,7 +71,7 @@ gcloud identity groups memberships list --group-email=all-users@company.com \
   --format=json > evidence/cis-5.1-gcp-users-$(date +%Y%m%d).json
 
 # Linux/Unix Systems (if applicable)
-sudo cat /etc/passwd | awk -F: '{print $1,$3,$5}' > evidence/cis-5.1-local-accounts-$(date +%Y%m%d).txt
+sudo cat /etc/passwd | awk -F: '{print \$1,\$3,\$5}' > evidence/cis-5.1-local-accounts-$(date +%Y%m%d).txt
 
 # Windows Active Directory (if applicable)
 Get-ADUser -Filter * -Properties DisplayName,SamAccountName,Created,LastLogonDate,Enabled |
@@ -275,21 +279,21 @@ Retention: 12 months minimum
 
 ### IG1 Implementation
 
-- Initial setup: 40 hours ($4,000 @ $100/hr)
-- Quarterly maintenance: 8 hours/quarter ($800/quarter)
+- Initial setup: 40 hours (\$4,000 @ \$100/hr)
+- Quarterly maintenance: 8 hours/quarter (\$800/quarter)
 - Tools: AWS Config / Azure Policy (included) or open-source
 
 ### IG2 Implementation
 
-- Initial setup: 80 hours ($8,000 @ $100/hr)
-- Monthly maintenance: 4 hours/month ($400/month)
-- Tools: Identity governance platform ($5k-$15k/year for SMB)
+- Initial setup: 80 hours (\$8,000 @ \$100/hr)
+- Monthly maintenance: 4 hours/month (\$400/month)
+- Tools: Identity governance platform (\$5k-\$15k/year for SMB)
 
 ### IG3 Implementation
 
-- Initial setup: 120 hours ($12,000 @ $100/hr)
-- Continuous monitoring: 2 hours/week ($800/month)
-- Tools: Enterprise IGA solution ($25k-$100k/year)
+- Initial setup: 120 hours (\$12,000 @ \$100/hr)
+- Continuous monitoring: 2 hours/week (\$800/month)
+- Tools: Enterprise IGA solution (\$25k-\$100k/year)
 
 ## Evidence Package Structure
 

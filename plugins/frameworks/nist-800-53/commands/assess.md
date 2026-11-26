@@ -8,8 +8,8 @@ Evaluates compliance against NIST 800-53 control families.
 
 ## Arguments
 
-- `$1` - Control family or baseline (required: AC, AT, AU, etc. or low, moderate, high)
-- `$2` - Revision (optional: r4, r5, defaults to r5)
+- Argument 1 - Control family or baseline (required: AC, AT, AU, etc. or low, moderate, high)
+- Argument 2 - Revision (optional: r4, r5, defaults to r5)
 
 ## Control Families
 

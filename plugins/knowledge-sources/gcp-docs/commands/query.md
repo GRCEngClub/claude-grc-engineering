@@ -1,3 +1,7 @@
+---
+description: "Ask a grounded Google documentation question"
+---
+
 # /gcp-docs:query
 
 Ask a grounded Google documentation question.

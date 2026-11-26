@@ -10,7 +10,7 @@ Side-by-side comparison of ITAR and EAR requirements to understand overlaps, dif
 
 ## Arguments
 
-- `$1` - Focus area (optional: overview, controls, cloud, licensing) - defaults to "overview"
+- Argument 1 - Focus area (optional: overview, controls, cloud, licensing) - defaults to "overview"
 
 ## Framework Overview
 
@@ -21,7 +21,7 @@ Side-by-side comparison of ITAR and EAR requirements to understand overlaps, dif
 | **Item List** | US Munitions List (USML) - 21 categories | Commerce Control List (CCL) - 10 categories |
 | **Personnel** | US persons per 22 CFR 120.62 (citizens, LPRs, "protected individuals" under 8 USC 1324b(a)(3), US entities) | No personnel restrictions (except deemed exports) |
 | **Geography** | US-located data by default; 22 CFR 120.54 carves out properly-encrypted technical data | BIS-driven (15 CFR 734.6). Sanctions rules in 15 CFR 746 cover comprehensive embargoes (CU, IR, KP, SY), Russia/Belarus (746.8), Crimea/DNR/LNR (746.6), and shift; check current BIS country guidance |
-| **Registration** | DDTC registration required ($3,000/year) | No registration (except encryption items) |
+| **Registration** | DDTC registration required (\$3,000/year) | No registration (except encryption items) |
 | **Licensing** | License required for most exports | License required for high-level ECCNs, exceptions available |
 
 ## Control Comparison
@@ -176,7 +176,7 @@ AWS Tags:
 
 | Requirement | ITAR | EAR |
 |-------------|------|-----|
-| **Registration** | DDTC registration required ($3,000/year) | No registration (except encryption) |
+| **Registration** | DDTC registration required (\$3,000/year) | No registration (except encryption) |
 | **License for Export** | Required for most USML items | Required for high-level ECCNs |
 | **License Exceptions** | None available | ENC, TSU, BAG, TMP available |
 | **Self-Classification** | Not available | Available for encryption (ENC) |
@@ -251,11 +251,11 @@ These apply only to EAR, not ITAR:
 
 | Cost Item | ITAR | EAR | Notes |
 |-----------|------|-----|-------|
-| **Registration Fee** | $3,000/year | $0 | DDTC registration |
+| **Registration Fee** | \$3,000/year | \$0 | DDTC registration |
 | **Cloud Premium** | +30-50% | Standard | GovCloud premium pricing |
-| **Compliance Tools** | $50-200K/year | $10-50K/year | Screening, monitoring |
+| **Compliance Tools** | \$50-200K/year | \$10-50K/year | Screening, monitoring |
 | **Personnel** | US persons only | Standard | May limit talent pool |
-| **Audit/Assessment** | $100-300K | $25-75K | External audit costs |
+| **Audit/Assessment** | \$100-300K | \$25-75K | External audit costs |
 
 ## Migration Strategy
 

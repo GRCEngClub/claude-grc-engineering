@@ -6,6 +6,14 @@ This plugin adds a general `/grc-diagrams:drawio` command plus focused commands 
 
 The skills are based on the draw.io CLI workflow from `jgraph/drawio-mcp/skill-cli`: generate native mxGraphModel XML, save `.drawio`, optionally export PNG/SVG/PDF with embedded XML, and preserve editability in draw.io.
 
+## Install
+
+```text
+/plugin install grc-diagrams --marketplace GRCEngClub/claude-grc-engineering
+```
+
+On Claude Code older than 2.1.275, add the marketplace first with `/plugin marketplace add GRCEngClub/claude-grc-engineering`, then run `/plugin install grc-diagrams@grc-engineering-suite`.
+
 ## Commands
 
 - `/grc-diagrams:drawio` - generic editable draw.io diagram generation

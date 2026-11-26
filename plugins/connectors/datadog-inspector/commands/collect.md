@@ -1,3 +1,7 @@
+---
+description: "Collect Datadog organization posture and write Finding documents to the shared findings cache"
+---
+
 # /datadog-inspector:collect
 
 Collect Datadog organization posture and write Finding documents to:

@@ -10,7 +10,7 @@ Deep dive assessment for Export Administration Regulations (EAR) compliance. Foc
 
 ## Arguments
 
-- `$1` - Item type (optional: encryption, technology, commodities, software) - defaults to "general"
+- Argument 1 - Item type (optional: encryption, technology, commodities, software) - defaults to "general"
 
 ## EAR Control Assessment
 

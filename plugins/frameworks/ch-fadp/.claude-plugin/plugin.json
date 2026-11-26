@@ -7,15 +7,17 @@
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
-  "framework_metadata": {
-    "scf_framework_id": "emea-che-fadp-2025",
-    "display_name": "Swiss Federal Act on Data Protection (nFADP) (revised 2023)",
-    "region": "EMEA",
-    "country": "CH",
-    "depth": "stub",
-    "scf_controls_mapped": 35,
-    "framework_controls_mapped": 90,
-    "industry": [],
-    "regulator": "Swiss Federal Data Protection and Information Commissioner (FDPIC)"
+  "metadata": {
+    "framework": {
+      "scf_framework_id": "emea-che-fadp-2025",
+      "display_name": "Swiss Federal Act on Data Protection (nFADP) (revised 2023)",
+      "region": "EMEA",
+      "country": "CH",
+      "depth": "stub",
+      "scf_controls_mapped": 35,
+      "framework_controls_mapped": 90,
+      "industry": [],
+      "regulator": "Swiss Federal Data Protection and Information Commissioner (FDPIC)"
+    }
   }
 }

@@ -8,8 +8,8 @@ Evaluates organizational readiness for Australian Cyber Security Centre (ACSC) E
 
 ## Arguments
 
-- `$1` - Target maturity level (required: 1, 2, or 3)
-- `$2` - Assessment scope (optional: full, gap-analysis, specific-strategy)
+- Argument 1 - Target maturity level (required: 1, 2, or 3)
+- Argument 2 - Assessment scope (optional: full, gap-analysis, specific-strategy)
 
 ## Essential 8 Maturity Levels
 

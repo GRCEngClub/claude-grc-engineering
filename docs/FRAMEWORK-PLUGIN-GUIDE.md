@@ -32,7 +32,7 @@ Every plugin, regardless of depth, ships this skeleton:
 ```
 plugins/frameworks/<slug>/
 ├── .claude-plugin/
-│   └── plugin.json               # name + framework_metadata
+│   └── plugin.json               # name + metadata.framework
 ├── commands/
 │   └── assess.md                 # always present; routes to gap-assessment
 ├── skills/
@@ -41,7 +41,7 @@ plugins/frameworks/<slug>/
 └── README.md                     # install + depth + metadata
 ```
 
-`plugin.json` must include a `framework_metadata` block:
+`plugin.json` must include a `metadata.framework` block:
 
 ```json
 {
@@ -51,27 +51,29 @@ plugins/frameworks/<slug>/
   "author": {"name": "GRC Engineering Club Contributors"},
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
-  "framework_metadata": {
-    "scf_framework_id": "<SCF framework_id>",
-    "display_name": "<human-readable name>",
-    "region": "Americas|APAC|EMEA|Global",
-    "country": "<ISO-3166-1 alpha-2 or TBD>",
-    "depth": "stub|reference|full",
-    "scf_controls_mapped": <integer>,
-    "framework_controls_mapped": <integer>,
-    "industry": [],
-    "regulator": ""
+  "metadata": {
+    "framework": {
+      "scf_framework_id": "<SCF framework_id>",
+      "display_name": "<human-readable name>",
+      "region": "Americas|APAC|EMEA|Global",
+      "country": "<ISO-3166-1 alpha-2 or TBD>",
+      "depth": "stub|reference|full",
+      "scf_controls_mapped": <integer>,
+      "framework_controls_mapped": <integer>,
+      "industry": [],
+      "regulator": ""
+    }
   }
 }
 ```
 
-The `framework_metadata` block drives `/grc-engineer:frameworks` — the discovery command that lists all 249 SCF frameworks and shows which have plugins. Missing metadata means the plugin shows up as "no SCF mapping recorded."
+Claude Code ignores unknown top-level keys in `plugin.json` and `claude plugin validate` warns about them, so repo-specific data lives under the free-form `metadata` key. The `metadata.framework` block drives `/grc-engineer:frameworks` — the discovery command that lists all 249 SCF frameworks and shows which have plugins. Missing metadata means the plugin shows up as "no SCF mapping recorded."
 
 ## Stub depth
 
 **When to ship Stub**: you want a dedicated namespace (`/<slug>:assess`) for a framework that's crosswalk-supported today but has no domain-expertise-authored plugin. Any GRC engineer can scaffold and ship this tier.
 
-**Ship criterion**: the scaffold output is valid as-is, framework_metadata is accurate, and no `TODO:` in `plugin.json` (placeholders in the SKILL are expected).
+**Ship criterion**: the scaffold output is valid as-is, `metadata.framework` is accurate, and no `TODO:` in `plugin.json` (placeholders in the SKILL are expected).
 
 **How to build it**:
 
@@ -107,7 +109,7 @@ Then fill in the scaffolded TODOs. At Reference depth, expect to write 300-800 l
 
 A Stub levels up to Reference when all of these land in one PR:
 
-- [ ] `plugin.json` `framework_metadata.depth` changes to `"reference"`
+- [ ] `plugin.json` `metadata.framework.depth` changes to `"reference"`
 - [ ] `commands/scope.md` present — framework-specific applicability determination (not generic)
 - [ ] `commands/evidence-checklist.md` present — evidence patterns organized by the framework's own control families
 - [ ] `skills/<slug>-expert/SKILL.md` has substantive content in every section; no `TODO:` markers in the body
@@ -134,7 +136,7 @@ A Stub levels up to Reference when all of these land in one PR:
 
 ### Level-up checklist (Reference → Full)
 
-- [ ] `plugin.json` `framework_metadata.depth` changes to `"full"`
+- [ ] `plugin.json` `metadata.framework.depth` changes to `"full"`
 - [ ] At least 2 framework-specific commands beyond `assess` / `scope` / `evidence-checklist` — commands that wouldn't make sense for a different framework
 - [ ] Each workflow command has inputs, outputs, and failure modes documented
 - [ ] SKILL.md's "Levelling up to Full" section is removed (it's now Full)

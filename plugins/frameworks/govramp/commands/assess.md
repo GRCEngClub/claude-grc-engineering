@@ -8,8 +8,8 @@ Evaluates a cloud product's readiness for a GovRAMP verification status. GovRAMP
 
 ## Arguments
 
-- `$1` - Target status (optional: `snapshot`, `core`, `ready`, `authorized`; default `core`)
-- `$2` - Impact level for Ready and Authorized (optional: `low`, `moderate`, `high`; default `moderate`)
+- Argument 1 - Target status (optional: `snapshot`, `core`, `ready`, `authorized`; default `core`)
+- Argument 2 - Impact level for Ready and Authorized (optional: `low`, `moderate`, `high`; default `moderate`)
 
 ## GovRAMP in brief
 

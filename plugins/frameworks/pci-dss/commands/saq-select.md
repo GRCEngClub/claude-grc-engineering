@@ -8,7 +8,7 @@ Helps determine the appropriate Self-Assessment Questionnaire type.
 
 ## Arguments
 
-- `$1` - Business description or SAQ type (optional)
+- Argument 1 - Business description or SAQ type (optional)
 
 ## SAQ Types
 

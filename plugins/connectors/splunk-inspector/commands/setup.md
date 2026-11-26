@@ -1,3 +1,7 @@
+---
+description: "Configure splunk-inspector for a Splunk management API endpoint"
+---
+
 # /splunk-inspector:setup
 
 Configure `splunk-inspector` for a Splunk management API endpoint.

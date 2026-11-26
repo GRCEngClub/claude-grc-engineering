@@ -1,3 +1,7 @@
+---
+description: "Show Splunk API reachability, auth validity, and latest cache freshness"
+---
+
 # /splunk-inspector:status
 
 Show Splunk API reachability, auth validity, and latest cache freshness.

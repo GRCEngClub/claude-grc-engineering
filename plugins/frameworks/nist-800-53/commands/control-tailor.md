@@ -14,9 +14,9 @@ Provides interactive control tailoring guidance for NIST 800-53 baselines, helpi
 
 ## Arguments
 
-- `$1` - Control ID (e.g., "AC-2", "AU-2", "SC-7") or family (e.g., "AC", "AU")
-- `$2` - Baseline: "low", "moderate", "high", "privacy"
-- `$3` - Options (optional): `--environment=cloud|hybrid|on-prem`, `--output=guidance|ssp-text|yaml`
+- Argument 1 - Control ID (e.g., "AC-2", "AU-2", "SC-7") or family (e.g., "AC", "AU")
+- Argument 2 - Baseline: "low", "moderate", "high", "privacy"
+- Argument 3 - Options (optional): `--environment=cloud|hybrid|on-prem`, `--output=guidance|ssp-text|yaml`
 
 ## Examples
 

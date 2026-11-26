@@ -8,8 +8,8 @@ Converts unstructured risk assessments into structured Jira tickets.
 
 ## Arguments
 
-- `$1` - Risk description (required, in quotes)
-- `$2` - Jira project key (optional, defaults to SEC)
+- Argument 1 - Risk description (required, in quotes)
+- Argument 2 - Jira project key (optional, defaults to SEC)
 
 ## Instructions
 

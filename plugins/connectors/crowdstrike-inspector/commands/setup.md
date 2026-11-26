@@ -1,3 +1,7 @@
+---
+description: "Configure crowdstrike-inspector for CrowdStrike Falcon API access"
+---
+
 # /crowdstrike-inspector:setup
 
 Configure `crowdstrike-inspector` for CrowdStrike Falcon API access.

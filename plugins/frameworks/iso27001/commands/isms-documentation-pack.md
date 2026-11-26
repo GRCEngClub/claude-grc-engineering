@@ -14,8 +14,8 @@ Generates the complete set of ISO 27001:2022 Information Security Management Sys
 
 ## Arguments
 
-- `$1` - Package type (optional): "mandatory-only", "full", "policies-only" (default: "full")
-- `$2` - Options (optional): `--format=docx|markdown|pdf`, `--organization=name`, `--scope="cloud infrastructure"`
+- Argument 1 - Package type (optional): "mandatory-only", "full", "policies-only" (default: "full")
+- Argument 2 - Options (optional): `--format=docx|markdown|pdf`, `--organization=name`, `--scope="cloud infrastructure"`
 
 ## Examples
 

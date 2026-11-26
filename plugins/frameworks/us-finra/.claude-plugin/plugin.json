@@ -7,18 +7,20 @@
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
-  "framework_metadata": {
-    "scf_framework_id": "usa-federal-sro-finra",
-    "display_name": "FINRA Broker-Dealer Cybersecurity Guidance",
-    "region": "Americas",
-    "country": "US",
-    "depth": "reference",
-    "scf_controls_mapped": 17,
-    "framework_controls_mapped": 39,
-    "industry": [
-      "financial-services",
-      "broker-dealer"
-    ],
-    "regulator": "FINRA"
+  "metadata": {
+    "framework": {
+      "scf_framework_id": "usa-federal-sro-finra",
+      "display_name": "FINRA Broker-Dealer Cybersecurity Guidance",
+      "region": "Americas",
+      "country": "US",
+      "depth": "reference",
+      "scf_controls_mapped": 17,
+      "framework_controls_mapped": 39,
+      "industry": [
+        "financial-services",
+        "broker-dealer"
+      ],
+      "regulator": "FINRA"
+    }
   }
 }

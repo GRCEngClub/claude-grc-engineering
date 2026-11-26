@@ -34,7 +34,7 @@ A primer covering, in order:
 
 The `framework-tutor` skill is invoked. It calls:
 
-- `/grc-engineer:frameworks` to confirm the framework has a plugin and to fetch its `framework_metadata` (depth, region, SCF ID, control counts).
+- `/grc-engineer:frameworks` to confirm the framework has a plugin and to fetch its `metadata.framework` (depth, region, SCF ID, control counts).
 - The SCF API at [`grcengclub.github.io/scf-api`](https://grcengclub.github.io/scf-api/) for the framework's mapped control list (control IDs and families only).
 
 If the requested framework has no plugin in this toolkit, the primer still produces output but flags it: "This framework has no dedicated plugin. SCF crosswalk gives you the control set; ask `/teach-me:framework SOC2` (or similar) for a flow that has full plugin support."

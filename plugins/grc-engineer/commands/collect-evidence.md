@@ -8,9 +8,9 @@ Generates scripts to collect point-in-time evidence for audit controls.
 
 ## Arguments
 
-- `$1` - Control description (required, in quotes)
-- `$2` - Cloud provider (optional, defaults to aws)
-- `$3` - Output format (optional, defaults to python)
+- Argument 1 - Control description (required, in quotes)
+- Argument 2 - Cloud provider (optional, defaults to aws)
+- Argument 3 - Output format (optional, defaults to python)
 
 ## Supported Providers
 

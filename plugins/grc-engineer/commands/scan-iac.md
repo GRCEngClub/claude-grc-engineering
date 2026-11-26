@@ -14,10 +14,10 @@ Scans Infrastructure as Code (Terraform, CloudFormation, Kubernetes) for complia
 
 ## Arguments
 
-- `$1` - Directory to scan (e.g., `./terraform`, `./k8s`)
-- `$2` - Comma-separated frameworks (e.g., `SOC2,PCI-DSS,NIST`)
-- `$3` - Output format (optional): `detailed`, `summary`, `json`, `sarif` (default: `detailed`)
-- `$4` - Options (optional): `--fix`, `--severity=high`, `--exclude=test/`
+- Argument 1 - Directory to scan (e.g., `./terraform`, `./k8s`)
+- Argument 2 - Comma-separated frameworks (e.g., `SOC2,PCI-DSS,NIST`)
+- Argument 3 - Output format (optional): `detailed`, `summary`, `json`, `sarif` (default: `detailed`)
+- Argument 4 - Options (optional): `--fix`, `--severity=high`, `--exclude=test/`
 
 ## Supported IaC Formats
 

@@ -1,3 +1,7 @@
+---
+description: "Generates comprehensive evidence collection checklists for EU General Data Protection Regulation (GDPR) compliance with focus on technical and organizational measures (TOMs) and data processing activities"
+---
+
 # GDPR Evidence Checklist
 
 Generates comprehensive evidence collection checklists for EU General Data Protection Regulation (GDPR) compliance with focus on technical and organizational measures (TOMs) and data processing activities.
@@ -175,7 +179,7 @@ aws iam get-credential-report --output text | base64 -d \
 
 # Users without MFA (non-compliant)
 aws iam get-credential-report --output text | base64 -d | \
-  awk -F',' '$4 == "true" && $8 == "false" {print $1}' \
+  awk -F',' '\$4 == "true" && \$8 == "false" {print \$1}' \
   > evidence/gdpr-art32-no-mfa-$(date +%Y%m%d).txt
 
 # S3 bucket public access (should be blocked for personal data)
@@ -508,27 +512,27 @@ Data Protection Authorities will assess:
 
 ### GDPR Compliance Program (SMB with 50-200 employees)
 
-- Article 30 ROPA development: 40 hours ($4,000)
-- DPIA for high-risk processing: 40 hours per DPIA ($4,000 each)
-- DPA negotiation and signing: 80 hours ($8,000)
-- Privacy notice updates: 24 hours ($2,400)
-- Policy and procedure documentation: 80 hours ($8,000)
-- Technical measures (encryption, access control): 120 hours ($12,000)
-- Penetration testing: $10k-$25k (annual)
-- Staff training: 8 hours development + 2 hours per employee ($1,000 + $100/person)
-- **Total Year 1**: ~$49k-$64k (one-time)
-- **Ongoing**: ~$20k-$30k/year
+- Article 30 ROPA development: 40 hours (\$4,000)
+- DPIA for high-risk processing: 40 hours per DPIA (\$4,000 each)
+- DPA negotiation and signing: 80 hours (\$8,000)
+- Privacy notice updates: 24 hours (\$2,400)
+- Policy and procedure documentation: 80 hours (\$8,000)
+- Technical measures (encryption, access control): 120 hours (\$12,000)
+- Penetration testing: \$10k-\$25k (annual)
+- Staff training: 8 hours development + 2 hours per employee (\$1,000 + \$100/person)
+- **Total Year 1**: ~\$49k-\$64k (one-time)
+- **Ongoing**: ~\$20k-\$30k/year
 
 ### DPO (Data Protection Officer)
 
-- External DPO (retainer): $3k-$10k/month ($36k-$120k/year)
-- Internal DPO (salary): $80k-$150k/year + benefits
+- External DPO (retainer): \$3k-\$10k/month (\$36k-\$120k/year)
+- Internal DPO (salary): \$80k-\$150k/year + benefits
 
 ### Tools
 
-- Privacy management platform (OneTrust, TrustArc): $25k-$100k/year
-- Consent management platform: $5k-$20k/year
-- DSAR automation: $10k-$30k/year
+- Privacy management platform (OneTrust, TrustArc): \$25k-\$100k/year
+- Consent management platform: \$5k-\$20k/year
+- DSAR automation: \$10k-\$30k/year
 
 ## Evidence Package Structure
 

@@ -10,6 +10,14 @@ The [ralph-loop technique](https://ghuntley.com/ralph/) — feed Claude the same
 
 This plugin forks ralph-loop's mechanism and ships GRC-specific prompt templates that drive `/grc-engineer:*` commands.
 
+## Install
+
+```text
+/plugin install grc-loop --marketplace GRCEngClub/claude-grc-engineering
+```
+
+On Claude Code older than 2.1.275, add the marketplace first with `/plugin marketplace add GRCEngClub/claude-grc-engineering`, then run `/plugin install grc-loop@grc-engineering-suite`.
+
 ## Targets in v0.1
 
 | Command | What it does | Default cap |

@@ -8,8 +8,8 @@ Evaluates compliance with FedRAMP 20X Key Security Indicators.
 
 ## Arguments
 
-- `$1` - KSI category (optional, defaults to all)
-- `$2` - Evidence path (optional)
+- Argument 1 - KSI category (optional, defaults to all)
+- Argument 2 - Evidence path (optional)
 
 ## KSI Categories
 

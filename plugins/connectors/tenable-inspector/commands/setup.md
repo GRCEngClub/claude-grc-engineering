@@ -1,3 +1,7 @@
+---
+description: "Configure tenable-inspector for Tenable.io or Tenable.sc"
+---
+
 # /tenable-inspector:setup
 
 Configure `tenable-inspector` for Tenable.io or Tenable.sc.

@@ -1,3 +1,8 @@
+---
+name: wiz-inspector-expert
+description: "Use wiz-inspector when Wiz CNAPP is the source of cloud posture, vulnerability, toxic-combination, or inventory evidence"
+---
+
 # Wiz Inspector Expert
 
 Use `wiz-inspector` when Wiz CNAPP is the source of cloud posture, vulnerability, toxic-combination, or inventory evidence.

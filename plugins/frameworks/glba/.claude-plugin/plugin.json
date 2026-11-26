@@ -7,15 +7,17 @@
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
-  "framework_metadata": {
-    "scf_framework_id": "usa-federal-law-glba-cfr-314-2023",
-    "display_name": "Gramm Leach Bliley Act (GLBA) (2023)",
-    "region": "Americas",
-    "country": "US",
-    "depth": "reference",
-    "scf_controls_mapped": 70,
-    "framework_controls_mapped": 52,
-    "industry": [],
-    "regulator": ""
+  "metadata": {
+    "framework": {
+      "scf_framework_id": "usa-federal-law-glba-cfr-314-2023",
+      "display_name": "Gramm Leach Bliley Act (GLBA) (2023)",
+      "region": "Americas",
+      "country": "US",
+      "depth": "reference",
+      "scf_controls_mapped": 70,
+      "framework_controls_mapped": 52,
+      "industry": [],
+      "regulator": ""
+    }
   }
 }

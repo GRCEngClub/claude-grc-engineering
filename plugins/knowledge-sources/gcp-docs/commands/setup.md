@@ -1,3 +1,7 @@
+---
+description: "Configure a Google Developer Knowledge API key for documentation citations"
+---
+
 # /gcp-docs:setup
 
 Configure a Google Developer Knowledge API key for documentation citations.

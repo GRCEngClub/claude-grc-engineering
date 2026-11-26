@@ -1,3 +1,7 @@
+---
+description: "Query Snowflake ACCOUNT_USAGE and write Finding documents to the shared findings cache"
+---
+
 # /snowflake-inspector:collect
 
 Query Snowflake `ACCOUNT_USAGE` and write Finding documents to:

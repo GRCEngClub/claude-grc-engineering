@@ -8,8 +8,8 @@ Evaluates organizational readiness for Gramm-Leach-Bliley Act (GLBA) compliance.
 
 ## Arguments
 
-- `$1` - Assessment scope (required: full, safeguards, privacy, pretexting)
-- `$2` - Institution type (optional: bank, credit-union, securities-firm, insurance-company, other)
+- Argument 1 - Assessment scope (required: full, safeguards, privacy, pretexting)
+- Argument 2 - Institution type (optional: bank, credit-union, securities-firm, insurance-company, other)
 
 ## GLBA Overview
 
@@ -241,7 +241,7 @@ Social engineering and fraud prevention:
 
 **Penalties**:
 
-- Civil penalties up to $50,000+ per violation per day
+- Civil penalties up to \$50,000+ per violation per day
 - Individual liability for officers/directors
 - Compliance monitoring requirements
 - Reputational damage

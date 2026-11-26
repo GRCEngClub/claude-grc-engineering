@@ -8,8 +8,8 @@ Comprehensive guidance for preparing and submitting the annual NYDFS 23 NYCRR 50
 
 ## Arguments
 
-- `$1` - Certification year (optional: 2024, 2025, etc.)
-- `$2` - Preparation stage (optional: pre-assessment, board-preparation, submission-ready)
+- Argument 1 - Certification year (optional: 2024, 2025, etc.)
+- Argument 2 - Preparation stage (optional: pre-assessment, board-preparation, submission-ready)
 
 ## Regulatory Requirement
 

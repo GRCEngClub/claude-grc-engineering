@@ -6,6 +6,14 @@ This plugin is for the GRC practitioner who needs to communicate up. The CISO, t
 
 Reference implementation of the Reporting category proposed in [RFC #38](https://github.com/GRCEngClub/claude-grc-engineering/issues/38), shipping per migration-plan step 5.
 
+## Install
+
+```text
+/plugin install grc-reporter --marketplace GRCEngClub/claude-grc-engineering
+```
+
+On Claude Code older than 2.1.275, add the marketplace first with `/plugin marketplace add GRCEngClub/claude-grc-engineering`, then run `/plugin install grc-reporter@grc-engineering-suite`.
+
 ## Commands
 
 | Command | Purpose |

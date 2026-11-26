@@ -8,8 +8,8 @@ Maps existing controls or implementations to SOC 2 Trust Service Criteria.
 
 ## Arguments
 
-- `$1` - Control document or IaC file (required)
-- `$2` - Trust Service Category (optional, defaults to all)
+- Argument 1 - Control document or IaC file (required)
+- Argument 2 - Trust Service Category (optional, defaults to all)
 
 ## Control Categories
 

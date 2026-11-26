@@ -1,3 +1,7 @@
+---
+description: "Show whether slack-inspector is configured, whether the token is still valid, and the freshness of the latest cached run"
+---
+
 # /slack-inspector:status
 
 Show whether `slack-inspector` is configured, whether the token is still valid, and the freshness of the latest cached run.

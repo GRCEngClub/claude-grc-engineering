@@ -8,8 +8,8 @@ Helps select and tailor a NIST 800-53 baseline for your system.
 
 ## Arguments
 
-- `$1` - Impact level (required: low, moderate, high)
-- `$2` - System type (optional: general, cloud, mobile, industrial)
+- Argument 1 - Impact level (required: low, moderate, high)
+- Argument 2 - System type (optional: general, cloud, mobile, industrial)
 
 ## Baselines
 

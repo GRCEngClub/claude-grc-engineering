@@ -7,17 +7,19 @@
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
-  "framework_metadata": {
-    "scf_framework_id": "general-nist-600-1-gen-ai-profile",
-    "display_name": "NIST AI 600-1",
-    "region": "Global",
-    "country": "US",
-    "depth": "reference",
-    "scf_controls_mapped": 139,
-    "framework_controls_mapped": 250,
-    "industry": [
-      "cross-sector"
-    ],
-    "regulator": "NIST (voluntary framework; not enforced)"
+  "metadata": {
+    "framework": {
+      "scf_framework_id": "general-nist-600-1-gen-ai-profile",
+      "display_name": "NIST AI 600-1",
+      "region": "Global",
+      "country": "US",
+      "depth": "reference",
+      "scf_controls_mapped": 139,
+      "framework_controls_mapped": 250,
+      "industry": [
+        "cross-sector"
+      ],
+      "regulator": "NIST (voluntary framework; not enforced)"
+    }
   }
 }

@@ -10,8 +10,8 @@ Provides detailed implementation guidance and verification for specific CIS Cont
 
 ## Arguments
 
-- `$1` - Control number or name (required: 1-18 or control name)
-- `$2` - Implementation Group level (optional: IG1, IG2, IG3)
+- Argument 1 - Control number or name (required: 1-18 or control name)
+- Argument 2 - Implementation Group level (optional: IG1, IG2, IG3)
 
 ## The 18 CIS Controls
 

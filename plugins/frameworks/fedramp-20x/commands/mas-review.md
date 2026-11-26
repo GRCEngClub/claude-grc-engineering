@@ -8,8 +8,8 @@ Reviews compliance with FedRAMP 20X Minimum Assessment Scope.
 
 ## Arguments
 
-- `$1` - System boundary description or file (required)
-- `$2` - Service model (optional: saas, paas, iaas)
+- Argument 1 - System boundary description or file (required)
+- Argument 2 - Service model (optional: saas, paas, iaas)
 
 ## MAS Components
 

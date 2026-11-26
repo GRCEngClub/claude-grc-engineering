@@ -8,8 +8,8 @@ Provides detailed guidance on implementing the GLBA Safeguards Rule (16 CFR Part
 
 ## Arguments
 
-- `$1` - Focus area (required: all, risk-assessment, encryption, mfa, training, incident-response, vendor-management, board-reporting)
-- `$2` - Institution size (optional: small, medium, large)
+- Argument 1 - Focus area (required: all, risk-assessment, encryption, mfa, training, incident-response, vendor-management, board-reporting)
+- Argument 2 - Institution size (optional: small, medium, large)
 
 ## Safeguards Rule Overview
 
@@ -302,7 +302,7 @@ Provides detailed guidance on implementing the GLBA Safeguards Rule (16 CFR Part
 
 ## Implementation by Institution Size
 
-### Small Institutions (<$5M revenue or <50 employees)
+### Small Institutions (<\$5M revenue or <50 employees)
 
 **Simplified Approach**:
 
@@ -321,7 +321,7 @@ Provides detailed guidance on implementing the GLBA Safeguards Rule (16 CFR Part
 - Managed detection and response (MDR)
 - Security awareness platforms (KnowBe4, etc.)
 
-### Medium Institutions ($5M-$100M revenue)
+### Medium Institutions (\$5M-\$100M revenue)
 
 **Enhanced Controls**:
 
@@ -340,7 +340,7 @@ Provides detailed guidance on implementing the GLBA Safeguards Rule (16 CFR Part
 - DLP for high-risk data
 - Privileged access management
 
-### Large Institutions (>$100M revenue)
+### Large Institutions (>\$100M revenue)
 
 **Mature Security Program**:
 

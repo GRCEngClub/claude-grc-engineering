@@ -27,7 +27,7 @@ Manual mode (any framework alias):
   --controls-total=<n>             Total in-scope controls
   --controls-automated=<n>         Controls with automated evidence
   --controls-manual=<n>            Optional manual count (otherwise derived)
-  --from-framework-metadata        Derive controls-total from plugin framework_metadata
+  --from-framework-metadata        Derive controls-total from plugin metadata.framework
 
 Shared options:
   --config=<path>                  YAML or JSON batch config
@@ -442,7 +442,7 @@ export async function deriveCounts(opts) {
     const framework = await loadFrameworkMetadata(opts.framework);
     const frameworkTotal = Number(framework.metadata.framework_controls_mapped);
     if (!Number.isFinite(frameworkTotal) || !Number.isInteger(frameworkTotal) || frameworkTotal < 0) {
-      fail(`framework_metadata.framework_controls_mapped is missing or invalid for ${opts.framework}`);
+      fail(`metadata.framework.framework_controls_mapped is missing or invalid for ${opts.framework}`);
     }
     total = frameworkTotal;
     metadataDerivation = {
