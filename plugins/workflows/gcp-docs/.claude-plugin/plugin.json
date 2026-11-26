@@ -1,6 +1,6 @@
 {
   "name": "gcp-docs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Knowledge source for Google Developer Knowledge API: searches, cites, and answers from current Google developer documentation.",
   "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",

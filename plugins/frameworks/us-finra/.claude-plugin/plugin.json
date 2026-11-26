@@ -1,7 +1,7 @@
 {
   "name": "us-finra",
   "description": "FINRA Plugin - Broker-dealer cybersecurity obligations under FINRA rules, SEC Reg S-P, Reg S-ID, and SEA Rule 17a-4",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

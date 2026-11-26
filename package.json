@@ -20,6 +20,7 @@
     "frameworks": "node plugins/personas/engineer/scripts/frameworks.js",
     "scaffold-framework": "node tools/scaffold-framework.js",
     "generate-coverage": "node tools/generate-coverage.js",
+    "bump-version": "node tools/bump-version.mjs",
     "test:wiz-inspector": "node --test tests/wiz-inspector-collect.test.js",
     "test:schema-validator": "node --test tests/schema-validator.test.mjs",
     "test:aws-secrets-inspector": "node --test tests/aws-secrets-inspector-collect.test.js",

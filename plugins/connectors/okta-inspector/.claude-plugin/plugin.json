@@ -1,6 +1,6 @@
 {
   "name": "okta-inspector",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "GRC connector for Okta: evaluates authentication policies, MFA enrollment, password policy, session management, and admin/privileged accounts. Emits findings conforming to schemas/finding.schema.json v1.",
   "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",

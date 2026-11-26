@@ -47,7 +47,7 @@ plugins/frameworks/<slug>/
 {
   "name": "<slug>",
   "description": "...",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {"name": "GRC Engineering Club Contributors"},
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",

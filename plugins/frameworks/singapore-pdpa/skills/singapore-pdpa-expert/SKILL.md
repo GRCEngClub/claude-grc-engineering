@@ -38,7 +38,7 @@ TODO: who enforces, how penalties are calculated, recent enforcement patterns wo
 
 ### Interaction with other frameworks
 
-TODO: overlaps with GDPR / ISO / NIST / sectoral rules. Reference the [cross-framework analyzer](../../../../engineer/scripts/cross-framework-analyzer.js) outputs when useful.
+TODO: overlaps with GDPR / ISO / NIST / sectoral rules. Reference the [cross-framework analyzer](../../../../personas/engineer/scripts/cross-framework-analyzer.js) outputs when useful.
 
 ### Common misinterpretations
 

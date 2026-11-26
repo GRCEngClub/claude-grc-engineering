@@ -1,7 +1,7 @@
 {
   "name": "compliance-posture-dashboard",
   "description": "Localhost compliance posture dashboard for monitor-continuous JSON output. Reference implementation of the Dashboards category from RFC #38.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

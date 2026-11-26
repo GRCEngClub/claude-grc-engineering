@@ -1,7 +1,7 @@
 {
   "name": "nist-ai-rmf",
   "description": "NIST AI 100-1 (AI RMF 1.0) - Reference plugin with scope determination, an evidence checklist organized by GOVERN/MAP/MEASURE/MANAGE, and SCF-backed gap assessment for AI risk management.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

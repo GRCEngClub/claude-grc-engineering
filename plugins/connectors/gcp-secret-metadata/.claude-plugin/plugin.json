@@ -1,6 +1,6 @@
 {
   "name": "gcp-secret-metadata",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "GCP Secret Manager name inventory and operator-only runtime injection.",
   "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",

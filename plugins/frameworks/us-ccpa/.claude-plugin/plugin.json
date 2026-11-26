@@ -1,7 +1,7 @@
 {
   "name": "us-ccpa",
   "description": "California Consumer Privacy Act (CCPA) / California Privacy Rights Act (CPRA) compliance for businesses subject to California Civil Code §1798.100 et seq., enforced by the California Privacy Protection Agency (CPPA) and the California Attorney General.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

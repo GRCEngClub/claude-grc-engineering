@@ -1,7 +1,7 @@
 {
   "name": "dora",
   "description": "DORA Plugin - EU Digital Operational Resilience Act for financial entities with ICT risk management (effective January 2025)",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

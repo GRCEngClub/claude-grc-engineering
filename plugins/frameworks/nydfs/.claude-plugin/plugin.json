@@ -1,7 +1,7 @@
 {
   "name": "nydfs",
   "description": "NYDFS 23 NYCRR 500 Plugin - New York Department of Financial Services cybersecurity requirements with annual certification",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

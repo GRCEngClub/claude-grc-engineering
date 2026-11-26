@@ -1,7 +1,7 @@
 {
   "name": "nist-ai-600-1",
   "description": "NIST AI 600-1 (Generative AI Profile) - Reference plugin with generative-AI scope determination, an evidence checklist organized by the twelve GAI risks and AI RMF functions, and SCF-backed gap review.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

@@ -197,7 +197,7 @@ A vendor's SOC 1 mapping work for SOX includes:
 
 ## Interaction with other frameworks
 
-A narrative summary — this plugin deliberately does **not** ship a hand-maintained crosswalk table. The SCF crosswalk is the authoritative source for control mappings; see `/engineer:gap-assessment` and the [cross-framework analyzer](../../../../engineer/scripts/cross-framework-analyzer.js) outputs.
+A narrative summary — this plugin deliberately does **not** ship a hand-maintained crosswalk table. The SCF crosswalk is the authoritative source for control mappings; see `/engineer:gap-assessment` and the [cross-framework analyzer](../../../../personas/engineer/scripts/cross-framework-analyzer.js) outputs.
 
 - **COSO 2013 IC-IF** — the de facto control framework most U.S. public companies use to satisfy management's §404(a) assessment. SOX provides the legal mandate; COSO provides the substantive framework.
 - **COBIT 5 / 2019** — IT-process control framework commonly used to map ITGC objectives. Many SOX programs cite COBIT control objectives as the basis for their ITGC testing program.

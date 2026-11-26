@@ -42,3 +42,17 @@ test('commands escape every literal dollar sign that precedes a digit', () => {
   }
   assert.deepEqual(problems, []);
 });
+
+// Installed users keep a cached copy until the version string changes, and
+// plugins call each other's commands, so every plugin moves together.
+test('every plugin shares the marketplace version, declared only in plugin.json', () => {
+  const expected = marketplace.metadata.version;
+  const problems = [];
+  for (const entry of marketplace.plugins) {
+    if ('version' in entry) problems.push(`marketplace entry ${entry.name} sets version; plugin.json is the only place for it`);
+    if (typeof entry.source !== 'string') continue;
+    const manifest = JSON.parse(readFileSync(join(resolve(repo, entry.source), '.claude-plugin/plugin.json'), 'utf8'));
+    if (manifest.version !== expected) problems.push(`${entry.name} is ${manifest.version}, expected ${expected}`);
+  }
+  assert.deepEqual(problems, []);
+});

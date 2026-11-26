@@ -148,7 +148,7 @@ async function registerInMarketplace({ slug, description, source }) {
   if (mp.plugins.some(p => p.name === slug)) {
     return { alreadyRegistered: true };
   }
-  mp.plugins.push({ name: slug, source, description, version: '0.1.0' });
+  mp.plugins.push({ name: slug, source, description });
   await fs.writeFile(MARKETPLACE_FILE, JSON.stringify(mp, null, 2) + '\n');
   return { alreadyRegistered: false };
 }

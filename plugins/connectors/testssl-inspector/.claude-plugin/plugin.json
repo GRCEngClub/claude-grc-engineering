@@ -1,6 +1,6 @@
 {
   "name": "testssl-inspector",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "GRC connector wrapping testssl.sh. Scans HTTPS endpoints for protocol/cipher posture, certificate issues, and known TLS CVEs (Heartbleed, ROBOT, POODLE, FREAK, LOGJAM, SWEET32, ...). Emits findings conforming to schemas/finding.schema.json v1, anchored on SCF CRY-01/CRY-03/CRY-05/CRY-08/NET-09/VPM-01/VPM-06/WEB-03 and fanned out at scan time via SCF crosswalks to SOC 2 TSC 2017, NIST 800-53 r5, PCI DSS 4.0.1, and ISO 27002:2022.",
   "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",

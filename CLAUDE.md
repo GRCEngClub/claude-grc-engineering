@@ -70,7 +70,7 @@ npm run test:claude-validate   # claude plugin validate --strict, marketplace an
 
 ## Versions
 
-Every `plugin.json` carries `version`, and installed users stay on their cached copy until that string changes. A merged fix does not reach them until the plugin's version is bumped.
+Every `plugin.json` carries the same `version`, which matches `metadata.version` in `marketplace.json`; marketplace entries carry none. Installed users stay on their cached copy until that string changes, so a merged fix does not reach them until the version is bumped. Bump every plugin together with `npm run bump-version <x.y.z>`: plugins call each other's commands, and a stale cached copy of one can call a name that no longer exists in another. `tests/command-conventions.test.mjs` checks the versions agree.
 
 ## Licensing
 

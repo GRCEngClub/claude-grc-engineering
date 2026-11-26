@@ -1,6 +1,6 @@
 {
   "name": "oscal",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "OSCAL (Open Security Controls Assessment Language) toolkit for Claude Code. Wraps ethanolivertroy/oscal-cli for validation and conversion of catalogs, profiles, SSPs, SAPs, SARs, POA&Ms, component definitions, and assessment results.",
   "author": { "name": "GRC Engineering Club Contributors" },
   "license": "MIT",

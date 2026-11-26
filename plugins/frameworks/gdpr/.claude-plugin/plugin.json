@@ -1,7 +1,7 @@
 {
   "name": "gdpr",
   "description": "GDPR Plugin - EU General Data Protection Regulation with DPIA, data subject rights, and 72-hour breach notification",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },
