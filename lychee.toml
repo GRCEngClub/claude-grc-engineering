@@ -18,6 +18,11 @@ exclude = [
   "^https://github\\.com/orgs/.*/projects/",
   # canada.ca returns HTTP/2 protocol errors to lychee's client; renders fine in browsers
   "^https://www\\.canada\\.ca",
+  # Australian government sites (cyber.gov.au, PSPF, HCF) return HTTP/2 protocol errors to
+  # GitHub runners; the pages load (checked through a scraper, HTTP 200)
+  "^https://www\\.cyber\\.gov\\.au",
+  "^https://www\\.protectivesecurity\\.gov\\.au",
+  "^https://www\\.hostingcertification\\.gov\\.au",
   "^https://github\\.com/ethanolivertroy/frdocx-to-froscal-ssp$",
 ]
 

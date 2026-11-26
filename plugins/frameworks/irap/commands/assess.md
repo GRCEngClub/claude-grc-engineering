@@ -1,51 +1,43 @@
 ---
-description: Assess IRAP compliance for Australian government cloud
+description: IRAP readiness gap assessment against the ASD Information Security Manual via the SCF crosswalk
 ---
 
 # IRAP Assessment
 
-Evaluates readiness for Information Security Registered Assessors Program (IRAP) compliance based on the Australian Information Security Manual (ISM) and Essential Eight.
+Checks readiness for an IRAP assessment against the ASD Information Security Manual (ISM). Delegates to `/grc-engineer:gap-assessment` with the SCF framework ID `apac-aus-ism-2024-june` (336 SCF controls map to 802 ISM controls).
+
+## Usage
+
+```bash
+/irap:assess [official|official-sensitive|protected|secret] [--sources=<connector-list>]
+```
+
+Delegates to:
+
+```bash
+/grc-engineer:gap-assessment "apac-aus-ism-2024-june" [--sources=<connector-list>]
+```
 
 ## Arguments
 
-- `$1` - Classification level (optional: official, protected, secret) - defaults to "official"
+- `$1`: the highest classification the system will hold. Defaults to `official`. It is used to filter results by ISM applicability marking; it does not change the crosswalk.
+- `--sources=<connector-list>` (optional): connectors to pull evidence from.
 
-## Classification Levels
+## Before you run it
 
-| Level | Sensitivity | Use Cases |
-|-------|-------------|-----------|
-| **OFFICIAL** | Low | Routine government business |
-| **OFFICIAL:Sensitive** | Medium | Personal info, commercial confidence |
-| **PROTECTED** | High | Cabinet documents, national security |
-| **SECRET** | Very High | Intelligence, law enforcement |
-| **TOP SECRET** | Extremely High | Highest classification |
+1. `/irap:classification`: confirm the classification with the data owner.
+2. `/irap:scope`: define the boundary and select controls.
+3. `/irap:evidence-checklist`: collect the documents that connectors can't read, such as plans, contracts, and personnel records.
 
-## Essential Eight Maturity Levels
+## Reading the output
 
-| Level | Description | Mitigation |
-|-------|-------------|------------|
-| **Level 1** | Partly aligned | Some protection |
-| **Level 2** | Mostly aligned | Good protection |
-| **Level 3** | Fully aligned | Excellent protection |
+- The gap report groups findings by SCF family and maps them back to ISM controls.
+- Drop findings for controls not marked for your classification.
+- The SCF crosswalk is built on the June 2024 ISM. Check flagged controls against the release you are being assessed on, because ASD changes and renumbers controls between releases.
+- An IRAP assessor tests implementation and effectiveness. A clean gap report shows no failures among the technical checks the connectors ran; it says nothing about plans, personnel records, inherited controls, or other evidence. Review every remaining control in scope before claiming readiness.
 
-## 8 Mitigation Strategies
+## Further reading
 
-1. Application control
-2. Patch applications
-3. Configure Microsoft Office macro settings
-4. User application hardening
-5. Restrict administrative privileges
-6. Patch operating systems
-7. Multi-factor authentication
-8. Regular backups
-
-## Australian Regions
-
-- **ap-southeast-2**: Sydney (required for PROTECTED data)
-
-## Examples
-
-```bash
-/irap:assess official
-/irap:assess protected
-```
+- [ASD: IRAP](https://www.cyber.gov.au/irap)
+- [ASD: Information security manual](https://www.cyber.gov.au/ism)
+- [SCF API entry for the ISM crosswalk](https://grcengclub.github.io/scf-api/api/crosswalks/apac-aus-ism-2024-june.json)

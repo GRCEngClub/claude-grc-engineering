@@ -1,23 +1,37 @@
-# nist-ai-rmf — NIST AI 100-1 (AI RMF 1.0)
+# nist-ai-rmf - NIST AI 100-1 (AI RMF 1.0)
 
-Stub-depth framework plugin scaffolded from the SCF crosswalk. Install and use it to run a gap assessment against **NIST AI 100-1 (AI RMF 1.0)**:
+Reference-depth framework plugin for the NIST Artificial Intelligence Risk
+Management Framework (AI RMF 1.0, NIST AI 100-1, January 2023). Install and run:
 
 ```bash
 /plugin install nist-ai-rmf@grc-engineering-suite
+/nist-ai-rmf:scope
+/nist-ai-rmf:evidence-checklist
 /nist-ai-rmf:assess --sources=aws-inspector,github-inspector
 ```
 
-## Status: Stub
+## Status: Reference
 
-This plugin is at **Stub depth** — it routes to `/grc-engineer:gap-assessment` via the SCF crosswalk (158 SCF controls → 91 NIST AI 100-1 (AI RMF 1.0) subcategories) without any framework-specific workflow commands yet. AI RMF 1.0 is NIST’s voluntary outcomes framework for AI risk management, organized across four functions: GOVERN, MAP, MEASURE, and MANAGE.
+This plugin provides scope determination, an evidence checklist organized by
+the AI RMF Core (GOVERN, MAP, MEASURE, MANAGE), and an SCF-backed gap
+assessment (158 SCF controls to 91 AI RMF items: 19 categories and 72
+subcategories).
 
-### Level up to Reference
+AI RMF 1.0 is voluntary. There is no certification, auditor, or regulator.
+Organizations use it to structure an AI risk program, to answer customer and
+procurement questionnaires, and as the outcome vocabulary behind other AI
+governance work. NIST states that AI RMF 1.0 is being revised under the White
+House AI Action Plan; until a revision is published, 1.0 is the baseline.
 
-Reference-depth adds an evidence checklist and framework-specific context. If you have domain expertise for NIST AI 100-1 (AI RMF 1.0), see the [Framework Plugin Guide](../../../docs/FRAMEWORK-PLUGIN-GUIDE.md) and open a PR.
+Pair it with [`nist-ai-600-1`](../nist-ai-600-1/) when the AI systems in scope
+include generative AI.
 
 ### Level up to Full
 
-Full depth adds framework-native workflow commands tied to the audit ritual (e.g. `/fedramp-20x:vdr-assess`, `/soc2:service-auditor-prep`). See the existing Full-depth plugins (`soc2`, `fedramp-20x`, `pci-dss`, `nist-800-53`) for reference.
+Full depth adds framework-native workflow commands, such as a profile builder
+or an AI system impact assessment. If you have run AI RMF programs, see the
+[Framework Plugin Guide](../../../docs/FRAMEWORK-PLUGIN-GUIDE.md) for the
+level-up checklist.
 
 ## Metadata
 
@@ -28,9 +42,14 @@ Full depth adds framework-native workflow commands tied to the audit ritual (e.g
 | Country | US |
 | SCF controls mapped | 158 |
 | Framework controls mapped | 91 |
-| Depth | Stub |
+| Depth | Reference |
+| Issuing body | NIST (voluntary framework; not enforced) |
 
 ## References
 
-- [Secure Controls Framework](https://securecontrolsframework.com) — crosswalk source (CC BY-ND 4.0)
+- [NIST AI 100-1, AI RMF 1.0](https://doi.org/10.6028/NIST.AI.100-1)
+- [NIST AI RMF overview page](https://www.nist.gov/itl/ai-risk-management-framework)
+- [AI RMF Playbook](https://airc.nist.gov/airmf-resources/playbook/)
+- [NIST AI Resource Center](https://airc.nist.gov/)
+- [Secure Controls Framework](https://securecontrolsframework.com) - crosswalk source (CC BY-ND 4.0)
 - [SCF API entry](https://grcengclub.github.io/scf-api/api/crosswalks/general-nist-100-1-ai-rmf.json)
