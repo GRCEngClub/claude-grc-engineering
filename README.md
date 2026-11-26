@@ -87,7 +87,7 @@ Install only the plugins you need. The full list is in [.claude-plugin/marketpla
 | OSCAL tooling | `oscal` |
 | Diagrams | `grc-diagrams`: editable draw.io system boundaries, evidence flows, control maps, crosswalks, and more |
 | Dashboards and knowledge sources | `compliance-posture-dashboard`, `gcp-docs` |
-| Site builders | `trust-center`, `grc-portfolio` |
+| Site builders | `grc-portfolio` |
 
 ## Data contract
 
