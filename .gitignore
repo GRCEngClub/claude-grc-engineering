@@ -1,7 +1,4 @@
 /data/
-/plugins/grc-audit-manager/
-/plugins/grc-cert-manager/
-/plugins/grc-program-manager/
 
 /gap-assessment-*/
 /monitor-continuous-*/

@@ -49,10 +49,11 @@ direct connectors. Vendor-owned Claude Code plugins (when they exist) are
 **installed alongside** the Club toolkit, not vendored — bridges are
 normalization layers, not forks.
 
-- **Vanta bridge** — normalizes output from [`vanta-mcp-plugin`](https://github.com/anthropics/claude-plugins-official)
-  (official Vanta Claude Code plugin, MIT) into Finding schema. Replaces the
-  stale `vanta-go-export` entry.
-- **Drata bridge** — companion pattern for [Drata's AI MCP](https://drata.com/products/ai/mcp).
+- **Vanta**: no bridge planned. Vanta ships an official Claude Code plugin
+  ([`vanta-mcp-plugin`](https://github.com/anthropics/claude-plugins-official)) and MCP server;
+  install it alongside this toolkit. The community `vanta-bridge` plugin was removed.
+- **Drata**: `drata-inspector` wraps `drata-cli` today. A bridge over
+  [Drata's AI MCP](https://drata.com/products/ai/mcp) remains a candidate.
 - **OneTrust / Archer / ServiceNow GRC** — candidates for future MCP or SDK bridges
   once those platforms ship stable programmatic surfaces.
 
