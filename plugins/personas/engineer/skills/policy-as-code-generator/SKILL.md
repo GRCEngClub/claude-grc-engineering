@@ -56,7 +56,7 @@ are not established. Neither empty set is evidence of compliance.
 The source and draft must be independently verified and the rule adapted and
 tested on representative compliant, noncompliant, unknown and malformed plans
 before any enforcement. Run the regression tests with OPA v1 installed via
-`OPA_BIN=/path/to/opa node --test tests/explicit-policy-draft.test.js`; without
+`OPA_BIN=/path/to/opa node --test tests/engineer/explicit-policy-draft.test.js`; without
 OPA the behavior test is explicitly skipped. Set `REQUIRE_OPA=1` to fail if
 OPA is unavailable; CI installs a checksum-pinned OPA and requires it.
 
