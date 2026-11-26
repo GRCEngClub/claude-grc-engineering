@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { realpathSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -568,7 +569,7 @@ async function main() {
   process.exit(exitCode);
 }
 
-const invokedFromCLI = import.meta.url === pathToFileURL(process.argv[1]).href;
+const invokedFromCLI = import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href;
 if (invokedFromCLI) {
   main().catch(err => {
     process.stderr.write(`monitor-continuous: ${err.stack || err.message}\n`);

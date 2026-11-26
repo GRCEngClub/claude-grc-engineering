@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { realpathSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import yaml from '../vendor/js-yaml.cjs';
@@ -873,7 +874,7 @@ async function main() {
   printSingleResult(result);
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   main().catch(err => {
     console.error(`record-automation-metrics: ${err.message}`);
     if (process.env.DEBUG) {

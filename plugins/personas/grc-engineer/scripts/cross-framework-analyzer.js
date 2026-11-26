@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { realpathSync } from 'node:fs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -452,7 +453,7 @@ class CrossFrameworkAnalyzer {
 
 // `process.argv[1]` is undefined under `node --eval` and some embedders, where
 // pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   const analyzer = new CrossFrameworkAnalyzer();
   const command = process.argv[2];
   const args = process.argv.slice(3);

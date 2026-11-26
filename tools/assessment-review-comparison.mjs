@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { generateReview } from './assessment-review-draft.mjs';
@@ -42,7 +43,7 @@ export function compareAssessments(before, after) {
   };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   try {
     if (process.argv.length !== 5) throw new Error('Usage: node tools/assessment-review-comparison.mjs <before.json> <after.json> <new-output.json>');
     const before = JSON.parse(readFileSync(process.argv[2], 'utf8'));

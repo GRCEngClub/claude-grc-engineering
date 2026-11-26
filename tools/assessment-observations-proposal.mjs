@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import Ajv from 'ajv';
@@ -45,7 +46,7 @@ export function validateObservations(data) {
   return { valid: errors.length === 0, errors, warnings };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   try {
     if (process.argv.length !== 3) throw new Error('Usage: node tools/assessment-observations-proposal.mjs <input.json>');
     const result = validateObservations(JSON.parse(readFileSync(process.argv[2], 'utf8')));
