@@ -22,7 +22,7 @@ Answers the everyday question: *"is X supported, and if so, how do I use it?"* �
 | Option | Values | Notes |
 |---|---|---|
 | `--region=` | `americas` · `apac` · `emea` · `global` | Filter by SCF region. `global` covers general-purpose frameworks (NIST, ISO, PCI DSS, etc.). |
-| `--depth=` | `stub` · `reference` · `full` · `unknown` | Filter by plugin depth. `unknown` matches plugins without a `framework_metadata.depth` field yet. |
+| `--depth=` | `stub` · `reference` · `full` · `unknown` | Filter by plugin depth. `unknown` matches plugins without a `metadata.framework.depth` field yet. |
 | `--status=` | `shipped` · `not-started` | Filter by whether a plugin exists. |
 | `--installed` | — | Shorthand for `--status=shipped`. |
 | `--not-installed` | — | Shorthand for `--status=not-started`. |
@@ -56,15 +56,15 @@ Answers the everyday question: *"is X supported, and if so, how do I use it?"* �
 ## Output semantics
 
 - **SCF coverage summary** — total SCF frameworks vs shipped vs not-started.
-- **Shipped plugins** — every registered plugin under `plugins/frameworks/`, matched to its SCF framework_id when known. Plugins without a `framework_metadata.scf_framework_id` or a legacy mapping appear as *"no SCF mapping recorded"* — a gentle nudge to add the metadata in a follow-up PR.
+- **Shipped plugins** — every registered plugin under `plugins/frameworks/`, matched to its SCF framework_id when known. Plugins without a `metadata.framework.scf_framework_id` or a legacy mapping appear as *"no SCF mapping recorded"* — a gentle nudge to add the metadata in a follow-up PR.
 - **Not-started** — every SCF framework without a plugin. Each row includes the SCF framework ID (copy-paste into `scaffold-framework`) and the display name.
 
 ## Data sources
 
 - [SCF API](https://grcengclub.github.io/scf-api/) — `crosswalks.json` for the 249 framework index. Cached locally under `~/.cache/claude-grc/scf/<version>/` per CC BY-ND 4.0 (verbatim).
 - `.claude-plugin/marketplace.json` — registered plugins.
-- Each `plugins/frameworks/<slug>/.claude-plugin/plugin.json` → `framework_metadata` block (if present).
-- Hard-coded legacy mapping in `scripts/frameworks.js` for the ~15 pre-Club-handoff plugins that predate the `framework_metadata` convention. Entries become obsolete as plugins backfill their metadata.
+- Each `plugins/frameworks/<slug>/.claude-plugin/plugin.json` → `metadata.framework` block (if present).
+- Hard-coded legacy mapping in `scripts/frameworks.js` for the ~15 pre-Club-handoff plugins that predate the `metadata.framework` convention. Entries become obsolete as plugins backfill their metadata.
 
 ## Pairs with
 

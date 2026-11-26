@@ -63,7 +63,7 @@ See [Framework Plugin Guide](FRAMEWORK-PLUGIN-GUIDE.md) for depth definitions an
 
 ### Shipped without SCF mapping
 
-These plugins exist in the marketplace but do not have a `framework_metadata.scf_framework_id` in their `plugin.json`. Either no single SCF entry applies (e.g. the plugin spans multiple baselines), or the metadata block hasn't been backfilled yet. Contributions to add metadata are welcome.
+These plugins exist in the marketplace but do not have a `metadata.framework.scf_framework_id` in their `plugin.json`. Either no single SCF entry applies (e.g. the plugin spans multiple baselines), or the metadata block hasn't been backfilled yet. Contributions to add metadata are welcome.
 
 | Namespace | Description |
 |---|---|

@@ -6,11 +6,13 @@
   "license": "MIT",
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "keywords": ["grc", "google-cloud", "documentation", "knowledge-source", "citations"],
-  "knowledge_source_metadata": {
-    "provider": "google",
-    "api": "Developer Knowledge API",
-    "endpoint": "https://developerknowledge.googleapis.com/v1alpha",
-    "cache_ttl_days": 7,
-    "emits_findings": false
+  "metadata": {
+    "knowledge_source": {
+      "provider": "google",
+      "api": "Developer Knowledge API",
+      "endpoint": "https://developerknowledge.googleapis.com/v1alpha",
+      "cache_ttl_days": 7,
+      "emits_findings": false
+    }
   }
 }

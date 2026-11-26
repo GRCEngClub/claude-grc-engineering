@@ -5,16 +5,18 @@
   "author": {"name": "GRC Engineering Club Contributors"},
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
-  "framework_metadata": {
-    "scf_framework_id": "general-nist-csf-2-0",
-    "display_name": "NIST Cybersecurity Framework (v2.0)",
-    "region": "Global",
-    "country": "US",
-    "depth": "reference",
-    "scf_controls_mapped": 250,
-    "framework_controls_mapped": 134,
-    "industry": ["cross-sector", "critical-infrastructure", "federal-contractor", "private-sector"],
-    "regulator": "NIST (voluntary framework; not enforced — adopted as baseline by US federal agencies, sector regulators, and contracts)",
-    "citations": ["NIST CSF 2.0 (February 26, 2024)", "NIST CSF 2.0 Quick Start Guides (NIST SP 1300 series)", "Informative References to NIST SP 800-53 Rev. 5, ISO/IEC 27001:2022, CIS Controls v8"]
+  "metadata": {
+    "framework": {
+      "scf_framework_id": "general-nist-csf-2-0",
+      "display_name": "NIST Cybersecurity Framework (v2.0)",
+      "region": "Global",
+      "country": "US",
+      "depth": "reference",
+      "scf_controls_mapped": 250,
+      "framework_controls_mapped": 134,
+      "industry": ["cross-sector", "critical-infrastructure", "federal-contractor", "private-sector"],
+      "regulator": "NIST (voluntary framework; not enforced — adopted as baseline by US federal agencies, sector regulators, and contracts)",
+      "citations": ["NIST CSF 2.0 (February 26, 2024)", "NIST CSF 2.0 Quick Start Guides (NIST SP 1300 series)", "Informative References to NIST SP 800-53 Rev. 5, ISO/IEC 27001:2022, CIS Controls v8"]
+    }
   }
 }

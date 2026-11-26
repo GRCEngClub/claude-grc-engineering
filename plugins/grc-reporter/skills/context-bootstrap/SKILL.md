@@ -19,7 +19,7 @@ Before any report command generates, verify:
 
 2. **Findings cache populated.** Look in `~/.cache/claude-grc/findings/<source>/*.json`. Timestamps within the last 30 days mean the pipeline is active.
 
-3. **Framework metadata available.** Each framework plugin's `plugin.json` should have a `framework_metadata` block. Without it, coverage math fails silently.
+3. **Framework metadata available.** Each framework plugin's `plugin.json` should have a `metadata.framework` block. Without it, coverage math fails silently.
 
 4. **History depth (for week-over-week commands).** `/report:automation-coverage` needs at least 2 metric snapshots in `./grc-data/metrics/` that are 7+ days apart. Verify snapshot dates there rather than inferring movement from the findings cache.
 

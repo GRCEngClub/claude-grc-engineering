@@ -116,7 +116,7 @@ To seed the reporting workflow with real automation history, use:
 node plugins/grc-engineer/scripts/record-automation-metrics.js soc2 --controls-total=64 --controls-automated=22 --window-label=2026-W16
 ```
 
-For framework plugins that publish `framework_metadata.framework_controls_mapped`,
+For framework plugins that publish `metadata.framework.framework_controls_mapped`,
 operators can skip hand-counting the total and provide only the observed
 automated count:
 
