@@ -68,5 +68,5 @@ Answers the everyday question: *"is X supported, and if so, how do I use it?"* â
 
 ## Pairs with
 
-- [`tools/scaffold-framework.js`](https://github.com/GRCEngClub/claude-grc-engineering/blob/main/docs/SCAFFOLD-FRAMEWORK.md), run from a clone of this repository: use the SCF framework_id from this command's output to scaffold a new framework plugin.
+- `node tools/scaffold-framework.js`, run from a clone of this repository (see `docs/SCAFFOLD-FRAMEWORK.md` there): use the SCF framework_id from this command's output to scaffold a new framework plugin.
 - Framework coverage tracker ([#12](https://github.com/GRCEngClub/claude-grc-engineering/issues/12)) â€” the meta issue that this command's `--format=json` output will eventually drive (auto-generated `docs/FRAMEWORK-COVERAGE.md`).
