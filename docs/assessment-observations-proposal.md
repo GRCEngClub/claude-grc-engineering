@@ -5,7 +5,7 @@ This program-neutral **proposal**, not a FedRAMP implementation or stable API, p
 After `npm install` (including development dependencies), run:
 
 ```sh
-node scripts/assessment-observations-proposal.mjs tests/fixtures/assessment-observations/synthetic.json
+node tools/assessment-observations-proposal.mjs tests/fixtures/assessment-observations/synthetic.json
 ```
 
 The validator checks JSON structure, required fields, duplicate IDs, and internal deficiency references. Missing evidence and missing risk/remediation fields are warnings, not invented values. Empty arrays do not mean no weaknesses or that every control was assessed. A `valid: true` result means only that these limited checks passed; it does not verify evidence, evaluate control coverage, establish mappings, validate ratings, or indicate readiness for an authorization package. Preserve warnings and have qualified humans review the source data.

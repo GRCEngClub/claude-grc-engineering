@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import ControlTester from '../plugins/grc-engineer/scripts/test-control.js';
+import ControlTester from '../plugins/personas/grc-engineer/scripts/test-control.js';
 
 const id = 'access_control_account_management';
 
@@ -52,7 +52,7 @@ test('scores include only assessed outcomes and are null without assessments', (
 
 test('unknown control IDs yield structured indeterminate JSON and nonzero exit', () => {
   for (const control of ['nonexistent-control', 'toString', '__proto__']) {
-    const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', control, '--output=json'], { encoding: 'utf8' });
+    const cli = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/test-control.js', control, '--output=json'], { encoding: 'utf8' });
     assert.notEqual(cli.status, 0);
     const result = JSON.parse(cli.stdout);
     assert.equal(result.control_id, control);
@@ -69,7 +69,7 @@ test('unsupported provider and CLI fail closed without AWS', async () => {
   const results = await tester.runTests();
   assert.equal(results.status, 'INDETERMINATE');
   assert.ok(results.summary.errors > 0);
-  const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, 'azure', '--output=json'], { encoding: 'utf8' });
+  const cli = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/test-control.js', id, 'azure', '--output=json'], { encoding: 'utf8' });
   assert.notEqual(cli.status, 0);
 });
 
@@ -86,7 +86,7 @@ test('unsupported controls and unexpected execution errors are indeterminate', a
 });
 
 test('missing AWS CLI yields errors, no fabricated PASS, and nonzero exit with valid JSON', () => {
-  const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, '--output=json'], { encoding: 'utf8', env: { ...process.env, PATH: '/nonexistent' } });
+  const cli = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/test-control.js', id, '--output=json'], { encoding: 'utf8', env: { ...process.env, PATH: '/nonexistent' } });
   assert.notEqual(cli.status, 0);
   const result = JSON.parse(cli.stdout);
   assert.equal(result.status, 'INDETERMINATE');
@@ -114,7 +114,7 @@ case "$*" in
 esac
 `);
     fs.chmodSync(aws, 0o755);
-    const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
+    const cli = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
     assert.notEqual(cli.status, 0);
     const result = JSON.parse(cli.stdout);
     assert.equal(result.status, 'INDETERMINATE');
@@ -139,7 +139,7 @@ esac
     fs.chmodSync(aws, 0o755);
     const env = { ...process.env, PATH: dir, AWS_DEFAULT_OUTPUT: 'text' };
     assert.equal(spawnSync(aws, ['iam', 'get-account-summary'], { encoding: 'utf8', env }).stdout, 'configured text output');
-    const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env });
+    const cli = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env });
     assert.equal(cli.status, 1);
     const result = JSON.parse(cli.stdout);
     const trail = result.tests.find(t => t.id === 'TEST-006');
@@ -164,7 +164,7 @@ case "$*" in
 esac
 `);
     fs.chmodSync(aws, 0o755);
-    const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
+    const cli = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
     assert.notEqual(cli.status, 0);
     const result = JSON.parse(cli.stdout);
     const trail = result.tests.find(t => t.id === 'TEST-006');
@@ -187,14 +187,14 @@ case "$*" in
 esac
 `);
     fs.chmodSync(aws, 0o755);
-    const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
+    const cli = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/test-control.js', id, 'aws', '--output=json'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
     assert.notEqual(cli.status, 0);
     const result = JSON.parse(cli.stdout);
     for (const check of ['TEST-006', 'TEST-009']) assert.equal(result.tests.find(t => t.id === check).status, 'NOT_IMPLEMENTED');
     assert.deepEqual(result.tests.find(t => t.id === 'TEST-006').result, { total_trails: 0, multi_region_trails: 0 });
     assert.equal(result.tests.find(t => t.id === 'TEST-009').result.root_account_mfa, false);
     assert.equal(result.status, 'INDETERMINATE');
-    const text = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', id, 'aws'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
+    const text = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/test-control.js', id, 'aws'], { encoding: 'utf8', env: { ...process.env, PATH: dir } });
     assert.notEqual(text.status, 0);
     assert.match(text.stdout, /Status: INDETERMINATE/);
     for (const check of ['TEST-006', 'TEST-009']) {
@@ -221,7 +221,7 @@ test('installed plugin example runs outside checkout without dependencies', () =
     const plugin = path.join(dir, '.claude', 'plugins', 'cache', 'marketplace', 'grc-engineer', '1.0');
     const project = path.join(dir, 'other project');
     fs.mkdirSync(path.dirname(plugin), { recursive: true });
-    fs.cpSync('plugins/grc-engineer', plugin, { recursive: true });
+    fs.cpSync('plugins/personas/grc-engineer', plugin, { recursive: true });
     fs.mkdirSync(project);
     const command = fs.readFileSync(path.join(plugin, 'commands/test-control.md'), 'utf8');
     const invocation = command.match(/```bash\n([^\n]+)\n```/)[1];
@@ -240,10 +240,10 @@ test('installed plugin example runs outside checkout without dependencies', () =
 });
 
 test('command instructions preserve requested arguments rather than hardcode an invocation', () => {
-  const command = fs.readFileSync('plugins/grc-engineer/commands/test-control.md', 'utf8');
+  const command = fs.readFileSync('plugins/personas/grc-engineer/commands/test-control.md', 'utf8');
   assert.match(command, /Use the user's arguments verbatim/);
   assert.match(command, /Do not run the example unless the user requested/);
-  const cli = spawnSync(process.execPath, ['plugins/grc-engineer/scripts/test-control.js', 'encryption_at_rest', 'azure', '--output=json'], { encoding: 'utf8' });
+  const cli = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/test-control.js', 'encryption_at_rest', 'azure', '--output=json'], { encoding: 'utf8' });
   assert.notEqual(cli.status, 0);
   const result = JSON.parse(cli.stdout);
   assert.equal(result.control_id, 'encryption_at_rest');

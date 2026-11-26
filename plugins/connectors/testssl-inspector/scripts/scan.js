@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { realpathSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -662,7 +663,7 @@ function parseYaml(text) {
   return out;
 }
 
-const invokedFromCLI = import.meta.url === pathToFileURL(process.argv[1]).href;
+const invokedFromCLI = import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })();
 if (invokedFromCLI) {
   main(process.argv.slice(2)).catch(err => { fail(1, err.stack || err.message); });
 }

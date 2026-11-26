@@ -5,7 +5,7 @@ import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'no
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const script = 'plugins/grc-diagrams/scripts/control-evidence.py';
+const script = 'plugins/reporting/grc-diagrams/scripts/control-evidence.py';
 const row = { control: 'Access <review>', owner: 'IT & Security', evidence: 'Snapshot', cadence: 'quarterly', reviewer: 'Audit' };
 const run = (input, output) => spawnSync('python3', [script, input, output], { encoding: 'utf8' });
 
@@ -50,7 +50,7 @@ test('rejects invalid review outcomes without creating output; accepts documente
       assert.notEqual(run(input, output).status, 0);
       assert.equal(existsSync(output), false);
     }
-    const example = 'plugins/grc-diagrams/examples/control-evidence-review-input.json';
+    const example = 'plugins/reporting/grc-diagrams/examples/control-evidence-review-input.json';
     const result = run(example, output);
     assert.equal(result.status, 0, result.stderr);
     assert.match(readFileSync(output, 'utf8'), /Review outcome: pending/);

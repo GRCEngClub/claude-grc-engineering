@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 
 // Claude Code installs each plugin by copying its folder alone into
 // <cache>/<marketplace>/<plugin>/<version>. Nothing outside the folder comes
@@ -128,6 +129,8 @@ test('every plugin script answers --help from an installed copy, offline', { tim
       const installed = join(cache, marketplace.name, plugin.name, '0.0.0');
       mkdirSync(dirname(installed), { recursive: true });
       cpSync(plugin.dir, installed, { recursive: true, dereference: true, filter: src => !src.includes(`${sep}node_modules`) });
+      const linked = join(cache, `link-${plugin.name}`);
+      symlinkSync(installed, linked, 'dir');
       for (const script of scripts) {
         const rel = relative(plugin.dir, script);
         const run = spawnSync(process.execPath, ['--require', shim, join(installed, rel), '--help'], {
@@ -143,6 +146,20 @@ test('every plugin script answers --help from an installed copy, offline', { tim
         else if (/\nNode\.js v\d/.test(output)) problems.push(`${label}: uncaught exception: ${firstLine}`);
         else if (![0, 1, 2].includes(run.status)) problems.push(`${label}: --help exited ${run.status}: ${firstLine}`);
         rmSync(networkLog, { force: true });
+
+        // The same script reached through a symlinked folder must behave the
+        // same. A check such as `import.meta.url === pathToFileURL(argv[1])`
+        // fails there, because Node resolves the module path but not argv[1],
+        // and the script then exits 0 without doing anything.
+        const viaLink = spawnSync(process.execPath, ['--require', shim, join(linked, rel), '--help'], {
+          cwd, encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'],
+          env: { PATH: process.env.PATH, HOME: cwd, SMOKE_NETWORK_LOG: networkLog },
+        });
+        const linkOutput = `${viaLink.stdout}${viaLink.stderr}`;
+        if (viaLink.status !== run.status || (linkOutput.length > 0) !== (output.length > 0)) {
+          problems.push(`${label}: behaves differently through a symlink (exit ${viaLink.status} vs ${run.status}, ${linkOutput.length} vs ${output.length} bytes of output)`);
+        }
+        rmSync(networkLog, { force: true });
       }
     }
   } finally {
@@ -150,4 +167,38 @@ test('every plugin script answers --help from an installed copy, offline', { tim
     rmSync(cwd, { recursive: true, force: true });
   }
   assert.deepEqual(problems, []);
+});
+
+// CI configs written before the regroup run plugins/grc-engineer/scripts/...
+// from a checkout. That path is now a symlink and must still do real work.
+test('the plugins/grc-engineer compatibility path runs a real scan', () => {
+  const work = mkdtempSync(join(tmpdir(), 'compat-scan-'));
+  try {
+    writeFileSync(join(work, 'main.tf'), 'resource "aws_s3_bucket" "b" {\n  bucket = "x"\n}\n');
+    const run = spawnSync(process.execPath, [join(repo, 'plugins/grc-engineer/scripts/scan-iac.js'), '.', 'SOC2', 'json'], {
+      cwd: work, encoding: 'utf8', timeout: 30_000,
+    });
+    assert.equal(run.error, undefined);
+    const report = JSON.parse(run.stdout);
+    assert.equal(report.filesScanned, 1);
+    assert.ok(report.summary.totalControls > 0, 'the scan evaluated controls');
+  } finally {
+    rmSync(work, { recursive: true, force: true });
+  }
+});
+
+// With `node -` or `node --eval`, process.argv[1] is "-" or missing. Importing a
+// script as a module there must not throw or start its CLI.
+test('scripts can be imported as modules when there is no entry file', () => {
+  const targets = [
+    'plugins/personas/grc-engineer/scripts/scan-iac.js',
+    'plugins/connectors/datadog-inspector/scripts/collect.js',
+    'tools/assessment-review-draft.mjs',
+  ];
+  for (const target of targets) {
+    const source = `await import(${JSON.stringify(pathToFileURL(join(repo, target)).href)}); console.log('imported');`;
+    const run = spawnSync(process.execPath, ['--input-type=module', '-'], { input: source, encoding: 'utf8', timeout: 20_000 });
+    assert.equal(run.status, 0, `${target}: ${run.stderr.trim().split('\n')[0]}`);
+    assert.equal(run.stdout.trim(), 'imported', target);
+  }
 });

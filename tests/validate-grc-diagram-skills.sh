@@ -4,7 +4,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-plugin_root="plugins/grc-diagrams"
+plugin_root="plugins/reporting/grc-diagrams"
 manifest="$plugin_root/.claude-plugin/plugin.json"
 marketplace=".claude-plugin/marketplace.json"
 
@@ -47,8 +47,8 @@ const fs = require('fs');
 const marketplace = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf8'));
 const entry = marketplace.plugins.find((plugin) => plugin.name === 'grc-diagrams');
 if (!entry) throw new Error('grc-diagrams is not registered in marketplace.json');
-if (entry.source !== './plugins/grc-diagrams') throw new Error(`unexpected grc-diagrams source: ${entry.source}`);
-const manifest = JSON.parse(fs.readFileSync('plugins/grc-diagrams/.claude-plugin/plugin.json', 'utf8'));
+if (entry.source !== './plugins/reporting/grc-diagrams') throw new Error(`unexpected grc-diagrams source: ${entry.source}`);
+const manifest = JSON.parse(fs.readFileSync('plugins/reporting/grc-diagrams/.claude-plugin/plugin.json', 'utf8'));
 if (manifest.name !== 'grc-diagrams') throw new Error(`unexpected plugin name: ${manifest.name}`);
 NODE
 

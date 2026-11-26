@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -358,6 +359,6 @@ function makeRunId() { return `${new Date().toISOString().replace(/[-:.TZ]/g, ''
 function summarize(findings, base) { const counters = { pass: 0, fail: 0, inconclusive: 0, not_applicable: 0, skipped: 0 }, severities = { critical: 0, high: 0, medium: 0, low: 0, info: 0 }, failing_severities = { critical: 0, high: 0, medium: 0, low: 0, info: 0 }; let evaluations = 0; for (const d of findings) for (const e of d.evaluations) { evaluations++; counters[e.status]++; if (e.severity) severities[e.severity]++; if (e.status === 'fail' && e.severity) failing_severities[e.severity]++; } return { ...base, evaluations, counters, severities, failing_severities }; }
 function fail(code, msg) { process.stderr.write(`[${SOURCE}] ${msg}\n`); process.exit(code); }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] !== undefined && import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })()) {
   main(process.argv.slice(2)).catch(err => { process.stderr.write(`[${SOURCE}] unhandled error: ${err.stack || err.message}\n`); process.exit(1); });
 }

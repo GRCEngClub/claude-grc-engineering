@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { realpathSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -316,7 +317,7 @@ function fail(code, msg) {
 // `process.argv[1]` is undefined under `node --eval` and some embedders, where
 // pathToFileURL would throw; treat those as non-CLI rather than crashing on import.
 const invokedFromCLI = process.argv[1] !== undefined
-  && import.meta.url === pathToFileURL(process.argv[1]).href;
+  && import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })();
 
 if (invokedFromCLI) {
   main(process.argv.slice(2)).catch(err => {

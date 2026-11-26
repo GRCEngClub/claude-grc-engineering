@@ -78,7 +78,7 @@ Claude Code ignores unknown top-level keys in `plugin.json` and `claude plugin v
 **How to build it**:
 
 ```bash
-node plugins/grc-engineer/scripts/scaffold-framework.js <scf-framework-id>
+node tools/scaffold-framework.js <scf-framework-id>
 ```
 
 That's it. The scaffold generates valid files, registers in marketplace.json, and prints what to do next. Commit, open PR, merge. **Do not hand-author a Stub** — use the scaffold command every time.
@@ -98,7 +98,7 @@ That's it. The scaffold generates valid files, registers in marketplace.json, an
 **How to build it**:
 
 ```bash
-node plugins/grc-engineer/scripts/scaffold-framework.js <scf-framework-id> --depth=reference
+node tools/scaffold-framework.js <scf-framework-id> --depth=reference
 ```
 
 Then fill in the scaffolded TODOs. At Reference depth, expect to write 300-800 lines of framework-specific Markdown.
@@ -199,7 +199,7 @@ Style issues (markdown lint, heading hierarchy) are enforced by CI. Substantive 
 
 1. Pick a framework. Use `/grc-engineer:frameworks --not-installed` to see what's available.
 2. Pick a depth. If you've never touched the framework before → Stub. If you've used it in practice → Reference. If you've done multiple audits of it → Full.
-3. Scaffold: `node plugins/grc-engineer/scripts/scaffold-framework.js <scf-framework-id> --depth=<stub|reference>`.
+3. Scaffold: `node tools/scaffold-framework.js <scf-framework-id> --depth=<stub|reference>`.
 4. Fill in `TODO:` markers if applicable.
 5. Open a draft PR. Tag it with the `framework` label. Leadership-team review routes via CODEOWNERS.
 

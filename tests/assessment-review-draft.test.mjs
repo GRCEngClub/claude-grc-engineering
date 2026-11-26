@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { generateReview } from '../scripts/assessment-review-draft.mjs';
+import { generateReview } from '../tools/assessment-review-draft.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('./fixtures/assessment-observations/synthetic.json', import.meta.url)));
 const clone = () => structuredClone(fixture);
@@ -41,9 +41,9 @@ test('rejects dangling references and duplicate IDs instead of emitting partial 
 });
 
 test('CLI emits parseable JSON and fails without output on invalid data', () => {
-  const output = execFileSync(process.execPath, ['scripts/assessment-review-draft.mjs', 'tests/fixtures/assessment-observations/synthetic.json'], { encoding: 'utf8' });
+  const output = execFileSync(process.execPath, ['tools/assessment-review-draft.mjs', 'tests/fixtures/assessment-observations/synthetic.json'], { encoding: 'utf8' });
   assert.equal(JSON.parse(output).assessment_id, 'synthetic-example');
-  const bad = spawnSync(process.execPath, ['scripts/assessment-review-draft.mjs', 'missing-file.json'], { encoding: 'utf8' });
+  const bad = spawnSync(process.execPath, ['tools/assessment-review-draft.mjs', 'missing-file.json'], { encoding: 'utf8' });
   assert.notEqual(bad.status, 0);
   assert.equal(bad.stdout, '');
 });

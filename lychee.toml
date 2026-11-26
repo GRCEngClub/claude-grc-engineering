@@ -3,6 +3,9 @@ max_concurrency = 8
 timeout = 20
 retry_wait_time = 4
 max_retries = 2
+# plugins/grc-engineer is a compatibility symlink to plugins/personas/grc-engineer.
+# Its files are checked at the real path; relative links do not resolve through the link.
+exclude_path = ["plugins/grc-engineer"]
 
 exclude = [
   "^http://localhost",

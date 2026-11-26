@@ -102,5 +102,5 @@ These paths assume the job has checked out `GRCEngClub/claude-grc-engineering` a
 ```bash
 az login --identity
 node plugins/connectors/azure-inspector/scripts/collect.js --quiet
-node plugins/grc-engineer/scripts/gap-assessment.js FedRAMP-Moderate --sources=azure-inspector --output=sarif --quiet > azure-gap.sarif
+node plugins/personas/grc-engineer/scripts/gap-assessment.js FedRAMP-Moderate --sources=azure-inspector --output=sarif --quiet > azure-gap.sarif
 ```

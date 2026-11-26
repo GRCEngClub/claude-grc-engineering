@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, existsSync, writeFileSync, symlinkSync, rmSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { compareAssessments } from '../scripts/assessment-review-comparison.mjs';
+import { compareAssessments } from '../tools/assessment-review-comparison.mjs';
 
 const before = JSON.parse(readFileSync(new URL('./fixtures/assessment-observations/synthetic-context.json', import.meta.url)));
 const after = JSON.parse(readFileSync(new URL('./fixtures/assessment-observations/synthetic-comparison-after.json', import.meta.url)));
@@ -70,7 +70,7 @@ test('CLI validates before exclusive output creation and refuses existing paths'
   const dir = mkdtempSync(join(tmpdir(), 'comparison-'));
   try {
     const output = join(dir, 'result.json');
-    const run = (a, b, out) => spawnSync(process.execPath, ['scripts/assessment-review-comparison.mjs', a, b, out], { encoding: 'utf8' });
+    const run = (a, b, out) => spawnSync(process.execPath, ['tools/assessment-review-comparison.mjs', a, b, out], { encoding: 'utf8' });
     const first = 'tests/fixtures/assessment-observations/synthetic-context.json';
     const second = 'tests/fixtures/assessment-observations/synthetic-comparison-after.json';
     const previousUmask = process.umask(0);

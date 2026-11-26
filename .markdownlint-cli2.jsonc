@@ -17,6 +17,7 @@
   "globs": [
     "**/*.md",
     "!node_modules/**",
+    "!plugins/grc-engineer/**",
     "!.claude/**"
   ]
 }

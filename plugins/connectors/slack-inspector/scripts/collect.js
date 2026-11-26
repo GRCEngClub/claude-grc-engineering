@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { realpathSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -286,7 +288,7 @@ function fail(code, msg) {
   process.exit(code);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] !== undefined && import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })()) {
   main(process.argv.slice(2)).catch(err => {
     process.stderr.write(`[${SOURCE}] unhandled error: ${err.stack || err.message}\n`);
     process.exit(1);
