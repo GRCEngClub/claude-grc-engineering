@@ -495,6 +495,6 @@ Example questions:
 
 - **SOC 2 Type II**: CAIQ references SOC 2 controls
 - **ISO 27001**: Evidence overlap with ISO certification
-- **Vendor Questionnaires**: Maps to SIG, VSAQ, custom questionnaires
+- **Vendor Questionnaires**: Maps to SIG, HECVAT, and custom questionnaires
 - **Contract Requirements**: Security exhibits and DPAs
 - **Internal Audits**: Control testing and validation

@@ -1,6 +1,6 @@
 {
   "name": "grc-internal",
-  "description": "GRC Internal Plugin - Policy management, risk registers, and compliance tracking for internal GRC teams",
+  "description": "GRC Internal Plugin - Risk register with scored treatment and time-bound acceptance, policy lifecycle with versioning, approval and attestation tracking, and compliance tracking from Findings, obligations, and evidence freshness",
   "version": "0.1.0",
   "author": {
     "name": "GRC Engineering Club Contributors"

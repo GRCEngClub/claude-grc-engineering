@@ -506,7 +506,7 @@ Third-party and vendor risk management.
 
 **Third-Party Risk Assessment**:
 
-- Security questionnaires (SIG, CAIQ, VSAQ)
+- Security questionnaires (SIG, CAIQ, HECVAT, custom)
 - Financial stability review
 - Compliance certifications (SOC 2, ISO 27001)
 - Right to audit clauses
