@@ -34,7 +34,7 @@ Delegates to:
 - The gap report groups findings by SCF family and maps them back to ISM controls.
 - Drop findings for controls not marked for your classification.
 - The SCF crosswalk is built on the June 2024 ISM. Check flagged controls against the release you are being assessed on, because ASD changes and renumbers controls between releases.
-- An IRAP assessor tests implementation and effectiveness. A clean gap report shows readiness, not an assessment outcome.
+- An IRAP assessor tests implementation and effectiveness. A clean gap report shows no failures among the technical checks the connectors ran; it says nothing about plans, personnel records, inherited controls, or other evidence. Review every remaining control in scope before claiming readiness.
 
 ## Further reading
 
