@@ -20,8 +20,8 @@ This page tracks which of the 249 frameworks in the [Secure Controls Framework](
 | Depth | Count | Description |
 |---|---|---|
 | Full | 0 | Framework-native workflow commands + Reference content |
-| Reference | 28 | Scope + evidence checklist + framework-specific SKILL |
-| Stub | 3 | Scaffolded delegation to `/grc-engineer:gap-assessment` |
+| Reference | 30 | Scope + evidence checklist + framework-specific SKILL |
+| Stub | 1 | Scaffolded delegation to `/grc-engineer:gap-assessment` |
 
 See [Framework Plugin Guide](FRAMEWORK-PLUGIN-GUIDE.md) for depth definitions and level-up checklists.
 
@@ -47,8 +47,8 @@ See [Framework Plugin Guide](FRAMEWORK-PLUGIN-GUIDE.md) for depth definitions an
 | `/iso27001:` | reference | `general-iso-27001-2022` | ISO 27001 (2022) |
 | `/jp-appi:` | reference | `apac-jpn-ppi-2020` | Japan - Act on the Protection of Personal Information (2020) |
 | `/nist-800-53:` | reference | `general-nist-800-53-r5-2` | NIST SP 800-53 R5 |
-| `/nist-ai-600-1:` | stub | `general-nist-600-1-gen-ai-profile` | NIST AI 600-1 |
-| `/nist-ai-rmf:` | stub | `general-nist-100-1-ai-rmf` | NIST AI 100-1 (AI RMF 1.0) |
+| `/nist-ai-600-1:` | reference | `general-nist-600-1-gen-ai-profile` | NIST AI 600-1 |
+| `/nist-ai-rmf:` | reference | `general-nist-100-1-ai-rmf` | NIST AI 100-1 (AI RMF 1.0) |
 | `/nist-csf-20:` | reference | `general-nist-csf-2-0` | NIST Cybersecurity Framework (v2.0) |
 | `/nydfs:` | reference | `usa-state-ny-dfs-23-nycrr500-2023-amd2` | New York Department of Financial Services 23NYCRR Part 500 (2023 Amendment 2) |
 | `/pci-dss:` | reference | `general-pci-dss-4-0-1` | Payment Card Industry Data Security Standard (PCI DSS) (v4.01) |
