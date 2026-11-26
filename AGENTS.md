@@ -1,6 +1,6 @@
 # AGENTS.md
 
-See `CLAUDE.md` for the full architecture overview (plugin structure, frameworks, connectors, and the Finding data contract). This file captures durable, non-obvious notes for coding agents working in this repo.
+Durable, non-obvious notes for coding agents working in this repo. `CLAUDE.md` imports this file and adds the repo layout and plugin rules; `docs/ARCHITECTURE.md` has the architecture and the Finding data contract.
 
 ## Repo shape
 
