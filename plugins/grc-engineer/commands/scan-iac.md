@@ -73,7 +73,7 @@ VIOLATIONS (8)
 🔴 HIGH SEVERITY (3)
 
 [1] Encryption at Rest - Missing S3 Bucket Encryption
-    Frameworks: SOC2 CC6.7, PCI-DSS 3.4, NIST SC-28
+    Frameworks: SOC2 CC6.7, PCI-DSS 3.5.1, NIST SC-28
     File: terraform/s3_buckets.tf:12
     Resource: aws_s3_bucket.data
 
@@ -98,7 +98,7 @@ VIOLATIONS (8)
     resource "aws_s3_bucket" "data" {
       bucket = "customer-data-bucket"
 
-      # Required for SOC2 CC6.7, PCI 3.4, NIST SC-28
+      # Required for SOC2 CC6.7, PCI 3.5.1, NIST SC-28
       server_side_encryption_configuration {
         rule {
           apply_server_side_encryption_by_default {
@@ -112,7 +112,7 @@ VIOLATIONS (8)
     Auto-fix available: Run with --fix flag
 
 [2] Audit Logging - CloudTrail Retention Too Short
-    Frameworks: SOC2 CC7.3, PCI-DSS 10.7, NIST AU-11
+    Frameworks: SOC2 CC7.3, PCI-DSS 10.5.1, NIST AU-11
     File: terraform/cloudtrail.tf:8
     Resource: aws_cloudtrail.audit
 
@@ -167,7 +167,7 @@ VIOLATIONS (8)
     ```
 
 [3] Network Security - Security Group Too Permissive
-    Frameworks: PCI-DSS 1.2, NIST SC-7, SOC2 CC6.6
+    Frameworks: PCI-DSS 1.3.1, NIST SC-7, SOC2 CC6.6
     File: terraform/security_groups.tf:24
     Resource: aws_security_group.web
 
@@ -207,7 +207,7 @@ VIOLATIONS (8)
 🟡 MEDIUM SEVERITY (5)
 
 [4] Vulnerability Management - Missing Patch Management
-    Frameworks: NIST SI-2, PCI-DSS 6.2
+    Frameworks: NIST SI-2, PCI-DSS 6.3.3
     File: terraform/ec2_instances.tf:45
 
     Issue: No AWS Systems Manager Patch Manager configuration detected.
@@ -238,7 +238,7 @@ VIOLATIONS (8)
     ```
 
 [5] Access Control - Missing MFA for Root Account
-    Frameworks: NIST IA-2(1), PCI-DSS 8.3, SOC2 CC6.1
+    Frameworks: NIST IA-2(1), PCI-DSS 8.4.2, SOC2 CC6.1
 
     Issue: No evidence of MFA enforcement for root account.
 
@@ -260,7 +260,7 @@ PARTIAL COMPLIANCE (7)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ⚠ [8] Encryption at Rest - KMS Rotation Not Enabled
-   Frameworks: NIST SC-12, PCI-DSS 3.6
+   Frameworks: NIST SC-12, PCI-DSS 3.7.4
    File: terraform/kms.tf:5
 
    Status: Partial
@@ -282,10 +282,10 @@ SATISFIED CONTROLS (42)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ✓ SOC2 CC6.1 - IAM users configured with unique IDs
-✓ PCI-DSS 8.1.1 - Unique user IDs enforced
+✓ PCI-DSS 8.2.1 - Unique user IDs enforced
 ✓ NIST AC-2 - Account management automated
 ✓ SOC2 CC7.2 - CloudWatch Logs enabled
-✓ PCI-DSS 10.2 - Audit trails configured
+✓ PCI-DSS 10.2.1 - Audit logs enabled
 ✓ NIST SC-7 - VPC boundary protection in place
 ✓ SOC2 CC6.6 - Network segmentation implemented
 ... (35 more)
@@ -385,7 +385,7 @@ Progress lines go to stderr, so stdout holds only the report:
     {
       "controlId": "encryption_at_rest",
       "controlName": "Encryption at Rest",
-      "frameworks": ["SOC2 CC6.7", "PCI-DSS 3.4", "NIST SC-28"],
+      "frameworks": ["SOC2 CC6.7", "PCI-DSS 3.5.1", "NIST SC-28"],
       "severity": "HIGH",
       "file": "terraform/s3_buckets.tf",
       "line": 12,

@@ -36,8 +36,8 @@ You are the interpretation layer between Okta configuration and compliance frame
 
 - **IAC-01.2 (MFA)** → SOC 2 CC6.1, CC6.2 · NIST 800-53 IA-02(01), IA-02(02) · FedRAMP IA-02(01) · PCI 8.4, 8.5 · CIS 6.3, 6.5
 - **IAC-06 (password policy)** → SOC 2 CC6.1 · NIST 800-53 IA-05 · PCI 8.3 · CIS 5.2
-- **IAC-15 (session mgmt)** → SOC 2 CC6.1 · NIST 800-53 AC-11, AC-12 · PCI 8.1.8
-- **IAC-15.1 (lifecycle)** → SOC 2 CC6.2, CC6.3 · NIST 800-53 AC-02(03) · PCI 8.1.4
+- **IAC-15 (session mgmt)** → SOC 2 CC6.1 · NIST 800-53 AC-11, AC-12 · PCI 8.2.8
+- **IAC-15.1 (lifecycle)** → SOC 2 CC6.2, CC6.3 · NIST 800-53 AC-02(03) · PCI 8.2.6
 
 ## Interpreting output
 
