@@ -1,0 +1,705 @@
+#!/usr/bin/env node
+
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import crypto from 'node:crypto';
+import { pathToFileURL } from 'node:url';
+import { initSCF, frameworkWithoutCrosswalk } from './scf-client.js';
+
+const FINDINGS_CACHE = path.join(os.homedir(), '.cache', 'claude-grc', 'findings');
+
+const EXIT = { OK: 0, USAGE: 2, NO_SOURCES: 3, NO_FRAMEWORKS: 4, SCF_UNAVAILABLE: 5, VALIDATION: 6, UNRESOLVED_FRAMEWORK: 7 };
+
+async function main(argv) {
+  const args = parseArgs(argv);
+  if (!args.frameworks.length) {
+    fail(EXIT.NO_FRAMEWORKS, 'Missing frameworks. Example: gap-assessment SOC2,FedRAMP-Moderate');
+  }
+
+  const cacheDir = args.cacheDir || FINDINGS_CACHE;
+  const log = args.quiet ? () => {} : (msg) => process.stderr.write(`[gap-assessment] ${msg}\n`);
+  log(`frameworks: ${args.frameworks.join(', ')}`);
+
+  const scf = await initSCF({ offline: args.offline }).catch(err => {
+    fail(EXIT.SCF_UNAVAILABLE, `SCF client init failed: ${err.message}`);
+  });
+  log(`SCF v${scf.version()} loaded`);
+
+  const resolution = await resolveRequestedFrameworks(scf, args.frameworks);
+  if (resolution.unresolved.length) {
+    const lines = resolution.unresolved.map(u => `  - ${u.label}: ${u.reason}`);
+    fail(EXIT.UNRESOLVED_FRAMEWORK,
+      `cannot assess — ${resolution.unresolved.length} of ${args.frameworks.length} requested framework(s) did not resolve in the SCF crosswalk:\n` +
+      `${lines.join('\n')}\n` +
+      `No report was generated. Remove or correct the framework(s) above and re-run.`);
+  }
+  log(`resolved:   ${resolution.resolved.map(r => `${r.label} → ${r.framework_id}`).join(', ')}`);
+
+  const sources = args.sources.length ? args.sources : await discoverSources(cacheDir);
+  if (!sources.length) {
+    fail(EXIT.NO_SOURCES, `No cached findings under ${cacheDir}. Run /<tool>:collect first.`);
+  }
+  log(`sources:    ${sources.join(', ')}`);
+
+  const { findings, errors: loadErrors } = await loadFindings(cacheDir, sources);
+  log(`findings:   ${findings.length} documents across ${sources.length} sources`);
+  if (loadErrors.length) log(`  (${loadErrors.length} invalid — see report)`);
+
+  const runId = makeRunId();
+  const report = await buildReport({
+    runId,
+    frameworks: args.frameworks,
+    sources,
+    findings,
+    scf,
+    loadErrors,
+    log
+  });
+
+  const bundleDir = args.reportDir || path.resolve(`./gap-assessment-${runId}`);
+  await fs.mkdir(bundleDir, { recursive: true });
+  const raw = path.join(bundleDir, 'findings.normalized.json');
+  await fs.writeFile(raw, JSON.stringify(report.normalized, null, 2));
+
+  let rendered;
+  switch (args.output) {
+    case 'github-issues': rendered = JSON.stringify(renderGithubIssuePreview(report), null, 2); break;
+    case 'html':     rendered = renderHtml(report); break;
+    case 'csv':      rendered = renderCsv(report); break;
+    case 'json':     rendered = JSON.stringify(report.summary, null, 2); break;
+    case 'sarif':    rendered = JSON.stringify(toSarif(report), null, 2); break;
+    case 'oscal-ar': rendered = JSON.stringify(toOscalAssessmentResults(report), null, 2); break;
+    case 'markdown':
+    default:         rendered = renderMarkdown(report);
+  }
+  const extension = args.output === 'markdown' ? 'md' : args.output === 'github-issues' ? 'github-issues.json' : args.output;
+  const reportPath = path.join(bundleDir, `gap-report.${extension}`);
+  await fs.writeFile(reportPath, rendered);
+
+  if (!args.quiet) {
+    process.stderr.write(`\nReport bundle: ${bundleDir}\n`);
+  }
+  process.stdout.write(rendered);
+  if (!rendered.endsWith('\n')) process.stdout.write('\n');
+}
+
+function parseArgs(argv) {
+  const out = {
+    frameworks: [],
+    sources: [],
+    output: 'markdown',
+    cacheDir: null,
+    reportDir: null,
+    refresh: false,
+    offline: false,
+    quiet: false
+  };
+  let positional = null;
+  for (const tok of argv) {
+    if (tok.startsWith('--')) {
+      const [rawKey, rawVal] = tok.slice(2).split('=');
+      const key = rawKey;
+      const val = rawVal ?? true;
+      switch (key) {
+        case 'sources':    out.sources = String(val).split(',').map(s => s.trim()).filter(Boolean); break;
+        case 'output':     out.output = String(val); break;
+        case 'cache-dir':  out.cacheDir = String(val); break;
+        case 'report-dir': out.reportDir = String(val); break;
+        case 'refresh':    out.refresh = true; break;
+        case 'offline':    out.offline = true; break;
+        case 'quiet':      out.quiet = true; break;
+        default:
+          fail(EXIT.USAGE, `Unknown flag: --${key}`);
+      }
+    } else if (positional === null) {
+      positional = tok;
+    }
+  }
+  if (positional) {
+    out.frameworks = positional.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  if (!['markdown', 'json', 'sarif', 'oscal-ar', 'html', 'csv', 'github-issues'].includes(out.output)) {
+    fail(EXIT.USAGE, `--output must be one of markdown|json|sarif|oscal-ar|html|csv|github-issues`);
+  }
+  return out;
+}
+
+/**
+ * Resolve every requested framework label against the SCF crosswalk.
+ *
+ * Returns { resolved, unresolved }:
+ *   resolved:   [{ label, framework_id, display_name }]
+ *   unresolved: [{ label, reason }] — reason is the specific explanation for
+ *               frameworks SCF is known not to cover (HITRUST,
+ *               PBMM, US export controls), or a generic not-found hint.
+ *
+ * Callers must treat a non-empty `unresolved` as fatal: an unresolved
+ * framework has no control denominator, so any report rendered for it
+ * would silently read as a clean pass.
+ */
+async function resolveRequestedFrameworks(scf, frameworks) {
+  const resolved = [];
+  const unresolved = [];
+  for (const fw of frameworks) {
+    const summary = await scf.frameworkSummary(fw);
+    if (summary) {
+      resolved.push({ label: fw, framework_id: summary.framework_id, display_name: summary.display_name || fw });
+      continue;
+    }
+    const knownGap = frameworkWithoutCrosswalk(fw);
+    unresolved.push({
+      label: fw,
+      reason: knownGap
+        || `no match in the SCF crosswalk. List valid IDs with \`node plugins/personas/grc-engineer/scripts/frameworks.js --search=<term>\` or see docs/FRAMEWORK-COVERAGE.md.`
+    });
+  }
+  return { resolved, unresolved };
+}
+
+async function discoverSources(cacheDir) {
+  try {
+    const entries = await fs.readdir(cacheDir, { withFileTypes: true });
+    return entries.filter(e => e.isDirectory()).map(e => e.name);
+  } catch (err) {
+    if (err.code === 'ENOENT') return [];
+    throw err;
+  }
+}
+
+export async function loadFindings(cacheDir, sources) {
+  const findings = [];
+  const errors = [];
+  for (const source of sources) {
+    const srcDir = path.join(cacheDir, source);
+    let files;
+    try {
+      files = await fs.readdir(srcDir);
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        errors.push({ source, kind: 'no-cache', message: `No findings cached under ${srcDir}` });
+        continue;
+      }
+      throw err;
+    }
+    const jsonFiles = files.filter(n => n.endsWith('.json'));
+    if (!jsonFiles.length) {
+      errors.push({ source, kind: 'coverage-unverified', message: `No JSON findings files under ${srcDir}; coverage cannot be verified` });
+    }
+    for (const f of jsonFiles) {
+      const full = path.join(srcDir, f);
+      let doc;
+      let content;
+      try {
+        content = await fs.readFile(full, 'utf8');
+      } catch (err) {
+        errors.push({ source, file: f, kind: 'read-error', message: err.message });
+        continue;
+      }
+      try {
+        doc = JSON.parse(content);
+      } catch (err) {
+        errors.push({ source, file: f, kind: 'invalid-json', message: err.message });
+        continue;
+      }
+      if (Array.isArray(doc) && doc.length === 0) {
+        errors.push({ source, file: f, kind: 'coverage-unverified', message: 'Empty findings array; this may mean no findings, but coverage cannot be verified' });
+      }
+      const docs = Array.isArray(doc) ? doc : [doc];
+      for (const d of docs) {
+        const errs = validateFinding(d);
+        if (errs.length) {
+          errors.push({ source, file: f, kind: 'schema-violation', violations: errs });
+          continue;
+        }
+        findings.push(d);
+      }
+    }
+  }
+  return { findings, errors };
+}
+
+function validateFinding(d) {
+  const errs = [];
+  if (d === null || typeof d !== 'object' || Array.isArray(d)) return ['finding must be an object'];
+  const required = ['schema_version', 'source', 'source_version', 'run_id', 'collected_at', 'resource', 'evaluations'];
+  for (const k of required) if (!(k in d)) errs.push(`missing ${k}`);
+  if (d.schema_version && !/^1\./.test(String(d.schema_version))) {
+    errs.push(`unsupported schema_version ${d.schema_version} (need 1.x)`);
+  }
+  if (!d.resource?.type || !d.resource?.id) errs.push('resource must include type and id');
+  if (!Array.isArray(d.evaluations) || !d.evaluations.length) errs.push('evaluations must be a non-empty array');
+  else {
+    d.evaluations.forEach((e, i) => {
+      if (e === null || typeof e !== 'object' || Array.isArray(e)) {
+        errs.push(`evaluations[${i}] must be an object`);
+        return;
+      }
+      if (!e.control_framework) errs.push(`evaluations[${i}].control_framework missing`);
+      if (!e.control_id)        errs.push(`evaluations[${i}].control_id missing`);
+      if (!['pass','fail','not_applicable','inconclusive','skipped'].includes(e.status)) {
+        errs.push(`evaluations[${i}].status invalid: ${e.status}`);
+      }
+      if (e.severity && !['critical','high','medium','low','info'].includes(e.severity)) {
+        errs.push(`evaluations[${i}].severity invalid: ${e.severity}`);
+      }
+      if (e.status === 'fail' && (!e.severity || !e.message)) {
+        errs.push(`evaluations[${i}] status=fail requires severity and message`);
+      }
+    });
+  }
+  return errs;
+}
+
+const issueSeverities = new WeakMap();
+
+export async function buildReport({ runId, frameworks, sources, findings, scf, loadErrors, log }) {
+  loadErrors = [...loadErrors];
+  const scfHits = new Map();
+  const resolveCache = new Map();
+
+  for (const doc of findings) {
+    for (const ev of doc.evaluations) {
+      const key = `${ev.control_framework}:${ev.control_id}`;
+      let resolutions = resolveCache.get(key);
+      if (resolutions === undefined) {
+        try {
+          resolutions = await scf.resolve(ev.control_framework, ev.control_id);
+          if (!resolutions.length) {
+            const message = `No SCF mapping for ${key}; evaluations were omitted`;
+            log(message);
+            loadErrors.push({ source: doc.source, kind: 'scf-unmapped', message });
+          }
+        } catch (err) {
+          log(`resolve failed for ${key}: ${err.message}`);
+          loadErrors.push({ source: doc.source, kind: 'scf-resolution-failed', message: `Could not resolve ${key}: ${err.message}` });
+          resolutions = [];
+        }
+        resolveCache.set(key, resolutions);
+      }
+      if (!resolutions.length) continue;
+      for (const r of resolutions) {
+        if (!scfHits.has(r.scf_id)) {
+          scfHits.set(r.scf_id, { control: r.scf_control, evaluations: [] });
+        }
+        scfHits.get(r.scf_id).evaluations.push({
+          source: doc.source,
+          source_version: doc.source_version,
+          resource: doc.resource,
+          run_id: doc.run_id,
+          collected_at: doc.collected_at,
+          evaluation: ev
+        });
+      }
+    }
+  }
+
+  const expansionCache = new Map();
+  for (const scfId of scfHits.keys()) {
+    try {
+      expansionCache.set(scfId, await scf.expand(scfId, frameworks));
+    } catch (err) {
+      log(`expand failed for ${scfId}: ${err.message}`);
+      loadErrors.push({ source: 'SCF', kind: 'scf-expansion-failed', message: `Could not expand ${scfId}: ${err.message}` });
+      expansionCache.set(scfId, new Map(frameworks.map(f => [f, []])));
+    }
+  }
+
+  const frameworkStats = frameworks.map(fw => ({
+    framework: fw,
+    total_controls: 0,
+    evaluated: 0,
+    passing: 0,
+    failing: 0,
+    failing_critical: 0,
+    failing_high: 0,
+    failing_medium: 0,
+    failing_low: 0,
+    inconclusive: 0
+  }));
+  const frameworkItems = new Map(frameworks.map(fw => [fw, new Map()]));
+
+  const tier1 = [];
+  const tier2 = [];
+  const tier3 = [];
+  const passes = [];
+  const inconclusive = [];
+
+  for (const [scfId, entry] of scfHits) {
+    const control = entry.control;
+    const expansions = expansionCache.get(scfId) || new Map();
+    const worstStatus = worstOf(entry.evaluations.map(e => e.evaluation.status));
+    const worstSeverity = worstSeverityOf(entry.evaluations.map(e => e.evaluation.severity).filter(Boolean));
+
+    const perFrameworkControlIds = {};
+    let anyMapped = false;
+    for (const fw of frameworks) {
+      const controlIds = expansions.get(fw) || [];
+      if (controlIds.length) anyMapped = true;
+      perFrameworkControlIds[fw] = controlIds;
+    }
+    if (!anyMapped) continue;
+
+    for (const stat of frameworkStats) {
+      const controlIds = perFrameworkControlIds[stat.framework] || [];
+      const items = frameworkItems.get(stat.framework);
+      for (const id of controlIds) {
+        const previous = items.get(id);
+        const failedSeverity = worstSeverityOf(entry.evaluations
+          .filter(e => e.evaluation.status === 'fail')
+          .map(e => e.evaluation.severity).filter(Boolean));
+        items.set(id, {
+          status: previous ? worstOf([previous.status, worstStatus]) : worstStatus,
+          severity: worstSeverityOf([previous?.severity, failedSeverity].filter(Boolean))
+        });
+      }
+    }
+
+    const item = {
+      scf_id: scfId,
+      title: control?.title || scfId,
+      family: control?.family || '',
+      status: worstStatus,
+      severity: worstSeverity,
+      frameworks: perFrameworkControlIds,
+      failing_resources: entry.evaluations.filter(e => e.evaluation.status === 'fail').map(e => ({
+        source: e.source,
+        resource_id: e.resource.id,
+        resource_type: e.resource.type,
+        message: e.evaluation.message,
+        remediation: e.evaluation.remediation || null
+      })),
+      passing_resources_count: entry.evaluations.filter(e => e.evaluation.status === 'pass').length,
+      inconclusive_resources_count: entry.evaluations.filter(e => e.evaluation.status === 'inconclusive').length,
+      total_resources_evaluated: entry.evaluations.length
+    };
+    const failures = entry.evaluations.filter(e => e.evaluation.status === 'fail');
+    const severities = failures.map(e => e.evaluation.severity);
+    issueSeverities.set(item, failures.length && severities.every(s => ['critical', 'high', 'medium', 'low', 'info'].includes(s))
+      ? worstSeverityOf(severities) : null);
+
+    if (worstStatus === 'fail') {
+      if (worstSeverity === 'critical' || worstSeverity === 'high') tier1.push(item);
+      else if (worstSeverity === 'medium') tier2.push(item);
+      else tier3.push(item);
+    } else if (worstStatus === 'inconclusive') {
+      inconclusive.push(item);
+    } else if (worstStatus === 'pass') {
+      passes.push(item);
+    }
+  }
+
+  for (const stat of frameworkStats) {
+    for (const item of frameworkItems.get(stat.framework).values()) {
+      stat.evaluated++;
+      if (item.status === 'pass') stat.passing++;
+      else if (item.status === 'fail') {
+        stat.failing++;
+        const sev = item.severity || 'medium';
+        stat[`failing_${sev}`] = (stat[`failing_${sev}`] || 0) + 1;
+      } else if (item.status === 'inconclusive') stat.inconclusive++;
+    }
+    const fwSummary = await scf.frameworkSummary(stat.framework);
+    if (fwSummary) {
+      stat.resolved_framework_id = fwSummary.framework_id;
+      stat.display_name = fwSummary.display_name;
+      stat.total_controls = fwSummary.framework_controls_mapped || 0;
+    } else {
+      stat.resolved_framework_id = null;
+      stat.display_name = stat.framework;
+      stat.total_controls = stat.evaluated;
+    }
+    stat.coverage_pct = stat.total_controls > 0 ? Math.round((stat.evaluated / stat.total_controls) * 100) : 0;
+    stat.pass_rate_pct = stat.evaluated > 0 ? Math.round((stat.passing / stat.evaluated) * 100) : 0;
+  }
+
+  return {
+    runId,
+    generated_at: new Date().toISOString(),
+    scf_version: scf.version(),
+    frameworks,
+    sources,
+    load_errors: loadErrors,
+    stats: frameworkStats,
+    tiers: { tier1, tier2, tier3, passes, inconclusive },
+    totals: {
+      scf_controls_hit: scfHits.size,
+      tier1_blockers: tier1.length,
+      tier2_findings: tier2.length,
+      tier3_recommendations: tier3.length,
+      passes: passes.length,
+      inconclusive: inconclusive.length
+    },
+    summary: {
+      generated_at: new Date().toISOString(),
+      run_id: runId,
+      scf_version: scf.version(),
+      frameworks,
+      sources,
+      load_errors: loadErrors,
+      stats: frameworkStats,
+      totals: {
+        tier1: tier1.length, tier2: tier2.length, tier3: tier3.length,
+        passes: passes.length, inconclusive: inconclusive.length
+      }
+    },
+    normalized: {
+      run_id: runId,
+      load_errors: loadErrors,
+      tier1, tier2, tier3, passes, inconclusive
+    }
+  };
+}
+
+function worstOf(statuses) {
+  const rank = { fail: 5, inconclusive: 4, skipped: 3, not_applicable: 2, pass: 1 };
+  let worst = 'pass';
+  for (const s of statuses) {
+    if ((rank[s] || 0) > (rank[worst] || 0)) worst = s;
+  }
+  return worst;
+}
+
+function worstSeverityOf(sevs) {
+  const rank = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
+  let worst = null;
+  for (const s of sevs) {
+    if (!worst || (rank[s] || 0) > (rank[worst] || 0)) worst = s;
+  }
+  return worst;
+}
+
+export function renderGithubIssuePreview(r) {
+  return {
+    notice: 'Preview only. Review sensitive data and mappings before manually creating issues; no issues have been created.',
+    run_id: r.runId,
+    data_quality_warnings: r.load_errors,
+    issues: ['tier1', 'tier2'].flatMap((tier, index) => r.tiers[tier].map(t => ({
+      tier: index + 1,
+      scf_id: t.scf_id,
+      title: t.title,
+      severity: t.severity,
+      label_severity: !r.load_errors.length && ['critical', 'high', 'medium'].includes(issueSeverities.get(t)) ? issueSeverities.get(t) : null,
+      frameworks: t.frameworks,
+      failing_resources: t.failing_resources
+    })))
+  };
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+export function renderHtml(r) {
+  const e = escapeHtml;
+  const coverage = r.stats.map(s => `<tr><td>${e(s.framework)}</td><td>${e(s.evaluated)}/${e(s.total_controls)} (${e(s.coverage_pct)}%)<br><progress max="100" value="${Math.max(0, Math.min(100, Number(s.coverage_pct) || 0))}"></progress></td><td>${e(s.passing)}</td><td>${e(s.failing)}</td><td>${e(s.inconclusive)}</td></tr>`).join('');
+  const tiers = ['tier1', 'tier2', 'tier3'].map((key, i) => {
+    const rows = r.tiers[key].map(t => `<tr><td>${e(t.scf_id)}</td><td>${e(t.title)}</td><td>${e(t.severity)}</td><td>${e(t.failing_resources.length)}</td><td>${e(r.frameworks.map(f => `${f}: ${(t.frameworks[f] || []).join(', ')}`).join('; '))}</td></tr>`).join('');
+    return `<h2>Tier ${i + 1} (${r.tiers[key].length})</h2><table><thead><tr><th>SCF</th><th>Title</th><th>Severity</th><th>Failing resources</th><th>Framework controls</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }).join('');
+  const details = ['tier1', 'tier2', 'tier3'].flatMap(key => r.tiers[key]).map(t => `<h3>${e(t.scf_id)} — ${e(t.title)}</h3><ul>${t.failing_resources.map(fr => `<li>${e(fr.source)}:${e(fr.resource_type)}:${e(fr.resource_id)} — ${e(fr.message)}<br>Remediation: ${e(fr.remediation?.ref)}; automation: ${e(fr.remediation?.automation)}; effort hours: ${e(fr.remediation?.effort_hours)}</li>`).join('')}</ul>`).join('');
+  const warnings = r.load_errors.map(w => `<li>${e(w.source)} ${e(w.file)}: ${e(w.kind)} ${e(w.message)} ${e((w.violations || []).join('; '))}</li>`).join('');
+  const inconclusive = r.tiers.inconclusive.map(t => `<li>${e(t.scf_id)} — ${e(t.title)}</li>`).join('');
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Gap assessment</title><style>body{font-family:system-ui,sans-serif;margin:2em}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:.4em;text-align:left}progress{width:100%}</style></head><body><h1>Gap assessment</h1><p>Run: ${e(r.runId)}; generated: ${e(r.generated_at)}; SCF: ${e(r.scf_version)}; sources: ${e(r.sources.join(', '))}</p><h2>Coverage</h2><p>Counts are distinct crosswalk items with connector observations; they do not establish applicability, control effectiveness, compliance, or certification readiness.</p><table><thead><tr><th>Framework</th><th>Evaluated</th><th>Passing</th><th>Failing</th><th>Inconclusive</th></tr></thead><tbody>${coverage}</tbody></table>${tiers}<h2>Inconclusive</h2><ul>${inconclusive}</ul><h2>Remediation detail</h2>${details}<h2>Data quality warnings</h2><ul>${warnings}</ul><p>Control mappings provided by the Secure Controls Framework, licensed under CC BY-ND 4.0.</p></body></html>`;
+}
+
+function csvCell(value) {
+  let s = String(value ?? '');
+  if (/^[\s\u0000-\u001f]*[=+@-]/u.test(s) || /^[\t\r\n]/u.test(s)) s = "'" + s;
+  return `"${s.replace(/"/g, '""')}"`;
+}
+
+export function renderCsv(r) {
+  const header = ['run_id', 'tier', 'scf_id', 'title', 'severity', ...r.frameworks.map(f => `${f}_controls`), 'failing_resources', 'remediation_ref', 'effort_hours'];
+  const rows = [header];
+  for (const [index, key] of ['tier1', 'tier2', 'tier3'].entries()) {
+    for (const t of r.tiers[key]) {
+      rows.push([r.runId, index + 1, t.scf_id, t.title, t.severity, ...r.frameworks.map(f => (t.frameworks[f] || []).join('; ')), t.failing_resources.map(fr => `${fr.source}:${fr.resource_type}:${fr.resource_id}`).join('; '), t.failing_resources.map(fr => fr.remediation?.ref || '').join('; '), t.failing_resources.map(fr => fr.remediation?.effort_hours ?? '').join('; ')]);
+    }
+  }
+  return rows.map(row => row.map(csvCell).join(',')).join('\r\n') + '\r\n';
+}
+
+function renderMarkdown(r) {
+  const date = r.generated_at.slice(0, 10);
+  const out = [];
+  out.push(`# Gap Assessment — ${date}`);
+  out.push('');
+  out.push(`Run ID: \`${r.runId}\``);
+  out.push(`Frameworks: ${r.frameworks.join(', ')}`);
+  out.push(`Sources: ${r.sources.join(', ')}`);
+  out.push(`Crosswalk: SCF v${r.scf_version} (via https://grcengclub.github.io/scf-api/)`);
+  out.push('');
+
+  out.push('## Coverage');
+  out.push('');
+  out.push('Counts are distinct crosswalk items with connector observations, using the worst observed status per item. They do not establish applicability, control effectiveness, compliance, or certification readiness.');
+  out.push('');
+  out.push('| Framework | Evaluated | Passing | Failing | Inconclusive | Pass rate |');
+  out.push('|---|---:|---:|---:|---:|---:|');
+  for (const s of r.stats) {
+    out.push(`| ${s.framework} | ${s.evaluated}/${s.total_controls || '?'} (${s.coverage_pct}%) | ${s.passing} | ${s.failing} | ${s.inconclusive} | ${s.pass_rate_pct}% |`);
+  }
+  out.push('');
+
+  out.push(`## Tier 1 findings (${r.tiers.tier1.length}) — critical or high-severity connector failures`);
+  out.push('');
+  if (!r.tiers.tier1.length) out.push('_None. 🎉_');
+  else {
+    out.push('| SCF | Title | Family | Severity | Failing resources | Frameworks |');
+    out.push('|---|---|---|---|---:|---|');
+    for (const t of r.tiers.tier1) {
+      const fwList = r.frameworks.map(fw => (t.frameworks[fw] || []).join('|')).filter(Boolean).join('; ');
+      out.push(`| ${t.scf_id} | ${escapeMd(t.title)} | ${t.family} | ${t.severity} | ${t.failing_resources.length} | ${escapeMd(fwList)} |`);
+    }
+  }
+  out.push('');
+
+  out.push(`## Tier 2 findings (${r.tiers.tier2.length})`);
+  out.push('');
+  if (!r.tiers.tier2.length) out.push('_None._');
+  else {
+    for (const t of r.tiers.tier2) {
+      out.push(`- **${t.scf_id}** ${escapeMd(t.title)} — ${t.failing_resources.length} failing resources`);
+    }
+  }
+  out.push('');
+
+  out.push(`## Tier 3 recommendations (${r.tiers.tier3.length})`);
+  out.push('');
+  if (!r.tiers.tier3.length) out.push('_None._');
+  else {
+    for (const t of r.tiers.tier3) {
+      out.push(`- ${t.scf_id} — ${escapeMd(t.title)}`);
+    }
+  }
+  out.push('');
+
+  if (r.tiers.inconclusive.length) {
+    out.push(`## Inconclusive (${r.tiers.inconclusive.length}) — re-run recommended`);
+    out.push('');
+    for (const t of r.tiers.inconclusive) {
+      out.push(`- ${t.scf_id} ${escapeMd(t.title)}`);
+    }
+    out.push('');
+  }
+
+  out.push('## Remediation detail');
+  out.push('');
+  for (const t of r.tiers.tier1) {
+    out.push(`### ${t.scf_id} — ${escapeMd(t.title)}`);
+    out.push('');
+    out.push(`Family: ${t.family} · Severity: ${t.severity}`);
+    out.push('');
+    out.push('Failing resources:');
+    out.push('');
+    for (const fr of t.failing_resources) {
+      out.push(`- \`${fr.source}:${fr.resource_type}:${fr.resource_id}\` — ${escapeMd(fr.message || '')}`);
+      if (fr.remediation?.ref) out.push(`  - Remediation: \`${fr.remediation.ref}\` (${fr.remediation.automation || 'manual'}, ~${fr.remediation.effort_hours ?? '?'}h)`);
+    }
+    out.push('');
+  }
+
+  if (r.load_errors.length) {
+    out.push('## Data quality warnings');
+    out.push('');
+    for (const e of r.load_errors) {
+      if (e.violations) {
+        out.push(`- \`${e.source}/${e.file}\`: ${e.violations.join('; ')}`);
+      } else {
+        out.push(`- \`${e.source}${e.file ? '/' + e.file : ''}\`: ${e.kind} — ${e.message}`);
+      }
+    }
+    out.push('');
+  }
+
+  out.push('---');
+  out.push('Control mappings provided by the Secure Controls Framework (https://securecontrolsframework.com), licensed under CC BY-ND 4.0.');
+  return out.join('\n');
+}
+
+function escapeMd(s) { return String(s || '').replace(/\|/g, '\\|').replace(/\n/g, ' '); }
+
+function toSarif(r) {
+  const results = [];
+  for (const t of [...r.tiers.tier1, ...r.tiers.tier2, ...r.tiers.tier3]) {
+    for (const fr of t.failing_resources) {
+      results.push({
+        ruleId: t.scf_id,
+        level: severityToSarifLevel(t.severity),
+        message: { text: `${t.title}: ${fr.message || ''}` },
+        locations: [{ physicalLocation: { artifactLocation: { uri: `${fr.source}://${fr.resource_type}/${fr.resource_id}` } } }],
+        properties: { frameworks: t.frameworks, scf_family: t.family, severity: t.severity }
+      });
+    }
+  }
+  return {
+    $schema: 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
+    version: '2.1.0',
+    runs: [{
+      tool: { driver: { name: 'claude-grc-engineering', version: '0.1.0', informationUri: 'https://github.com/GRCEngClub/claude-grc-engineering' } },
+      invocations: [{ startTimeUtc: r.generated_at, endTimeUtc: r.generated_at }],
+      results
+    }]
+  };
+}
+
+function severityToSarifLevel(sev) {
+  if (sev === 'critical' || sev === 'high') return 'error';
+  if (sev === 'medium') return 'warning';
+  return 'note';
+}
+
+function toOscalAssessmentResults(r) {
+  return {
+    'assessment-results': {
+      uuid: r.runId,
+      metadata: {
+        title: `Gap Assessment — ${r.generated_at.slice(0, 10)}`,
+        'last-modified': r.generated_at,
+        version: '1.0.0',
+        'oscal-version': '1.2.0'
+      },
+      'import-ap': { href: '' },
+      results: [{
+        uuid: r.runId,
+        title: `Gap Assessment ${r.runId}`,
+        description: `Frameworks: ${r.frameworks.join(', ')}`,
+        start: r.generated_at,
+        findings: [...r.tiers.tier1, ...r.tiers.tier2, ...r.tiers.tier3].map(t => ({
+          uuid: `${r.runId}-${t.scf_id}`,
+          title: t.title,
+          description: t.failing_resources.map(fr => `${fr.source}:${fr.resource_id} — ${fr.message}`).join('\n'),
+          'related-observations': [],
+          target: {
+            type: 'statement-id',
+            'target-id': t.scf_id,
+            status: { state: 'not-satisfied' }
+          }
+        }))
+      }]
+    }
+  };
+}
+
+function makeRunId() {
+  const d = new Date();
+  const date = d.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
+  const rand = crypto.randomBytes(4).toString('hex');
+  return `${date}-${rand}`;
+}
+
+function fail(code, msg) {
+  process.stderr.write(`[gap-assessment] ${msg}\n`);
+  process.exit(code);
+}
+
+const invokedFromCLI = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (invokedFromCLI) {
+  main(process.argv.slice(2)).catch(err => {
+    process.stderr.write(`[gap-assessment] unexpected error: ${err.stack || err.message}\n`);
+    process.exit(1);
+  });
+}
+
+export { main, resolveRequestedFrameworks, EXIT };

@@ -4,7 +4,7 @@ import { readFileSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { generateReview } from '../scripts/assessment-review-draft.mjs';
+import { generateReview } from '../tools/assessment-review-draft.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('./fixtures/assessment-observations/synthetic.json', import.meta.url)));
 const input = () => structuredClone(fixture);
@@ -60,7 +60,7 @@ test('CLI emits context for synthetic input and no JSON for conflicting referenc
   const data = input();
   data.assessment_context = context();
   const tmp = new URL('./fixtures/assessment-observations/synthetic-context.json', import.meta.url);
-  const ok = spawnSync(process.execPath, ['scripts/assessment-review-draft.mjs', tmp.pathname], { encoding: 'utf8' });
+  const ok = spawnSync(process.execPath, ['tools/assessment-review-draft.mjs', tmp.pathname], { encoding: 'utf8' });
   assert.equal(ok.status, 0, ok.stderr);
   assert.equal(JSON.parse(ok.stdout).assessment_context.scope, 'Synthetic scoped service');
   data.assessment_context.corrected_deficiency_refs = ['example-deficiency-1'];
@@ -68,7 +68,7 @@ test('CLI emits context for synthetic input and no JSON for conflicting referenc
   try {
     const path = join(dir, 'invalid.json');
     writeFileSync(path, JSON.stringify(data));
-    const bad = spawnSync(process.execPath, ['scripts/assessment-review-draft.mjs', path], { encoding: 'utf8' });
+    const bad = spawnSync(process.execPath, ['tools/assessment-review-draft.mjs', path], { encoding: 'utf8' });
     assert.notEqual(bad.status, 0);
     assert.equal(bad.stdout, '');
     assert.match(bad.stderr, /both corrected and remaining/);

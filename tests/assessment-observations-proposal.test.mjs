@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { validateObservations } from '../scripts/assessment-observations-proposal.mjs';
+import { validateObservations } from '../tools/assessment-observations-proposal.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('./fixtures/assessment-observations/synthetic.json', import.meta.url)));
 const fresh = () => structuredClone(fixture);
@@ -44,7 +44,7 @@ test('empty evidence and observations are explicitly reported', () => {
 });
 
 test('CLI reports invalid input through nonzero exit', () => {
-  const result = spawnSync(process.execPath, ['scripts/assessment-observations-proposal.mjs', 'package.json'], { encoding: 'utf8' });
+  const result = spawnSync(process.execPath, ['tools/assessment-observations-proposal.mjs', 'package.json'], { encoding: 'utf8' });
   assert.equal(result.status, 1);
   assert.equal(JSON.parse(result.stdout).valid, false);
 });

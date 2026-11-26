@@ -9,10 +9,10 @@ on:
     branches: [main]
     paths:
       - 'plugins/**/plugin.json'
-      - 'plugins/grc-diagrams/**'
+      - 'plugins/reporting/grc-diagrams/**'
       - 'plugins/connectors/gcp-inspector/**'
       - 'plugins/connectors/gcp-secret-metadata/scripts/**'
-      - 'scripts/vendor-gcp-secret-metadata.mjs'
+      - 'tools/vendor-gcp-secret-metadata.mjs'
       - 'tests/gcp-inspector-secret-evidence.test.mjs'
       - 'plugins/connectors/onepassword-connector/**'
       - 'tests/onepassword-document.test.mjs'
@@ -60,7 +60,7 @@ jobs:
 
       - name: Check vendored GCP metadata helpers and isolated plugin
         run: |
-          node scripts/vendor-gcp-secret-metadata.mjs --check
+          node tools/vendor-gcp-secret-metadata.mjs --check
           node --test tests/gcp-inspector-secret-evidence.test.mjs
 
       - name: Test 1Password document helper

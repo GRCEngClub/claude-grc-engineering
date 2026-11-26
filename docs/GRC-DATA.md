@@ -113,7 +113,7 @@ equivalent before shipping automation that depends on it.
 To seed the reporting workflow with real automation history, use:
 
 ```bash
-node plugins/grc-engineer/scripts/record-automation-metrics.js soc2 --controls-total=64 --controls-automated=22 --window-label=2026-W16
+node plugins/personas/grc-engineer/scripts/record-automation-metrics.js soc2 --controls-total=64 --controls-automated=22 --window-label=2026-W16
 ```
 
 For framework plugins that publish `metadata.framework.framework_controls_mapped`,
@@ -121,7 +121,7 @@ operators can skip hand-counting the total and provide only the observed
 automated count:
 
 ```bash
-node plugins/grc-engineer/scripts/record-automation-metrics.js soc2 --controls-automated=22 --from-framework-metadata --window-label=2026-W16
+node plugins/personas/grc-engineer/scripts/record-automation-metrics.js soc2 --controls-automated=22 --from-framework-metadata --window-label=2026-W16
 ```
 
 Rows from this path still use `measurement_scope=operator-observed`. Their
@@ -133,7 +133,7 @@ If you want a tooling-capability baseline for FedRAMP evidence coverage, the
 writer can derive it from the evidence collector config:
 
 ```bash
-node plugins/grc-engineer/scripts/record-automation-metrics.js fedramp-moderate aws --window-label=2026-W16
+node plugins/personas/grc-engineer/scripts/record-automation-metrics.js fedramp-moderate aws --window-label=2026-W16
 ```
 
 Treat derived rows as a capability baseline. For leadership reporting, prefer
@@ -142,12 +142,12 @@ live in the target environment.
 
 For scheduler-friendly runs across multiple frameworks, use the bundled example
 config at
-[`plugins/grc-engineer/examples/automation-metrics.yaml`](../plugins/grc-engineer/examples/automation-metrics.yaml)
+[`plugins/personas/grc-engineer/examples/automation-metrics.yaml`](../plugins/personas/grc-engineer/examples/automation-metrics.yaml)
 with:
 
 ```bash
-node plugins/grc-engineer/scripts/record-automation-metrics.js \
-  --config=plugins/grc-engineer/examples/automation-metrics.yaml \
+node plugins/personas/grc-engineer/scripts/record-automation-metrics.js \
+  --config=plugins/personas/grc-engineer/examples/automation-metrics.yaml \
   --window-label=current-week
 ```
 
@@ -156,7 +156,7 @@ node plugins/grc-engineer/scripts/record-automation-metrics.js \
 PR #54 introduced the reporting flows that consume automation-history metrics.
 To keep those reports useful without relying on someone to run the writer by
 hand, copy the scheduled GitHub Actions template at
-[`plugins/grc-engineer/examples/github-actions/automation-metrics-snapshot.yml`](../plugins/grc-engineer/examples/github-actions/automation-metrics-snapshot.yml)
+[`plugins/personas/grc-engineer/examples/github-actions/automation-metrics-snapshot.yml`](../plugins/personas/grc-engineer/examples/github-actions/automation-metrics-snapshot.yml)
 into `.github/workflows/` in the adopting repo.
 
 The template runs `record-automation-metrics.js` in batch mode with

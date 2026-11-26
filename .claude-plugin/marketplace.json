@@ -24,61 +24,61 @@
     },
     {
       "name": "grc-engineer",
-      "source": "./plugins/grc-engineer",
+      "source": "./plugins/personas/grc-engineer",
       "description": "Maps IaC to compliance controls, generates policies, collects evidence, reviews PRs",
       "version": "0.1.0"
     },
     {
       "name": "grc-auditor",
-      "source": "./plugins/grc-auditor",
+      "source": "./plugins/personas/grc-auditor",
       "description": "Evidence review, control validation, and audit workpaper generation for external auditors",
       "version": "0.1.0"
     },
     {
       "name": "grc-internal",
-      "source": "./plugins/grc-internal",
+      "source": "./plugins/personas/grc-internal",
       "description": "Risk register, policy lifecycle, and compliance tracking for internal GRC teams, built on the grc-data record schemas",
       "version": "0.1.0"
     },
     {
       "name": "grc-tprm",
-      "source": "./plugins/grc-tprm",
+      "source": "./plugins/personas/grc-tprm",
       "description": "Vendor tiering and assessments, SOC 2 report review, SIG and CAIQ questionnaire analysis, and residual risk scoring for third-party risk management",
       "version": "0.1.0"
     },
     {
       "name": "grc-reporter",
-      "source": "./plugins/grc-reporter",
+      "source": "./plugins/reporting/grc-reporter",
       "description": "Translate findings, risks, and metrics into narratives leadership reads. Reference implementation of the Reporting category from RFC #38.",
       "version": "0.1.0"
     },
     {
       "name": "grc-loop",
-      "source": "./plugins/grc-loop",
+      "source": "./plugins/workflows/grc-loop",
       "description": "Iterative GRC automation loops for gap-remediation burndown and quarterly evidence sweeps.",
       "version": "0.1.0"
     },
     {
       "name": "gcp-docs",
-      "source": "./plugins/knowledge-sources/gcp-docs",
+      "source": "./plugins/workflows/gcp-docs",
       "description": "Knowledge source for Google Developer Knowledge API: current Google developer documentation citations for GRC workflows.",
       "version": "0.1.0"
     },
     {
       "name": "teach-me",
-      "source": "./plugins/teach-me",
+      "source": "./plugins/workflows/teach-me",
       "description": "Socratic primer + drill plugin for new-to-GRC practitioners. Get up to speed on a framework, control, or role without already knowing it.",
       "version": "0.1.0"
     },
     {
       "name": "academic-research-companion",
-      "source": "./plugins/academic-research-companion",
+      "source": "./plugins/workflows/academic-research-companion",
       "description": "Guide a research project through the academic lifecycle — idea, literature, methodology, writing, feedback, publishing, and authorship — with verified sources and a durable tracker.",
       "version": "0.1.0"
     },
     {
       "name": "grc-diagrams",
-      "source": "./plugins/grc-diagrams",
+      "source": "./plugins/reporting/grc-diagrams",
       "description": "Editable draw.io diagram patterns for GRC system boundaries, evidence flows, control maps, risk treatment, audits, crosswalks, TPRM, POA&M, data flows, RACI, and operating models.",
       "version": "0.1.0",
       "category": "workflow",
@@ -309,7 +309,7 @@
     },
     {
       "name": "oscal",
-      "source": "./plugins/oscal",
+      "source": "./plugins/workflows/oscal",
       "description": "OSCAL toolkit: validate and convert catalogs, profiles, SSPs, SAPs, SARs, POA&Ms, assessment results, component definitions. Wraps ethanolivertroy/oscal-cli.",
       "version": "0.1.0"
     },
@@ -375,7 +375,7 @@
     },
     {
       "name": "compliance-posture-dashboard",
-      "source": "./plugins/dashboards/compliance-posture",
+      "source": "./plugins/reporting/compliance-posture",
       "description": "Localhost compliance posture dashboard for monitor-continuous JSON output. Reference implementation of the Dashboards category from RFC #38.",
       "version": "0.1.0"
     },

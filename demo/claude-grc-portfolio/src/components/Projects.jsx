@@ -25,7 +25,7 @@ const projects = [
     name: 'Cross-Framework Control Crosswalk',
     description: 'YAML database mapping 300+ security controls across SOC 2, PCI-DSS, NIST 800-53, ISO 27001, CIS Controls, CMMC, and FedRAMP. Identifies "implement once, satisfy many" opportunities and provides cloud implementation patterns for AWS, Azure, and GCP.',
     technologies: ['YAML', 'Node.js', 'SOC 2', 'NIST 800-53', 'ISO 27001', 'PCI-DSS', 'FedRAMP'],
-    url: 'https://github.com/GRCEngClub/claude-grc-engineering/blob/main/plugins/grc-engineer/config/control-crosswalk.yaml',
+    url: 'https://github.com/GRCEngClub/claude-grc-engineering/blob/main/plugins/personas/grc-engineer/config/control-crosswalk.yaml',
     highlights: [
       '300+ controls mapped across 7 frameworks',
       '56% average effort reduction on multi-framework programs',

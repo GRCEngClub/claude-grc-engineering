@@ -9,7 +9,7 @@ The [official legacy SAR playbook](https://www.fedramp.gov/legacy/playbook/csp/a
 After `npm install` including development dependencies:
 
 ```sh
-node scripts/assessment-review-draft.mjs tests/fixtures/assessment-observations/synthetic.json review.json
+node tools/assessment-review-draft.mjs tests/fixtures/assessment-observations/synthetic.json review.json
 ```
 
 The optional output path must not already exist. The CLI validates and renders the draft before exclusively creating the file with restrictive permissions (subject to umask); existing files and symlinks are not overwritten. Use a trusted, private output directory: parent-directory symlinks are followed, and a user able to change directory entries can redirect, replace, or remove the output. Exclusive creation depends on filesystem support and does not provide atomic publication; readers can see an incomplete file. A write failure can leave a partial new file, which must be removed before retrying. Mode 0600 is a POSIX permission request, not a guarantee against privileged access, ACLs, or non-POSIX filesystem behavior. Omitting the output path retains JSON on stdout for existing integrations; shell redirection can truncate an existing file before validation and may create a more broadly readable file. Protect stdout and any redirected output as sensitive data.
@@ -25,7 +25,7 @@ The [official legacy Rev. 5 annual-assessment guidance](https://www.fedramp.gov/
 ## Experimental comparison
 
 ```sh
-node scripts/assessment-review-comparison.mjs before.json after.json comparison.json
+node tools/assessment-review-comparison.mjs before.json after.json comparison.json
 ```
 
 This program-neutral review aid compares two valid inputs with the same assessment ID. It reports added and removed IDs, changed field names, source changes, and the review warnings for each input. IDs and field names are sorted; reference list ordering is ignored. Missing optional fields differ from supplied empty lists. An absent context and an empty context are equivalent. It does not show old or new values; inspect the inputs for details. Identical IDs are only a matching convention, not proof the snapshots describe the same real assessment. Changes, removals and corrected classifications do **not** establish remediation, closure, coverage, risk, assessment or authorization. Results and warnings may contain sensitive identifiers.
@@ -35,8 +35,8 @@ Both inputs are validated before an output is created. The required output path 
 ## Experimental CSV exports
 
 ```sh
-node scripts/assessment-review-csv.mjs traceability tests/fixtures/assessment-observations/synthetic.json traceability.csv
-node scripts/assessment-review-csv.mjs risks input.json risks.csv
+node tools/assessment-review-csv.mjs traceability tests/fixtures/assessment-observations/synthetic.json traceability.csv
+node tools/assessment-review-csv.mjs risks input.json risks.csv
 ```
 
 The CSVs are program-neutral review aids, not official templates. They repeat a draft notice and carry references as JSON arrays in cells. As a conservative prototype restriction, either export refuses empty observations or deficiencies, observations without evidence or deficiency links, and deficiencies without linked observations. This is a tool limitation, **not** a requirement that every observation has a deficiency. Risk export also refuses missing risk-review fields; it does not validate their substance. The bundled fixture intentionally lacks risk fields, so the risks example needs a complete synthetic input.

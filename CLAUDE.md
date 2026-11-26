@@ -10,22 +10,25 @@ The open-source Claude Code plugin marketplace of the [GRC Engineering Club](htt
 
 | Kind | Where | Notes |
 |---|---|---|
-| Persona plugins | `plugins/grc-engineer`, `grc-auditor`, `grc-internal`, `grc-tprm` | `grc-engineer` is script-backed; the other three are prompt-only |
-| Framework plugins | `plugins/frameworks/<slug>` | Mostly prompt-only. [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) is the generated list |
-| Connector plugins | `plugins/connectors/<name>` | Script-backed. Emit Findings matching `schemas/finding.schema.json` |
-| Reporting and workflow | `plugins/grc-reporter`, `grc-loop`, `grc-diagrams`, `teach-me`, `dashboards/compliance-posture` | |
-| Other | `plugins/oscal`, `grc-portfolio`, `academic-research-companion`, `knowledge-sources/gcp-docs` | |
+| Personas | `plugins/personas/` | `grc-engineer` (script-backed), `grc-auditor`, `grc-internal`, `grc-tprm` (prompt-only) |
+| Frameworks | `plugins/frameworks/` | One per framework, mostly prompt-only. [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) is the generated list |
+| Connectors | `plugins/connectors/` | Script-backed. Emit Findings matching `schemas/finding.schema.json` |
+| Reporting | `plugins/reporting/` | `grc-reporter`, `grc-diagrams`, `compliance-posture` (local dashboard) |
+| Workflows | `plugins/workflows/` | `grc-loop`, `teach-me`, `oscal`, `gcp-docs`, `academic-research-companion` |
+
+Every plugin sits exactly one level below a category folder. `plugins/grc-engineer` is a symlink to `plugins/personas/grc-engineer`, kept so CI configs written against the old path keep working.
 
 ## Layout
 
 ```
 .claude-plugin/marketplace.json   # every plugin is registered here
-plugins/<...>/<plugin>/
+plugins/<category>/<plugin>/
   .claude-plugin/plugin.json      # manifest; nothing else goes in this folder
   commands/<name>.md              # user-invoked: /<plugin>:<name>
   skills/<name>/SKILL.md          # model-invoked expertise
   hooks/hooks.json                # optional
   scripts/, src/, config/         # script-backed plugins only
+tools/                            # repo maintenance: scaffold-framework, generate-coverage, assessment scripts
 schemas/                          # Finding, plugin, marketplace and grc-data schemas
 tests/                            # node:test suites, contract fixtures, validators
 docs/                             # architecture, contributing, guides
@@ -45,7 +48,7 @@ Claude Code installs a plugin by copying its folder, alone, into `~/.claude/plug
 
 ## Common tasks
 
-- **New framework plugin**: `node plugins/grc-engineer/scripts/scaffold-framework.js <scf-framework-id>` creates the folder and registers it. Depth tiers (Stub, Reference, Full) are defined in [docs/FRAMEWORK-PLUGIN-GUIDE.md](docs/FRAMEWORK-PLUGIN-GUIDE.md). Afterwards run `npm run generate-coverage`.
+- **New framework plugin**: `node tools/scaffold-framework.js <scf-framework-id>` creates the folder and registers it. Depth tiers (Stub, Reference, Full) are defined in [docs/FRAMEWORK-PLUGIN-GUIDE.md](docs/FRAMEWORK-PLUGIN-GUIDE.md). Afterwards run `npm run generate-coverage`.
 - **New connector**: follow [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md#how-to-add-a-connector). Add contract fixtures under `tests/fixtures/`.
 - **New `grc-engineer` command**: add `commands/<name>.md`, `scripts/<name>.js` (logic in `src/` when shared), and a test in `tests/`.
 - **Any new plugin**: add it to `.claude-plugin/marketplace.json` and to the README plugin table.

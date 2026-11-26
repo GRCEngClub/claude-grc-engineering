@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SCRIPT = fileURLToPath(new URL('../plugins/grc-engineer/scripts/map-control.js', import.meta.url));
+const SCRIPT = fileURLToPath(new URL('../plugins/personas/grc-engineer/scripts/map-control.js', import.meta.url));
 
 function run(...args) {
   return spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8' });

@@ -1,6 +1,6 @@
 # grc-engineer workflows
 
-A walkthrough of the `grc-engineer` plugin's main workflows: cross-framework mapping, code generation, IaC scanning, control testing, continuous monitoring, and access review triage. Each command's own file under `plugins/grc-engineer/commands/` is the reference for its options; this page shows how they fit together.
+A walkthrough of the `grc-engineer` plugin's main workflows: cross-framework mapping, code generation, IaC scanning, control testing, continuous monitoring, and access review triage. Each command's own file under `plugins/personas/grc-engineer/commands/` is the reference for its options; this page shows how they fit together.
 
 Sample output in this guide is illustrative.
 
@@ -10,14 +10,14 @@ The grc-engineer plugin includes advanced cross-framework intelligence capabilit
 
 ### Key Features
 
-**Control Crosswalk Database** (`plugins/grc-engineer/config/control-crosswalk.yaml`):
+**Control Crosswalk Database** (`plugins/personas/grc-engineer/config/control-crosswalk.yaml`):
 
 - Maps 300+ controls across 7+ frameworks (SOC2, PCI-DSS, NIST, ISO, CIS, CMMC, FedRAMP)
 - Identifies "implement once, satisfy many" opportunities
 - Documents conflicting requirements and resolutions
 - Provides multi-cloud implementation patterns
 
-**Cross-Framework Analysis Script** (`plugins/grc-engineer/scripts/cross-framework-analyzer.js`):
+**Cross-Framework Analysis Script** (`plugins/personas/grc-engineer/scripts/cross-framework-analyzer.js`):
 
 - Node.js module for analyzing control overlaps
 - Parses YAML crosswalk database
@@ -93,7 +93,7 @@ Typical multi-framework optimization (SOC2 + PCI-DSS + NIST + ISO):
 
 To add new controls to the crosswalk database:
 
-1. Edit `plugins/grc-engineer/config/control-crosswalk.yaml`
+1. Edit `plugins/personas/grc-engineer/config/control-crosswalk.yaml`
 2. Add control with framework mappings:
 
 ```yaml
@@ -127,7 +127,7 @@ controls:
 3. Test with:
 
 ```bash
-node plugins/grc-engineer/scripts/cross-framework-analyzer.js map my_new_control
+node plugins/personas/grc-engineer/scripts/cross-framework-analyzer.js map my_new_control
 ```
 
 ## Code Generation & IaC Scanning
@@ -191,7 +191,7 @@ generated/
 
 **Command**: `/grc-engineer:scan-iac <directory> <frameworks> [format] [options]`
 
-**Script**: `plugins/grc-engineer/scripts/scan-iac.js`
+**Script**: `plugins/personas/grc-engineer/scripts/scan-iac.js`
 
 Scans existing infrastructure code for compliance violations:
 
@@ -241,7 +241,7 @@ GitHub Actions:
 ```yaml
 # The job needs `permissions: { actions: read, contents: read, security-events: write }`; .grc is a checkout of this repo
 - name: Scan Infrastructure
-  run: node .grc/plugins/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST sarif > results.sarif
+  run: node .grc/plugins/personas/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST sarif > results.sarif
 
 - name: Upload Results
   uses: github/codeql-action/upload-sarif@v4
@@ -249,7 +249,7 @@ GitHub Actions:
     sarif_file: results.sarif
 ```
 
-The full workflow is in `plugins/grc-engineer/commands/scan-iac.md`.
+The full workflow is in `plugins/personas/grc-engineer/commands/scan-iac.md`.
 
 **Severity Levels**:
 
@@ -337,7 +337,7 @@ The grc-engineer plugin includes automated control testing and continuous monito
 
 **Command**: `/grc-engineer:test-control <control-id> [cloud-provider] [options]`
 
-**Script**: `plugins/grc-engineer/scripts/test-control.js`
+**Script**: `plugins/personas/grc-engineer/scripts/test-control.js`
 
 Validates that security controls are properly implemented and effective:
 
@@ -552,7 +552,7 @@ This provides end-to-end compliance automation:
 
 The grc-engineer plugin includes an `access-review-triage` skill for teams running quarterly user access reviews (UARs) out of spreadsheets — the common shape for orgs without a dedicated IGA tool (Sailpoint, Saviynt, Okta Access Certifications).
 
-Lives at `plugins/grc-engineer/skills/access-review-triage/SKILL.md`. The skill takes a CSV or JSON access export (Okta, Entra ID, AWS IAM, GitHub, or generic) plus optional HR list, SoD config, and prior-cycle decisions, then walks 10 ordered decision rules to tag each row:
+Lives at `plugins/personas/grc-engineer/skills/access-review-triage/SKILL.md`. The skill takes a CSV or JSON access export (Okta, Entra ID, AWS IAM, GitHub, or generic) plus optional HR list, SoD config, and prior-cycle decisions, then walks 10 ordered decision rules to tag each row:
 
 - Rule 1: terminated user with active access → Investigate (P0)
 - Rule 2: separation-of-duty conflict → Investigate (P0)
@@ -580,7 +580,7 @@ The grc-engineer plugin supports evidence collection across:
 
 ## Configuration file patterns
 
-Framework and provider configuration for `grc-engineer` lives in `plugins/grc-engineer/config/`.
+Framework and provider configuration for `grc-engineer` lives in `plugins/personas/grc-engineer/config/`.
 
 **Framework configs** (`config/frameworks/*.yaml`):
 

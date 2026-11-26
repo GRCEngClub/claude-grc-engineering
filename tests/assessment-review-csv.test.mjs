@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync, symlinkSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { generateReviewCsv, generateReviewCsvWithWarnings } from '../scripts/assessment-review-csv.mjs';
+import { generateReviewCsv, generateReviewCsvWithWarnings } from '../tools/assessment-review-csv.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('./fixtures/assessment-observations/synthetic.json', import.meta.url)));
 const complete = () => {
@@ -62,7 +62,7 @@ test('CLI validates before exclusive creation and reports warnings separately', 
   const dir = mkdtempSync(join(tmpdir(), 'review-csv-'));
   try {
     const output = join(dir, 'output.csv');
-    const args = ['scripts/assessment-review-csv.mjs', 'risks', 'tests/fixtures/assessment-observations/synthetic.json', output];
+    const args = ['tools/assessment-review-csv.mjs', 'risks', 'tests/fixtures/assessment-observations/synthetic.json', output];
     const run = () => spawnSync(process.execPath, args, { encoding: 'utf8' });
     let result = run();
     assert.notEqual(result.status, 0);

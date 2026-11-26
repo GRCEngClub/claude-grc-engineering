@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const fixture = 'tests/fixtures/assessment-observations/synthetic.json';
-const run = (...args) => spawnSync(process.execPath, ['scripts/assessment-review-draft.mjs', ...args], { encoding: 'utf8' });
+const run = (...args) => spawnSync(process.execPath, ['tools/assessment-review-draft.mjs', ...args], { encoding: 'utf8' });
 
 test('JSON draft file is exclusively created after validation with restrictive permissions', () => {
   const dir = mkdtempSync(join(tmpdir(), 'assessment-draft-file-'));
