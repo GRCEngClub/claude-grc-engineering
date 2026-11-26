@@ -29,7 +29,8 @@ plugins/<category>/<plugin>/
   scripts/, src/, config/         # script-backed plugins only
 tools/                            # repo maintenance: scaffold-framework, generate-coverage, assessment scripts
 schemas/                          # Finding, plugin, marketplace and grc-data schemas
-tests/                            # node:test suites, contract fixtures, validators
+tests/<area>/                     # node:test suites grouped as engineer, connectors, frameworks, reporting, tools, repo
+tests/                            # contract fixtures, helpers and the shell validators
 docs/                             # architecture, contributing, guides
 ```
 
@@ -59,7 +60,7 @@ Run what CI runs before pushing:
 
 ```bash
 npm ci
-npm run test:unit              # every tests/*.test.{js,mjs,cjs}
+npm run test:unit              # every tests/<area>/*.test.{js,mjs,cjs}
 npm run test:contract          # fixtures against every schema
 npm run test:plugin-manifests  # repo schemas for plugin.json and marketplace.json
 npm run test:claude-validate   # claude plugin validate --strict, marketplace and every plugin
@@ -69,7 +70,7 @@ npm run test:claude-validate   # claude plugin validate --strict, marketplace an
 
 ## Versions
 
-Every `plugin.json` carries the same `version`, which matches `metadata.version` in `marketplace.json`; marketplace entries carry none. Installed users stay on their cached copy until that string changes, so a merged fix does not reach them until the version is bumped. Bump every plugin together with `npm run bump-version <x.y.z>`: plugins call each other's commands, and a stale cached copy of one can call a name that no longer exists in another. `tests/skill-conventions.test.mjs` checks the versions agree.
+Every `plugin.json` carries the same `version`, which matches `metadata.version` in `marketplace.json`; marketplace entries carry none. Installed users stay on their cached copy until that string changes, so a merged fix does not reach them until the version is bumped. Bump every plugin together with `npm run bump-version <x.y.z>`: plugins call each other's commands, and a stale cached copy of one can call a name that no longer exists in another. `tests/repo/skill-conventions.test.mjs` checks the versions agree.
 
 ## Licensing
 

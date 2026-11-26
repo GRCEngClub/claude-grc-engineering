@@ -59,6 +59,6 @@ python3 plugins/reporting/diagrams/scripts/control-evidence.py \
 
 Open and edit the resulting native, uncompressed XML file in draw.io. The output must not already exist; invalid input or an existing output returns an error. The input and output are local files: do not put secrets, actual evidence, sensitive paths, or identifying details in them without authorization. The generator does not scan for secrets, verify control effectiveness, export images, or model exceptions, retention, or access controls. Long labels may need manual layout adjustment. Inspect the layout in draw.io and adapt it to the engagement before sharing. The original hand-authored example remains available in `examples/control-evidence-flow.drawio`.
 
-Run generator tests with `node --test tests/control-evidence-generator.test.js tests/control-evidence-multi.test.js tests/control-evidence-outcome.test.js`; the root unit suite also picks them up.
+Run generator tests with `node --test tests/reporting/control-evidence-generator.test.js tests/reporting/control-evidence-multi.test.js tests/reporting/control-evidence-outcome.test.js`; the root unit suite also picks them up.
 
 The separate `examples/validate-control-evidence.py` checks specific properties of the hand-authored example, including its edge identities and directions. It rejects DTDs and entity declarations, but is not a general draw.io validator or a security boundary for untrusted XML. It is not intended to validate arbitrary diagrams or generator output.

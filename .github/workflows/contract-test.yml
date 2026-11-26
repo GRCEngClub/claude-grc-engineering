@@ -33,7 +33,7 @@ jobs:
         run: npm run test:schema-validator
 
       - name: Test GCP Inspector Secret Manager evidence
-        run: node --test tests/gcp-inspector-secret-evidence.test.mjs
+        run: node --test tests/connectors/gcp-inspector-secret-evidence.test.mjs
 
       - name: Install pinned OPA
         run: |
@@ -48,7 +48,7 @@ jobs:
         run: npm run test:unit
 
       - name: Test NIST evidence collectors
-        run: python3 tests/nist-evidence-collectors.test.py
+        run: python3 tests/frameworks/nist-evidence-collectors.test.py
 
       - name: Validate contract fixtures
         run: bash tests/validate-contract-fixtures.sh
