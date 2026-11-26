@@ -3,7 +3,7 @@
 Configure `crowdstrike-inspector` for CrowdStrike Falcon API access.
 
 ```bash
-plugins/connectors/crowdstrike-inspector/scripts/setup.sh --client-id=<id> --client-secret=<secret>
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" --client-id=<id> --client-secret=<secret>
 ```
 
 Config is written to:

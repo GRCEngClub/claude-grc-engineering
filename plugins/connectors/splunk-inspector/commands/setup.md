@@ -3,7 +3,7 @@
 Configure `splunk-inspector` for a Splunk management API endpoint.
 
 ```bash
-plugins/connectors/splunk-inspector/scripts/setup.sh --base-url=https://splunk.example.com:8089 --token=<token>
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" --base-url=https://splunk.example.com:8089 --token=<token>
 ```
 
 The setup command validates `/services/server/info` and writes:

@@ -3,7 +3,7 @@
 Configure `tenable-inspector` for Tenable.io or Tenable.sc.
 
 ```bash
-plugins/connectors/tenable-inspector/scripts/setup.sh --access-key=<key> --secret-key=<key>
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" --access-key=<key> --secret-key=<key>
 ```
 
 Options:

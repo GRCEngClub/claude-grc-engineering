@@ -168,7 +168,7 @@ flows, use the copy-pasteable GitHub Actions template at
 
 ### 1. Stage a config file
 
-Copy `plugins/grc-engineer/examples/monitor-continuous.yaml` to your project
+Copy `${CLAUDE_PLUGIN_ROOT}/examples/monitor-continuous.yaml` to your project
 root and edit the framework list, thresholds, and optional
 `record_metrics.config` pointer.
 

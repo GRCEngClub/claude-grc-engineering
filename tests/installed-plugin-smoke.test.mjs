@@ -83,7 +83,7 @@ test('commands, skills and hooks reference plugin files that exist', () => {
 
 test('commands and skills do not tell Claude to run checkout-relative script paths', () => {
   const problems = [];
-  const runsCheckoutPath = /^\s*(?:[A-Z_]+=\S+\s+)*(?:node|bash|sh|python3?)\s+(?:\.\/)?plugins\//;
+  const runsCheckoutPath = /^\s*(?:[A-Z_]+=\S+\s+)*(?:(?:node|bash|sh|python3?)\s+)?(?:\.\/)?plugins\/\S+\/(?:scripts|hooks|bin)\//;
   for (const plugin of plugins) {
     const docs = [
       ...walk(join(plugin.dir, 'commands'), f => f.endsWith('.md')),

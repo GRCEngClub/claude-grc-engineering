@@ -3,5 +3,5 @@
 Check whether Wiz credentials are configured and whether recent cached findings exist.
 
 ```bash
-plugins/connectors/wiz-inspector/scripts/status.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/status.sh"
 ```
