@@ -10,7 +10,7 @@ This is the official open-source Claude Code plugin marketplace of the [GRC Engi
 - **Framework plugins** under `plugins/frameworks/` (soc2, nist-800-53, iso27001, fedramp-20x, pci-dss, cmmc, and more) — see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) for the generated list
 - **Connector plugins** under `plugins/connectors/` (aws-inspector, gcp-inspector, github-inspector, okta-inspector, and more) that emit findings matching `schemas/finding.schema.json`
 - **OSCAL tooling plugin** (oscal) wrapping an external upstream project
-- **Reporting and workflow plugins** (grc-reporter, grc-loop, grc-diagrams, teach-me, trust-center, compliance-posture-dashboard)
+- **Reporting and workflow plugins** (grc-reporter, grc-loop, grc-diagrams, teach-me, compliance-posture-dashboard)
 - **grc-portfolio** — site-builder plugin that scaffolds and deploys a GRC engineer's portfolio website (React/Vite on S3 + CloudFront, optional Route 53/ACM and SES-backed contact form, GitHub Actions OIDC for CI/CD)
 
 Each plugin contains commands (user-facing) and skills (AI agents that implement functionality).
