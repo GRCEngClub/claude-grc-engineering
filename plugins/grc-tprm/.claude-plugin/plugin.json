@@ -1,6 +1,6 @@
 {
   "name": "grc-tprm",
-  "description": "GRC Third-Party Risk Management Plugin - Vendor assessments, questionnaire analysis, and risk scoring",
+  "description": "GRC Third-Party Risk Management Plugin - Vendor tiering, evidence-based assessments, SOC 2 report review, SIG/CAIQ questionnaire analysis, and matrix-based residual risk scoring",
   "version": "0.1.0",
   "author": {
     "name": "GRC Engineering Club Contributors"

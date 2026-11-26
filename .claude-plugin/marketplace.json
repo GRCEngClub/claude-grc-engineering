@@ -37,13 +37,13 @@
     {
       "name": "grc-internal",
       "source": "./plugins/grc-internal",
-      "description": "Policy management, risk registers, and compliance tracking for internal GRC teams",
+      "description": "Risk register, policy lifecycle, and compliance tracking for internal GRC teams, built on the grc-data record schemas",
       "version": "0.1.0"
     },
     {
       "name": "grc-tprm",
       "source": "./plugins/grc-tprm",
-      "description": "Vendor assessments, questionnaire analysis, and risk scoring for third-party risk management",
+      "description": "Vendor tiering and assessments, SOC 2 report review, SIG and CAIQ questionnaire analysis, and residual risk scoring for third-party risk management",
       "version": "0.1.0"
     },
     {
