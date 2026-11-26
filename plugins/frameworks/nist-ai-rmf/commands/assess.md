@@ -5,7 +5,7 @@ description: NIST AI RMF 1.0 gap assessment via the SCF crosswalk, reported by A
 # NIST AI RMF 1.0 Assessment
 
 Runs a gap assessment against **NIST AI 100-1 (AI RMF 1.0)** by delegating to
-`/grc-engineer:gap-assessment` with the framework's SCF identifier, then reports
+`/engineer:gap-assessment` with the framework's SCF identifier, then reports
 the results in AI RMF terms: function, category, and subcategory ID.
 
 AI RMF is an outcomes framework, not a control catalog. A gap means the
@@ -21,7 +21,7 @@ systems in scope. It does not mean a mandatory requirement is violated.
 Delegates to:
 
 ```bash
-/grc-engineer:gap-assessment "general-nist-100-1-ai-rmf" [--sources=<connector-list>]
+/engineer:gap-assessment "general-nist-100-1-ai-rmf" [--sources=<connector-list>]
 ```
 
 Run `/nist-ai-rmf:scope` first. The assessment is only meaningful for a defined

@@ -20,7 +20,7 @@
       "message": "Drata control DCF-71 needs evidence.",
       "remediation": {
         "summary": "Attach current evidence or fix the automated evidence source.",
-        "ref": "grc-engineer://generate-implementation/drata_compliance_workflow",
+        "ref": "engineer://generate-implementation/drata_compliance_workflow",
         "effort_hours": 1,
         "automation": "manual"
       }

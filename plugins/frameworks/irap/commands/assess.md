@@ -4,7 +4,7 @@ description: IRAP readiness gap assessment against the ASD Information Security 
 
 # IRAP Assessment
 
-Checks readiness for an IRAP assessment against the ASD Information Security Manual (ISM). Delegates to `/grc-engineer:gap-assessment` with the SCF framework ID `apac-aus-ism-2024-june` (336 SCF controls map to 802 ISM controls).
+Checks readiness for an IRAP assessment against the ASD Information Security Manual (ISM). Delegates to `/engineer:gap-assessment` with the SCF framework ID `apac-aus-ism-2024-june` (336 SCF controls map to 802 ISM controls).
 
 ## Usage
 
@@ -15,7 +15,7 @@ Checks readiness for an IRAP assessment against the ASD Information Security Man
 Delegates to:
 
 ```bash
-/grc-engineer:gap-assessment "apac-aus-ism-2024-june" [--sources=<connector-list>]
+/engineer:gap-assessment "apac-aus-ism-2024-june" [--sources=<connector-list>]
 ```
 
 ## Arguments

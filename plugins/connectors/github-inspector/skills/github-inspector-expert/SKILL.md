@@ -33,7 +33,7 @@ Each SCF control maps to multiple framework control IDs via SCF's crosswalk. Exa
 - **MON-01.4** → SOC 2 CC7.1 · NIST 800-53 RA-05, SI-02 · ISO 27002 A.8.8 · PCI 6.3.3
 - **IAO-04** → SOC 2 CC8.1 · NIST 800-53 SA-11 · ISO 27002 A.8.28
 
-When `/grc-engineer:gap-assessment` runs, these expand automatically — you don't need to memorize mappings.
+When `/engineer:gap-assessment` runs, these expand automatically — you don't need to memorize mappings.
 
 ## Interpreting output
 
@@ -61,7 +61,7 @@ The check succeeded. For MON-01 this specifically means `security_and_analysis.s
 
 After running `/gap-assessment`, guide them toward the highest-value remediation:
 
-1. **If Tier 1 has `CHG-02` failures across many repos**: suggest a GitHub organizational rule (repository ruleset) instead of fixing each repo individually. Ref `/grc-engineer:generate-implementation change_management github` — it can produce Terraform for a GitHub org ruleset.
+1. **If Tier 1 has `CHG-02` failures across many repos**: suggest a GitHub organizational rule (repository ruleset) instead of fixing each repo individually. Ref `/engineer:generate-implementation change_management github` — it can produce Terraform for a GitHub org ruleset.
 
 2. **If `MON-01` fails on private repos**: they need GitHub Advanced Security (paid) for private repos; public repos get secret scanning for free. Explain the licensing implication.
 

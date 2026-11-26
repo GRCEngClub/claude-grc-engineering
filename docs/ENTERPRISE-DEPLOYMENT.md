@@ -319,7 +319,7 @@ export ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-6'
 
    ```bash
    /plugin marketplace add GRCEngClub/claude-grc-engineering
-   /plugin install grc-engineer@grc-engineering-suite
+   /plugin install engineer@grc-engineering-suite
    ```
 
 4. Start using GRC commands with enterprise-grade security!

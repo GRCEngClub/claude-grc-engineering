@@ -93,5 +93,5 @@ azure-inspector:setup ok
 
 Next:
   /azure-inspector:collect
-  /grc-engineer:gap-assessment FedRAMP-Moderate,SOC2 --sources=azure-inspector
+  /engineer:gap-assessment FedRAMP-Moderate,SOC2 --sources=azure-inspector
 EOF

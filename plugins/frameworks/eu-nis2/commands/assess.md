@@ -4,7 +4,7 @@ description: EU NIS2 Directive (Directive (EU) 2022/2555) compliance gap assessm
 
 # EU NIS2 Assessment
 
-Runs a compliance gap assessment against the **EU NIS2 Directive** (Directive (EU) 2022/2555) by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier, then overlays directive-specific context: the entity classification (essential vs important), the ten Article 21 risk-management domains, and the Article 23 reporting readiness.
+Runs a compliance gap assessment against the **EU NIS2 Directive** (Directive (EU) 2022/2555) by delegating to `/engineer:gap-assessment` with the framework's SCF identifier, then overlays directive-specific context: the entity classification (essential vs important), the ten Article 21 risk-management domains, and the Article 23 reporting readiness.
 
 NIS2 is a Directive — the rules a regulator enforces against an in-scope entity live in the **national transposition law** of each Member State. This assessment delivers the directive-level baseline; flag national-specific overlays separately.
 
@@ -58,7 +58,7 @@ Before running, confirm the following with the user. Any of these missing makes 
 Under the hood:
 
 ```
-/grc-engineer:gap-assessment "emea-eu-nis2-2022" [--sources=<connector-list>]
+/engineer:gap-assessment "emea-eu-nis2-2022" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands 68 SCF controls into the 30 NIS2 directive-level controls. Add `--scope=annex` to use the companion `emea-eu-nis2-annex-2024` crosswalk for the 351-control Implementing Regulation (EU) 2024/2690 breakdown.
@@ -127,7 +127,7 @@ This assessment uses the Secure Controls Framework crosswalk for `emea-eu-nis2-2
 
 - `/eu-nis2:scope` — entity classification and applicability decision tree (run this first).
 - `/eu-nis2:evidence-checklist` — evidence list organised by Article 21 domain and Article 23 reporting workflow.
-- `/grc-engineer:gap-assessment` — direct access to the SCF-backed gap assessment.
+- `/engineer:gap-assessment` — direct access to the SCF-backed gap assessment.
 
 ## Citations
 

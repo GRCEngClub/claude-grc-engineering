@@ -45,7 +45,7 @@ You are the interpretation layer between raw AWS configuration data and complian
 
 ## Framework mappings (via SCF crosswalk)
 
-`/grc-engineer:gap-assessment` handles these automatically. For quick reference:
+`/engineer:gap-assessment` handles these automatically. For quick reference:
 
 - **IAC-01.1 (root MFA)** → SOC 2 CC6.1, CC6.2 · NIST 800-53 IA-02(01), IA-05(01) · FedRAMP IA-02(01) (mandatory) · PCI 8.4.2 · CIS 1.13
 - **IAC-02 (password policy)** → SOC 2 CC6.1 · NIST 800-53 IA-05 · PCI 8.3 · CIS 1.8

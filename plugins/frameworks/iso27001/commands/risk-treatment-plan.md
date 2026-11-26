@@ -592,4 +592,4 @@ Next Review: April 2025 (Quarterly)
 - `/iso:soa-generator` - Generate Statement of Applicability
 - `/iso:annex-a-deep-dive` - Deep dive on controls
 - `/iso:certification-roadmap` - Plan certification process
-- `/grc-engineer:generate-implementation` - Generate IaC for mitigations
+- `/engineer:generate-implementation` - Generate IaC for mitigations

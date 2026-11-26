@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-import { EXIT, usage } from '../plugins/personas/grc-engineer/scripts/monitor-continuous.js';
+import { EXIT, usage } from '../plugins/personas/engineer/scripts/monitor-continuous.js';
 
 const commandDoc = fs.readFileSync(
-  new URL('../plugins/personas/grc-engineer/commands/monitor-continuous.md', import.meta.url),
+  new URL('../plugins/personas/engineer/commands/monitor-continuous.md', import.meta.url),
   'utf8'
 );
 

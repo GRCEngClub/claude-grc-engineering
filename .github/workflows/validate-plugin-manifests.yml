@@ -9,7 +9,7 @@ on:
     branches: [main]
     paths:
       - 'plugins/**/plugin.json'
-      - 'plugins/reporting/grc-diagrams/**'
+      - 'plugins/reporting/diagrams/**'
       - 'plugins/connectors/gcp-inspector/**'
       - 'plugins/connectors/gcp-secret-metadata/scripts/**'
       - 'tools/vendor-gcp-secret-metadata.mjs'

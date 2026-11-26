@@ -24,7 +24,7 @@
       "message": "Automatic rotation is not enabled.",
       "remediation": {
         "summary": "Enable automatic rotation with a rotation Lambda; this is a key-management lifecycle control.",
-        "ref": "grc-engineer://generate-implementation/secret_rotation/aws",
+        "ref": "engineer://generate-implementation/secret_rotation/aws",
         "effort_hours": 1,
         "automation": "semi_automated"
       }
@@ -37,7 +37,7 @@
       "message": "Encrypted with AWS-managed key (alias/aws/secretsmanager); no customer-managed key with assigned owner.",
       "remediation": {
         "summary": "Create or assign a customer-managed KMS key to this secret so the key has an assigned owner and rotation policy.",
-        "ref": "grc-engineer://generate-implementation/kms_cmk/aws",
+        "ref": "engineer://generate-implementation/kms_cmk/aws",
         "effort_hours": 0.5,
         "automation": "auto_fixable"
       }

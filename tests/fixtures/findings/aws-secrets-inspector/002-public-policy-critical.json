@@ -38,7 +38,7 @@
       "message": "Resource policy grants public access: Allow statement with Principal=\"*\" permits secretsmanager:GetSecretValue.",
       "remediation": {
         "summary": "Remove public principals from the resource policy; restrict to specific AWS account IDs or IAM roles.",
-        "ref": "grc-engineer://generate-implementation/iam_least_privilege/aws",
+        "ref": "engineer://generate-implementation/iam_least_privilege/aws",
         "effort_hours": 0.5,
         "automation": "auto_fixable"
       }

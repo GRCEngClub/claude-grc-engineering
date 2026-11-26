@@ -4,7 +4,7 @@ description: NIST CSF 2.0 Profile gap assessment via SCF crosswalk
 
 # NIST CSF 2.0 Assessment
 
-Runs a Profile gap assessment against **NIST Cybersecurity Framework v2.0** by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier, then overlays CSF-specific framing (Function / Category / Subcategory, Current Profile vs Target Profile, Tier rationale).
+Runs a Profile gap assessment against **NIST Cybersecurity Framework v2.0** by delegating to `/engineer:gap-assessment` with the framework's SCF identifier, then overlays CSF-specific framing (Function / Category / Subcategory, Current Profile vs Target Profile, Tier rationale).
 
 ## Usage
 
@@ -37,7 +37,7 @@ If `/nist-csf-20:scope` has been run, this command will pick up the recorded Fun
 Under the hood:
 
 ```text
-/grc-engineer:gap-assessment "general-nist-csf-2-0" [--sources=<connector-list>]
+/engineer:gap-assessment "general-nist-csf-2-0" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands 250 SCF controls into the 134 CSF 2.0 Subcategory mappings. This command then re-organizes the SCF-family-grouped output into the CSF Function structure that practitioners and boards expect.
@@ -65,7 +65,7 @@ CSF assessments are rarely run in isolation. Common combined assessments:
 - **CSF + CMMC** — defense contractors. CSF Profile is a useful pre-assessment sanity check before C3PAO engagement.
 - **CSF + NIS2** — EU operations. CSF can serve as the internal cybersecurity management framework demonstrating NIS2-required risk-management measures.
 
-For multi-framework optimization, see `/grc-engineer:optimize-multi-framework` and `/grc-engineer:map-controls-unified`.
+For multi-framework optimization, see `/engineer:optimize-multi-framework` and `/engineer:map-controls-unified`.
 
 ### Cadence
 
@@ -185,8 +185,8 @@ These are illustrative Current → Target Profile snapshots for three common sce
 
 - `/nist-csf-20:scope` — define Profile scope, Tier target, sector overlays before assessment
 - `/nist-csf-20:evidence-checklist` — enumerate evidence per Function before / during assessment
-- `/grc-engineer:gap-assessment general-nist-csf-2-0` — direct SCF-crosswalk-driven assessment
-- `/grc-engineer:optimize-multi-framework` — when CSF is being assessed alongside multiple frameworks
+- `/engineer:gap-assessment general-nist-csf-2-0` — direct SCF-crosswalk-driven assessment
+- `/engineer:optimize-multi-framework` — when CSF is being assessed alongside multiple frameworks
 
 ---
 

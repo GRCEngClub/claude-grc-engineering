@@ -4,8 +4,8 @@ import { realpathSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { initSCF } from '../plugins/personas/grc-engineer/scripts/scf-client.js';
-import { requireRepoRoot } from '../plugins/personas/grc-engineer/src/plugin-locator.js';
+import { initSCF } from '../plugins/personas/engineer/scripts/scf-client.js';
+import { requireRepoRoot } from '../plugins/personas/engineer/src/plugin-locator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -148,7 +148,7 @@ async function registerInMarketplace({ slug, description, source }) {
   if (mp.plugins.some(p => p.name === slug)) {
     return { alreadyRegistered: true };
   }
-  mp.plugins.push({ name: slug, source, description, version: '0.1.0' });
+  mp.plugins.push({ name: slug, source, description });
   await fs.writeFile(MARKETPLACE_FILE, JSON.stringify(mp, null, 2) + '\n');
   return { alreadyRegistered: false };
 }

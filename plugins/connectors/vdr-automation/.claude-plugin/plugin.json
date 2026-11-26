@@ -1,6 +1,6 @@
 {
   "name": "vdr-automation",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "FedRAMP 20x Vulnerability Detection and Response (VDR) reporting. Imports Nessus, Tenable, Qualys, and Wiz scanner exports into a findings workbook, manages the finding lifecycle, generates FedRAMP 20x VDR reports with live CISA KEV and EPSS enrichment, and produces per-release Product Vulnerability Disclosure Reports. Wraps networkbm/POAM-Automation-Tool.",
   "author": {
     "name": "Brian Montiel",

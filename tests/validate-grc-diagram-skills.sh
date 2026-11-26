@@ -4,7 +4,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-plugin_root="plugins/reporting/grc-diagrams"
+plugin_root="plugins/reporting/diagrams"
 manifest="$plugin_root/.claude-plugin/plugin.json"
 marketplace=".claude-plugin/marketplace.json"
 
@@ -45,11 +45,11 @@ required_commands=(
 node <<'NODE'
 const fs = require('fs');
 const marketplace = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf8'));
-const entry = marketplace.plugins.find((plugin) => plugin.name === 'grc-diagrams');
-if (!entry) throw new Error('grc-diagrams is not registered in marketplace.json');
-if (entry.source !== './plugins/reporting/grc-diagrams') throw new Error(`unexpected grc-diagrams source: ${entry.source}`);
-const manifest = JSON.parse(fs.readFileSync('plugins/reporting/grc-diagrams/.claude-plugin/plugin.json', 'utf8'));
-if (manifest.name !== 'grc-diagrams') throw new Error(`unexpected plugin name: ${manifest.name}`);
+const entry = marketplace.plugins.find((plugin) => plugin.name === 'diagrams');
+if (!entry) throw new Error('diagrams is not registered in marketplace.json');
+if (entry.source !== './plugins/reporting/diagrams') throw new Error(`unexpected diagrams source: ${entry.source}`);
+const manifest = JSON.parse(fs.readFileSync('plugins/reporting/diagrams/.claude-plugin/plugin.json', 'utf8'));
+if (manifest.name !== 'diagrams') throw new Error(`unexpected plugin name: ${manifest.name}`);
 NODE
 
 for skill in "${required_skills[@]}"; do

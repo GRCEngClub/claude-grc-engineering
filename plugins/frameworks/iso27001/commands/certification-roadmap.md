@@ -820,4 +820,4 @@ ROI Justification:
 - `/iso:risk-treatment-plan` - Create risk treatment plan
 - `/iso:annex-a-deep-dive` - Deep dive on controls
 - `/iso:isms-documentation-pack` - Generate ISMS documents
-- `/grc-engineer:generate-implementation` - Generate IaC for controls
+- `/engineer:generate-implementation` - Generate IaC for controls

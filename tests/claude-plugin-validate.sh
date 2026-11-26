@@ -18,7 +18,7 @@ run() {
   fi
 }
 
-if ! sources=$(node -e "for (const p of require('./.claude-plugin/marketplace.json').plugins) console.log(p.source)"); then
+if ! sources=$(node -e "for (const p of require('./.claude-plugin/marketplace.json').plugins) if (typeof p.source === 'string') console.log(p.source)"); then
   echo "Could not read the plugin list from .claude-plugin/marketplace.json." >&2
   exit 2
 fi

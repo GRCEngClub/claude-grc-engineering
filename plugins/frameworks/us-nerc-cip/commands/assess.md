@@ -5,7 +5,7 @@ description: NERC CIP compliance gap assessment
 # NERC CIP Assessment
 
 Runs a compliance gap assessment against NERC Critical Infrastructure Protection
-(CIP) Reliability Standards by delegating to `/grc-engineer:gap-assessment`
+(CIP) Reliability Standards by delegating to `/engineer:gap-assessment`
 with the framework's SCF identifier, then overlays NERC CIP-specific context and
 evidence requirements.
 
@@ -39,7 +39,7 @@ evidence requirements.
 Under the hood:
 
 ```bash
-/grc-engineer:gap-assessment "usa-federal-nerc-cip-2024" [--sources=<connector-list>]
+/engineer:gap-assessment "usa-federal-nerc-cip-2024" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands 122 SCF controls into the 204 NERC CIP mapped controls.

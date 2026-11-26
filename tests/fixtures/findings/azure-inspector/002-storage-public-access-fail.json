@@ -20,7 +20,7 @@
       "message": "Blob public access is allowed at the storage account level.",
       "remediation": {
         "summary": "Set allowBlobPublicAccess=false and review container ACLs.",
-        "ref": "grc-engineer://generate-implementation/storage_public_access/azure",
+        "ref": "engineer://generate-implementation/storage_public_access/azure",
         "effort_hours": 0.25,
         "automation": "auto_fixable"
       }

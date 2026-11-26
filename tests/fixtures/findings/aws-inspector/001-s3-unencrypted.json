@@ -20,7 +20,7 @@
       "message": "Bucket has no default server-side encryption configured.",
       "remediation": {
         "summary": "Enable SSE-KMS with a customer-managed KMS key and rotation enabled.",
-        "ref": "grc-engineer://generate-implementation/encryption_at_rest/aws",
+        "ref": "engineer://generate-implementation/encryption_at_rest/aws",
         "effort_hours": 1,
         "automation": "auto_fixable"
       }

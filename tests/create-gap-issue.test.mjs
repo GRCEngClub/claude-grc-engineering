@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const script = path.resolve('plugins/personas/grc-engineer/scripts/create-gap-issue.js');
+const script = path.resolve('plugins/personas/engineer/scripts/create-gap-issue.js');
 
 test('one explicitly selected draft is previewed and created only by opt-in, without shell execution', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gap-issue-'));

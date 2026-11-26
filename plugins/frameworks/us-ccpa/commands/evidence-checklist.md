@@ -259,7 +259,7 @@ Simplified checklist:
 
 - `/us-ccpa:scope` — determine applicability before collecting evidence.
 - `/us-ccpa:assess` — run the gap assessment via SCF crosswalk.
-- `/grc-engineer:gap-assessment usa-state-ca-ccpa-cpra-2026` — direct SCF crosswalk assessment.
+- `/engineer:gap-assessment usa-state-ca-ccpa-cpra-2026` — direct SCF crosswalk assessment.
 
 ---
 

@@ -120,5 +120,5 @@ testssl-inspector:setup ✓
 Next:
   /testssl-inspector:scan --target=example.com
   /testssl-inspector:scan --target=example.com --fast
-  /grc-engineer:gap-assessment SOC2,PCI-DSS --sources=testssl-inspector
+  /engineer:gap-assessment SOC2,PCI-DSS --sources=testssl-inspector
 EOF

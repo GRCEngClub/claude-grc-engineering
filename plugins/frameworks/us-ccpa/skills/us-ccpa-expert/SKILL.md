@@ -224,13 +224,13 @@ Reference-depth assessment expects a business to be able to produce or attest to
 - **HIPAA** — PHI carve-out; non-PHI personal information of patients (e.g. marketing, web analytics) and any non-HIPAA-covered health data is still in scope.
 - **GLBA / California Financial Information Privacy Act** — financial-account data is carved out; non-financial PI from the same institution is in scope.
 - **State analogs** — Virginia (VCDPA), Colorado (CPA), Connecticut (CTDPA), Utah (UCPA), Texas (TDPSA), and others have CCPA-influenced regimes with subtly different scope, rights, and definitions. CCPA/CPRA remains the most stringent in several dimensions (broad PI definition, extensive SPI category, GPC mandate, risk-assessment regime).
-- **NIST Privacy Framework / SP 800-53 PT family** — useful for mapping internal controls to a recognized control catalog. Use `/grc-engineer:gap-assessment` and the SCF crosswalk for control-by-control mechanics.
+- **NIST Privacy Framework / SP 800-53 PT family** — useful for mapping internal controls to a recognized control catalog. Use `/engineer:gap-assessment` and the SCF crosswalk for control-by-control mechanics.
 - **SOC 2 Privacy criterion** — the AICPA Privacy criterion can support evidence for several CCPA/CPRA obligations (notice, choice, access, disclosure to third parties, retention) but does not substitute for the statute's specific requirements.
 
 ## Command routing
 
 - `/us-ccpa:scope` — determine applicability against the three CPRA-amended thresholds and the data carve-outs; outputs an in-scope / partially / out-of-scope verdict.
-- `/us-ccpa:assess` — run a gap assessment delegated to `/grc-engineer:gap-assessment` against SCF framework `usa-state-ca-ccpa-cpra-2026`.
+- `/us-ccpa:assess` — run a gap assessment delegated to `/engineer:gap-assessment` against SCF framework `usa-state-ca-ccpa-cpra-2026`.
 - `/us-ccpa:evidence-checklist` — enumerate evidence items organized by California Civil Code section.
 
 ## Levelling up to Full

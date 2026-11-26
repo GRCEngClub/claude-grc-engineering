@@ -20,7 +20,7 @@
       "message": "IAM user has an active console password but no MFA device configured.",
       "remediation": {
         "summary": "Either disable console access for this service user or enforce MFA via an IAM policy condition.",
-        "ref": "grc-engineer://generate-implementation/mfa_enforcement/aws",
+        "ref": "engineer://generate-implementation/mfa_enforcement/aws",
         "effort_hours": 0.5,
         "automation": "semi_automated"
       }

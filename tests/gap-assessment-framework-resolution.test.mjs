@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { resolveRequestedFrameworks, EXIT } from '../plugins/personas/grc-engineer/scripts/gap-assessment.js';
+import { resolveRequestedFrameworks, EXIT } from '../plugins/personas/engineer/scripts/gap-assessment.js';
 
 const stubScf = {
   async frameworkSummary(label) {

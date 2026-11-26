@@ -1,7 +1,7 @@
 {
   "name": "cmmc",
   "description": "CMMC v2.0 Plugin - Cybersecurity Maturity Model Certification for DoD contractors with 5 levels and C3PAO assessment prep",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

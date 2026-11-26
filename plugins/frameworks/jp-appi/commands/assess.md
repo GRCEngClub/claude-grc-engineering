@@ -4,7 +4,7 @@ description: Japan - Act on the Protection of Personal Information (2020) compli
 
 # Japan APPI Assessment
 
-Runs a compliance gap assessment against **Japan's Act on the Protection of Personal Information (APPI)** by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier, then overlays APPI-specific context and evidence requirements.
+Runs a compliance gap assessment against **Japan's Act on the Protection of Personal Information (APPI)** by delegating to `/engineer:gap-assessment` with the framework's SCF identifier, then overlays APPI-specific context and evidence requirements.
 
 ## Usage
 
@@ -30,7 +30,7 @@ Runs a compliance gap assessment against **Japan's Act on the Protection of Pers
 Under the hood:
 
 ```
-/grc-engineer:gap-assessment "apac-jpn-ppi-2020" [--sources=<connector-list>]
+/engineer:gap-assessment "apac-jpn-ppi-2020" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands 58 SCF controls into the 134 APPI/PPI mapped controls.

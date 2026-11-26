@@ -61,6 +61,6 @@ for declared in (len(data)-1, len(data)+1):
   result = subprocess.run([sys.executable,script,path],capture_output=True)
   assert result.returncode != 0 and (b'size' in result.stderr), result.stderr
 `;
-  const run = spawnSync('python3', ['-c', fixture, resolve('plugins/personas/grc-engineer/scripts/verify-evidence.py')], { encoding: 'utf8' });
+  const run = spawnSync('python3', ['-c', fixture, resolve('plugins/personas/engineer/scripts/verify-evidence.py')], { encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
 });

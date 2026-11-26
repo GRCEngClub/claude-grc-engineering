@@ -42,7 +42,7 @@ Before starting the assessment, confirm the following with the user:
 
 ## How It Works
 
-This command routes to `/grc-engineer:gap-assessment HIPAA` and leverages the SCF crosswalk to map HIPAA Security Rule implementation specifications to standardized compliance controls.
+This command routes to `/engineer:gap-assessment HIPAA` and leverages the SCF crosswalk to map HIPAA Security Rule implementation specifications to standardized compliance controls.
 
 ## Assessment Output
 
@@ -153,7 +153,7 @@ This assessment leverages the Secure Controls Framework (SCF) crosswalk for usa-
 ## Related Commands
 
 - `/us-hipaa-security:evidence-checklist` - Generate evidence request list for audits
-- `/grc-engineer:gap-assessment` - Direct access to gap assessment with framework options
+- `/engineer:gap-assessment` - Direct access to gap assessment with framework options
 
 ## Common Findings
 

@@ -74,5 +74,5 @@ github-inspector:setup ✓
 
 Next:
   /github-inspector:collect --scope=@me
-  /grc-engineer:gap-assessment SOC2 --sources=github-inspector
+  /engineer:gap-assessment SOC2 --sources=github-inspector
 EOF

@@ -100,7 +100,7 @@ See `/irap:essential-8`.
 - `/irap:evidence-checklist`: evidence grouped by ISM guideline
 - `/irap:essential-8`: Essential Eight maturity self-assessment
 - `/irap:data-residency`: data location and sovereignty questions
-- `/irap:assess`: gap assessment through `/grc-engineer:gap-assessment apac-aus-ism-2024-june`
+- `/irap:assess`: gap assessment through `/engineer:gap-assessment apac-aus-ism-2024-june`
 
 ## Sources
 

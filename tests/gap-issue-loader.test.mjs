@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { loadFindings, buildReport, renderGithubIssuePreview } from '../plugins/personas/grc-engineer/scripts/gap-assessment.js';
+import { loadFindings, buildReport, renderGithubIssuePreview } from '../plugins/personas/engineer/scripts/gap-assessment.js';
 
 const scf = {
   resolve: async (_fw, id) => [{ scf_id: id, scf_control: { title: id } }],
@@ -27,7 +27,7 @@ test('loader warnings prevent definitive issue labels and follow drafts to creat
     const bin = path.join(dir, 'bin'); fs.mkdirSync(bin);
     const record = path.join(dir, 'record');
     fs.writeFileSync(path.join(bin, 'gh'), '#!/usr/bin/env node\nrequire("fs").writeFileSync(process.env.RECORD, JSON.stringify(process.argv.slice(2)));\n', { mode: 0o755 });
-    const run = (...args) => spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/create-gap-issue.js', previewFile, 'owner/repo', '0', ...args], { encoding: 'utf8', env: { ...process.env, PATH: bin + path.delimiter + process.env.PATH, RECORD: record } });
+    const run = (...args) => spawnSync(process.execPath, ['plugins/personas/engineer/scripts/create-gap-issue.js', previewFile, 'owner/repo', '0', ...args], { encoding: 'utf8', env: { ...process.env, PATH: bin + path.delimiter + process.env.PATH, RECORD: record } });
     const render = async documents => {
       fs.writeFileSync(file, JSON.stringify(documents));
       const { findings, errors } = await loadFindings(dir, ['test']);

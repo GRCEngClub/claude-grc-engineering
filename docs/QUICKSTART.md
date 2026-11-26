@@ -27,7 +27,7 @@ terminal-backed environment.
 You need the engineering hub, one connector, and at least one framework plugin.
 
 ```bash
-/plugin install grc-engineer@grc-engineering-suite
+/plugin install engineer@grc-engineering-suite
 /plugin install github-inspector@grc-engineering-suite
 /plugin install soc2@grc-engineering-suite
 ```
@@ -67,18 +67,18 @@ flowchart TD
 
     A --> D{Need help learning or coordinating work?}
     D -->|New to GRC / teach concepts| TEACH[teach-me]
-    D -->|Run GRC iteration loop| LOOP[grc-loop]
-    D -->|Audit evidence review| AUDIT[grc-auditor]
-    D -->|Internal GRC workflows| INTERNAL[grc-internal]
-    D -->|Third-party risk| TPRM[grc-tprm]
+    D -->|Run GRC iteration loop| LOOP[loop]
+    D -->|Audit evidence review| AUDIT[auditor]
+    D -->|Internal GRC workflows| INTERNAL[internal]
+    D -->|Third-party risk| TPRM[tprm]
     D -->|Dashboard from monitoring JSON| DASH[compliance-posture-dashboard]
 ```
 
 A few rules of thumb:
 
-- Start with **`grc-engineer` + one connector + one framework** for technical gap assessment.
+- Start with **`engineer` + one connector + one framework** for technical gap assessment.
 - Add more framework plugins when the same evidence must satisfy multiple obligations; the SCF crosswalk lets one connector run support many reports.
-- Use **persona plugins** (`grc-auditor`, `grc-internal`, `grc-tprm`) when the task is workflow- or audience-specific rather than framework-specific.
+- Use **persona plugins** (`auditor`, `internal`, `tprm`) when the task is workflow- or audience-specific rather than framework-specific.
 - Use **`teach-me`** before a framework plugin if you need a practitioner primer, role onboarding, or Socratic drills.
 - Use **`oscal`** when the deliverable is OSCAL package material rather than a markdown gap report.
 
@@ -129,7 +129,7 @@ Cached findings are reused by `/gap-assessment` unless you pass `--refresh`.
 ## 5. Run your first gap assessment
 
 ```bash
-/grc-engineer:gap-assessment SOC2 --sources=github-inspector
+/engineer:gap-assessment SOC2 --sources=github-inspector
 ```
 
 You get a markdown report:
@@ -151,7 +151,7 @@ SOC 2:  76% (48/63 controls evaluated)
 
 | Control | Failing resources | Effort | Remediation |
 |---------|-------------------|--------|-------------|
-| CC6.1   | 23 repos lacking branch protection on main | 2h | `/grc-engineer:generate-implementation` |
+| CC6.1   | 23 repos lacking branch protection on main | 2h | `/engineer:generate-implementation` |
 | CC7.2   | 14 repos without code scanning enabled | 3h | GitHub Advanced Security |
 | CC6.8   | 8 repos with overly permissive deploy keys | 1h | Rotate + reduce scope |
 
@@ -170,13 +170,13 @@ Remediation bundle: ./gap-assessment-2026-04-13/remediation/
 **Turn a finding into Terraform**:
 
 ```bash
-/grc-engineer:generate-implementation branch_protection aws
+/engineer:generate-implementation branch_protection aws
 ```
 
 **Add another framework without re-collecting**:
 
 ```bash
-/grc-engineer:gap-assessment SOC2,ISO-27001-2022,NIST-800-53-r5 --sources=github-inspector
+/engineer:gap-assessment SOC2,ISO-27001-2022,NIST-800-53-r5 --sources=github-inspector
 ```
 
 Cached findings are reused; only the crosswalk join re-runs.
@@ -184,7 +184,7 @@ Cached findings are reused; only the crosswalk join re-runs.
 **See the same control across every framework**:
 
 ```bash
-/grc-engineer:map-controls-unified CC6.1
+/engineer:map-controls-unified CC6.1
 ```
 
 **Add AWS to the picture**:
@@ -193,13 +193,13 @@ Cached findings are reused; only the crosswalk join re-runs.
 /plugin install aws-inspector@grc-engineering-suite
 /aws-inspector:setup
 /aws-inspector:collect --profile=default --region=us-east-1
-/grc-engineer:gap-assessment SOC2,FedRAMP-Moderate --sources=github-inspector,aws-inspector
+/engineer:gap-assessment SOC2,FedRAMP-Moderate --sources=github-inspector,aws-inspector
 ```
 
 **Schedule it**:
 
 ```bash
-/grc-engineer:monitor-continuous SOC2 daily --sources=github-inspector,aws-inspector --slack-webhook=$SLACK_URL
+/engineer:monitor-continuous SOC2 daily --sources=github-inspector,aws-inspector --slack-webhook=$SLACK_URL
 ```
 
 ## Troubleshooting
@@ -211,7 +211,7 @@ Run `gh auth login`, then re-run setup.
 The connector only evaluates resources you can see with your `gh` token. For org-wide scans, your token needs `admin:org` scope.
 
 **`/gap-assessment` says a framework has no coverage**
-Your connectors may not emit evaluations for that framework's controls. Either add a connector with broader coverage (e.g., `aws-inspector` for FedRAMP) or check `/grc-engineer:pipeline-status` to see which frameworks each connector covers.
+Your connectors may not emit evaluations for that framework's controls. Either add a connector with broader coverage (e.g., `aws-inspector` for FedRAMP) or check `/engineer:pipeline-status` to see which frameworks each connector covers.
 
 **Network errors fetching SCF crosswalks**
 The toolkit fetches SCF data from `https://grcengclub.github.io/scf-api/` on first use and caches locally. If GitHub Pages is unreachable, set `CLAUDE_GRC_SCF_CACHE=~/path/to/scf-snapshot/` to use a local copy.

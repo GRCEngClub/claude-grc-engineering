@@ -25,7 +25,7 @@ test('CLI retains mapped findings but suppresses labels for unmapped critical fa
     const report = path.join(dir, 'report');
     const run = docs => {
       fs.writeFileSync(file, JSON.stringify(docs));
-      const result = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/gap-assessment.js', 'profile', '--offline', '--quiet', '--output=github-issues', `--cache-dir=${path.dirname(findings)}`, `--report-dir=${report}`], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache } });
+      const result = spawnSync(process.execPath, ['plugins/personas/engineer/scripts/gap-assessment.js', 'profile', '--offline', '--quiet', '--output=github-issues', `--cache-dir=${path.dirname(findings)}`, `--report-dir=${report}`], { encoding: 'utf8', env: { ...process.env, CLAUDE_GRC_SCF_CACHE: cache } });
       assert.equal(result.status, 0, result.stderr);
       const preview = JSON.parse(result.stdout);
       assert.deepEqual(JSON.parse(fs.readFileSync(path.join(report, 'gap-report.github-issues.json'), 'utf8')), preview);
@@ -47,7 +47,7 @@ test('CLI retains mapped findings but suppresses labels for unmapped critical fa
       const normalized = JSON.parse(fs.readFileSync(path.join(report, 'findings.normalized.json'), 'utf8'));
       assert.deepEqual(normalized.load_errors, preview.data_quality_warnings);
       assert.equal(normalized.tier2[0].failing_resources[0].resource_id, 'retained');
-      const draft = spawnSync(process.execPath, ['plugins/personas/grc-engineer/scripts/create-gap-issue.js', path.join(report, 'gap-report.github-issues.json'), 'owner/repo', '0', '--severity-label'], { encoding: 'utf8' });
+      const draft = spawnSync(process.execPath, ['plugins/personas/engineer/scripts/create-gap-issue.js', path.join(report, 'gap-report.github-issues.json'), 'owner/repo', '0', '--severity-label'], { encoding: 'utf8' });
       assert.equal(draft.status, 0, draft.stderr);
       assert.deepEqual(JSON.parse(draft.stdout).labels, []);
       assert.match(JSON.parse(draft.stdout).body, /scf-unmapped/);

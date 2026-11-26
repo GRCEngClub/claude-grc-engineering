@@ -27,7 +27,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/scan.js" [options]
 
 ## What it evaluates
 
-Each testssl.sh finding is mapped first to one or more **SCF (Secure Controls Framework) control IDs**, then fanned out to downstream frameworks via the SCF crosswalk at `https://grcengclub.github.io/scf-api/`. Crosswalks are cached at `~/.cache/claude-grc/scf/<version>/` (shared with the `grc-engineer` plugin's SCF client) and refreshed every 7 days.
+Each testssl.sh finding is mapped first to one or more **SCF (Secure Controls Framework) control IDs**, then fanned out to downstream frameworks via the SCF crosswalk at `https://grcengclub.github.io/scf-api/`. Crosswalks are cached at `~/.cache/claude-grc/scf/<version>/` (shared with the `engineer` plugin's SCF client) and refreshed every 7 days.
 
 | testssl finding family | SCF anchors |
 |---|---|

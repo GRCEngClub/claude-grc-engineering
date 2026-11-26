@@ -4,7 +4,7 @@ Localhost dashboard for the `/dashboard:` category proposed in
 [RFC #38](https://github.com/GRCEngClub/claude-grc-engineering/issues/38).
 
 This first pass intentionally avoids deployment infrastructure. It reads saved
-JSON output from `/grc-engineer:monitor-continuous`, serves a local web UI, and
+JSON output from `/engineer:monitor-continuous`, serves a local web UI, and
 derives current posture, framework health, alerts, and run-over-run deltas
 outside Claude's context window.
 
@@ -21,7 +21,7 @@ On Claude Code older than 2.1.275, add the marketplace first with `/plugin marke
 Generate one or more monitor runs:
 
 ```bash
-node plugins/personas/grc-engineer/scripts/monitor-continuous.js SOC2,NIST-800-53 \
+node plugins/personas/engineer/scripts/monitor-continuous.js SOC2,NIST-800-53 \
   --cache-dir=tests/fixtures/findings \
   --no-exit-code \
   --output=grc-data/dashboard/monitor-continuous/latest.json

@@ -84,5 +84,5 @@ These paths assume the job has checked out `GRCEngClub/claude-grc-engineering` a
 ```bash
 gh auth login --with-token < $GH_TOKEN_FILE
 node plugins/connectors/github-inspector/scripts/collect.js --scope=org:acme --quiet
-node plugins/personas/grc-engineer/scripts/gap-assessment.js SOC2 --sources=github-inspector --output=sarif --quiet > gap.sarif
+node plugins/personas/engineer/scripts/gap-assessment.js SOC2 --sources=github-inspector --output=sarif --quiet > gap.sarif
 ```

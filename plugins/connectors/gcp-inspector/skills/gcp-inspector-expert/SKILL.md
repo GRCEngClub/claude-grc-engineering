@@ -57,7 +57,7 @@ You are the interpretation layer between raw GCP configuration data and complian
 
 `roles/owner` and `roles/editor` are over-broad. A user with `roles/editor` can delete almost anything except IAM. FedRAMP auditors flag any human user with primitive roles. Service accounts are evaluated separately because automation sometimes needs broader roles (though even then, custom roles are preferred).
 
-**Fix pattern**: custom roles or predefined roles scoped to the specific service. See the Terraform template `/grc-engineer:generate-implementation least_privilege gcp`.
+**Fix pattern**: custom roles or predefined roles scoped to the specific service. See the Terraform template `/engineer:generate-implementation least_privilege gcp`.
 
 ### Service account key age (IAC-15.1 fail)
 

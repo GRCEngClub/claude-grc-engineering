@@ -24,7 +24,7 @@ connectors collect evidence
         ↓
 findings match schemas/finding.schema.json
         ↓
-grc-engineer maps findings through SCF
+engineer maps findings through SCF
         ↓
 reports, remediation, evidence packages, OSCAL outputs
 ```
@@ -37,7 +37,7 @@ Inside Claude Code:
 
 ```bash
 /plugin marketplace add GRCEngClub/claude-grc-engineering
-/plugin install grc-engineer@grc-engineering-suite
+/plugin install engineer@grc-engineering-suite
 ```
 
 For a first run without cloud credentials, use GitHub as the evidence source:
@@ -47,7 +47,7 @@ For a first run without cloud credentials, use GitHub as the evidence source:
 /plugin install soc2@grc-engineering-suite
 /github-inspector:setup
 /github-inspector:collect --scope=@me
-/grc-engineer:gap-assessment SOC2 --sources=github-inspector
+/engineer:gap-assessment SOC2 --sources=github-inspector
 ```
 
 Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md). For Claude Desktop or Claude Cowork, start with [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md).
@@ -56,18 +56,18 @@ Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md). For Claude Desktop o
 
 | Goal | Command |
 |---|---|
-| Run a gap assessment against one or more frameworks | `/grc-engineer:gap-assessment` |
-| Scan Terraform, CloudFormation, or Kubernetes for compliance issues | `/grc-engineer:scan-iac` |
-| Run available control checks (results may be indeterminate) | `/grc-engineer:test-control` |
-| Generate remediation code, scripts, or policy | `/grc-engineer:generate-implementation`, `/grc-engineer:generate-policy` |
-| Map one control across frameworks | `/grc-engineer:map-controls-unified` |
-| Find conflicting requirements across frameworks | `/grc-engineer:find-conflicts` |
-| Optimize a multi-framework control plan | `/grc-engineer:optimize-multi-framework` |
+| Run a gap assessment against one or more frameworks | `/engineer:gap-assessment` |
+| Scan Terraform, CloudFormation, or Kubernetes for compliance issues | `/engineer:scan-iac` |
+| Run available control checks (results may be indeterminate) | `/engineer:test-control` |
+| Generate remediation code, scripts, or policy | `/engineer:generate-implementation`, `/engineer:generate-policy` |
+| Map one control across frameworks | `/engineer:map-controls-unified` |
+| Find conflicting requirements across frameworks | `/engineer:find-conflicts` |
+| Optimize a multi-framework control plan | `/engineer:optimize-multi-framework` |
 | Collect evidence from cloud, SaaS, and code systems | each connector's `setup`, `collect`, and `status` commands (`scan` for `testssl-inspector`) |
-| Build audit workpapers or evidence packages | `/grc-auditor:generate-workpaper`, `/grc-engineer:collect-evidence` |
+| Build audit workpapers or evidence packages | `/auditor:generate-workpaper`, `/engineer:collect-evidence` |
 | Validate and convert OSCAL documents | `/oscal:*` |
 | Draft leadership updates and automation coverage reports | `/report:exec-summary`, `/report:automation-coverage` |
-| Create editable GRC diagrams | `/grc-diagrams:drawio`, `/grc-diagrams:system-boundary`, `/grc-diagrams:evidence-flow`, `/grc-diagrams:control-map` |
+| Create editable GRC diagrams | `/diagrams:drawio`, `/diagrams:system-boundary`, `/diagrams:evidence-flow`, `/diagrams:control-map` |
 | Learn a framework, control, or GRC role | `/teach-me:framework`, `/teach-me:control`, `/teach-me:role`, `/teach-me:quiz` |
 | Run an academic research project from idea to publication | `/academic-research-companion:research` |
 
@@ -75,25 +75,25 @@ Every command has a reference page in its plugin's `commands/` directory.
 
 ## Plugins
 
-Install only the plugins you need. The full list is in [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json), and `/grc-engineer:frameworks` shows framework coverage and plugin depth.
+Install only the plugins you need. The full list is in [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json), and `/engineer:frameworks` shows framework coverage and plugin depth.
 
 | Category | Plugins |
 |---|---|
-| Engineering hub | `grc-engineer`: gap assessment, IaC scanning, evidence collection, remediation and policy generation, PR review, continuous monitoring, multi-framework optimization |
-| Personas and workflows | `grc-auditor`, `grc-internal`, `grc-tprm`, `grc-reporter`, `grc-loop`, `teach-me`, `academic-research-companion` |
+| Engineering hub | `engineer`: gap assessment, IaC scanning, evidence collection, remediation and policy generation, PR review, continuous monitoring, multi-framework optimization |
+| Personas and workflows | `auditor`, `internal`, `tprm`, `reporter`, `loop`, `teach-me`, `academic-research-companion` |
 | Frameworks | `soc2`, `nist-800-53`, `iso27001`, `fedramp-20x`, `pci-dss`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `dora`, `us-hipaa-security`, and more; see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) |
 | Connectors | `aws-inspector`, `github-inspector`, `gcp-inspector`, `azure-inspector`, `okta-inspector`, `slack-inspector`, `datadog-inspector`, `crowdstrike-inspector`, `drata-inspector`, `splunk-inspector`, `tenable-inspector`, `snowflake-inspector`, `wiz-inspector`, `testssl-inspector`, `vdr-automation` |
 | Secrets connectors | `aws-secrets-inspector`, `gcp-secret-metadata`, `onepassword-connector`, `vault-kv` |
 | OSCAL tooling | `oscal` |
-| Diagrams | `grc-diagrams`: editable draw.io system boundaries, evidence flows, control maps, crosswalks, and more |
+| Diagrams | `diagrams`: editable draw.io system boundaries, evidence flows, control maps, crosswalks, and more |
 | Dashboards and knowledge sources | `compliance-posture-dashboard`, `gcp-docs` |
-| Site builders | `grc-portfolio` |
+| Site builders | `portfolio`, from its own repository: [GRCEngClub/grc-portfolio](https://github.com/GRCEngClub/grc-portfolio) |
 
 ## Data contract
 
 Evidence connectors emit Findings that match [schemas/finding.schema.json](schemas/finding.schema.json). A Finding is one resource with one or more control evaluations.
 
-A connector collects and normalizes evidence, and `grc-engineer` uses the Findings for framework mapping, reporting, and remediation. `onepassword-connector`, `vault-kv`, and `gcp-secret-metadata` are the exception: they handle secrets or secret metadata for a local operator and emit no Findings.
+A connector collects and normalizes evidence, and `engineer` uses the Findings for framework mapping, reporting, and remediation. `onepassword-connector`, `vault-kv`, and `gcp-secret-metadata` are the exception: they handle secrets or secret metadata for a local operator and emit no Findings.
 
 For the full architecture and schema example, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -103,7 +103,7 @@ For the full architecture and schema example, see [docs/ARCHITECTURE.md](docs/AR
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): pipeline model, data contract, plugin categories, extensibility
 - [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md): generated coverage for SCF-mapped frameworks
 - [docs/FRAMEWORK-PLUGIN-GUIDE.md](docs/FRAMEWORK-PLUGIN-GUIDE.md): create and extend framework plugins
-- [docs/GRC-ENGINEER-WORKFLOWS.md](docs/GRC-ENGINEER-WORKFLOWS.md): how the `grc-engineer` commands fit together, from cross-framework mapping to continuous monitoring
+- [docs/ENGINEER-WORKFLOWS.md](docs/ENGINEER-WORKFLOWS.md): how the `engineer` commands fit together, from cross-framework mapping to continuous monitoring
 - [docs/GRC-DATA.md](docs/GRC-DATA.md): user-owned `grc-data/` contracts for metrics, risks, vendors, exceptions, and policies
 - [docs/ENTERPRISE-DEPLOYMENT.md](docs/ENTERPRISE-DEPLOYMENT.md): AWS Bedrock, Claude Platform on AWS, and Google Vertex AI guidance
 - [docs/CLAUDE-COWORK.md](docs/CLAUDE-COWORK.md): Claude Desktop and Claude Cowork file-oriented usage, including third-party platform handoff notes

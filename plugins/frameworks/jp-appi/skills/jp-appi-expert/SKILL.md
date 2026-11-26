@@ -54,7 +54,7 @@ APPI commonly overlaps with GDPR for EU-Japan transfers, especially because Japa
 - `/jp-appi:assess` - run a gap assessment
 - `/jp-appi:evidence-checklist` - enumerate evidence requirements
 
-All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID `apac-jpn-ppi-2020` for the control-by-control mechanics, and wrap the results in APPI-specific terminology.
+All three delegate to `/engineer:gap-assessment` with SCF framework ID `apac-jpn-ppi-2020` for the control-by-control mechanics, and wrap the results in APPI-specific terminology.
 
 ## Levelling Up To Full
 

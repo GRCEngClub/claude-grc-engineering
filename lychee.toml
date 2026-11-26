@@ -3,9 +3,6 @@ max_concurrency = 8
 timeout = 20
 retry_wait_time = 4
 max_retries = 2
-# plugins/grc-engineer is a compatibility symlink to plugins/personas/grc-engineer.
-# Its files are checked at the real path; relative links do not resolve through the link.
-exclude_path = ["plugins/grc-engineer"]
 
 exclude = [
   "^http://localhost",
@@ -16,6 +13,8 @@ exclude = [
   # LinkedIn gates most profile URLs behind auth
   "^https://(www\\.)?linkedin\\.com",
   "^https://img\\.shields\\.io/coderabbit/prs/",
+  # Dynamic badges call the GitHub search API through shields.io and time out often
+  "^https://img\\.shields\\.io/badge/dynamic/",
   # GitHub org pages that require auth (teams, private projects) bounce to login or 404
   "^https://github\\.com/orgs/.*/teams/",
   "^https://github\\.com/orgs/.*/projects/",

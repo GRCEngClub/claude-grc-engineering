@@ -113,7 +113,7 @@ const serviceHandlers = {
           message: `Password policy '${p.name}' is below baseline: ${issues.join(', ')}.`,
           remediation: {
             summary: 'Tighten password complexity, age, and history to FedRAMP/NIST baseline.',
-            ref: 'grc-engineer://generate-implementation/password_policy/okta',
+            ref: 'engineer://generate-implementation/password_policy/okta',
             effort_hours: 0.25,
             automation: 'semi_automated'
           }
@@ -137,7 +137,7 @@ const serviceHandlers = {
       findings.push(buildDoc(ctx, mfaResource, [{
         control_framework: 'SCF', control_id: 'IAC-01.2', status: 'fail', severity: 'high',
         message: 'No active MFA enrollment policy requires at least one factor.',
-        remediation: { summary: 'Configure an MFA enrollment policy requiring WebAuthn or TOTP for all users.', ref: 'grc-engineer://generate-implementation/mfa_enforcement/okta', effort_hours: 0.5, automation: 'semi_automated' }
+        remediation: { summary: 'Configure an MFA enrollment policy requiring WebAuthn or TOTP for all users.', ref: 'engineer://generate-implementation/mfa_enforcement/okta', effort_hours: 0.5, automation: 'semi_automated' }
       }]));
     }
 
@@ -205,7 +205,7 @@ const serviceHandlers = {
         message: `${parts.join(' · ')}.`,
         remediation: {
           summary: `Deactivate or re-certify users inactive beyond ${threshold} days. FedRAMP requires review at ≤35 days.`,
-          ref: 'grc-engineer://generate-implementation/user_lifecycle/okta',
+          ref: 'engineer://generate-implementation/user_lifecycle/okta',
           effort_hours: 1,
           automation: 'semi_automated'
         }
@@ -231,7 +231,7 @@ const serviceHandlers = {
       evaluations.push({
         control_framework: 'SCF', control_id: 'IAC-07.1', status: 'fail', severity: 'medium',
         message: `${admins.length} super admins exceeds typical baseline (≤5).`,
-        remediation: { summary: 'Use role-based admin delegation instead of blanket super-admin.', ref: 'grc-engineer://generate-implementation/admin_scope/okta', effort_hours: 2, automation: 'manual' }
+        remediation: { summary: 'Use role-based admin delegation instead of blanket super-admin.', ref: 'engineer://generate-implementation/admin_scope/okta', effort_hours: 2, automation: 'manual' }
       });
     } else {
       evaluations.push({ control_framework: 'SCF', control_id: 'IAC-07.1', status: 'pass', severity: 'info' });
@@ -252,7 +252,7 @@ const serviceHandlers = {
       evaluations.push({
         control_framework: 'SCF', control_id: 'IAC-01.2', status: 'fail', severity: 'critical',
         message: `${adminsWithoutMFA} super-admin user(s) have no MFA factors enrolled.`,
-        remediation: { summary: 'Require WebAuthn enrollment for all admins before next login.', ref: 'grc-engineer://generate-implementation/mfa_enforcement/okta', effort_hours: 0.5, automation: 'semi_automated' }
+        remediation: { summary: 'Require WebAuthn enrollment for all admins before next login.', ref: 'engineer://generate-implementation/mfa_enforcement/okta', effort_hours: 0.5, automation: 'semi_automated' }
       });
     } else {
       evaluations.push({ control_framework: 'SCF', control_id: 'IAC-01.2', status: 'pass', severity: 'info' });
@@ -261,7 +261,7 @@ const serviceHandlers = {
       evaluations.push({
         control_framework: 'SCF', control_id: 'IAC-01.3', status: 'fail', severity: 'high',
         message: `${adminsSingleFactor} super-admin(s) have only 1 MFA factor (no backup).`,
-        remediation: { summary: 'Require enrollment of at least two distinct factor types per admin.', ref: 'grc-engineer://generate-implementation/mfa_enforcement/okta', effort_hours: 0.5, automation: 'semi_automated' }
+        remediation: { summary: 'Require enrollment of at least two distinct factor types per admin.', ref: 'engineer://generate-implementation/mfa_enforcement/okta', effort_hours: 0.5, automation: 'semi_automated' }
       });
     }
 
@@ -298,7 +298,7 @@ function sessionEvaluation({ controlId, policyName, value, baselineMinutes, labe
     return {
       control_framework: 'SCF', control_id: controlId, status: 'fail', severity: 'medium',
       message: `Policy '${policyName}' allows ${label} ${value === 0 ? 'unlimited' : value + 'min'} (${baselineLabel}).`,
-      remediation: { summary: remediationSummary, ref: 'grc-engineer://generate-implementation/session_policy/okta', effort_hours: 0.1, automation: 'auto_fixable' }
+      remediation: { summary: remediationSummary, ref: 'engineer://generate-implementation/session_policy/okta', effort_hours: 0.1, automation: 'auto_fixable' }
     };
   }
   return {

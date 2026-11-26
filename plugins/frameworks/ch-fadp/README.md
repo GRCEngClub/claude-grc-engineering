@@ -9,7 +9,7 @@ Stub-depth framework plugin scaffolded from the SCF crosswalk. Install and use i
 
 ## Status: Stub
 
-This plugin is at **Stub depth** — it routes to `/grc-engineer:gap-assessment` via the SCF crosswalk (35 SCF controls → 90 nFADP controls) without any framework-specific workflow commands yet.
+This plugin is at **Stub depth** — it routes to `/engineer:gap-assessment` via the SCF crosswalk (35 SCF controls → 90 nFADP controls) without any framework-specific workflow commands yet.
 
 ### Level up to Reference
 

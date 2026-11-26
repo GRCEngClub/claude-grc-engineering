@@ -120,7 +120,7 @@ const serviceHandlers = {
         : {
             control_framework: 'SCF', control_id: 'IAC-04', status: 'fail', severity: 'high',
             message: 'No enabled Conditional Access policies were found.',
-            remediation: { summary: 'Create baseline Conditional Access policies for MFA, risky sign-ins, admin roles, and legacy authentication blocking.', ref: 'grc-engineer://generate-implementation/conditional_access/azure', effort_hours: 3, automation: 'semi_automated' }
+            remediation: { summary: 'Create baseline Conditional Access policies for MFA, risky sign-ins, admin roles, and legacy authentication blocking.', ref: 'engineer://generate-implementation/conditional_access/azure', effort_hours: 3, automation: 'semi_automated' }
           });
     } catch (err) {
       evaluations.push({ control_framework: 'SCF', control_id: 'IAC-04', status: 'inconclusive', severity: 'medium', message: `Could not query Conditional Access policies through Microsoft Graph: ${err.message}` });
@@ -145,7 +145,7 @@ const serviceHandlers = {
         : {
             control_framework: 'SCF', control_id: 'CRY-05', status: 'fail', severity: 'high',
             message: 'Blob or file service encryption is disabled for this storage account.',
-            remediation: { summary: 'Enable Azure Storage service encryption for blob and file services.', ref: 'grc-engineer://generate-implementation/storage_encryption/azure', effort_hours: 0.5, automation: 'auto_fixable' }
+            remediation: { summary: 'Enable Azure Storage service encryption for blob and file services.', ref: 'engineer://generate-implementation/storage_encryption/azure', effort_hours: 0.5, automation: 'auto_fixable' }
           });
 
       evaluations.push(a.allowBlobPublicAccess === false
@@ -153,7 +153,7 @@ const serviceHandlers = {
         : {
             control_framework: 'SCF', control_id: 'DCH-01.2', status: 'fail', severity: 'critical',
             message: 'Blob public access is allowed at the storage account level.',
-            remediation: { summary: 'Set allowBlobPublicAccess=false and review container ACLs.', ref: 'grc-engineer://generate-implementation/storage_public_access/azure', effort_hours: 0.25, automation: 'auto_fixable' }
+            remediation: { summary: 'Set allowBlobPublicAccess=false and review container ACLs.', ref: 'engineer://generate-implementation/storage_public_access/azure', effort_hours: 0.25, automation: 'auto_fixable' }
           });
 
       evaluations.push(a.minimumTlsVersion && a.minimumTlsVersion !== 'TLS1_0' && a.minimumTlsVersion !== 'TLS1_1'
@@ -161,7 +161,7 @@ const serviceHandlers = {
         : {
             control_framework: 'SCF', control_id: 'CRY-06', status: 'fail', severity: 'medium',
             message: `Minimum TLS version is ${a.minimumTlsVersion || 'unset'}.`,
-            remediation: { summary: 'Set the storage account minimum TLS version to TLS1_2 or later.', ref: 'grc-engineer://generate-implementation/storage_tls/azure', effort_hours: 0.25, automation: 'auto_fixable' }
+            remediation: { summary: 'Set the storage account minimum TLS version to TLS1_2 or later.', ref: 'engineer://generate-implementation/storage_tls/azure', effort_hours: 0.25, automation: 'auto_fixable' }
           });
 
       return buildDoc(ctx, {
@@ -192,21 +192,21 @@ const serviceHandlers = {
         : {
             control_framework: 'SCF', control_id: 'BCD-11', status: 'fail', severity: 'high',
             message: 'Key Vault soft delete is disabled.',
-            remediation: { summary: 'Enable soft delete and purge protection for production Key Vaults.', ref: 'grc-engineer://generate-implementation/keyvault_recovery/azure', effort_hours: 0.5, automation: 'auto_fixable' }
+            remediation: { summary: 'Enable soft delete and purge protection for production Key Vaults.', ref: 'engineer://generate-implementation/keyvault_recovery/azure', effort_hours: 0.5, automation: 'auto_fixable' }
           });
       evaluations.push(v.properties?.enablePurgeProtection
         ? { control_framework: 'SCF', control_id: 'BCD-11', status: 'pass', severity: 'info', message: 'Purge protection is enabled.' }
         : {
             control_framework: 'SCF', control_id: 'BCD-11', status: 'fail', severity: 'medium',
             message: 'Key Vault purge protection is disabled.',
-            remediation: { summary: 'Enable purge protection where regulatory retention or ransomware recovery requirements apply.', ref: 'grc-engineer://generate-implementation/keyvault_purge_protection/azure', effort_hours: 0.5, automation: 'semi_automated' }
+            remediation: { summary: 'Enable purge protection where regulatory retention or ransomware recovery requirements apply.', ref: 'engineer://generate-implementation/keyvault_purge_protection/azure', effort_hours: 0.5, automation: 'semi_automated' }
           });
       evaluations.push(v.properties?.enableRbacAuthorization
         ? { control_framework: 'SCF', control_id: 'IAC-07.2', status: 'pass', severity: 'info' }
         : {
             control_framework: 'SCF', control_id: 'IAC-07.2', status: 'fail', severity: 'medium',
             message: 'Key Vault uses access policies instead of Azure RBAC authorization.',
-            remediation: { summary: 'Migrate Key Vault authorization to Azure RBAC and remove broad access policies.', ref: 'grc-engineer://generate-implementation/keyvault_rbac/azure', effort_hours: 2, automation: 'semi_automated' }
+            remediation: { summary: 'Migrate Key Vault authorization to Azure RBAC and remove broad access policies.', ref: 'engineer://generate-implementation/keyvault_rbac/azure', effort_hours: 2, automation: 'semi_automated' }
           });
       return buildDoc(ctx, {
         type: 'azure_key_vault',
@@ -228,7 +228,7 @@ const serviceHandlers = {
       : {
           control_framework: 'SCF', control_id: 'MON-02', status: 'fail', severity: 'high',
           message: 'No subscription diagnostic settings were found for activity log export.',
-          remediation: { summary: 'Create subscription diagnostic settings to export Activity Logs to Log Analytics, Event Hub, or Storage.', ref: 'grc-engineer://generate-implementation/activity_log_export/azure', effort_hours: 1, automation: 'auto_fixable' }
+          remediation: { summary: 'Create subscription diagnostic settings to export Activity Logs to Log Analytics, Event Hub, or Storage.', ref: 'engineer://generate-implementation/activity_log_export/azure', effort_hours: 1, automation: 'auto_fixable' }
         }];
     return [buildDoc(ctx, resource, evaluations)];
   },
@@ -243,7 +243,7 @@ const serviceHandlers = {
       : {
           control_framework: 'SCF', control_id: 'MON-01.2', status: 'fail', severity: 'high',
           message: 'No Defender for Cloud plans are set to Standard.',
-          remediation: { summary: 'Enable Microsoft Defender for Cloud Standard plans for regulated workload resource types.', ref: 'grc-engineer://generate-implementation/defender_for_cloud/azure', effort_hours: 1, automation: 'semi_automated' }
+          remediation: { summary: 'Enable Microsoft Defender for Cloud Standard plans for regulated workload resource types.', ref: 'engineer://generate-implementation/defender_for_cloud/azure', effort_hours: 1, automation: 'semi_automated' }
         }];
     return [buildDoc(ctx, resource, evaluations)];
   }

@@ -4,7 +4,7 @@ description: FINRA broker-dealer cybersecurity gap assessment via the SCF crossw
 
 # FINRA Cybersecurity Assessment
 
-Runs a gap assessment for a FINRA member firm by delegating to `/grc-engineer:gap-assessment` with the SCF framework ID `usa-federal-sro-finra` (17 SCF controls map to 39 framework controls).
+Runs a gap assessment for a FINRA member firm by delegating to `/engineer:gap-assessment` with the SCF framework ID `usa-federal-sro-finra` (17 SCF controls map to 39 framework controls).
 
 ## Usage
 
@@ -15,7 +15,7 @@ Runs a gap assessment for a FINRA member firm by delegating to `/grc-engineer:ga
 Delegates to:
 
 ```bash
-/grc-engineer:gap-assessment "usa-federal-sro-finra" [--sources=<connector-list>]
+/engineer:gap-assessment "usa-federal-sro-finra" [--sources=<connector-list>]
 ```
 
 ## Arguments

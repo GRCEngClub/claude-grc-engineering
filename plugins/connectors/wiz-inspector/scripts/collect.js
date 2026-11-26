@@ -219,7 +219,7 @@ function openRiskEval(controlId, row, label, remediationRef) {
     status,
     severity,
     message: `Wiz ${label} '${title}' is open with severity ${row.severity || 'unknown'}.`,
-    remediation: { summary: `Remediate or accept the Wiz ${label} in accordance with cloud risk management procedures.`, ref: `grc-engineer://generate-implementation/${remediationRef}`, effort_hours: severity === 'critical' ? 4 : 2, automation: 'manual' }
+    remediation: { summary: `Remediate or accept the Wiz ${label} in accordance with cloud risk management procedures.`, ref: `engineer://generate-implementation/${remediationRef}`, effort_hours: severity === 'critical' ? 4 : 2, automation: 'manual' }
   };
 }
 

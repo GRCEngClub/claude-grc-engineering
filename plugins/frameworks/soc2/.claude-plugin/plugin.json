@@ -1,7 +1,7 @@
 {
   "name": "soc2",
   "description": "SOC 2 Compliance Plugin - Trust Service Criteria expertise, Type I/II assessment support, and control mapping",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

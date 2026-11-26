@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildReport } from '../plugins/personas/grc-engineer/scripts/gap-assessment.js';
+import { buildReport } from '../plugins/personas/engineer/scripts/gap-assessment.js';
 
 test('coverage counts distinct mapped items and combines worst observed status', async () => {
   const expansions = { A: ['shared', 'pass'], B: ['shared', 'uncertain'], C: ['shared'] };

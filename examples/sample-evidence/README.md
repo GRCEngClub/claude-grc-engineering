@@ -2,7 +2,7 @@
 
 Practice evidence for **CGE-AUD Chapter 5.4 (Drafting a Risk Report)** from the
 [GRC Engineering Club Training Academy](https://cert.grcengclub.com). Use it any
-time you want a realistic folder of raw evidence to point the `grc-auditor`
+time you want a realistic folder of raw evidence to point the `auditor`
 persona (or any Claude workflow) at.
 
 Everything here is **fictional**. The company, people, account IDs, and
@@ -17,11 +17,11 @@ job, as taught in Chapter 5.4:
 1. Point Claude at this folder with the auditor workflows installed:
 
    ```bash
-   /plugin install grc-auditor@grc-engineering-suite
-   /grc-auditor:risk-report examples/sample-evidence/ leadership
+   /plugin install auditor@grc-engineering-suite
+   /auditor:risk-report examples/sample-evidence/ leadership
    ```
 
-   (`/grc-auditor:review-evidence examples/sample-evidence/` also works if you
+   (`/auditor:review-evidence examples/sample-evidence/` also works if you
    want the control-by-control review instead of the ranked report.)
 
    or simply ask Claude Code to *"review the evidence in this folder and draft

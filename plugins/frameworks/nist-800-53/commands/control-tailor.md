@@ -429,7 +429,7 @@ Control Effectiveness Testing:
 Test Commands:
 ```bash
 # Test automated provisioning
-/grc-engineer:test-control AC-2
+/engineer:test-control AC-2
 
 # Validate CloudTrail logging
 aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=CreateUser
@@ -487,7 +487,7 @@ Within 3 Months:
 
 Continuous:
 
-1. Test control effectiveness: /grc-engineer:test-control AC-2
+1. Test control effectiveness: /engineer:test-control AC-2
 2. Review tailoring decisions annually
 3. Update as cloud environment evolves
 
@@ -562,6 +562,6 @@ parameters:
 - `/nist:select-baseline` - Select appropriate NIST baseline
 - `/nist:overlay-apply` - Apply FedRAMP, DoD, or privacy overlays
 - `/nist:ssp-section-generate` - Generate SSP text from tailoring
-- `/grc-engineer:generate-implementation` - Generate IaC for controls
-- `/grc-engineer:test-control` - Test control effectiveness
+- `/engineer:generate-implementation` - Generate IaC for controls
+- `/engineer:test-control` - Test control effectiveness
 - `/soc2:gap-to-code` - Generate cloud infrastructure for gaps

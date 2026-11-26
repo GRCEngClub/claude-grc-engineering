@@ -1,7 +1,7 @@
 {
   "name": "ch-fadp",
   "description": "Swiss Federal Act on Data Protection (nFADP) plugin - data protection compliance with voluntary DSO, risk-based breach notification, and Swiss transfer mechanisms",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

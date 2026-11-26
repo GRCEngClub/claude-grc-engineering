@@ -10,7 +10,7 @@
     "business_unit": "platform",
     "source": "gap-assessment"
   },
-  "source": "grc-engineer://gap-assessment",
+  "source": "engineer://gap-assessment",
   "subject": {
     "kind": "program",
     "id": "platform-security"

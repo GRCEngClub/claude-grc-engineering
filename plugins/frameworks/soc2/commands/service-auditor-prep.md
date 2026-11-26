@@ -684,7 +684,7 @@ For each manual evidence item, the tool provides:
 cd remediation && terraform apply
 
 # Step 4: Test all controls
-/grc-engineer:test-control ALL
+/engineer:test-control ALL
 
 # Step 5: Generate timeline
 /soc2:type-ii-planner 2024-01-01 2024-12-31
@@ -776,5 +776,5 @@ The tool performs automatic validation:
 - `/soc2:evidence-checklist` - Detailed requirements per control
 - `/soc2:type-ii-planner` - Audit period timeline planning
 - `/soc2:gap-to-code` - Generate IaC to fix control gaps
-- `/grc-engineer:collect-evidence` - General evidence collection
-- `/grc-engineer:test-control` - Validate control effectiveness
+- `/engineer:collect-evidence` - General evidence collection
+- `/engineer:test-control` - Validate control effectiveness

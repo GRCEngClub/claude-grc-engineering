@@ -1,7 +1,7 @@
 {
   "name": "nist-csf-20",
   "description": "NIST Cybersecurity Framework (v2.0) — Reference plugin with scope determination, evidence checklist, and SCF-backed gap assessment across the six Functions (GV/ID/PR/DE/RS/RC).",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {"name": "GRC Engineering Club Contributors"},
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",

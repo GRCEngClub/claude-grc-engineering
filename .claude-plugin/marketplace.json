@@ -6,81 +6,69 @@
   },
   "metadata": {
     "description": "GRC Engineering Plugin Suite - Tools for auditors, internal teams, TPRM, and framework-specific compliance",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
     {
       "name": "vault-kv",
       "source": "./plugins/connectors/vault-kv",
-      "description": "Operator-only Vault KV runtime injection into a trusted local process.",
-      "version": "0.1.0"
+      "description": "Operator-only Vault KV runtime injection into a trusted local process."
     },
     {
       "name": "gcp-secret-metadata",
       "source": "./plugins/connectors/gcp-secret-metadata",
-      "description": "GCP Secret Manager name inventory and operator-only runtime injection.",
-      "version": "0.1.0"
+      "description": "GCP Secret Manager name inventory and operator-only runtime injection."
     },
     {
-      "name": "grc-engineer",
-      "source": "./plugins/personas/grc-engineer",
-      "description": "Maps IaC to compliance controls, generates policies, collects evidence, reviews PRs",
-      "version": "0.1.0"
+      "name": "engineer",
+      "source": "./plugins/personas/engineer",
+      "description": "Maps IaC to compliance controls, generates policies, collects evidence, reviews PRs"
     },
     {
-      "name": "grc-auditor",
-      "source": "./plugins/personas/grc-auditor",
-      "description": "Evidence review, control validation, and audit workpaper generation for external auditors",
-      "version": "0.1.0"
+      "name": "auditor",
+      "source": "./plugins/personas/auditor",
+      "description": "Evidence review, control validation, and audit workpaper generation for external auditors"
     },
     {
-      "name": "grc-internal",
-      "source": "./plugins/personas/grc-internal",
-      "description": "Risk register, policy lifecycle, and compliance tracking for internal GRC teams, built on the grc-data record schemas",
-      "version": "0.1.0"
+      "name": "internal",
+      "source": "./plugins/personas/internal",
+      "description": "Risk register, policy lifecycle, and compliance tracking for internal GRC teams, built on the grc-data record schemas"
     },
     {
-      "name": "grc-tprm",
-      "source": "./plugins/personas/grc-tprm",
-      "description": "Vendor tiering and assessments, SOC 2 report review, SIG and CAIQ questionnaire analysis, and residual risk scoring for third-party risk management",
-      "version": "0.1.0"
+      "name": "tprm",
+      "source": "./plugins/personas/tprm",
+      "description": "Vendor tiering and assessments, SOC 2 report review, SIG and CAIQ questionnaire analysis, and residual risk scoring for third-party risk management"
     },
     {
-      "name": "grc-reporter",
-      "source": "./plugins/reporting/grc-reporter",
-      "description": "Translate findings, risks, and metrics into narratives leadership reads. Reference implementation of the Reporting category from RFC #38.",
-      "version": "0.1.0"
+      "name": "reporter",
+      "source": "./plugins/reporting/reporter",
+      "description": "Translate findings, risks, and metrics into narratives leadership reads. Reference implementation of the Reporting category from RFC #38."
     },
     {
-      "name": "grc-loop",
-      "source": "./plugins/workflows/grc-loop",
-      "description": "Iterative GRC automation loops for gap-remediation burndown and quarterly evidence sweeps.",
-      "version": "0.1.0"
+      "name": "loop",
+      "source": "./plugins/workflows/loop",
+      "description": "Iterative GRC automation loops for gap-remediation burndown and quarterly evidence sweeps."
     },
     {
       "name": "gcp-docs",
       "source": "./plugins/workflows/gcp-docs",
-      "description": "Knowledge source for Google Developer Knowledge API: current Google developer documentation citations for GRC workflows.",
-      "version": "0.1.0"
+      "description": "Knowledge source for Google Developer Knowledge API: current Google developer documentation citations for GRC workflows."
     },
     {
       "name": "teach-me",
       "source": "./plugins/workflows/teach-me",
-      "description": "Socratic primer + drill plugin for new-to-GRC practitioners. Get up to speed on a framework, control, or role without already knowing it.",
-      "version": "0.1.0"
+      "description": "Socratic primer + drill plugin for new-to-GRC practitioners. Get up to speed on a framework, control, or role without already knowing it."
     },
     {
       "name": "academic-research-companion",
       "source": "./plugins/workflows/academic-research-companion",
-      "description": "Guide a research project through the academic lifecycle — idea, literature, methodology, writing, feedback, publishing, and authorship — with verified sources and a durable tracker.",
-      "version": "0.1.0"
+      "description": "Guide a research project through the academic lifecycle — idea, literature, methodology, writing, feedback, publishing, and authorship — with verified sources and a durable tracker."
     },
     {
-      "name": "grc-diagrams",
-      "source": "./plugins/reporting/grc-diagrams",
+      "name": "diagrams",
+      "source": "./plugins/reporting/diagrams",
       "description": "Editable draw.io diagram patterns for GRC system boundaries, evidence flows, control maps, risk treatment, audits, crosswalks, TPRM, POA&M, data flows, RACI, and operating models.",
-      "version": "0.1.0",
       "category": "workflow",
       "tags": [
         "drawio",
@@ -94,332 +82,280 @@
     {
       "name": "soc2",
       "source": "./plugins/frameworks/soc2",
-      "description": "SOC 2 Trust Service Criteria expertise and Type I/II assessment support",
-      "version": "0.1.0"
+      "description": "SOC 2 Trust Service Criteria expertise and Type I/II assessment support"
     },
     {
       "name": "nist-800-53",
       "source": "./plugins/frameworks/nist-800-53",
-      "description": "NIST 800-53 control families and baseline selection (Low/Moderate/High)",
-      "version": "0.1.0"
+      "description": "NIST 800-53 control families and baseline selection (Low/Moderate/High)"
     },
     {
       "name": "iso27001",
       "source": "./plugins/frameworks/iso27001",
-      "description": "ISO 27001 Annex A controls and ISMS implementation guidance",
-      "version": "0.1.0"
+      "description": "ISO 27001 Annex A controls and ISMS implementation guidance"
     },
     {
       "name": "fedramp-20x",
       "source": "./plugins/frameworks/fedramp-20x",
-      "description": "FedRAMP 20X automated authorization with KSIs, continuous monitoring, and auto-sync from official docs",
-      "version": "0.1.0"
+      "description": "FedRAMP 20X automated authorization with KSIs, continuous monitoring, and auto-sync from official docs"
     },
     {
       "name": "pci-dss",
       "source": "./plugins/frameworks/pci-dss",
-      "description": "PCI DSS v4.0.1 compliance with ROC guidance, SAQ selection, and March 2025 requirements",
-      "version": "0.1.0"
+      "description": "PCI DSS v4.0.1 compliance with ROC guidance, SAQ selection, and March 2025 requirements"
     },
     {
       "name": "cmmc",
       "source": "./plugins/frameworks/cmmc",
-      "description": "CMMC v2.0 (DoD contractors) with 5 levels and C3PAO assessment prep",
-      "version": "0.1.0"
+      "description": "CMMC v2.0 (DoD contractors) with 5 levels and C3PAO assessment prep"
     },
     {
       "name": "hitrust",
       "source": "./plugins/frameworks/hitrust",
-      "description": "HITRUST CSF healthcare security with i1/r2 assessments",
-      "version": "0.1.0"
+      "description": "HITRUST CSF healthcare security with i1/r2 assessments"
     },
     {
       "name": "cis-controls",
       "source": "./plugins/frameworks/cis-controls",
-      "description": "CIS Controls v8 baseline security with IG1/IG2/IG3 levels",
-      "version": "0.1.0"
+      "description": "CIS Controls v8 baseline security with IG1/IG2/IG3 levels"
     },
     {
       "name": "gdpr",
       "source": "./plugins/frameworks/gdpr",
-      "description": "GDPR EU privacy regulation with DPIA and data subject rights",
-      "version": "0.1.0"
+      "description": "GDPR EU privacy regulation with DPIA and data subject rights"
     },
     {
       "name": "csa-ccm",
       "source": "./plugins/frameworks/csa-ccm",
-      "description": "CSA Cloud Controls Matrix with 197 controls and CAIQ support",
-      "version": "0.1.0"
+      "description": "CSA Cloud Controls Matrix with 197 controls and CAIQ support"
     },
     {
       "name": "nydfs",
       "source": "./plugins/frameworks/nydfs",
-      "description": "NYDFS 23 NYCRR 500 cybersecurity requirements for financial services",
-      "version": "0.1.0"
+      "description": "NYDFS 23 NYCRR 500 cybersecurity requirements for financial services"
     },
     {
       "name": "dora",
       "source": "./plugins/frameworks/dora",
-      "description": "DORA EU Digital Operational Resilience Act for financial entities",
-      "version": "0.1.0"
+      "description": "DORA EU Digital Operational Resilience Act for financial entities"
     },
     {
       "name": "govramp",
       "source": "./plugins/frameworks/govramp",
-      "description": "GovRAMP (formerly StateRAMP) security verification for state, local, tribal, and education government cloud",
-      "version": "0.1.0"
+      "description": "GovRAMP (formerly StateRAMP) security verification for state, local, tribal, and education government cloud"
     },
     {
       "name": "essential8",
       "source": "./plugins/frameworks/essential8",
-      "description": "Essential 8 Australian cyber security strategies with maturity levels",
-      "version": "0.1.0"
+      "description": "Essential 8 Australian cyber security strategies with maturity levels"
     },
     {
       "name": "glba",
       "source": "./plugins/frameworks/glba",
-      "description": "GLBA Gramm-Leach-Bliley Act for financial institution privacy",
-      "version": "0.1.0"
+      "description": "GLBA Gramm-Leach-Bliley Act for financial institution privacy"
     },
     {
       "name": "us-export",
       "source": "./plugins/frameworks/us-export",
-      "description": "US Export Controls: ITAR (defense) + EAR (dual-use commercial) compliance",
-      "version": "0.1.0"
+      "description": "US Export Controls: ITAR (defense) + EAR (dual-use commercial) compliance"
     },
     {
       "name": "us-hipaa-security",
       "source": "./plugins/frameworks/us-hipaa-security",
-      "description": "HIPAA Security Rule (45 CFR Part 164, Subpart C) for ePHI protection with Administrative, Physical, and Technical Safeguards",
-      "version": "0.1.0"
+      "description": "HIPAA Security Rule (45 CFR Part 164, Subpart C) for ePHI protection with Administrative, Physical, and Technical Safeguards"
     },
     {
       "name": "pbmm",
       "source": "./plugins/frameworks/pbmm",
-      "description": "Canadian PBMM (Protected B Medium Medium) with ITSG-33 controls",
-      "version": "0.1.0"
+      "description": "Canadian PBMM (Protected B Medium Medium) with ITSG-33 controls"
     },
     {
       "name": "ismap",
       "source": "./plugins/frameworks/ismap",
-      "description": "Japanese ISMAP government cloud security (ISO 27001/27017/27018)",
-      "version": "0.1.0"
+      "description": "Japanese ISMAP government cloud security (ISO 27001/27017/27018)"
     },
     {
       "name": "irap",
       "source": "./plugins/frameworks/irap",
-      "description": "Australian IRAP assessments against the ASD Information Security Manual, with Essential Eight, classification, and data sovereignty",
-      "version": "0.1.0"
+      "description": "Australian IRAP assessments against the ASD Information Security Manual, with Essential Eight, classification, and data sovereignty"
     },
     {
       "name": "aws-inspector",
       "source": "./plugins/connectors/aws-inspector",
-      "description": "GRC connector for AWS: IAM, S3, CloudTrail, EBS compliance checks \u2192 v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for AWS: IAM, S3, CloudTrail, EBS compliance checks \u2192 v1 finding contract"
     },
     {
       "name": "onepassword-connector",
       "source": "./plugins/connectors/onepassword-connector",
-      "description": "Run trusted local commands with 1Password secret references and suppressed output.",
-      "version": "0.1.0"
+      "description": "Run trusted local commands with 1Password secret references and suppressed output."
     },
     {
       "name": "aws-secrets-inspector",
       "source": "./plugins/connectors/aws-secrets-inspector",
-      "description": "GRC connector for AWS Secrets Manager: rotation, customer-managed KMS, resource policy, and access-pattern checks \u2192 v1 finding contract. Hybrid shape supports opt-in secret retrieval to stdout or 0600-permission files.",
-      "version": "0.1.0"
+      "description": "GRC connector for AWS Secrets Manager: rotation, customer-managed KMS, resource policy, and access-pattern checks \u2192 v1 finding contract. Hybrid shape supports opt-in secret retrieval to stdout or 0600-permission files."
     },
     {
       "name": "github-inspector",
       "source": "./plugins/connectors/github-inspector",
-      "description": "GRC connector for GitHub: branch protection, secret scanning, Dependabot, code scanning \u2192 v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for GitHub: branch protection, secret scanning, Dependabot, code scanning \u2192 v1 finding contract"
     },
     {
       "name": "gcp-inspector",
       "source": "./plugins/connectors/gcp-inspector",
-      "description": "GRC connector for Google Cloud: IAM, Cloud Storage, audit logs, KMS rotation, Compute OS Login \u2192 v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for Google Cloud: IAM, Cloud Storage, audit logs, KMS rotation, Compute OS Login \u2192 v1 finding contract"
     },
     {
       "name": "azure-inspector",
       "source": "./plugins/connectors/azure-inspector",
-      "description": "GRC connector for Azure: Entra ID, Storage, Key Vault, Monitor, and Defender for Cloud to v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for Azure: Entra ID, Storage, Key Vault, Monitor, and Defender for Cloud to v1 finding contract"
     },
     {
       "name": "slack-inspector",
       "source": "./plugins/connectors/slack-inspector",
-      "description": "GRC connector for Slack: workspace 2FA, SSO/session, retention, app approvals, and DLP visibility to v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for Slack: workspace 2FA, SSO/session, retention, app approvals, and DLP visibility to v1 finding contract"
     },
     {
       "name": "datadog-inspector",
       "source": "./plugins/connectors/datadog-inspector",
-      "description": "GRC connector for Datadog: log retention, audit logs, monitor coverage, SSO, and RBAC to v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for Datadog: log retention, audit logs, monitor coverage, SSO, and RBAC to v1 finding contract"
     },
     {
       "name": "crowdstrike-inspector",
       "source": "./plugins/connectors/crowdstrike-inspector",
-      "description": "GRC connector for CrowdStrike Falcon: sensor coverage, policies, and host-group scoping to v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for CrowdStrike Falcon: sensor coverage, policies, and host-group scoping to v1 finding contract"
     },
     {
       "name": "drata-inspector",
       "source": "./plugins/connectors/drata-inspector",
-      "description": "GRC connector for Drata: wraps drata-cli workflows and normalizes compliance posture to v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for Drata: wraps drata-cli workflows and normalizes compliance posture to v1 finding contract"
     },
     {
       "name": "splunk-inspector",
       "source": "./plugins/connectors/splunk-inspector",
-      "description": "GRC connector for Splunk: index retention, RBAC, audit coverage, search ACLs, and auth posture to v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for Splunk: index retention, RBAC, audit coverage, search ACLs, and auth posture to v1 finding contract"
     },
     {
       "name": "tenable-inspector",
       "source": "./plugins/connectors/tenable-inspector",
-      "description": "GRC connector for Tenable.io/Tenable.sc: scan coverage, credentialed scans, vulnerability age, and scan access to v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for Tenable.io/Tenable.sc: scan coverage, credentialed scans, vulnerability age, and scan access to v1 finding contract"
     },
     {
       "name": "snowflake-inspector",
       "source": "./plugins/connectors/snowflake-inspector",
-      "description": "GRC connector for Snowflake: MFA, network policies, masking/row access policies, session timeout, and retention to v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for Snowflake: MFA, network policies, masking/row access policies, session timeout, and retention to v1 finding contract"
     },
     {
       "name": "wiz-inspector",
       "source": "./plugins/connectors/wiz-inspector",
-      "description": "GRC connector for Wiz CNAPP: configuration findings, issues, vulnerabilities, and cloud inventory to v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for Wiz CNAPP: configuration findings, issues, vulnerabilities, and cloud inventory to v1 finding contract"
     },
     {
       "name": "testssl-inspector",
       "source": "./plugins/connectors/testssl-inspector",
-      "description": "GRC connector wrapping testssl.sh: TLS/SSL protocol, cipher, certificate, and known-CVE checks on HTTPS endpoints → v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector wrapping testssl.sh: TLS/SSL protocol, cipher, certificate, and known-CVE checks on HTTPS endpoints → v1 finding contract"
     },
     {
       "name": "okta-inspector",
       "source": "./plugins/connectors/okta-inspector",
-      "description": "GRC connector for Okta: password/MFA/session policies, inactive users, admin factor enrollment \u2192 v1 finding contract",
-      "version": "0.1.0"
+      "description": "GRC connector for Okta: password/MFA/session policies, inactive users, admin factor enrollment \u2192 v1 finding contract"
     },
     {
       "name": "oscal",
       "source": "./plugins/workflows/oscal",
-      "description": "OSCAL toolkit: validate and convert catalogs, profiles, SSPs, SAPs, SARs, POA&Ms, assessment results, component definitions. Wraps ethanolivertroy/oscal-cli.",
-      "version": "0.1.0"
+      "description": "OSCAL toolkit: validate and convert catalogs, profiles, SSPs, SAPs, SARs, POA&Ms, assessment results, component definitions. Wraps ethanolivertroy/oscal-cli."
     },
     {
       "name": "singapore-pdpa",
       "source": "./plugins/frameworks/singapore-pdpa",
-      "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) \u2014 reference-depth plugin backed by the SCF crosswalk (30 SCF \u2192 14 framework controls).",
-      "version": "0.1.0"
+      "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) \u2014 reference-depth plugin backed by the SCF crosswalk (30 SCF \u2192 14 framework controls)."
     },
     {
       "name": "us-finra",
       "source": "./plugins/frameworks/us-finra",
-      "description": "FINRA broker-dealer cybersecurity: FINRA Rules 3110 and 4370, SEC Reg S-P (2024 amendments), Reg S-ID, and Rule 17a-4, with scope and evidence by FINRA's 12 principles",
-      "version": "0.1.0"
+      "description": "FINRA broker-dealer cybersecurity: FINRA Rules 3110 and 4370, SEC Reg S-P (2024 amendments), Reg S-ID, and Rule 17a-4, with scope and evidence by FINRA's 12 principles"
     },
     {
       "name": "cyber-essentials-plus",
       "source": "./plugins/frameworks/cyber-essentials-plus",
-      "description": "UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell \u2014 gap assessments, evidence checklists, remediation plans, and cross-framework mapping to ISO 27001 and NIST CSF.",
-      "version": "0.1.0"
+      "description": "UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell \u2014 gap assessments, evidence checklists, remediation plans, and cross-framework mapping to ISO 27001 and NIST CSF."
     },
     {
       "name": "ch-fadp",
       "source": "./plugins/frameworks/ch-fadp",
-      "description": "Swiss Federal Act on Data Protection (nFADP) \u2014 stub-depth plugin backed by the SCF crosswalk (35 SCF \u2192 90 framework controls).",
-      "version": "0.1.0"
+      "description": "Swiss Federal Act on Data Protection (nFADP) \u2014 stub-depth plugin backed by the SCF crosswalk (35 SCF \u2192 90 framework controls)."
     },
     {
       "name": "ind-dpdpa",
       "source": "./plugins/frameworks/ind-dpdpa",
-      "description": "India Digital Personal Data Protection Act, 2023 \u2014 reference-depth plugin with scope determination, evidence checklist, and breach-process workflow backed by the SCF crosswalk.",
-      "version": "0.1.0"
+      "description": "India Digital Personal Data Protection Act, 2023 \u2014 reference-depth plugin with scope determination, evidence checklist, and breach-process workflow backed by the SCF crosswalk."
     },
     {
       "name": "vdr-automation",
       "source": "./plugins/connectors/vdr-automation",
-      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: turns vulnerability scans into FedRAMP 20x VDR reports and emits NIST-800-53-r5 (SI-2) findings \u2192 v1 finding contract.",
-      "version": "0.1.0"
+      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: turns vulnerability scans into FedRAMP 20x VDR reports and emits NIST-800-53-r5 (SI-2) findings \u2192 v1 finding contract."
     },
     {
       "name": "eu-nis2",
       "source": "./plugins/frameworks/eu-nis2",
-      "description": "EU NIS2 Directive (2022) \u2014 reference-depth plugin backed by the SCF crosswalk (68 SCF \u2192 30 framework controls).",
-      "version": "0.1.0"
+      "description": "EU NIS2 Directive (2022) \u2014 reference-depth plugin backed by the SCF crosswalk (68 SCF \u2192 30 framework controls)."
     },
     {
       "name": "nist-csf-20",
       "source": "./plugins/frameworks/nist-csf-20",
-      "description": "NIST Cybersecurity Framework (v2.0) \u2014 reference-depth plugin backed by the SCF crosswalk (250 SCF \u2192 134 framework controls).",
-      "version": "0.1.0"
+      "description": "NIST Cybersecurity Framework (v2.0) \u2014 reference-depth plugin backed by the SCF crosswalk (250 SCF \u2192 134 framework controls)."
     },
     {
       "name": "us-sox",
       "source": "./plugins/frameworks/us-sox",
-      "description": "US Sarbanes-Oxley Act of 2002 (SOX) \u2014 Reference-depth plugin for ICFR scoping, IT General Control (ITGC) testing, and \u00a7302/\u00a7404/\u00a7906 evidence preparation. Backed by the SCF crosswalk (4 SCF \u2192 17 framework controls).",
-      "version": "0.1.0"
+      "description": "US Sarbanes-Oxley Act of 2002 (SOX) \u2014 Reference-depth plugin for ICFR scoping, IT General Control (ITGC) testing, and \u00a7302/\u00a7404/\u00a7906 evidence preparation. Backed by the SCF crosswalk (4 SCF \u2192 17 framework controls)."
     },
     {
       "name": "us-ccpa",
       "source": "./plugins/frameworks/us-ccpa",
-      "description": "California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA) \u2014 Reference plugin with scope determination, evidence checklist, and SCF-backed gap assessment for the California Privacy Protection Agency (CPPA) regulations.",
-      "version": "0.1.0"
+      "description": "California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA) \u2014 Reference plugin with scope determination, evidence checklist, and SCF-backed gap assessment for the California Privacy Protection Agency (CPPA) regulations."
     },
     {
       "name": "compliance-posture-dashboard",
       "source": "./plugins/reporting/compliance-posture",
-      "description": "Localhost compliance posture dashboard for monitor-continuous JSON output. Reference implementation of the Dashboards category from RFC #38.",
-      "version": "0.1.0"
+      "description": "Localhost compliance posture dashboard for monitor-continuous JSON output. Reference implementation of the Dashboards category from RFC #38."
     },
     {
       "name": "jp-appi",
       "source": "./plugins/frameworks/jp-appi",
-      "description": "Japan APPI reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
-      "version": "0.1.0"
+      "description": "Japan APPI reference plugin with scope, evidence checklist, and SCF-backed gap assessment."
     },
     {
       "name": "sg-mas-trm",
       "source": "./plugins/frameworks/sg-mas-trm",
-      "description": "Singapore MAS TRM reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
-      "version": "0.1.0"
+      "description": "Singapore MAS TRM reference plugin with scope, evidence checklist, and SCF-backed gap assessment."
     },
     {
       "name": "au-apra-cps-234",
       "source": "./plugins/frameworks/au-apra-cps-234",
-      "description": "APRA CPS 234 reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
-      "version": "0.1.0"
+      "description": "APRA CPS 234 reference plugin with scope, evidence checklist, and SCF-backed gap assessment."
     },
     {
       "name": "us-nerc-cip",
       "source": "./plugins/frameworks/us-nerc-cip",
-      "description": "NERC CIP reference plugin with scope, evidence checklist, and SCF-backed gap assessment.",
-      "version": "0.1.0"
+      "description": "NERC CIP reference plugin with scope, evidence checklist, and SCF-backed gap assessment."
     },
     {
-      "name": "grc-portfolio",
-      "source": "./plugins/grc-portfolio",
-      "description": "Build and deploy a professional portfolio website for GRC engineers — certifications, frameworks, audit experience, and AWS hosting.",
-      "version": "0.1.0"
+      "name": "portfolio",
+      "source": {
+        "source": "github",
+        "repo": "GRCEngClub/grc-portfolio"
+      },
+      "description": "Build and deploy a professional portfolio website for GRC engineers — certifications, frameworks, audit experience, and AWS hosting. Lives in its own repository."
     },
     {
       "name": "nist-ai-rmf",
       "source": "./plugins/frameworks/nist-ai-rmf",
-      "description": "NIST AI 100-1 (AI RMF 1.0) \u2014 reference-depth plugin with scope, an evidence checklist by GOVERN/MAP/MEASURE/MANAGE, and SCF-backed assessment (158 SCF \u2192 91 framework controls).",
-      "version": "0.1.0"
+      "description": "NIST AI 100-1 (AI RMF 1.0) \u2014 reference-depth plugin with scope, an evidence checklist by GOVERN/MAP/MEASURE/MANAGE, and SCF-backed assessment (158 SCF \u2192 91 framework controls)."
     },
     {
       "name": "nist-ai-600-1",
       "source": "./plugins/frameworks/nist-ai-600-1",
-      "description": "NIST AI 600-1 (Generative AI Profile) \u2014 reference-depth plugin with generative-AI scope, an evidence checklist by GAI risk, and SCF-backed review (139 SCF controls map to 250 profile items and suggested actions).",
-      "version": "0.1.0"
+      "description": "NIST AI 600-1 (Generative AI Profile) \u2014 reference-depth plugin with generative-AI scope, an evidence checklist by GAI risk, and SCF-backed review (139 SCF controls map to 250 profile items and suggested actions)."
     }
   ]
 }

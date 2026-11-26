@@ -1,7 +1,7 @@
 {
   "name": "cis-controls",
   "description": "CIS Controls v8 Plugin - Center for Internet Security baseline with IG1/IG2/IG3 implementation groups and 153 safeguards",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

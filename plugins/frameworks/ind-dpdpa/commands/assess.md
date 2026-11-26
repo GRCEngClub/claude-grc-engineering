@@ -4,7 +4,7 @@ description: India DPDPA 2023 + DPDP Rules 2025 compliance gap assessment
 
 # India DPDPA Assessment
 
-Runs a compliance gap assessment against the **Digital Personal Data Protection Act, 2023 (DPDPA)** together with the operational obligations notified under the **Digital Personal Data Protection Rules, 2025 (DPDP Rules)**, by delegating to `/grc-engineer:gap-assessment` with the SCF crosswalk and overlaying India-specific context.
+Runs a compliance gap assessment against the **Digital Personal Data Protection Act, 2023 (DPDPA)** together with the operational obligations notified under the **Digital Personal Data Protection Rules, 2025 (DPDP Rules)**, by delegating to `/engineer:gap-assessment` with the SCF crosswalk and overlaying India-specific context.
 
 ## Usage
 
@@ -69,7 +69,7 @@ Significant Data Fiduciary status carries additional obligations (DPO, DPIA, per
 Under the hood:
 
 ```bash
-/grc-engineer:gap-assessment "apac-ind-dpdpa-2023" [--sources=<connector-list>]
+/engineer:gap-assessment "apac-ind-dpdpa-2023" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands the 41 mapped SCF controls into the 96 DPDPA control identifiers. DPDPA control IDs follow the Act's section numbering, e.g. `8(6)` = Section 8, sub-section (6); `27(1)(a)` = Section 27, sub-section (1), clause (a).

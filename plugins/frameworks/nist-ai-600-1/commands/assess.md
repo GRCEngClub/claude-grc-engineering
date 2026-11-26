@@ -4,7 +4,7 @@ description: NIST AI 600-1 evidence and gap review via the SCF crosswalk
 
 # NIST AI 600-1 Assessment
 
-Reviews evidence relevant to **NIST AI 600-1** by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier.
+Reviews evidence relevant to **NIST AI 600-1** by delegating to `/engineer:gap-assessment` with the framework's SCF identifier.
 
 The profile is voluntary guidance layered on AI RMF 1.0. Run
 `/nist-ai-600-1:scope` first so the review covers the right generative AI
@@ -20,7 +20,7 @@ for the AI RMF program the profile sits inside.
 Delegates to:
 
 ```bash
-/grc-engineer:gap-assessment "general-nist-600-1-gen-ai-profile" [--sources=<connector-list>]
+/engineer:gap-assessment "general-nist-600-1-gen-ai-profile" [--sources=<connector-list>]
 ```
 
 ## Arguments

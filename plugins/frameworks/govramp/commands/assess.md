@@ -43,7 +43,7 @@ Provisional means the Authorized requirements are met, but the product relies on
    - Snapshot or Core: the 40 or 60 controls in GovRAMP's published packages.
    - Ready: the 80 Ready controls.
    - Authorized: the full Low, Moderate, or High baseline.
-   - For a crosswalk-based first pass, run `/grc-engineer:gap-assessment GovRAMP-Core` (or `GovRAMP-Low`, `GovRAMP`, `GovRAMP-High`). SCF publishes crosswalks for each GovRAMP baseline.
+   - For a crosswalk-based first pass, run `/engineer:gap-assessment GovRAMP-Core` (or `GovRAMP-Low`, `GovRAMP`, `GovRAMP-High`). SCF publishes crosswalks for each GovRAMP baseline.
 4. **Documentation check.** See `/govramp:documentation` for the package each status needs.
 5. **Continuous monitoring readiness.** Core submissions need 90 days of continuous monitoring data and a POA&M. Ready and Authorized need monthly ConMon after verification.
 6. **Reuse existing federal work.** A current FedRAMP Ready status can be used toward GovRAMP Ready, and GovRAMP Fast Track accepts existing RAR, SAR, and ConMon material. For FedRAMP itself, use the `fedramp-20x` plugin.

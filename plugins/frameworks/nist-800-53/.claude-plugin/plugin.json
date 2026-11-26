@@ -1,7 +1,7 @@
 {
   "name": "nist-800-53",
   "description": "NIST 800-53 Plugin - Control families, baseline selection (Low/Moderate/High), and FedRAMP alignment",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

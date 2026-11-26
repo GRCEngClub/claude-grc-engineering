@@ -4,7 +4,7 @@ description: UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell compliance gap ass
 
 # UK NCSC Cyber Essentials Plus (CE+) Assessment
 
-Runs a compliance gap assessment against **UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell** by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier, then overlays CE+-specific context and evidence requirements.
+Runs a compliance gap assessment against **UK NCSC Cyber Essentials Plus (CE+) v3.3 Danzell** by delegating to `/engineer:gap-assessment` with the framework's SCF identifier, then overlays CE+-specific context and evidence requirements.
 
 ## Usage
 
@@ -30,7 +30,7 @@ Runs a compliance gap assessment against **UK NCSC Cyber Essentials Plus (CE+) v
 Under the hood:
 
 ```
-/grc-engineer:gap-assessment "emea-gbr-cyber-essentials-requirements-3-3" [--sources=<connector-list>]
+/engineer:gap-assessment "emea-gbr-cyber-essentials-requirements-3-3" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands 26 SCF controls into the 5 Cyber Essentials Plus controls.
@@ -44,7 +44,7 @@ Full-boundary assessments are the norm — CE+ certifies the entire defined boun
 ### Known interactions with sibling frameworks
 
 - **ISO 27001**: CE+ five controls map closely to ISO Annex A domains A.8 (Asset Management), A.9 (Access Control), A.12 (Operations Security), and A.13 (Communications Security). Achieving CE+ first provides a solid foundation before pursuing ISO 27001.
-- **NIST CSF**: CE+ maps primarily to the Protect function. Use `/grc-engineer:map-controls-unified` to identify overlapping controls before running parallel assessments.
+- **NIST CSF**: CE+ maps primarily to the Protect function. Use `/engineer:map-controls-unified` to identify overlapping controls before running parallel assessments.
 - **GDPR / UK GDPR**: CE+ certification is referenced in ICO guidance as a baseline technical measure for Article 32 security obligations. It does not substitute for a full GDPR assessment.
 
 ### Mandatory cadence

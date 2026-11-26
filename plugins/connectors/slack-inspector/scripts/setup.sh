@@ -77,5 +77,5 @@ slack-inspector:setup ok
 
 Next:
   /slack-inspector:collect
-  /grc-engineer:gap-assessment SOC2,NIST-800-53 --sources=slack-inspector
+  /engineer:gap-assessment SOC2,NIST-800-53 --sources=slack-inspector
 EOF

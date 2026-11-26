@@ -4,7 +4,7 @@ description: SOX gap assessment via the SCF crosswalk, framed as ICFR readiness 
 
 # SOX Assessment
 
-Runs a gap assessment for the **Sarbanes-Oxley Act of 2002** by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier (`usa-federal-law-sox-2002`), then overlays SOX-specific framing — ICFR scope, ITGC domains, deficiency severity, and SOC 1 vendor reliance.
+Runs a gap assessment for the **Sarbanes-Oxley Act of 2002** by delegating to `/engineer:gap-assessment` with the framework's SCF identifier (`usa-federal-law-sox-2002`), then overlays SOX-specific framing — ICFR scope, ITGC domains, deficiency severity, and SOC 1 vendor reliance.
 
 This is a **readiness assessment**, not an external audit. The output identifies gaps an auditor would likely surface; final classification of any gap as a control deficiency, significant deficiency, or material weakness is a judgment call requiring management and the external auditor.
 
@@ -58,7 +58,7 @@ Before starting, confirm with the user:
 Under the hood, the SCF mechanics are handled by the persona plugin:
 
 ```
-/grc-engineer:gap-assessment "usa-federal-law-sox-2002" [--sources=<connector-list>]
+/engineer:gap-assessment "usa-federal-law-sox-2002" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands **4 SCF controls into 17 SOX-relevant controls**. That number is small because SOX itself does not enumerate technical control objectives — the security and IT control catalog flows in from COSO 2013 IC-IF, COBIT, and the AICPA SOC 1 framework rather than from SOX statutory text. This `assess` command therefore wraps the SCF gap-assessment output in ICFR-shaped sections and adds the entity-level / ITDM / vendor-SOC 1 dimensions that SCF alone does not capture.
@@ -168,7 +168,7 @@ Frequently-requested scopes in practice:
 
 - **SOC 2** — overlapping content (logical access, change management) but a different audit objective (Trust Services Criteria, not ICFR). Useful supplementary evidence; does not satisfy SOX vendor reliance on its own.
 - **SOC 1 Type II** — the canonical vendor-reliance evidence for SOX. Always preferred over SOC 2 for in-scope vendor systems.
-- **NYDFS 23 NYCRR 500, ISO 27001, NIST CSF / 800-53** — many engineering teams structure ITGC tooling so the same underlying controls (access reviews, change tickets, deployment logs, log retention) generate evidence usable across SOX and these adjacent frameworks. See `/grc-engineer:optimize-multi-framework` for cross-framework optimization.
+- **NYDFS 23 NYCRR 500, ISO 27001, NIST CSF / 800-53** — many engineering teams structure ITGC tooling so the same underlying controls (access reviews, change tickets, deployment logs, log retention) generate evidence usable across SOX and these adjacent frameworks. See `/engineer:optimize-multi-framework` for cross-framework optimization.
 - **HIPAA Security Rule** — for healthcare-sector public companies, the same change-management and logical-access tooling typically supports both HIPAA Technical Safeguards and SOX ITGCs.
 - **PCI DSS** — separate scope, but for retailers and card-handling public companies the same change-management discipline often covers both.
 
@@ -191,4 +191,4 @@ Frequently-requested scopes in practice:
 **Statute**: Public Law 107-204; 15 U.S.C. §§ 7201 et seq.
 **Regulators**: SEC, PCAOB, DOJ
 **Depth**: Reference (tier 2 of 3)
-**Related commands**: `/us-sox:scope`, `/us-sox:evidence-checklist`, `/grc-engineer:gap-assessment`
+**Related commands**: `/us-sox:scope`, `/us-sox:evidence-checklist`, `/engineer:gap-assessment`

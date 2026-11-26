@@ -1,7 +1,7 @@
 {
   "name": "us-sox",
   "description": "Sarbanes-Oxley Act of 2002 (SOX) — Reference-depth plugin for ICFR scoping, IT General Control (ITGC) testing, and §302/§404/§906 evidence preparation. Frames SOX as the governance layer over ICFR; security work flows in via ITGCs and SOC 1 reliance on vendor systems.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {"name": "GRC Engineering Club Contributors"},
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",

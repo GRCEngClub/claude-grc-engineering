@@ -1,7 +1,7 @@
 {
   "name": "eu-nis2",
   "description": "EU NIS2 Directive (Directive (EU) 2022/2555) — Reference plugin: scope determination across essential vs important entities, Article 21 risk-management measure evidence checklist, and the 24h/72h/1mo incident-reporting runbook. SCF-backed gap assessment via the crosswalk.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {"name": "GRC Engineering Club Contributors"},
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",

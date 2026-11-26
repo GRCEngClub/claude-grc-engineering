@@ -40,7 +40,7 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/validate.sh" <file> [--quiet] [--json]
 /oscal:validate gap-assessment-20260413/gap-report.oscal-ar
 ```
 
-This checks that `/grc-engineer:gap-assessment`'s OSCAL Assessment Results output is well-formed before handing it to downstream tooling (Compliance Trestle, eMASS, FedRAMP 20X).
+This checks that `/engineer:gap-assessment`'s OSCAL Assessment Results output is well-formed before handing it to downstream tooling (Compliance Trestle, eMASS, FedRAMP 20X).
 
 ## Non-goals
 

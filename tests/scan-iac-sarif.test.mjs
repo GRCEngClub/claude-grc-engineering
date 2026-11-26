@@ -6,9 +6,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import IaCScanner from '../plugins/personas/grc-engineer/scripts/scan-iac.js';
+import IaCScanner from '../plugins/personas/engineer/scripts/scan-iac.js';
 
-const SCRIPT = fileURLToPath(new URL('../plugins/personas/grc-engineer/scripts/scan-iac.js', import.meta.url));
+const SCRIPT = fileURLToPath(new URL('../plugins/personas/engineer/scripts/scan-iac.js', import.meta.url));
 
 function fixtureDir() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'scan-iac-sarif-'));

@@ -19,7 +19,7 @@
       "message": "Default branch 'main' has no protection rule; direct pushes are permitted without review.",
       "remediation": {
         "summary": "Enable branch protection on main with at least 1 required reviewer and dismiss stale reviews.",
-        "ref": "grc-engineer://generate-implementation/change_management/github",
+        "ref": "engineer://generate-implementation/change_management/github",
         "effort_hours": 0.25,
         "automation": "auto_fixable"
       }

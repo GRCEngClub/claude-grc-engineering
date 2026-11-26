@@ -4,7 +4,7 @@ description: Swiss Federal Act on Data Protection (nFADP) compliance gap assessm
 
 # Swiss Federal Act on Data Protection (nFADP) Assessment
 
-Runs a compliance gap assessment against **Swiss Federal Act on Data Protection (nFADP)** by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier.
+Runs a compliance gap assessment against **Swiss Federal Act on Data Protection (nFADP)** by delegating to `/engineer:gap-assessment` with the framework's SCF identifier.
 
 This is a **stub plugin** — the underlying gap assessment is powered by the SCF crosswalk (35 SCF controls mapped to 90 framework controls). To add framework-specific workflow commands, evidence checklists, or implementation guidance, see the [Framework Plugin Guide](../../../../docs/FRAMEWORK-PLUGIN-GUIDE.md) for the level-up path to Reference or Full depth.
 
@@ -17,7 +17,7 @@ This is a **stub plugin** — the underlying gap assessment is powered by the SC
 Delegates to:
 
 ```text
-/grc-engineer:gap-assessment "emea-che-fadp-2025" [--sources=<connector-list>]
+/engineer:gap-assessment "emea-che-fadp-2025" [--sources=<connector-list>]
 ```
 
 ## Arguments

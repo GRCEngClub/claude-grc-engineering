@@ -1,0 +1,10 @@
+{
+  "name": "tprm",
+  "description": "GRC Third-Party Risk Management Plugin - Vendor tiering, evidence-based assessments, SOC 2 report review, SIG/CAIQ questionnaire analysis, and matrix-based residual risk scoring",
+  "version": "0.2.0",
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT"
+}

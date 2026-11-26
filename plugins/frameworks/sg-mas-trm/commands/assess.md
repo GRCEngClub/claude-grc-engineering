@@ -6,7 +6,7 @@ description: Singapore MAS TRM compliance gap assessment
 
 Runs a compliance gap assessment against the Monetary Authority of Singapore
 (MAS) Technology Risk Management Guidelines by delegating to
-`/grc-engineer:gap-assessment` with the framework's SCF identifier, then
+`/engineer:gap-assessment` with the framework's SCF identifier, then
 overlays MAS TRM-specific context and evidence requirements.
 
 ## Usage
@@ -39,7 +39,7 @@ overlays MAS TRM-specific context and evidence requirements.
 Under the hood:
 
 ```bash
-/grc-engineer:gap-assessment "apac-sgp-mas-trm-2021" [--sources=<connector-list>]
+/engineer:gap-assessment "apac-sgp-mas-trm-2021" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands 214 SCF controls into the 280 MAS TRM mapped controls.

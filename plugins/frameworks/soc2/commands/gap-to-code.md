@@ -632,7 +632,7 @@ Phase 3: Low Priority (Deploy Within 1 Month)
 □ CC9.1 - Vendor risk automation
 
 Phase 4: Validation (After All Deployments)
-□ Run automated control tests: /grc-engineer:test-control ALL
+□ Run automated control tests: /engineer:test-control ALL
 □ Generate new TSC matrix: /soc2:generate-tsc-matrix all
 □ Verify 100% implementation
 □ Collect evidence
@@ -689,7 +689,7 @@ NEXT STEPS
 2. Customize variables (bucket names, retention periods, etc.)
 3. Run terraform plan to preview changes
 4. Deploy Phase 1 (high priority) remediations
-5. Validate using /grc-engineer:test-control
+5. Validate using /engineer:test-control
 6. Generate updated TSC matrix: /soc2:generate-tsc-matrix
 7. Collect evidence for remediated controls
 8. Continue with Phase 2 and 3 deployments
@@ -715,14 +715,14 @@ terraform plan
 terraform apply
 
 # Step 5: Test controls
-/grc-engineer:test-control ALL
+/engineer:test-control ALL
 
 # Step 6: Generate updated matrix
 /soc2:generate-tsc-matrix security table
 
 # Step 7: Collect evidence
 /soc2:evidence-checklist CC6.7
-/grc-engineer:collect-evidence CC6.7 ./evidence
+/engineer:collect-evidence CC6.7 ./evidence
 ```
 
 ## Cloud Provider Support
@@ -756,6 +756,6 @@ terraform apply
 - `/soc2:assess` - Identify gaps requiring remediation
 - `/soc2:generate-tsc-matrix` - See implementation status before/after
 - `/soc2:evidence-checklist` - Evidence requirements for remediated controls
-- `/grc-engineer:test-control` - Validate remediation effectiveness
-- `/grc-engineer:generate-implementation` - More detailed code generation
-- `/grc-engineer:scan-iac` - Scan for compliance violations
+- `/engineer:test-control` - Validate remediation effectiveness
+- `/engineer:generate-implementation` - More detailed code generation
+- `/engineer:scan-iac` - Scan for compliance violations

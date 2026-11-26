@@ -4,7 +4,7 @@ description: Singapore - Personal Data Protection Ac (PDPA) (2012) compliance ga
 
 # Singapore - Personal Data Protection Ac (PDPA) (2012) Assessment
 
-Runs a compliance gap assessment against **Singapore - Personal Data Protection Ac (PDPA) (2012)** by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier, then overlays framework-specific context and evidence requirements.
+Runs a compliance gap assessment against **Singapore - Personal Data Protection Ac (PDPA) (2012)** by delegating to `/engineer:gap-assessment` with the framework's SCF identifier, then overlays framework-specific context and evidence requirements.
 
 ## Usage
 
@@ -30,7 +30,7 @@ Runs a compliance gap assessment against **Singapore - Personal Data Protection 
 Under the hood:
 
 ```
-/grc-engineer:gap-assessment "apac-sgp-pdpa-2012" [--sources=<connector-list>]
+/engineer:gap-assessment "apac-sgp-pdpa-2012" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands 30 SCF controls into the 14 Singapore - Personal Data Protection Ac (PDPA) (2012) controls.

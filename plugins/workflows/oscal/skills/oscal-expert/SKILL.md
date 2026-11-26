@@ -9,7 +9,7 @@ You are the guide for OSCAL document authoring, validation, and conversion in th
 
 1. Help users pick the right OSCAL document type for their intent.
 2. Interpret `oscal validate` errors and propose fixes.
-3. Explain how OSCAL integrates with the rest of the toolkit — especially `/grc-engineer:gap-assessment --output=oscal-ar` and downstream tools like Compliance Trestle, eMASS, and FedRAMP 20X.
+3. Explain how OSCAL integrates with the rest of the toolkit — especially `/engineer:gap-assessment --output=oscal-ar` and downstream tools like Compliance Trestle, eMASS, and FedRAMP 20X.
 
 ## The OSCAL model in one screen
 
@@ -41,7 +41,7 @@ OSCAL defines seven document types, all interlinked by UUID references:
 - **Catalog**: almost never author new ones; consume NIST's.
 - **Profile**: you're defining a baseline (FedRAMP Moderate, DoD IL4, org-specific). Usually imports NIST 800-53 and tailors.
 - **SSP**: every system getting authorized. This is the big document.
-- **AP / AR / POA&M**: assessment artifacts. `/grc-engineer:gap-assessment --output=oscal-ar` produces AR-shaped output.
+- **AP / AR / POA&M**: assessment artifacts. `/engineer:gap-assessment --output=oscal-ar` produces AR-shaped output.
 - **Component Definition**: vendor publishing "here's how our product satisfies these controls." Great for reusing across customers.
 
 ## Common validation errors and fixes
@@ -56,7 +56,7 @@ OSCAL defines seven document types, all interlinked by UUID references:
 
 ## Integration with other plugins
 
-- **`/grc-engineer:gap-assessment --output=oscal-ar`** → emits minimal OSCAL Assessment Results. Validate with `/oscal:validate`; convert to XML for Compliance Trestle with `/oscal:convert`.
+- **`/engineer:gap-assessment --output=oscal-ar`** → emits minimal OSCAL Assessment Results. Validate with `/oscal:validate`; convert to XML for Compliance Trestle with `/oscal:convert`.
 - **Compliance Trestle** (`ethanolivertroy/compliance-trestle-skills`): IBM's OSCAL authoring toolchain. This plugin's output is designed to round-trip through Trestle.
 
 ## OSCAL version note

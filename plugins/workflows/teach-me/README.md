@@ -7,7 +7,7 @@ Get up to speed on a framework, control, or GRC role. Built for the practitioner
 
 /teach-me:framework SOC2          # primer on a framework
 /teach-me:control SCF-IAC-01      # one control across every framework it maps to
-/teach-me:role grc-engineer       # "I just got hired as X — what now?"
+/teach-me:role engineer       # "I just got hired as X — what now?"
 /teach-me:quiz FedRAMP            # Socratic drill, asks until you've got it
 ```
 
@@ -17,7 +17,7 @@ Every other framework plugin in this toolkit assumes you already know the framew
 
 - `/teach-me:framework` — paraphrased primer on a framework's purpose, scope, mandatory artifacts, cadence, and regulator. Names control families and points at the framework's own plugin (`/soc2:scope`, `/fedramp-20x:ksi-check`, etc.) for the next step. Does not reproduce copyrighted standard text.
 - `/teach-me:control` — pulls a control from the [SCF crosswalk](https://grcengclub.github.io/scf-api/) and explains it once, with the mapped framework controls listed below. Useful when "what does CHG-02 mean and where does it show up?" is the actual question.
-- `/teach-me:role` — what a `grc-engineer`, `grc-auditor`, `grc-internal`, or `grc-tprm` practitioner does day-to-day, what they touch in this toolkit, and where to start.
+- `/teach-me:role` — what a `engineer`, `auditor`, `internal`, or `tprm` practitioner does day-to-day, what they touch in this toolkit, and where to start.
 - `/teach-me:quiz` — Socratic drill (inspired by [`mattpocock/skills/grill-me`](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me)). Asks you a control-application question, evaluates your answer, asks another. Tracks which control families you've covered. Stops when you say so.
 
 ## What this plugin is not
@@ -28,7 +28,7 @@ Every other framework plugin in this toolkit assumes you already know the framew
 
 ## Reuse, not rebuild
 
-`/teach-me:control` delegates to `/grc-engineer:map-controls-unified` for crosswalk lookups. `/teach-me:framework` delegates to `/grc-engineer:frameworks` for coverage and depth metadata. The tutor doesn't duplicate the SCF client.
+`/teach-me:control` delegates to `/engineer:map-controls-unified` for crosswalk lookups. `/teach-me:framework` delegates to `/engineer:frameworks` for coverage and depth metadata. The tutor doesn't duplicate the SCF client.
 
 ## Status
 

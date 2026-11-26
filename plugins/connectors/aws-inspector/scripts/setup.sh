@@ -120,5 +120,5 @@ fi
 cat <<'EOF'
 Next:
   /aws-inspector:collect
-  /grc-engineer:gap-assessment SOC2,FedRAMP-Moderate --sources=aws-inspector
+  /engineer:gap-assessment SOC2,FedRAMP-Moderate --sources=aws-inspector
 EOF

@@ -98,7 +98,7 @@ Reliability Standard requirement structure.
 - `/us-nerc-cip:assess` - run a gap assessment
 - `/us-nerc-cip:evidence-checklist` - enumerate evidence requirements
 
-All three delegate to `/grc-engineer:gap-assessment` with SCF framework ID
+All three delegate to `/engineer:gap-assessment` with SCF framework ID
 `usa-federal-nerc-cip-2024` for the control-by-control mechanics, and wrap the
 results in NERC CIP-specific terminology.
 

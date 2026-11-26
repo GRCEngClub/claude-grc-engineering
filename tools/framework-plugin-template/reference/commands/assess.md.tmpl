@@ -4,7 +4,7 @@ description: {{DISPLAY_NAME}} compliance gap assessment
 
 # {{DISPLAY_NAME}} Assessment
 
-Runs a compliance gap assessment against **{{DISPLAY_NAME}}** by delegating to `/grc-engineer:gap-assessment` with the framework's SCF identifier, then overlays framework-specific context and evidence requirements.
+Runs a compliance gap assessment against **{{DISPLAY_NAME}}** by delegating to `/engineer:gap-assessment` with the framework's SCF identifier, then overlays framework-specific context and evidence requirements.
 
 ## Usage
 
@@ -30,7 +30,7 @@ Runs a compliance gap assessment against **{{DISPLAY_NAME}}** by delegating to `
 Under the hood:
 
 ```
-/grc-engineer:gap-assessment "{{SCF_FRAMEWORK_ID}}" [--sources=<connector-list>]
+/engineer:gap-assessment "{{SCF_FRAMEWORK_ID}}" [--sources=<connector-list>]
 ```
 
 The SCF crosswalk expands {{SCF_CONTROLS_MAPPED}} SCF controls into the {{FRAMEWORK_CONTROLS_MAPPED}} {{DISPLAY_NAME}} controls.

@@ -184,4 +184,4 @@ Next steps:
 **Statute**: Public Law 107-204; 15 U.S.C. §§ 7201 et seq.
 **Regulators**: SEC (disclosure), PCAOB (auditor oversight), DOJ (criminal enforcement of §802 / §906)
 **Depth**: Reference (tier 2 of 3)
-**Related commands**: `/us-sox:assess`, `/us-sox:evidence-checklist`, `/grc-engineer:gap-assessment`
+**Related commands**: `/us-sox:assess`, `/us-sox:evidence-checklist`, `/engineer:gap-assessment`

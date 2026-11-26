@@ -1,7 +1,7 @@
 {
   "name": "academic-research-companion",
   "description": "Guide a research project through the full academic lifecycle — idea development, literature review, methodology, writing, feedback, publishing, and authorship — with verified sources and a durable project tracker.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

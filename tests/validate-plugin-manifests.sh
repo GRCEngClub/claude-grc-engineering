@@ -129,12 +129,14 @@ const bySource = new Map();
 const byName = new Map();
 
 for (const plugin of marketplace.plugins || []) {
+  if (byName.has(plugin.name)) issues.push(`duplicate marketplace plugin name: ${plugin.name}`);
+  byName.set(plugin.name, plugin);
+  // A source object points at a plugin in another repository; nothing to check on disk.
+  if (plugin.source && typeof plugin.source === 'object') continue;
   const source = normalizeSource(plugin.source);
   if (!source) issues.push(`marketplace entry "${plugin.name || '<unnamed>'}" is missing source`);
   if (bySource.has(source)) issues.push(`duplicate marketplace source: ${source}`);
-  if (byName.has(plugin.name)) issues.push(`duplicate marketplace plugin name: ${plugin.name}`);
   bySource.set(source, plugin);
-  byName.set(plugin.name, plugin);
 }
 
 const manifests = walk('plugins');

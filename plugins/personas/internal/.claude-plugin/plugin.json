@@ -1,0 +1,10 @@
+{
+  "name": "internal",
+  "description": "GRC Internal Plugin - Risk register with scored treatment and time-bound acceptance, policy lifecycle with versioning, approval and attestation tracking, and compliance tracking from Findings, obligations, and evidence freshness",
+  "version": "0.2.0",
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT"
+}

@@ -124,7 +124,7 @@ async function collectIAM(ctx, log) {
         control_framework: 'SCF', control_id: 'IAC-01.1',
         status: 'fail', severity: 'critical',
         message: 'Root account does not have MFA enabled.',
-        remediation: { summary: 'Enable a hardware or virtual MFA device on the root user immediately.', ref: 'grc-engineer://generate-implementation/root_mfa/aws', effort_hours: 0.25, automation: 'manual' }
+        remediation: { summary: 'Enable a hardware or virtual MFA device on the root user immediately.', ref: 'engineer://generate-implementation/root_mfa/aws', effort_hours: 0.25, automation: 'manual' }
       });
     }
     if (s.AccountAccessKeysPresent === 0) {
@@ -134,7 +134,7 @@ async function collectIAM(ctx, log) {
         control_framework: 'SCF', control_id: 'IAC-15.1',
         status: 'fail', severity: 'critical',
         message: 'Root account has active access keys. These should never exist.',
-        remediation: { summary: 'Delete root access keys; use IAM users/roles for programmatic access.', ref: 'grc-engineer://generate-implementation/root_keys/aws', effort_hours: 0.1, automation: 'manual' }
+        remediation: { summary: 'Delete root access keys; use IAM users/roles for programmatic access.', ref: 'engineer://generate-implementation/root_keys/aws', effort_hours: 0.1, automation: 'manual' }
       });
     }
   } catch (err) {
@@ -159,7 +159,7 @@ async function collectIAM(ctx, log) {
         control_framework: 'SCF', control_id: 'IAC-02',
         status: 'fail', severity: 'high',
         message: `Password policy weaknesses: ${issues.join(', ')}.`,
-        remediation: { summary: 'Tighten the account password policy to the FedRAMP/NIST baseline.', ref: 'grc-engineer://generate-implementation/password_policy/aws', effort_hours: 0.25, automation: 'auto_fixable' }
+        remediation: { summary: 'Tighten the account password policy to the FedRAMP/NIST baseline.', ref: 'engineer://generate-implementation/password_policy/aws', effort_hours: 0.25, automation: 'auto_fixable' }
       });
     }
   } catch (err) {
@@ -168,7 +168,7 @@ async function collectIAM(ctx, log) {
         control_framework: 'SCF', control_id: 'IAC-02',
         status: 'fail', severity: 'high',
         message: 'No account password policy is configured (NoSuchEntity).',
-        remediation: { summary: 'Create a password policy meeting the FedRAMP/NIST baseline.', ref: 'grc-engineer://generate-implementation/password_policy/aws', effort_hours: 0.25, automation: 'auto_fixable' }
+        remediation: { summary: 'Create a password policy meeting the FedRAMP/NIST baseline.', ref: 'engineer://generate-implementation/password_policy/aws', effort_hours: 0.25, automation: 'auto_fixable' }
       });
     } else {
       evaluations.push({ control_framework: 'SCF', control_id: 'IAC-02', status: 'inconclusive', severity: 'high', message: `Could not read password policy: ${err.message}` });
@@ -197,7 +197,7 @@ async function collectEBS(ctx, region, log) {
       : {
           control_framework: 'SCF', control_id: 'CRY-05', status: 'fail', severity: 'high',
           message: `EBS default encryption is disabled in ${region}; new volumes can be created unencrypted.`,
-          remediation: { summary: `Enable EBS default encryption in ${region} with a customer-managed KMS key.`, ref: 'grc-engineer://generate-implementation/encryption_at_rest/aws', effort_hours: 0.1, automation: 'auto_fixable' }
+          remediation: { summary: `Enable EBS default encryption in ${region} with a customer-managed KMS key.`, ref: 'engineer://generate-implementation/encryption_at_rest/aws', effort_hours: 0.1, automation: 'auto_fixable' }
         }];
     return [{
       schema_version: '1.0.0', source: SOURCE, source_version: SOURCE_VERSION, run_id: ctx.runId,
@@ -229,14 +229,14 @@ async function collectS3(ctx, log) {
       else evaluations.push({
         control_framework: 'SCF', control_id: 'CRY-05', status: 'fail', severity: 'high',
         message: 'Bucket has no default server-side encryption configured.',
-        remediation: { summary: 'Enable SSE-KMS with a customer-managed KMS key and rotation.', ref: 'grc-engineer://generate-implementation/encryption_at_rest/aws', effort_hours: 0.25, automation: 'auto_fixable' }
+        remediation: { summary: 'Enable SSE-KMS with a customer-managed KMS key and rotation.', ref: 'engineer://generate-implementation/encryption_at_rest/aws', effort_hours: 0.25, automation: 'auto_fixable' }
       });
     } catch (err) {
       if (/ServerSideEncryptionConfigurationNotFoundError/.test(err.message)) {
         evaluations.push({
           control_framework: 'SCF', control_id: 'CRY-05', status: 'fail', severity: 'high',
           message: 'Bucket has no default server-side encryption configured.',
-          remediation: { summary: 'Enable SSE-KMS with a customer-managed KMS key.', ref: 'grc-engineer://generate-implementation/encryption_at_rest/aws', effort_hours: 0.25, automation: 'auto_fixable' }
+          remediation: { summary: 'Enable SSE-KMS with a customer-managed KMS key.', ref: 'engineer://generate-implementation/encryption_at_rest/aws', effort_hours: 0.25, automation: 'auto_fixable' }
         });
       } else {
         evaluations.push({ control_framework: 'SCF', control_id: 'CRY-05', status: 'inconclusive', severity: 'medium', message: `Encryption check failed: ${err.message}` });
@@ -252,14 +252,14 @@ async function collectS3(ctx, log) {
         : {
             control_framework: 'SCF', control_id: 'DCH-01.2', status: 'fail', severity: 'critical',
             message: 'Public access block is not fully enforced.',
-            remediation: { summary: 'Enable all four public access block settings.', ref: 'grc-engineer://generate-implementation/s3_public_access/aws', effort_hours: 0.1, automation: 'auto_fixable' }
+            remediation: { summary: 'Enable all four public access block settings.', ref: 'engineer://generate-implementation/s3_public_access/aws', effort_hours: 0.1, automation: 'auto_fixable' }
           });
     } catch (err) {
       if (/NoSuchPublicAccessBlockConfiguration/.test(err.message)) {
         evaluations.push({
           control_framework: 'SCF', control_id: 'DCH-01.2', status: 'fail', severity: 'critical',
           message: 'No public access block configured.',
-          remediation: { summary: 'Apply a bucket-level public access block with all four settings enabled.', ref: 'grc-engineer://generate-implementation/s3_public_access/aws', effort_hours: 0.1, automation: 'auto_fixable' }
+          remediation: { summary: 'Apply a bucket-level public access block with all four settings enabled.', ref: 'engineer://generate-implementation/s3_public_access/aws', effort_hours: 0.1, automation: 'auto_fixable' }
         });
       } else {
         evaluations.push({ control_framework: 'SCF', control_id: 'DCH-01.2', status: 'inconclusive', severity: 'medium', message: err.message });
@@ -273,7 +273,7 @@ async function collectS3(ctx, log) {
       else evaluations.push({
         control_framework: 'SCF', control_id: 'AST-05', status: 'fail', severity: 'medium',
         message: `Versioning not enabled (status: ${v.Status || 'unset'}).`,
-        remediation: { summary: 'Enable versioning for buckets that hold production or audit data.', ref: 'grc-engineer://generate-implementation/s3_versioning/aws', effort_hours: 0.1, automation: 'auto_fixable' }
+        remediation: { summary: 'Enable versioning for buckets that hold production or audit data.', ref: 'engineer://generate-implementation/s3_versioning/aws', effort_hours: 0.1, automation: 'auto_fixable' }
       });
     } catch (err) {
       evaluations.push({ control_framework: 'SCF', control_id: 'AST-05', status: 'inconclusive', severity: 'low', message: err.message });
@@ -301,7 +301,7 @@ async function collectCloudTrail(ctx, region, log) {
       evaluations: [{
         control_framework: 'SCF', control_id: 'MON-02', status: 'fail', severity: 'high',
         message: `No CloudTrail trail with home region ${region}. Verify multi-region coverage from another trail.`,
-        remediation: { summary: 'Create a multi-region trail with log file validation and KMS-encrypted S3 destination.', ref: 'grc-engineer://generate-implementation/audit_logging/aws', effort_hours: 1, automation: 'auto_fixable' }
+        remediation: { summary: 'Create a multi-region trail with log file validation and KMS-encrypted S3 destination.', ref: 'engineer://generate-implementation/audit_logging/aws', effort_hours: 1, automation: 'auto_fixable' }
       }]
     });
     return findings;
@@ -315,14 +315,14 @@ async function collectCloudTrail(ctx, region, log) {
     else evaluations.push({
       control_framework: 'SCF', control_id: 'MON-02', status: 'fail', severity: 'high',
       message: `Trail '${t.Name}' is single-region.`,
-      remediation: { summary: 'Convert to a multi-region trail.', ref: 'grc-engineer://generate-implementation/audit_logging/aws', effort_hours: 0.25, automation: 'auto_fixable' }
+      remediation: { summary: 'Convert to a multi-region trail.', ref: 'engineer://generate-implementation/audit_logging/aws', effort_hours: 0.25, automation: 'auto_fixable' }
     });
 
     if (t.LogFileValidationEnabled) evaluations.push({ control_framework: 'SCF', control_id: 'MON-02.1', status: 'pass', severity: 'info' });
     else evaluations.push({
       control_framework: 'SCF', control_id: 'MON-02.1', status: 'fail', severity: 'medium',
       message: 'Log file validation is disabled.',
-      remediation: { summary: 'Enable log file validation to detect tampering.', ref: 'grc-engineer://generate-implementation/audit_logging/aws', effort_hours: 0.1, automation: 'auto_fixable' }
+      remediation: { summary: 'Enable log file validation to detect tampering.', ref: 'engineer://generate-implementation/audit_logging/aws', effort_hours: 0.1, automation: 'auto_fixable' }
     });
 
     try {
@@ -331,7 +331,7 @@ async function collectCloudTrail(ctx, region, log) {
       else evaluations.push({
         control_framework: 'SCF', control_id: 'MON-02.2', status: 'fail', severity: 'high',
         message: `Trail '${t.Name}' is not actively logging.`,
-        remediation: { summary: 'Start logging on the trail.', ref: 'grc-engineer://generate-implementation/audit_logging/aws', effort_hours: 0.1, automation: 'auto_fixable' }
+        remediation: { summary: 'Start logging on the trail.', ref: 'engineer://generate-implementation/audit_logging/aws', effort_hours: 0.1, automation: 'auto_fixable' }
       });
     } catch (err) {
       evaluations.push({ control_framework: 'SCF', control_id: 'MON-02.2', status: 'inconclusive', severity: 'medium', message: err.message });

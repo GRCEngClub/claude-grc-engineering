@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import IaCScanner from '../plugins/personas/grc-engineer/scripts/scan-iac.js';
+import IaCScanner from '../plugins/personas/engineer/scripts/scan-iac.js';
 
 function scanManifest(yamlText) {
   const scanner = new IaCScanner('.', ['SOC2'], {});

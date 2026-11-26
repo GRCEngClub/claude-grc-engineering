@@ -20,7 +20,7 @@
       "message": "2 user account(s) hold primitive role(s): user:alice@example.com (roles/owner); user:bob@example.com (roles/editor).",
       "remediation": {
         "summary": "Replace primitive roles with predefined or custom roles. roles/owner and roles/editor are over-broad.",
-        "ref": "grc-engineer://generate-implementation/least_privilege/gcp",
+        "ref": "engineer://generate-implementation/least_privilege/gcp",
         "effort_hours": 1,
         "automation": "semi_automated"
       }

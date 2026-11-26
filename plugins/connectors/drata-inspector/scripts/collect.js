@@ -288,7 +288,7 @@ function failEval(controlId, severity, message, summary) {
     message,
     remediation: {
       summary,
-      ref: 'grc-engineer://generate-implementation/drata_compliance_workflow',
+      ref: 'engineer://generate-implementation/drata_compliance_workflow',
       effort_hours: severity === 'high' ? 1 : 0.5,
       automation: 'manual'
     }

@@ -1,7 +1,7 @@
 {
   "name": "fedramp-20x",
   "description": "FedRAMP 20X Plugin - Modern automated authorization with Key Security Indicators (KSIs), continuous monitoring, and machine-readable policies synced from official FedRAMP docs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
   },

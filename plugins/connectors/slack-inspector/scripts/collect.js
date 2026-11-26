@@ -225,7 +225,7 @@ function failHigh(controlId, message, summary) {
     message,
     remediation: {
       summary,
-      ref: 'grc-engineer://generate-implementation/slack_workspace_security',
+      ref: 'engineer://generate-implementation/slack_workspace_security',
       effort_hours: 1,
       automation: 'manual'
     }
