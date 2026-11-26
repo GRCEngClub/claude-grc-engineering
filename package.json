@@ -27,6 +27,7 @@
     "test:contract": "bash tests/validate-contract-fixtures.sh",
     "test:grc-diagrams": "bash tests/validate-grc-diagram-skills.sh",
     "test:plugin-manifests": "bash tests/validate-plugin-manifests.sh",
+    "test:claude-validate": "bash tests/claude-plugin-validate.sh",
     "test:contract:findings": "find tests/fixtures/findings -type f -name '*.json' -print0 | xargs -0 tests/pre-commit-validate-findings.sh"
   },
   "keywords": [

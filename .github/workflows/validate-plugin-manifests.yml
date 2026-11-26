@@ -68,3 +68,19 @@ jobs:
 
       - name: Test Vault KV runtime injection
         run: node --test tests/vault-kv.test.mjs tests/vault-kv-version.test.mjs
+
+  claude-validate:
+    name: Claude Code plugin validator (strict)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Install pinned Claude Code
+        run: npm install --global --no-audit --no-fund @anthropic-ai/claude-code@2.1.331
+
+      - name: Validate the marketplace and every plugin
+        run: bash tests/claude-plugin-validate.sh

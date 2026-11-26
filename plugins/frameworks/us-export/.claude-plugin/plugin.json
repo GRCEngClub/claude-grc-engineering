@@ -7,10 +7,12 @@
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
   "license": "MIT",
-  "framework_metadata": {
-    "display_name": "US Export Controls (ITAR and EAR)",
-    "region": "Americas",
-    "country": "US",
-    "depth": "reference"
+  "metadata": {
+    "framework": {
+      "display_name": "US Export Controls (ITAR and EAR)",
+      "region": "Americas",
+      "country": "US",
+      "depth": "reference"
+    }
   }
 }
