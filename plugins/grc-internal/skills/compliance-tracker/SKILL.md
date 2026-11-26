@@ -35,7 +35,7 @@ A control is in exactly one state, checked in this order:
 | Passing | Fresh evidence; all evaluations `pass` or `not_applicable` |
 | No evidence | Referenced by an obligation or framework scope, but nothing collected |
 
-Freshness windows are defined once in `/grc-internal:track-compliance`: 7 days for connector Findings whatever the control's cadence; for manual and obligation evidence, 30 days (daily or weekly), 45 days (monthly), 100 days (quarterly), 13 months (annual).
+Freshness windows are defined once in `/grc-internal:track-compliance`: 7 days for connector Findings whatever the control's cadence; for manual and obligation evidence, 30 days (daily or weekly), 45 days (monthly), 100 days (quarterly), 13 months (annual); any other recurring cadence uses `every_days` plus 10%, and a one-time obligation has no window once its evidence is recorded.
 
 ## Due dates
 

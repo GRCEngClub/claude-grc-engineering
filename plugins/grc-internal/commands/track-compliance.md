@@ -80,7 +80,7 @@ This is the one freshness rule; `compliance-tracker` uses the same values. Evide
 | Manual or obligation evidence, quarterly | 100 days |
 | Manual or obligation evidence, annual | 13 months |
 
-For manual and obligation evidence, the cadence comes from the obligation's `every_days`. A connector re-runs on a schedule, so a Finding older than 7 days means the connector stopped running, even for a quarterly control.
+For manual and obligation evidence, the cadence comes from the obligation's `every_days`. A recurring cadence that is not in the table uses `every_days` plus 10%, rounded up (for example 14 days gives a 16-day window). A one-time obligation has no freshness window: it is met once its evidence is recorded and due again only if the obligation is renewed. A connector re-runs on a schedule, so a Finding older than 7 days means the connector stopped running, even for a quarterly control.
 
 ## Status rules
 

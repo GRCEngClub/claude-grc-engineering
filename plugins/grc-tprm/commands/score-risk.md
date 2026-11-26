@@ -19,7 +19,7 @@ Parse `$ARGUMENTS` as `<vendor> [flags]`.
 
 - The vendor record in `./grc-data/vendors/<vendor-id>.json`, for the tier and regulated scope.
 - The assessment folder: `findings.csv` and the questionnaire analysis.
-- The SOC report review: the newest `~/.cache/claude-grc/tprm/<vendor-id>/soc2-review-*/` folder whose report period ended within 12 months of the scoring date (the same lookup `/grc-tprm:assess-vendor` uses). If the tier requires independent assurance (critical and high) and no such review exists, warn and treat independent assurance as missing evidence.
+- The SOC report review: the newest `~/.cache/claude-grc/tprm/<vendor-id>/soc2-review-*/` folder whose report period ended within 12 months of the scoring date (the same lookup `/grc-tprm:assess-vendor` uses). If the tier requires independent assurance (critical and high), a current SOC 2 review or a reviewed, current ISO/IEC 27001:2022 certificate whose scope covers the service (checked in `assess-vendor`) satisfies it. Only when neither exists, warn and treat independent assurance as missing evidence.
 
 If no assessment exists, stop and ask for one. A score with no reviewed evidence is a guess.
 

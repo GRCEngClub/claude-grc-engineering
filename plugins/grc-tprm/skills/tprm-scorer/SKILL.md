@@ -12,7 +12,7 @@ Produces a residual risk rating that is explainable in one table. Weighted point
 
 - Tier from the vendor record (`./grc-data/vendors/<vendor-id>.json`) or the assessment. The tier is inherent risk.
 - Findings and questionnaire analysis from the assessment folder.
-- The SOC report review from the newest `~/.cache/claude-grc/tprm/<vendor-id>/soc2-review-*/` folder whose period ended within 12 months. For critical and high tiers, warn when there is none and treat independent assurance as missing evidence.
+- The SOC report review from the newest `~/.cache/claude-grc/tprm/<vendor-id>/soc2-review-*/` folder whose period ended within 12 months. For critical and high tiers, a reviewed, current ISO/IEC 27001:2022 certificate covering the service also satisfies independent assurance; only when there is neither, warn and treat it as missing evidence.
 
 No reviewed evidence, no score. Return "Insufficient evidence" and the list of what is missing.
 

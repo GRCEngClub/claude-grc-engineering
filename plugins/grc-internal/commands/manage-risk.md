@@ -88,15 +88,15 @@ Many organizations already have a scale in a risk methodology document. `schemas
 Every write action (`add`, `update`, `accept`) shows the proposed file or a field-by-field diff first and writes only after the user confirms. `--dry-run` stops after showing it.
 
 1. **add**: read the register, pick the next free ID, and ask for any missing required fields (owner, inherent likelihood and impact, treatment). Show the proposed `RISK-NNN.json` with `status: open`, `created_at` and `updated_at` set to now, and `reviewed_at: null`; write it after confirmation.
-2. **update**: load the file, apply only the requested changes, set `updated_at`, and show a field-by-field diff; write after confirmation. Moving to `closed` requires a closing note in `metadata.closure`: what changed and the evidence for it.
+2. **update**: load the file, apply only the requested changes, recalculate `inherent.score` or `residual.score` whenever that rating's likelihood or impact changes, set `updated_at`, and show a field-by-field diff; write after confirmation. Moving to `closed` requires a closing note in `metadata.closure`: what changed and the evidence for it.
 3. **assess**: read the evidence, group related findings into candidate risks (several findings can be one risk), and compare against existing entries. Output a proposal list: new risks, existing risks whose scores the evidence changes, and risks the evidence no longer supports. Write nothing until the user confirms which proposals to apply.
 4. **accept**: check the approver, expiry, and rationale, show the resulting record (and any exception draft), then write after confirmation.
-5. **review**: list every risk where `reviewed_at` is older than its band's review interval, `target_close_at` has passed, or `metadata.acceptance.expires_at` is past or within 30 days.
+5. **review**: list every risk where `reviewed_at` (or `created_at` for a risk never reviewed) is older than its band's review interval, `target_close_at` has passed, or `metadata.acceptance.expires_at` is past or within 30 days.
 6. **report**: render the report below.
 
 ## Output
 
-Register changes land in `./grc-data/risks/`. Reports go to `~/.cache/claude-grc/reports/grc-internal/risk-<YYYY-MM-DD>/`:
+Register changes land in the register being used: `--register=<dir>` when given, otherwise `./grc-data/risks/`. Reports go to `~/.cache/claude-grc/reports/grc-internal/risk-<YYYY-MM-DD>/`:
 
 - `risk-report.md`: the rendered report
 - `register.csv`: one row per risk with ID, title, owner, status, treatment, inherent, residual, band, target date, and last review
