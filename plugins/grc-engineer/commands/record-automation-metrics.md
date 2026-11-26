@@ -73,7 +73,7 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../docs/GRC-DATA.md) and
 
    ```bash
    node "${CLAUDE_PLUGIN_ROOT}/scripts/record-automation-metrics.js" \
-     --config=plugins/grc-engineer/examples/automation-metrics.yaml \
+     --config="${CLAUDE_PLUGIN_ROOT}/examples/automation-metrics.yaml" \
      --window-label=current-week
    ```
 
@@ -102,5 +102,5 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../docs/GRC-DATA.md) and
 /grc-engineer:record-automation-metrics iso27001 --controls-total=93 --controls-automated=40 --dimension=business_unit=platform --window-label=2026-W16
 
 # Write multiple snapshots from a config file
-/grc-engineer:record-automation-metrics --config=plugins/grc-engineer/examples/automation-metrics.yaml --window-label=current-week
+/grc-engineer:record-automation-metrics --config="${CLAUDE_PLUGIN_ROOT}/examples/automation-metrics.yaml" --window-label=current-week
 ```

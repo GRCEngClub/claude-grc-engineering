@@ -55,7 +55,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-continuous.js" SOC2,PCI-DSS,NIST-800
 
 # Daily monitoring driven by a config file
 node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-continuous.js" \
-  --config=plugins/grc-engineer/examples/monitor-continuous.yaml
+  --config="${CLAUDE_PLUGIN_ROOT}/examples/monitor-continuous.yaml"
 
 # Chain automation-metrics snapshot on the same run
 node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-continuous.js" SOC2 \

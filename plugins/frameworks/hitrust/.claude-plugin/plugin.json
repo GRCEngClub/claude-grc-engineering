@@ -6,5 +6,11 @@
     "name": "GRC Engineering Club Contributors"
   },
   "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
-  "license": "MIT"
+  "license": "MIT",
+  "framework_metadata": {
+    "display_name": "HITRUST CSF",
+    "region": "Americas",
+    "country": "US",
+    "depth": "reference"
+  }
 }
