@@ -11,17 +11,17 @@ This page tracks which of the 249 frameworks in the [Secure Controls Framework](
 | | |
 |---|---|
 | Total SCF-mapped frameworks | 249 |
-| With dedicated plugin | **30** (12.0%) |
-| Crosswalk-only (no plugin yet) | 219 |
-| Shipped plugins without SCF mapping | 5 |
+| With dedicated plugin | **31** (12.4%) |
+| Crosswalk-only (no plugin yet) | 218 |
+| Shipped plugins without SCF mapping | 4 |
 
 ### By depth
 
 | Depth | Count | Description |
 |---|---|---|
 | Full | 0 | Framework-native workflow commands + Reference content |
-| Reference | 28 | Scope + evidence checklist + framework-specific SKILL |
-| Stub | 2 | Scaffolded delegation to `/grc-engineer:gap-assessment` |
+| Reference | 30 | Scope + evidence checklist + framework-specific SKILL |
+| Stub | 1 | Scaffolded delegation to `/grc-engineer:gap-assessment` |
 
 See [Framework Plugin Guide](FRAMEWORK-PLUGIN-GUIDE.md) for depth definitions and level-up checklists.
 
@@ -42,6 +42,7 @@ See [Framework Plugin Guide](FRAMEWORK-PLUGIN-GUIDE.md) for depth definitions an
 | `/glba:` | reference | `usa-federal-law-glba-cfr-314-2023` | Gramm Leach Bliley Act (GLBA) (2023) |
 | `/govramp:` | reference | `general-govramp-mod` | GovRAMP Moderate |
 | `/ind-dpdpa:` | reference | `apac-ind-dpdpa-2023` | India - DPDPA (2023) |
+| `/irap:` | reference | `apac-aus-ism-2024-june` | Australia - Information Security Manual (ISM) (June 2024) |
 | `/ismap:` | reference | `apac-jpn-ismap` | Japan - Information System Security Management and Assessment Program (ISMAP) |
 | `/iso27001:` | reference | `general-iso-27001-2022` | ISO 27001 (2022) |
 | `/jp-appi:` | reference | `apac-jpn-ppi-2020` | Japan - Act on the Protection of Personal Information (2020) |
@@ -55,7 +56,7 @@ See [Framework Plugin Guide](FRAMEWORK-PLUGIN-GUIDE.md) for depth definitions an
 | `/singapore-pdpa:` | reference | `apac-sgp-pdpa-2012` | Singapore - Personal Data Protection Ac (PDPA) (2012) |
 | `/soc2:` | reference | `general-aicpa-tsc-2017` | Trust Services Criteria (TSC) (2017) |
 | `/us-ccpa:` | reference | `usa-state-ca-ccpa-cpra-2026` | California Consumer Privacy Act (CCPA) (2026) |
-| `/us-finra:` | stub | `usa-federal-sro-finra` | FINRA Cybersecurity Rules |
+| `/us-finra:` | reference | `usa-federal-sro-finra` | FINRA Cybersecurity Rules |
 | `/us-hipaa-security:` | reference | `usa-federal-law-hipaa-security-rule-2013` | HIPAA Security Rule (2013) |
 | `/us-nerc-cip:` | reference | `usa-federal-nerc-cip-2024` | NERC Critical Infrastructure Protection (CIP) (2024) |
 | `/us-sox:` | reference | `usa-federal-law-sox-2002` | SOX (2002) |
@@ -68,13 +69,12 @@ These plugins exist in the marketplace but do not have a `framework_metadata.scf
 |---|---|
 | `/fedramp-20x:` | FedRAMP 20X Plugin - Modern automated authorization with Key Security Indicators (KSIs), continuous  |
 | `/hitrust:` | HITRUST CSF Plugin - Healthcare Information Trust Alliance Common Security Framework with i1/r2 asse |
-| `/irap:` | Australian IRAP (ISM + Essential Eight) for government cloud |
 | `/pbmm:` | Canadian PBMM (Protected B Medium Medium) with ITSG-33 controls |
 | `/us-export:` | US Export Controls Plugin - ITAR and EAR compliance for defense and dual-use technologies |
 
 ## Not started
 
-219 frameworks are supported today via the SCF crosswalk but have no dedicated plugin. To adopt one:
+218 frameworks are supported today via the SCF crosswalk but have no dedicated plugin. To adopt one:
 
 ```bash
 node plugins/grc-engineer/scripts/scaffold-framework.js <scf-framework-id>
@@ -165,14 +165,13 @@ Or keep using the crosswalk directly:
 
 </details>
 
-### APAC — 22 frameworks
+### APAC — 21 frameworks
 
 <details><summary>Expand</summary>
 
 | SCF framework ID | Display name | SCF controls → framework controls |
 |---|---|---|
 | `apac-aus-cop-sitc-2020` | Australia - Code of Practice - Securing the Internet of Things for Consumers (2020) | 15 → 13 |
-| `apac-aus-ism-2024-june` | Australia - Information Security Manual (ISM) (June 2024) | 336 → 802 |
 | `apac-aus-privacy-act-1998` | Australia - Privacy Act of 1998 | 23 → 12 |
 | `apac-aus-privacy-principles-2026` | Australia - Privacy Principles (2026) | 26 → 13 |
 | `apac-aus-ps-cps-230-2023` | Australia - Prudential Standard CPS 230 (2023) | 41 → 98 |

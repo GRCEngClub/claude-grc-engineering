@@ -17,6 +17,22 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Changed
 
+- **`irap` plugin moved to Reference depth.** Added `/irap:scope`, `/irap:evidence-checklist`, a README, and SCF metadata (`apac-aus-ism-2024-june`, 336 SCF controls mapped to 802 ISM controls), so `/irap:assess` now runs through the crosswalk. Rewrote the skill and the `assess`, `classification`, `essential-8` and `data-residency` commands around:
+  - the ISM's risk management framework, and who acts as authorising officer;
+  - control applicability markings;
+  - the November 2023 Essential Eight maturity model;
+  - PSPF Release 2026;
+  - the paused Hosting Certification Framework.
+  Removed:
+  - the "1,400 controls" count;
+  - the "PROTECTED must be in Sydney" rule; location requirements come from customer contracts, the PSPF and the HCF, not one ISM rule;
+  - the outdated Essential Eight patching and maturity descriptions.
+- **`us-finra` plugin moved to Reference depth.** Added `/us-finra:scope` and `/us-finra:evidence-checklist`, and rewrote the skill. FINRA has no single cybersecurity rule; the plugin now covers the obligations FINRA examines:
+  - FINRA Rules 3110 and 4370;
+  - SEC Regulation S-P, including the 2024 amendments (30-day customer notice, 72-hour service-provider notice, and compliance dates of December 3, 2025 and June 3, 2026);
+  - Regulation S-ID;
+  - SEA Rules 17a-3 and 17a-4, including the audit-trail alternative and three-year retention of security logs.
+  The evidence checklist follows the 12 principles in FINRA's Cybersecurity Effective Practices (August 2026). The skill notes that the SEC withdrew proposed Rule 10 and the Regulation SCI expansion in June 2025.
 - **PCI DSS references moved to v4.0.1 numbering.** v3.2.1 was retired in March 2024, but the crosswalk, `scan-iac`, `test-control`, the grc-engineer command docs, the soc2, nist-800-53 and hitrust plugins and several connector skills still cited v3.2.1 requirement numbers. They now use v4.0.1, mapped with PCI SSC's *Summary of Changes from v3.2.1 to v4.0*: 8.1.x became 8.2.x (8.1.4 inactive accounts is now 8.2.6), 3.4 became 3.5.1, 3.5/3.6 key management became 3.6/3.7, 10.1 and 10.2 became 10.2.1, 10.6 became 10.4.1, 10.7 retention became 10.5.1, 6.2 patching became 6.3.3, 8.3 MFA became 8.4, and 9.8 became 9.4.7. The repo also claimed PCI requires quarterly access reviews; v4.0.1 Requirement 7.2.4 requires reviewing user accounts at least once every six months, and the conflict resolutions now say so. hitrust's framework lists cite PCI DSS v4.0.1, which HITRUST CSF maps from v11.8.
 
 - **ISO 27001 references moved to the 2022 Annex A.** ISO/IEC 27001:2013 was withdrawn and its certificate transition period ended on October 31, 2025, but the cross-framework tooling still cited 2013 Annex A IDs (A.9.2.1, A.10.1.1, A.12.4.1 and so on). The control crosswalk, `control-mapper.js`, `pr-reviewer.js`, `scan-iac.js`, the `iso27001.yaml` framework config and the `grc-engineer`, `grc-auditor`, `grc-reporter`, `hitrust`, `nist-800-53`, `essential8` and `dora` docs now use the 2022 IDs from the ISO/IEC 27002:2022 Annex B correspondence table, so crosswalk, mapper, PR-review and scan output report 2022 controls (for example A.5.16, A.5.18, A.8.2, A.8.15, A.8.24). The `ismap` plugin keeps the 2013 structure because ISMAP's control criteria in force still use it, and now notes the pending revision and gives the 2022 equivalents.
