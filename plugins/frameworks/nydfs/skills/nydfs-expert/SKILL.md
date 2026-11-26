@@ -52,7 +52,7 @@ Deep expertise in New York Department of Financial Services (NYDFS) 23 NYCRR 500
 **Exemptions from Coverage**:
 
 - Entities exempt from licensing
-- Entities with <10 employees, <$5M revenue, <$10M assets (limited exemptions for certain requirements)
+- Entities with <10 employees, <\$5M revenue, <\$10M assets (limited exemptions for certain requirements)
 - Charitable organizations (some)
 
 **Affiliate Entities**:
@@ -714,8 +714,8 @@ Purpose and scope of regulation.
 **Small Entity Exemption Criteria**:
 
 - Fewer than 10 employees (including affiliates)
-- Less than $5M gross annual revenue (3-year average)
-- Less than $10M in year-end total assets
+- Less than \$5M gross annual revenue (3-year average)
+- Less than \$10M in year-end total assets
 
 **Available Exemptions** (for qualifying entities):
 
@@ -978,18 +978,18 @@ Amendment effective: November 1, 2023
 
 **Small Entity** (<50 employees):
 
-- **Initial**: $50K-$150K (tools, consulting, CISO)
-- **Annual**: $30K-$80K (ongoing costs)
+- **Initial**: \$50K-\$150K (tools, consulting, CISO)
+- **Annual**: \$30K-\$80K (ongoing costs)
 
 **Medium Entity** (50-500 employees):
 
-- **Initial**: $150K-$500K
-- **Annual**: $80K-$250K
+- **Initial**: \$150K-\$500K
+- **Annual**: \$80K-\$250K
 
 **Large Entity** (500+ employees):
 
-- **Initial**: $500K-$2M+
-- **Annual**: $250K-$1M+
+- **Initial**: \$500K-\$2M+
+- **Annual**: \$250K-\$1M+
 
 **Key Cost Drivers**:
 

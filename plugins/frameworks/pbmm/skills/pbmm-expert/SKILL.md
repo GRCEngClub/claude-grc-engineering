@@ -355,13 +355,13 @@ Deep expertise in Canadian Protected B, Medium Integrity, Medium Availability (P
 
 **PBMM Compliance Costs** (Annual):
 
-- **CCCS Assessment**: $100K - $250K (initial), $75K - $150K (re-assessment)
+- **CCCS Assessment**: \$100K - \$250K (initial), \$75K - \$150K (re-assessment)
 - **Canadian Region Premium**: +10-20% over US regions
-- **Long-term Log Storage**: $5K - $50K (depends on volume)
-- **Vulnerability Scanning**: $10K - $50K
-- **Consulting/Staff**: $150K - $500K (FTE for compliance)
-- **Total First Year**: $300K - $1M
-- **Annual Maintenance**: $150K - $400K
+- **Long-term Log Storage**: \$5K - \$50K (depends on volume)
+- **Vulnerability Scanning**: \$10K - \$50K
+- **Consulting/Staff**: \$150K - \$500K (FTE for compliance)
+- **Total First Year**: \$300K - \$1M
+- **Annual Maintenance**: \$150K - \$400K
 
 ### Resources
 

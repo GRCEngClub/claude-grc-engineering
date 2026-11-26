@@ -118,3 +118,21 @@ Use it for styles, edge routing, containers, layers, tags, metadata, dark mode c
 - Always include root cells `id="0"` and `id="1"`.
 - Every edge must have a child geometry element: `<mxGeometry relative="1" as="geometry"/>`.
 - Validate XML with a parser before finalizing.
+
+## When invoked as `/diagrams:drawio`
+
+- `$ARGUMENTS` - Diagram request, context, audience, and optional output format (`png`, `svg`, `pdf`, `jpg`, or default `.drawio`).
+
+1. If the request is GRC-specific, also use the most relevant GRC diagram skill in this plugin.
+2. Generate native mxGraphModel XML and write a `.drawio` file.
+3. Validate XML well-formedness.
+4. If an export format is requested and the draw.io CLI is available, export with embedded XML for PNG/SVG/PDF.
+5. Return the absolute path to the created file.
+
+### Examples
+
+```text
+/diagrams:drawio flowchart for access review evidence collection
+/diagrams:drawio png SOC 2 system boundary for a SaaS app
+/diagrams:drawio svg framework crosswalk for SOC 2, ISO 27001, and NIST CSF
+```

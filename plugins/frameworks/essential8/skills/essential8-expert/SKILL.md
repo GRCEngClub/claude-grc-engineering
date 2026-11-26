@@ -1222,21 +1222,21 @@ Deep expertise in Australian Cyber Security Centre (ACSC) Essential Eight mitiga
 
 **Maturity Level 1**:
 
-- Small org (50-100 users): $50K-$150K
-- Medium org (500 users): $150K-$350K
-- Large org (5000+ users): $500K-$1M+
+- Small org (50-100 users): \$50K-\$150K
+- Medium org (500 users): \$150K-\$350K
+- Large org (5000+ users): \$500K-\$1M+
 
 **Maturity Level 2**:
 
-- Small org: $100K-$300K
-- Medium org: $300K-$700K
-- Large org: $1M-$3M+
+- Small org: \$100K-\$300K
+- Medium org: \$300K-\$700K
+- Large org: \$1M-\$3M+
 
 **Maturity Level 3**:
 
-- Small org: $200K-$500K
-- Medium org: $500K-$1.5M
-- Large org: $2M-$5M+
+- Small org: \$200K-\$500K
+- Medium org: \$500K-\$1.5M
+- Large org: \$2M-\$5M+
 
 *Costs include tools, consulting, labor, training, ongoing operations*
 

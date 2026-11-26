@@ -565,7 +565,7 @@ Proactive security testing and remediation.
 
 - **Platforms**: HackerOne, Bugcrowd, Synack
 - **Scope**: In-scope assets and vulnerabilities
-- **Rewards**: $100 - $100,000+ based on severity
+- **Rewards**: \$100 - \$100,000+ based on severity
 - **Responsible Disclosure**: 90-day disclosure timeline
 
 #### 17. UEM - Universal Endpoint Management (7 controls)
@@ -869,16 +869,16 @@ Implementing CEK-01 (Encryption at Rest) satisfies:
 
 **CCM Implementation**:
 
-- **Gap Assessment**: $20K-$50K (consultant)
-- **Control Implementation**: $100K-$500K (tools, personnel, remediation)
-- **Annual Maintenance**: $50K-$150K
+- **Gap Assessment**: \$20K-\$50K (consultant)
+- **Control Implementation**: \$100K-\$500K (tools, personnel, remediation)
+- **Annual Maintenance**: \$50K-\$150K
 
 **Certifications**:
 
-- **SOC 2 Type II**: $50K-$150K (auditor fees)
-- **ISO 27001**: $30K-$100K (certification body)
-- **Penetration Testing**: $25K-$75K (annual)
-- **CAIQ Completion**: $10K-$30K (internal effort or consultant)
+- **SOC 2 Type II**: \$50K-\$150K (auditor fees)
+- **ISO 27001**: \$30K-\$100K (certification body)
+- **Penetration Testing**: \$25K-\$75K (annual)
+- **CAIQ Completion**: \$10K-\$30K (internal effort or consultant)
 
 **Return on Investment**:
 

@@ -17,7 +17,7 @@ Official resources:
 Use Claude Desktop or Cowork for document-heavy and file-heavy GRC work:
 
 - reviewing framework plugin guidance under `plugins/frameworks/*`
-- drafting assessment plans from command docs in `plugins/*/commands/`
+- drafting assessment plans from skill docs in `plugins/*/*/skills/`
 - summarizing findings, risks, metrics, and vendor records under `grc-data/`
 - editing Markdown deliverables, evidence checklists, and workpaper drafts
 - preparing PR-ready documentation changes for this repository
@@ -77,7 +77,7 @@ Keep sensitive raw exports in `evidence/` or another clearly named folder. Use
 Use direct, file-oriented prompts:
 
 ```text
-Read docs/QUICKSTART.md and plugins/personas/engineer/commands/gap-assessment.md.
+Read docs/QUICKSTART.md and plugins/personas/engineer/skills/gap-assessment/SKILL.md.
 Draft a SOC 2 assessment plan for the findings in grc-data/ and list any
 missing evidence as a table.
 ```
@@ -90,7 +90,7 @@ Do not invent missing values; call out gaps explicitly.
 
 ```text
 Review plugins/frameworks/<framework>/skills/<framework>-expert/SKILL.md and
-commands/evidence-checklist.md. Create an evidence request list for an external
+skills/evidence-checklist/SKILL.md. Create an evidence request list for an external
 auditor, grouped by owner and system.
 ```
 
@@ -101,7 +101,7 @@ Cowork:
 
 - Put domain guidance in `skills/*/SKILL.md`, not only in shell scripts.
 - Keep command docs self-contained enough that Cowork can use them as runbooks.
-- Document required external CLIs in `commands/setup.md` and plugin READMEs.
+- Document required external CLIs in `skills/setup/SKILL.md` and plugin READMEs.
 - Prefer schema-backed JSON examples in `tests/fixtures/` or `grc-data/`.
 - Avoid assuming every user can execute commands from the active session.
 - For generated reports, make the output path and source files explicit.

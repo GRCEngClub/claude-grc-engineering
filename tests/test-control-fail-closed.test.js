@@ -223,7 +223,7 @@ test('installed plugin example runs outside checkout without dependencies', () =
     fs.mkdirSync(path.dirname(plugin), { recursive: true });
     fs.cpSync('plugins/personas/engineer', plugin, { recursive: true });
     fs.mkdirSync(project);
-    const command = fs.readFileSync(path.join(plugin, 'commands/test-control.md'), 'utf8');
+    const command = fs.readFileSync(path.join(plugin, 'skills/test-control/SKILL.md'), 'utf8');
     const invocation = command.match(/```bash\n([^\n]+)\n```/)[1];
     assert.match(invocation, /"\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/test-control\.js"/);
     const env = { ...process.env, CLAUDE_PLUGIN_ROOT: plugin, PATH: '/nonexistent' };
@@ -240,7 +240,7 @@ test('installed plugin example runs outside checkout without dependencies', () =
 });
 
 test('command instructions preserve requested arguments rather than hardcode an invocation', () => {
-  const command = fs.readFileSync('plugins/personas/engineer/commands/test-control.md', 'utf8');
+  const command = fs.readFileSync('plugins/personas/engineer/skills/test-control/SKILL.md', 'utf8');
   assert.match(command, /Use the user's arguments verbatim/);
   assert.match(command, /Do not run the example unless the user requested/);
   const cli = spawnSync(process.execPath, ['plugins/personas/engineer/scripts/test-control.js', 'encryption_at_rest', 'azure', '--output=json'], { encoding: 'utf8' });

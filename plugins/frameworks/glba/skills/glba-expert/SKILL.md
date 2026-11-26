@@ -618,9 +618,9 @@ Deep expertise in the Gramm-Leach-Bliley Act (GLBA) for financial institutions a
 
 **Criminal Penalties**:
 
-- Fines up to $250,000 for individuals
+- Fines up to \$250,000 for individuals
 - Imprisonment up to 5 years
-- Fines up to $500,000 for organizations
+- Fines up to \$500,000 for organizations
 
 ### What is Pretexting
 
@@ -679,14 +679,14 @@ Deep expertise in the Gramm-Leach-Bliley Act (GLBA) for financial institutions a
 **Enforcement Actions**:
 
 - Administrative complaints
-- Civil penalties up to $50,120 per violation per day (adjusted for inflation)
+- Civil penalties up to \$50,120 per violation per day (adjusted for inflation)
 - Injunctive relief
 - Compliance monitoring
 - Consumer redress
 
 **Recent FTC Enforcement Examples**:
 
-**Drizly (2022)**: $2.5M penalty
+**Drizly (2022)**: \$2.5M penalty
 
 - Inadequate data security despite Safeguards Rule requirements
 - Failure to implement MFA

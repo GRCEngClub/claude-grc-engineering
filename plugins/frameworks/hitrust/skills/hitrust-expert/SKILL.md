@@ -39,7 +39,7 @@ Deep expertise in HITRUST Common Security Framework (CSF) for healthcare and bus
 - Demonstrates control implementation
 - Self-assessment or externally validated
 - Less rigorous than r2
-- Lower cost ($30K-$80K validated)
+- Lower cost (\$30K-\$80K validated)
 - Good for: Vendors, BAs, initial certification
 
 **r2 Assessment**:
@@ -47,7 +47,7 @@ Deep expertise in HITRUST Common Security Framework (CSF) for healthcare and bus
 - Full external validation required
 - Independent HITRUST assessor
 - Comprehensive testing
-- Higher cost ($100K-$300K+)
+- Higher cost (\$100K-\$300K+)
 - Required for: Healthcare providers, payers, high-risk BAs
 
 **e1 Assessment**:
@@ -65,9 +65,9 @@ HITRUST CSF requirements tailored based on:
 
 1. **Type**: Provider, payer, clearinghouse, BA, vendor, other
 2. **Size**:
-   - Small: <$20M revenue or <20 employees
+   - Small: <\$20M revenue or <20 employees
    - Medium: Mid-sized
-   - Large: >$1B revenue or >1000 employees
+   - Large: >\$1B revenue or >1000 employees
 3. **System Type**: SaaS, on-premise, hybrid, mobile
 4. **Regulatory Factors**: HIPAA, state laws, international regs
 
@@ -306,19 +306,19 @@ HITRUST CSF maps to 40+ frameworks including:
 
 **i1 Validated Assessment**:
 
-- Assessor fees: $30K-$80K
-- Remediation: $50K-$150K
-- Tools/tech: $20K-$50K
+- Assessor fees: \$30K-\$80K
+- Remediation: \$50K-\$150K
+- Tools/tech: \$20K-\$50K
 - Internal effort: 500-1000 hours
-- **Total**: $100K-$280K
+- **Total**: \$100K-\$280K
 
 **r2 Assessment**:
 
-- Assessor fees: $100K-$300K
-- Remediation: $150K-$500K
-- Tools/tech: $50K-$150K
+- Assessor fees: \$100K-\$300K
+- Remediation: \$150K-\$500K
+- Tools/tech: \$50K-\$150K
 - Internal effort: 1000-2000 hours
-- **Total**: $300K-$950K+
+- **Total**: \$300K-\$950K+
 
 *Costs vary by scope, readiness, and organization size*
 

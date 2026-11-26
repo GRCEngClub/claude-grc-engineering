@@ -18,7 +18,7 @@ Deep expertise in both ITAR (International Traffic in Arms Regulations) and EAR 
 
 - **Authority**: US Department of State, Directorate of Defense Trade Controls (DDTC)
 - **Scope**: Defense articles, services, and technical data on the US Munitions List (USML)
-- **Registration**: Required ($3,000/year)
+- **Registration**: Required (\$3,000/year)
 - **Key posture (simplified)**: access restricted to US persons; technical data stored in US-located systems by default. The 22 CFR 120.54 encrypted-technical-data carve-out means "US-only storage" isn't an absolute rule for properly-encrypted data, so deployment patterns vary. Validate with counsel for your USML category.
 
 **EAR (Export Administration Regulations)**:
@@ -567,14 +567,14 @@ Step 3: Item not on USML or CCL
 
 **ITAR Violations**:
 
-- **Civil Penalties**: Up to $1,162,989 per violation
-- **Criminal Penalties**: Up to $1,000,000 fine and 20 years imprisonment
+- **Civil Penalties**: Up to \$1,162,989 per violation
+- **Criminal Penalties**: Up to \$1,000,000 fine and 20 years imprisonment
 - **Debarment**: Loss of export privileges
 
 **EAR Violations**:
 
-- **Civil Penalties**: Up to $364,992 per violation or 2x transaction value
-- **Criminal Penalties**: Up to $1,000,000 fine and 20 years imprisonment
+- **Civil Penalties**: Up to \$364,992 per violation or 2x transaction value
+- **Criminal Penalties**: Up to \$1,000,000 fine and 20 years imprisonment
 - **Denial of Export Privileges**: Loss of ability to export
 
 **Voluntary Self-Disclosure**:

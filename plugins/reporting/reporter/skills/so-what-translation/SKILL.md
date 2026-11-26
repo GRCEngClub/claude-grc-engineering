@@ -17,7 +17,7 @@ These are the rules for translating the work into something a CISO or above will
 Not selfishly. Because their bosses care about money. The CFO, the CEO, the board. Every finding needs a dollar or time translation.
 
 "We have a control deficiency in CC6.1" is invisible to a CISO.
-"This blocks a $2M SOC 2 deal closing in Q2" is not.
+"This blocks a \$2M SOC 2 deal closing in Q2" is not.
 
 If you cannot translate a finding into dollars saved, dollars at risk, deals unblocked, or time returned to the team, you have not finished the work. Do that step before you walk into the room.
 

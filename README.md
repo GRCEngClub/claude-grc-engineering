@@ -71,7 +71,7 @@ Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md). For Claude Desktop o
 | Learn a framework, control, or GRC role | `/teach-me:framework`, `/teach-me:control`, `/teach-me:role`, `/teach-me:quiz` |
 | Run an academic research project from idea to publication | `/academic-research-companion:research` |
 
-Every command has a reference page in its plugin's `commands/` directory.
+Every command is a skill: its reference page is `skills/<name>/SKILL.md` in its plugin.
 
 ## Plugins
 

@@ -53,7 +53,7 @@ The core innovation of CIS Controls: tailored security based on organizational m
 
 - **Safeguards**: 56 essential controls
 - **Resource Model**: Part-time security focus, leveraging generalist IT
-- **Budget**: $10,000 - $50,000 annually
+- **Budget**: \$10,000 - \$50,000 annually
 - **Expertise**: Basic IT competency, limited specialized security knowledge
 - **Tools**: Commercial off-the-shelf, small business focused
 
@@ -98,7 +98,7 @@ The core innovation of CIS Controls: tailored security based on organizational m
 
 - **Safeguards**: 128 total (56 from IG1 + 72 additional)
 - **Resource Model**: 1-3 dedicated security FTEs, larger IT team
-- **Budget**: $100,000 - $500,000 annually
+- **Budget**: \$100,000 - \$500,000 annually
 - **Expertise**: Security specialists, some advanced training
 - **Tools**: Enterprise-grade (SIEM, EDR, vulnerability management)
 
@@ -146,7 +146,7 @@ The core innovation of CIS Controls: tailored security based on organizational m
 
 - **Safeguards**: 153 total (128 from IG2 + 25 additional)
 - **Resource Model**: Security Operations Center (SOC), 5+ security FTEs
-- **Budget**: $1,000,000+ annually
+- **Budget**: \$1,000,000+ annually
 - **Expertise**: Highly specialized (threat hunters, forensics, IR specialists)
 - **Tools**: Advanced threat detection, threat intelligence, SOAR platforms
 

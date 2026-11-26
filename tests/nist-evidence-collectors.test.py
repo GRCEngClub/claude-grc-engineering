@@ -10,7 +10,7 @@ import types
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DOC = ROOT / 'plugins/frameworks/nist-800-53/commands/evidence-checklist.md'
+DOC = ROOT / 'plugins/frameworks/nist-800-53/skills/evidence-checklist/SKILL.md'
 text = DOC.read_text()
 blocks = re.findall(r'```bash\n(.*?)\n```', text, re.S)
 collectors = [b for b in blocks if 'aws ' in b]

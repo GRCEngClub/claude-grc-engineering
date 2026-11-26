@@ -249,7 +249,7 @@ GitHub Actions:
     sarif_file: results.sarif
 ```
 
-The full workflow is in `plugins/personas/engineer/commands/scan-iac.md`.
+The full workflow is in `plugins/personas/engineer/skills/scan-iac/SKILL.md`.
 
 **Severity Levels**:
 

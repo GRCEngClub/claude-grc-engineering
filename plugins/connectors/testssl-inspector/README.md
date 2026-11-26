@@ -37,7 +37,7 @@ You'll also need `testssl.sh` itself — the plugin auto-detects it. Install one
 /testssl-inspector:status
 ```
 
-See `commands/scan.md` for the full option set, and `skills/testssl-inspector-expert/SKILL.md` for remediation guidance per finding family.
+See `skills/scan/SKILL.md` for the full option set, and `skills/testssl-inspector-expert/SKILL.md` for remediation guidance per finding family.
 
 ## Outputs
 
@@ -57,6 +57,6 @@ HTTPS endpoints by default. STARTTLS services are supported through the `--start
 - `postgres` (5432) — PostgreSQL database
 - `mysql` (3306) — MySQL database
 
-When `--starttls=<proto>` is specified without an explicit port in the target, the target is automatically appended with the protocol's default port. If an explicit port is already present in the target, it is preserved. See `commands/scan.md` for examples.
+When `--starttls=<proto>` is specified without an explicit port in the target, the target is automatically appended with the protocol's default port. If an explicit port is already present in the target, it is preserved. See `skills/scan/SKILL.md` for examples.
 
 Implicit TLS services such as SMTPS on 465 are not STARTTLS; scan them as normal TLS endpoints, for example `--target=mail.example.com:465` without `--starttls`.

@@ -133,7 +133,8 @@ async function walkTemplate(depth) {
 function targetForTemplate(tmplRelPath, slug) {
   const withoutTmpl = tmplRelPath.replace(/\.tmpl$/, '');
   const parts = withoutTmpl.split(path.sep);
-  if (parts[0] === 'skills' && parts[parts.length - 1] === 'SKILL.md') {
+  // skills/SKILL.md.tmpl is the framework's expert skill; the others keep their folder name.
+  if (parts.length === 2 && parts[0] === 'skills' && parts[1] === 'SKILL.md') {
     return path.join('skills', `${slug}-expert`, 'SKILL.md');
   }
   return withoutTmpl;
@@ -285,7 +286,7 @@ async function main() {
   console.log(`Done. Next:`);
   console.log(`  - Edit plugins/frameworks/${slug}/skills/${slug}-expert/SKILL.md and fill in the TODO sections.`);
   if (opts.depth === 'reference') {
-    console.log(`  - Edit plugins/frameworks/${slug}/commands/*.md for framework-specific assessment and evidence guidance.`);
+    console.log(`  - Edit plugins/frameworks/${slug}/skills/{assess,scope,evidence-checklist}/SKILL.md for framework-specific assessment and evidence guidance.`);
   }
   console.log(`  - Commit and open a PR; CI will validate markdown and CODEOWNERS will route review.`);
 }
