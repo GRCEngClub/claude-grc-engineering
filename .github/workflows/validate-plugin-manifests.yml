@@ -16,6 +16,8 @@ on:
       - 'tests/gcp-inspector-secret-evidence.test.mjs'
       - 'plugins/connectors/onepassword-connector/**'
       - 'tests/onepassword-document.test.mjs'
+      - 'plugins/connectors/vault-kv/**'
+      - 'tests/vault-kv*.test.mjs'
       - '.claude-plugin/marketplace.json'
       - 'schemas/plugin.schema.json'
       - 'schemas/marketplace.schema.json'
@@ -42,7 +44,7 @@ jobs:
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
@@ -63,3 +65,6 @@ jobs:
 
       - name: Test 1Password document helper
         run: node --test tests/onepassword-document.test.mjs
+
+      - name: Test Vault KV runtime injection
+        run: node --test tests/vault-kv.test.mjs tests/vault-kv-version.test.mjs
