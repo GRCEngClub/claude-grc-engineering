@@ -22,7 +22,9 @@ Parse `$ARGUMENTS` as `<report> [flags]`.
 2. **Opinion** (Section 1, independent service auditor's report): unqualified, qualified, adverse, or disclaimer. Quote the paragraph that states any qualification and the criteria it relates to.
 3. **Service auditor**: firm name and report date. Note if the firm is unfamiliar so the analyst can check it is a licensed CPA firm.
 4. **Period**: start and end. Coverage gap = days between period end and `--reliance-date`.
-5. **Trust services categories in scope**: Security (always), and any of Availability, Processing Integrity, Confidentiality, Privacy. If you rely on the vendor for uptime or for personal data handling, the matching category should be in scope.
+5. **Criteria in scope**:
+   - SOC 2 and SOC 3: the trust services categories. Security is always included; check for Availability, Processing Integrity, Confidentiality, and Privacy. If you rely on the vendor for uptime or for personal data handling, the matching category should be in scope.
+   - SOC 1: no trust services categories. Record the control objectives the report covers (controls relevant to the user entities' internal control over financial reporting). A SOC 1 does not evidence the SOC 2 Security category; for security assurance, ask for a SOC 2 or ISO/IEC 27001 certificate.
 6. **System description** (Section 3): services, infrastructure, locations, and boundaries. Confirm the service you buy is inside the boundary. A report on the vendor's "corporate platform" may exclude the product you use.
 7. **Subservice organizations**: each one named, what it provides, and whether the report uses the carve-out method (its controls are excluded; you rely on the subservice organization's own report) or the inclusive method (its controls are tested here). For carved-out providers that hold your data, request their reports too. List the complementary subservice organization controls (CSOCs) the vendor expects them to run.
 8. **CUECs**: every complementary user entity control listed. These are controls the vendor assumes you operate, such as reviewing your own users' access or protecting your API keys. Map each to an owner on your side.
@@ -34,7 +36,8 @@ Parse `$ARGUMENTS` as `<report> [flags]`.
 - Qualified, adverse, or disclaimed opinion.
 - Period ended more than 12 months before the reliance date, with no newer report scheduled.
 - The service you buy is outside the system description.
-- Exceptions in logical access (CC6.1 to CC6.3), change management (CC8.1), or monitoring (CC7.2) without a remediation response.
+- In a SOC 2: exceptions in logical access (CC6.1 to CC6.3), change management (CC8.1), or monitoring (CC7.2) without a remediation response.
+- A SOC 1 offered as the only assurance for a vendor that holds our data.
 - A carved-out subservice organization holding your data, with no report from it.
 - CUECs you do not currently operate.
 

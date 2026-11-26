@@ -10,8 +10,10 @@ A completed questionnaire is a vendor's description of itself. This skill finds 
 
 ## Formats
 
+Read `.csv`, `.json`, `.md`, and `.pdf`. Spreadsheets must be exported to one `.csv` per question sheet before analysis, because the Read tool cannot parse `.xlsx`; ask the user to export rather than guessing at the contents.
+
 - **SIG** (Shared Assessments): yearly releases. SIG Lite for screening and lower tiers, SIG Core for vendors with sensitive or regulated data. The 2026 SIG, released September 19, 2025, aligns its mappings to ISO/IEC 27001:2022 and references ISO/IEC 42001 for AI governance. Record which year the vendor answered.
-- **CAIQ** (Cloud Security Alliance): CAIQ v4.1 was released in January 2026 with 283 questions aligned to CCM v4.1; it succeeds CAIQ v4.0.x (CCM v4.0.13 was the last 4.0 release). Each question carries a CCM control ID, and answers state whether a control is owned by the cloud provider, the customer, or shared. Shared and customer-owned controls are obligations on our side; list them.
+- **CAIQ** (Cloud Security Alliance): CAIQ v4.1 was released in January 2026 with 283 questions aligned to CCM v4.1; it succeeds CAIQ v4.0.x (CCM v4.0.13 was the last 4.0 release). Each question carries a CCM control ID, and answers name the owner: CSP-owned, CSC-owned (us), third-party-owned, shared CSP and CSC, or shared CSP and third party. Only items that involve the CSC are obligations on our side; list them. Items owned or shared with a third party are fourth-party dependencies; ask for that party's assurance.
 - **HECVAT** (EDUCAUSE): common in higher education. Note the version on the cover sheet.
 - **Custom**: map each question to the nearest ISO/IEC 27001:2022 Annex A control or SOC 2 criterion so results compare across vendors.
 
@@ -26,7 +28,7 @@ Older versions (CAIQ v3.1, SIG 2023 or earlier) are still usable, but question n
 
 ## Contradiction checks
 
-Compare answers across domains: MFA versus SSO enforcement; encryption at rest versus where backups or analytics copies live; "no subcontractors" versus hosting on a cloud provider; incident notification time versus the contract; data location versus the subprocessor list.
+Compare answers across domains and flag a contradiction only when both answers cannot be true: "no subcontractors" versus hosting on a cloud provider; incident notification time versus the contract; data location versus the subprocessor list; "MFA for all users" versus "local accounts cannot use MFA". Compatible answers (MFA for all users with optional SSO) are not contradictions. A claim with no proof, such as encryption at rest when copies go to an analytics provider with no encryption statement, is an evidence request, not a contradiction.
 
 ## Red flags
 

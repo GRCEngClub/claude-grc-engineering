@@ -32,7 +32,7 @@ Scheduled: `next_review_at`, default 365 days after `effective_at`. Unscheduled:
 ## Review checklist
 
 1. **Structure**: purpose, scope, roles, policy statements, exceptions process, enforcement, related documents, approval history.
-2. **Framework coverage**: for each framework in `framework_refs`, quote the text that meets each relevant requirement or mark a gap. Use current versions: ISO/IEC 27001:2022 Annex A IDs, PCI DSS v4.0.1, NIST CSF 2.0, SOC 2 TSC (2017, with 2022 revised points of focus).
+2. **Framework coverage**: for each framework passed with `--frameworks`, or the record's `framework_refs` when the flag is absent, quote the text that meets each relevant requirement or mark a gap. Use current versions: ISO/IEC 27001:2022 Annex A IDs, PCI DSS v4.0.1, NIST CSF 2.0, SOC 2 TSC (2017, with 2022 revised points of focus).
 3. **Testability**: each statement names who does what, how often, and what record it leaves. Replace "regularly", "as needed", "appropriate" with a frequency or a decision rule.
 4. **Consistency**: no conflicts with other policies, standards, or the obligation register.
 5. **Currency**: no withdrawn standards, departed owners, or retired systems.
@@ -42,6 +42,7 @@ Scheduled: `next_review_at`, default 365 days after `effective_at`. Unscheduled:
 - Change only what the gap requires. Keep the organization's voice and numbering.
 - For each change: the requirement or driver, the old text, the new text, and whether it makes the next version major or minor.
 - Never edit the document until the user confirms the redline.
+- Editing an `approved` policy: bump the version, add the change log entry, and move the record to `in_review` before writing the document, so the approved status never covers changed text.
 
 ## Common policy set and primary mappings
 

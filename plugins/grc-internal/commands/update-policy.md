@@ -39,6 +39,7 @@ Reject missing paths, unknown IDs, and `approve` without both approver flags.
 - Versions are `MAJOR.MINOR`. A minor bump covers wording, clarifications, owner or contact changes, and formatting. A major bump covers any change to what people must do: a new requirement, a removed exception, a changed frequency or threshold, or a new scope. A major change needs re-approval and re-attestation; a minor change needs owner sign-off only, unless the organization's policy on policies says otherwise.
 - Every version gets a change log entry at the end of the document: version, date, author, summary, approver.
 - The record's `version` must match the document's change log. If they disagree, `review` reports it before anything else.
+- An approved status never covers edited text. When `update` is about to change the document of an `approved` policy, it first bumps the version (minor or major, per the rules above, chosen from the confirmed redline), adds the change log entry, and moves the record to `in_review`, all shown in the same confirmation as the redline. Then it edits the document. The previous approved version stays in the change log and in Git history until the new version is approved.
 
 ## Review cadence
 

@@ -53,7 +53,11 @@ Score inherent risk (before controls) and residual risk (after current controls)
 | 8-14 | Medium | Treatment plan required; reviewed quarterly |
 | 1-7 | Low | May be monitored or accepted; reviewed at least annually |
 
-Many organizations already have a scale in a risk methodology document. If the user points to one, use it and note the difference in `metadata.methodology`. Do not invent a residual score: if the user cannot say how current controls change likelihood or impact, leave `residual` out, as `docs/GRC-DATA.md` asks.
+Many organizations already have a scale in a risk methodology document. `schemas/risk.schema.json` stores likelihood and impact as 1-5 and score as 1-25, so:
+
+- A 5-point scale that differs only in wording: use it and describe it in `metadata.methodology`.
+- A larger scale (for example 1-10): agree a written mapping to 1-5 with the user before any write (for example 1-2→1, 3-4→2, 5-6→3, 7-8→4, 9-10→5), store the mapped values in `inherent` and `residual`, and keep the original ratings and the mapping in `metadata.original_scale`, for example `{"scale": "1-10", "likelihood": 8, "impact": 7, "mapping": "1-2→1, 3-4→2, 5-6→3, 7-8→4, 9-10→5"}`.
+- A scale that cannot be mapped (qualitative only, or a different structure): stop and say so before proposing a write; do not force it into the schema. Do not invent a residual score: if the user cannot say how current controls change likelihood or impact, leave `residual` out, as `docs/GRC-DATA.md` asks.
 
 ## Treatment and acceptance
 
@@ -81,10 +85,12 @@ Many organizations already have a scale in a risk methodology document. If the u
 
 ## Workflow by action
 
-1. **add**: read the register, pick the next free ID, and ask for any missing required fields (owner, inherent likelihood and impact, treatment). Write `RISK-NNN.json` with `status: open`, `created_at` and `updated_at` set to now, and `reviewed_at: null`.
-2. **update**: load the file, apply only the requested changes, set `updated_at`, and show a field-by-field diff. Moving to `closed` requires a closing note in `metadata.closure`: what changed and the evidence for it.
+Every write action (`add`, `update`, `accept`) shows the proposed file or a field-by-field diff first and writes only after the user confirms. `--dry-run` stops after showing it.
+
+1. **add**: read the register, pick the next free ID, and ask for any missing required fields (owner, inherent likelihood and impact, treatment). Show the proposed `RISK-NNN.json` with `status: open`, `created_at` and `updated_at` set to now, and `reviewed_at: null`; write it after confirmation.
+2. **update**: load the file, apply only the requested changes, set `updated_at`, and show a field-by-field diff; write after confirmation. Moving to `closed` requires a closing note in `metadata.closure`: what changed and the evidence for it.
 3. **assess**: read the evidence, group related findings into candidate risks (several findings can be one risk), and compare against existing entries. Output a proposal list: new risks, existing risks whose scores the evidence changes, and risks the evidence no longer supports. Write nothing until the user confirms which proposals to apply.
-4. **accept**: check the approver, expiry, and rationale, then write as above.
+4. **accept**: check the approver, expiry, and rationale, show the resulting record (and any exception draft), then write after confirmation.
 5. **review**: list every risk where `reviewed_at` is older than its band's review interval, `target_close_at` has passed, or `metadata.acceptance.expires_at` is past or within 30 days.
 6. **report**: render the report below.
 

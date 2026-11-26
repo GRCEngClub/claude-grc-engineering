@@ -29,6 +29,10 @@ Tier on four factors: data (none, internal, confidential, regulated), access (no
 - **PCI DSS AOC**: for any vendor that stores, processes, or transmits cardholder data or can affect the security of the CDE. Check the AOC date, the services covered, and the responsibility matrix (12.8.5).
 - **Questionnaire**: analysed with `/grc-tprm:analyze-questionnaire`; carry its red flags into findings.
 
+## Recommendation
+
+Take the first that applies: do not approve (disqualifying issue), insufficient evidence (required evidence missing), blocked (a failed must-pass profile check), escalate (residual Critical), approve with conditions (residual High with a plan), approve (residual Low or Medium). The full rules are in `/grc-tprm:assess-vendor`.
+
 ## Findings
 
 Each finding: statement, evidence reference (file and page or row), severity (high, medium, low), requested remediation, and due date. High: exposure of our data is plausible now (no MFA on admin access, out-of-scope report, unencrypted data). Medium: a weakness with partial mitigation. Low: documentation or process gaps.

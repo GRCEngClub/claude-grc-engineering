@@ -18,7 +18,8 @@ Parse `$ARGUMENTS` as `<vendor> [flags]`.
 ## Inputs
 
 - The vendor record in `./grc-data/vendors/<vendor-id>.json`, for the tier and regulated scope.
-- The assessment folder: `findings.csv`, the questionnaire analysis, and the SOC 2 report review, if present.
+- The assessment folder: `findings.csv` and the questionnaire analysis.
+- The SOC report review: the newest `~/.cache/claude-grc/tprm/<vendor-id>/soc2-review-*/` folder whose report period ended within 12 months of the scoring date (the same lookup `/grc-tprm:assess-vendor` uses). If the tier requires independent assurance (critical and high) and no such review exists, warn and treat independent assurance as missing evidence.
 
 If no assessment exists, stop and ask for one. A score with no reviewed evidence is a guess.
 
@@ -56,7 +57,7 @@ Overall control strength:
 
 **Disqualifying findings override the matrix.** If `assess-vendor` found a disqualifying issue (for example no MFA on administrative access to our data, an adverse or disclaimed SOC opinion, or refusal to provide required evidence), the treatment is "Do not approve" whatever the matrix gives. The only way forward is executive risk acceptance recorded with `/grc-internal:manage-risk accept`, with a dated remediation plan.
 
-Profile must-pass checks raise the rating one level if they fail:
+**Failed must-pass checks block approval.** The profile checks below are preconditions, not rating inputs. If one fails, the result is `Blocked: <check>` (for example `Blocked: no signed business associate agreement`). Show the residual rating as well, so the risk is visible, but give no approval until the check passes:
 
 - `financial`: for EU financial entities, a vendor supporting a critical or important function must have a contract with the DORA Article 30 provisions and an exit strategy; for US banks, follow the interagency third-party risk guidance the organization has adopted.
 - `healthcare`: a signed business associate agreement before any PHI is shared.
@@ -64,18 +65,18 @@ Profile must-pass checks raise the rating one level if they fail:
 
 ## Treatment by rating
 
-Apply these only when there is a rating and no disqualifying finding (see above).
+Apply these only when there is a rating, no disqualifying finding, and no blocked must-pass check (see above).
 
 | Rating | Treatment |
 |---|---|
-| Critical | Do not proceed, or proceed only with executive risk acceptance recorded via `/grc-internal:manage-risk accept`, plus a dated remediation plan |
+| Critical | Escalate: do not proceed without a risk owner's decision; proceeding needs executive risk acceptance recorded via `/grc-internal:manage-risk accept`, plus a dated remediation plan |
 | High | Approve with conditions: remediation dates in the contract, compensating controls on our side, and a risk register entry |
 | Medium | Approve; track findings to closure; normal reassessment cadence |
 | Low | Approve |
 
 ## Output
 
-Appends `score.md` to the assessment folder and proposes `metadata.residual_rating`, `metadata.control_strength`, and `metadata.scored_at` for the vendor record (written after confirmation):
+Shows the score, then, after the user confirms, writes `score.md` to the assessment folder and sets `metadata.residual_rating`, `metadata.control_strength`, `metadata.blocked_by` (empty when nothing is blocked), and `metadata.scored_at` on the vendor record. Nothing is written before confirmation:
 
 ```markdown
 # Vendor risk score: Acme Payroll (VENDOR-001)
@@ -93,7 +94,7 @@ Profile: standard
 | Resilience | Adequate | DR plan exists; last test not provided |
 | Fourth parties | Adequate | Subprocessor list provided; no change notice clause |
 
-Control strength: Adequate. Residual rating: Medium.
+Control strength: Adequate. Residual rating: Medium. Must-pass checks: none for this profile.
 Treatment: approve; track the two pen test findings; request the DR test report.
 Next full reassessment: 2027-11.
 ```
