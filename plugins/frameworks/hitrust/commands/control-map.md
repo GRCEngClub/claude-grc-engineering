@@ -80,7 +80,7 @@ HITRUST CSF harmonizes 40+ frameworks including:
 - **HIPAA**: 164.308(a)(1)(ii)(D), 164.312(b)
 - **NIST 800-53**: AU-2, AU-3, AU-6
 - **ISO 27001**: A.8.15
-- **PCI DSS**: 10.1, 10.2, 10.3
+- **PCI DSS**: 10.2.1, 10.2.2, 10.4.1
 
 ### Encryption (Domain 10)
 
@@ -89,7 +89,7 @@ HITRUST CSF harmonizes 40+ frameworks including:
 - **HIPAA**: 164.312(a)(2)(iv)
 - **NIST 800-53**: SC-28
 - **ISO 27001**: A.8.24
-- **PCI DSS**: 3.4
+- **PCI DSS**: 3.5.1
 
 ### Incident Response (Domain 12)
 

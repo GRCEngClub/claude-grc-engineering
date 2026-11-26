@@ -222,7 +222,7 @@ resource "aws_cloudwatch_log_group" "cloudtrail" {
   kms_key_id = aws_kms_key.cloudwatch_encryption.arn
 
   tags = {
-    Compliance = "SOC2-CC7.2,PCI-10.7,NIST-AU-11"
+    Compliance = "SOC2-CC7.2,PCI-10.5.1,NIST-AU-11"
     Purpose    = "Audit trail retention"
   }
 }
@@ -335,7 +335,7 @@ resource "aws_lambda_function" "access_review" {
   }
 
   tags = {
-    Compliance = "SOC2-CC6.1,PCI-8.1.4"
+    Compliance = "SOC2-CC6.1,PCI-7.2.4"
   }
 }
 

@@ -129,7 +129,7 @@ resource "aws_cloudwatch_event_rule" "access_review" {
 
   tags = {
     Compliance = "PCI-DSS"
-    Requirement = "8.1.4"
+    Requirement = "7.2.4"
   }
 }
 
@@ -519,7 +519,7 @@ This implementation satisfies requirements from:
 - **NIST 800-53**: AC-2 (Account Management), AC-2(1-4)
 - **ISO 27001**: A.5.16, A.5.18, A.8.2
 - **SOC 2**: CC6.1, CC6.2, CC6.3
-- **PCI-DSS**: 8.1, 8.1.1, 8.1.3, 8.1.4
+- **PCI-DSS**: 7.2.4, 8.2.1, 8.2.5, 8.2.6
 
 ## Architecture
 

@@ -110,7 +110,7 @@ HIGH SEVERITY CONFLICTS
               (typically 1 year minimum)
 - PCI-DSS: One year minimum, with at least 3 months
               immediately available for analysis
-              Requirement 10.7 MANDATORY
+              Requirement 10.5.1 MANDATORY
 - NIST:    Organization-defined period
               (typically 90 days online, 1 year archived)
 - ISO:     As required by applicable regulations

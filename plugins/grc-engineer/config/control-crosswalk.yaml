@@ -311,7 +311,7 @@ controls:
         resolution: "Quarterly minimum for external, monthly for internal"
 
       - name: Critical Patch Timeline
-        pci_dss: "Critical vulnerabilities patched within one month of release (6.3.3)"
+        pci_dss: "Critical and high-security patches installed within one month of release (6.3.3)"
         cis: "Critical vulnerabilities within 15 days"
         nist: "Organization-defined timeframes"
         resolution: "Critical: 15 days, High: 30 days, Medium: 90 days"
