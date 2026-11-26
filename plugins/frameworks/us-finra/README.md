@@ -1,23 +1,30 @@
-# us-finra — FINRA Broker-Dealer Cybersecurity Guidance
+# us-finra — FINRA Broker-Dealer Cybersecurity
 
-Stub-depth framework plugin scaffolded from the SCF crosswalk. Install and use it to run a gap assessment against **FINRA Cybersecurity Rules**:
+Reference-depth framework plugin for FINRA member firms. FINRA has no single cybersecurity rule. This plugin covers the obligations FINRA examines:
+
+- FINRA Rules 3110 (supervision) and 4370 (business continuity)
+- SEC Regulation S-P, including the 2024 amendments
+- Regulation S-ID
+- SEA Rules 17a-3 and 17a-4
 
 ```bash
 /plugin install us-finra@grc-engineering-suite
-/us-finra:assess --sources=aws-inspector,github-inspector
+/us-finra:scope
+/us-finra:evidence-checklist all
+/us-finra:assess --sources=aws-inspector,okta-inspector
 ```
 
-## Status: Stub
+## Commands
 
-This plugin is at **Stub depth** — it routes to `/grc-engineer:gap-assessment` via the SCF crosswalk (17 SCF controls → 39 FINRA controls) without any framework-specific workflow commands yet.
+| Command | What it does |
+|---|---|
+| `/us-finra:scope` | Determines which obligations apply. It checks covered accounts for S-ID, the firm's SCI entity status, and which service providers hold customer information |
+| `/us-finra:evidence-checklist` | Builds an evidence list grouped by FINRA's 12 cybersecurity principles (August 2026), with the rule behind each item |
+| `/us-finra:assess` | Runs `/grc-engineer:gap-assessment` against the SCF crosswalk |
 
-### Level up to Reference
+## Status: Reference
 
-Reference-depth adds an evidence checklist and framework-specific context. If you have domain expertise for FINRA Cybersecurity Rules, see the [Framework Plugin Guide](../../../docs/FRAMEWORK-PLUGIN-GUIDE.md) and open a PR.
-
-### Level up to Full
-
-Full depth adds framework-native workflow commands tied to the audit ritual (e.g. `/fedramp-20x:vdr-assess`, `/soc2:service-auditor-prep`). See the existing Full-depth plugins (`soc2`, `fedramp-20x`, `pci-dss`, `nist-800-53`) for reference.
+Full depth would add exam-workflow commands, such as Reg S-P incident notification records or a FINRA request-list responder. See the [Framework Plugin Guide](../../../docs/FRAMEWORK-PLUGIN-GUIDE.md).
 
 ## Metadata
 
@@ -26,11 +33,15 @@ Full depth adds framework-native workflow commands tied to the audit ritual (e.g
 | SCF framework ID | `usa-federal-sro-finra` |
 | Region | Americas |
 | Country | US |
+| Regulator | FINRA |
 | SCF controls mapped | 17 |
 | Framework controls mapped | 39 |
-| Depth | Stub |
+| Depth | Reference |
 
 ## References
 
-- [Secure Controls Framework](https://securecontrolsframework.com) — crosswalk source (CC BY-ND 4.0)
+- [FINRA Cybersecurity Effective Practices (August 2026)](https://www.finra.org/rules-guidance/guidance/cybersecurity-effective-practices)
+- [2026 FINRA Annual Regulatory Oversight Report: Cybersecurity](https://www.finra.org/rules-guidance/guidance/reports/2026-finra-annual-regulatory-oversight-report/cybersecurity)
+- [SEC Regulation S-P amendments (2024)](https://www.sec.gov/newsroom/press-releases/2024-58)
+- [Secure Controls Framework](https://securecontrolsframework.com), the crosswalk source (CC BY-ND 4.0)
 - [SCF API entry](https://grcengclub.github.io/scf-api/api/crosswalks/usa-federal-sro-finra.json)

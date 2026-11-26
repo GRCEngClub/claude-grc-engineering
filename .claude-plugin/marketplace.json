@@ -208,7 +208,7 @@
     {
       "name": "irap",
       "source": "./plugins/frameworks/irap",
-      "description": "Australian IRAP (ISM + Essential Eight) for government cloud",
+      "description": "Australian IRAP assessments against the ASD Information Security Manual, with Essential Eight, classification, and data sovereignty",
       "version": "0.1.0"
     },
     {
@@ -322,7 +322,7 @@
     {
       "name": "us-finra",
       "source": "./plugins/frameworks/us-finra",
-      "description": "FINRA Broker-Dealer Cybersecurity Guidance \u2014 stub-depth plugin backed by the SCF crosswalk (17 SCF \u2192 39 framework controls).",
+      "description": "FINRA broker-dealer cybersecurity: FINRA Rules 3110 and 4370, SEC Reg S-P (2024 amendments), Reg S-ID, and Rule 17a-4, with scope and evidence by FINRA's 12 principles",
       "version": "0.1.0"
     },
     {
