@@ -18,12 +18,21 @@ run() {
   fi
 }
 
+if ! sources=$(node -e "for (const p of require('./.claude-plugin/marketplace.json').plugins) console.log(p.source)"); then
+  echo "Could not read the plugin list from .claude-plugin/marketplace.json." >&2
+  exit 2
+fi
+if [ -z "$sources" ]; then
+  echo "The marketplace lists no plugins, so there is nothing to validate." >&2
+  exit 2
+fi
+
 run .
 count=0
 while IFS= read -r source; do
   run "$source"
   count=$((count + 1))
-done < <(node -e "for (const p of require('./.claude-plugin/marketplace.json').plugins) console.log(p.source)")
+done <<< "$sources"
 
 if [ "$failed" -gt 0 ]; then
   echo "$failed target(s) failed strict validation."

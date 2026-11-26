@@ -11,7 +11,11 @@
       { "required": ["namespace"] },
       { "required": ["commands"] },
       { "required": ["skills"] },
-      { "required": ["hooks"] }
+      { "required": ["hooks"] },
+      { "required": ["framework_metadata"] },
+      { "required": ["knowledge_source_metadata"] },
+      { "required": ["license_note"] },
+      { "required": ["tags"] }
     ]
   },
   "properties": {
