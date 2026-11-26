@@ -108,7 +108,7 @@ Cost Impact: $0/month (S3 encryption is free)
 Generated Code: ./remediation/modules/encryption/s3_encryption.tf
 ```terraform
 # Remediation for CC6.7 - S3 Encryption at Rest
-# Satisfies: SOC 2 CC6.7, PCI-DSS 3.4, NIST SC-28
+# Satisfies: SOC 2 CC6.7, PCI-DSS 3.5.1, NIST SC-28
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "legacy_backups" {
   bucket = "legacy-backups-2019"
@@ -212,7 +212,7 @@ Generated Code: ./remediation/modules/logging/cloudtrail_retention.tf
 
 ```terraform
 # Remediation for CC7.2 - Audit Log Retention
-# Satisfies: SOC 2 CC7.2/CC7.3, PCI-DSS 10.7, NIST AU-11
+# Satisfies: SOC 2 CC7.2/CC7.3, PCI-DSS 10.5.1, NIST AU-11
 
 # Update CloudWatch Logs retention
 resource "aws_cloudwatch_log_group" "cloudtrail" {
@@ -222,7 +222,7 @@ resource "aws_cloudwatch_log_group" "cloudtrail" {
   kms_key_id = aws_kms_key.cloudwatch_encryption.arn
 
   tags = {
-    Compliance = "SOC2-CC7.2,PCI-10.7,NIST-AU-11"
+    Compliance = "SOC2-CC7.2,PCI-10.5.1,NIST-AU-11"
     Purpose    = "Audit trail retention"
   }
 }
@@ -315,7 +315,7 @@ Generated Code: ./remediation/modules/access_control/automated_access_review.tf
 
 ```terraform
 # Remediation for CC6.1 - Automated Access Reviews
-# Satisfies: SOC 2 CC6.1, PCI-DSS 8.1.4, NIST AC-2
+# Satisfies: SOC 2 CC6.1, PCI-DSS 7.2.4, NIST AC-2
 
 # Lambda function for automated access reviews
 resource "aws_lambda_function" "access_review" {
@@ -335,7 +335,7 @@ resource "aws_lambda_function" "access_review" {
   }
 
   tags = {
-    Compliance = "SOC2-CC6.1,PCI-8.1.4"
+    Compliance = "SOC2-CC6.1,PCI-7.2.4"
   }
 }
 

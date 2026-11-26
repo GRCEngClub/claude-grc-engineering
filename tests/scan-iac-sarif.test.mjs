@@ -93,7 +93,7 @@ test('sarif: relative path segments are percent-encoded so # and spaces stay par
 test('summary: compliance counts each failed (rule, framework) pair, like the per-framework scores', () => {
   const scanner = new IaCScanner('.', ['SOC2', 'PCI-DSS', 'NIST'], {});
   const totalRules = Object.keys(scanner.rules).length;
-  const finding = { controlId: 'encryption_at_rest', frameworks: ['SOC2 CC6.7', 'PCI-DSS 3.4', 'NIST SC-28'], severity: 'HIGH' };
+  const finding = { controlId: 'encryption_at_rest', frameworks: ['SOC2 CC6.7', 'PCI-DSS 3.5.1', 'NIST SC-28'], severity: 'HIGH' };
   scanner.violations.push(finding, { ...finding });
 
   const report = scanner.generateReport();

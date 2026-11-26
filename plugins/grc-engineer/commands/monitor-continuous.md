@@ -311,7 +311,7 @@ RECENT FAILURES (Last 7 Days)
   Jan 25: AC-2 (Account Management)
     Status: DEGRADED (was passing, now partial)
     Cause: 3 inactive users detected >90 days
-    Impact: PCI-DSS 8.1.4 violation
+    Impact: PCI-DSS 8.2.6 violation
     Action: Disable inactive users
 
   Jan 22: IA-5 (Password Policy)

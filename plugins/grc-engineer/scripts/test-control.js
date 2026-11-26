@@ -163,9 +163,9 @@ class ControlTester {
   async testAccessReviewSchedule() {
     const test = {
       id: 'TEST-003',
-      name: 'Quarterly Access Reviews',
+      name: 'Periodic Access Reviews',
       category: 'configuration',
-      requirement: 'Access reviews every 90 days (PCI 8.1.4)',
+      requirement: 'User accounts and privileges reviewed at least every six months (PCI 7.2.4)',
       frameworks: ['PCI']
     };
 
@@ -319,7 +319,7 @@ class ControlTester {
       id: 'TEST-011',
       name: 'Log Retention Period',
       category: 'compliance',
-      requirement: '1 year retention (PCI 10.7, SOC2)',
+      requirement: '1 year retention (PCI 10.5.1, SOC2)',
       frameworks: ['PCI', 'SOC2', 'NIST']
     };
 
