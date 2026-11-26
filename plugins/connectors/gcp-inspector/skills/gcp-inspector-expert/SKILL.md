@@ -47,9 +47,9 @@ You are the interpretation layer between raw GCP configuration data and complian
 ## Framework mappings (auto-expanded by gap-assessment)
 
 - **IAC-07.2 (primitive role ban)** → SOC 2 CC6.3 · NIST 800-53 AC-06(01), AC-06(02) · FedRAMP AC-06 · CIS GCP 1.4
-- **IAC-15.1 (key rotation)** → NIST 800-53 IA-05(01) · PCI 8.2.4 · FedRAMP IA-05
+- **IAC-15.1 (key rotation)** → NIST 800-53 IA-05(01) · PCI 8.6.3 · FedRAMP IA-05
 - **DCH-01.2 (public access)** → SOC 2 CC6.7 · NIST 800-53 AC-03, SC-07 · PCI 1.3 · FedRAMP AC-03
-- **CRY-09 (KMS rotation)** → NIST 800-53 SC-12(01) · PCI 3.6.4 · FedRAMP SC-12
+- **CRY-09 (KMS rotation)** → NIST 800-53 SC-12(01) · PCI 3.7.4 · FedRAMP SC-12
 
 ## Interpreting output
 

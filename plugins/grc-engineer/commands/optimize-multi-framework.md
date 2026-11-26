@@ -109,7 +109,7 @@ CONTROL #1: Access Control - Account Management
     ✓ NIST AC-2 (Account Management)
     ✓ ISO A.5.16, A.5.18 (Identity management, access rights)
     ✓ SOC2 CC6.1 (Logical access controls)
-    ✓ PCI 8.1 (User identification)
+    ✓ PCI 8.2 (User identification and account management)
 
   Implementation:
     - AWS IAM with automated lifecycle
@@ -128,7 +128,7 @@ CONTROL #2: Encryption at Rest
     ✓ NIST SC-28 (Protection of information at rest)
     ✓ ISO A.8.24 (Use of cryptography)
     ✓ SOC2 CC6.7 (Encryption)
-    ✓ PCI 3.4, 3.5 (PAN encryption)
+    ✓ PCI 3.5.1, 3.6 (Render PAN unreadable, protect keys)
 
   Implementation:
     - AWS KMS customer-managed keys
@@ -147,7 +147,7 @@ CONTROL #3: Security Logging and Monitoring
     ✓ NIST AU-2, AU-3, AU-6, AU-11 (Audit logging)
     ✓ ISO A.8.15, A.8.16, A.8.17 (Logging, monitoring activities, clock synchronization)
     ✓ SOC2 CC7.2, CC7.3 (System monitoring)
-    ✓ PCI 10.1-10.7 (Audit trails)
+    ✓ PCI 10.2–10.5 (Audit logs)
 
   Implementation:
     - CloudTrail (all regions, all accounts)
@@ -167,7 +167,7 @@ CONTROL #4: Vulnerability Management
     ✓ NIST RA-5, SI-2 (Vulnerability scanning, patching)
     ✓ ISO A.8.8 (Management of technical vulnerabilities)
     ✓ SOC2 CC7.1 (Anomaly detection)
-    ✓ PCI 5.2, 6.2, 11.3 (Anti-malware, patching, scanning)
+    ✓ PCI 5.2, 6.3.3, 11.3 (Anti-malware, patching, scanning)
 
   Implementation:
     - AWS Inspector for vulnerability scanning
@@ -184,7 +184,7 @@ CONTROL #5: Network Security and Segmentation
     ✓ NIST SC-7 (Boundary protection)
     ✓ ISO A.8.20-A.8.22 (Network security, network services, segregation)
     ✓ SOC2 CC6.6 (Logical access)
-    ✓ PCI 1.2, 1.3 (Firewall configuration, segmentation)
+    ✓ PCI 1.2, 1.3, 1.4 (Network security controls, segmentation)
 
   Implementation:
     - VPC with public/private subnets
@@ -216,7 +216,7 @@ Priority: HIGH - Implement after Tier 1
 
 Examples:
   ✓ Multi-factor Authentication (MFA)
-    - NIST IA-2(1), ISO A.8.5, PCI 8.3
+    - NIST IA-2(1), ISO A.8.5, PCI 8.4.2
     - Effort: 32 hours
 
   ✓ Change Management
@@ -251,7 +251,7 @@ Examples:
     - Effort: 40 hours
 
   ✓ Media Protection
-    - NIST MP-6, PCI 9.8
+    - NIST MP-6, PCI 9.4.7
     - Effort: 24 hours
 
   ... (87 more controls)
@@ -374,27 +374,27 @@ These controls provide immediate value with minimal effort:
 
 1. Enable CloudTrail (All Regions)
    Effort: 2 hours
-   Satisfies: NIST AU-2, ISO A.8.15, SOC2 CC7.2, PCI 10.2
+   Satisfies: NIST AU-2, ISO A.8.15, SOC2 CC7.2, PCI 10.2.1
    Command: /grc-engineer:generate-implementation cloudtrail_enable aws
 
 2. Enable S3 Bucket Encryption
    Effort: 4 hours
-   Satisfies: NIST SC-28, ISO A.8.24, SOC2 CC6.7, PCI 3.4
+   Satisfies: NIST SC-28, ISO A.8.24, SOC2 CC6.7, PCI 3.5.1
    Command: /grc-engineer:generate-implementation s3_encryption aws
 
 3. Enable MFA for Root Account
    Effort: 1 hour
-   Satisfies: NIST IA-2(1), ISO A.8.5, SOC2 CC6.1, PCI 8.3
+   Satisfies: NIST IA-2(1), ISO A.8.5, SOC2 CC6.1, PCI 8.4.2
    Command: /grc-engineer:generate-implementation root_mfa aws
 
 4. Enable VPC Flow Logs
    Effort: 2 hours
-   Satisfies: NIST AU-2, ISO A.8.15, SOC2 CC7.2, PCI 10.2
+   Satisfies: NIST AU-2, ISO A.8.15, SOC2 CC7.2, PCI 10.2.1
    Command: /grc-engineer:generate-implementation vpc_flow_logs aws
 
 5. Deploy AWS Config
    Effort: 8 hours
-   Satisfies: NIST CM-2, ISO A.8.9, SOC2 CC8.1, PCI 2.4
+   Satisfies: NIST CM-2, ISO A.8.9, SOC2 CC8.1, PCI 2.2.1
    Command: /grc-engineer:generate-implementation aws_config aws
 
 QUICK WINS TOTAL:

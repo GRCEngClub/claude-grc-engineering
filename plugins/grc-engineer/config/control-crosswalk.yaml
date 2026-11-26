@@ -24,10 +24,10 @@ controls:
       - CC6.3
 
     pci_dss:
-      - 8.1
-      - 8.1.1
-      - 8.1.3
-      - 8.1.4
+      - 7.2.4
+      - 8.2.1
+      - 8.2.5
+      - 8.2.6
 
     cis_controls:
       - 5.1
@@ -57,13 +57,13 @@ controls:
     conflicts:
       - name: Access Review Frequency
         soc2: "No specific frequency, risk-based approach recommended"
-        pci_dss: "Quarterly reviews required (every 90 days)"
+        pci_dss: "All user accounts reviewed at least once every six months (7.2.4)"
         nist: "Annually minimum, or when roles/responsibilities change"
         iso_27001: "At planned intervals (typically annually)"
-        resolution: "Use quarterly (90 days) to satisfy most restrictive requirement (PCI-DSS)"
+        resolution: "Review at least every six months to meet PCI-DSS 7.2.4, the most restrictive minimum; quarterly is a common choice for privileged access"
 
       - name: Inactive Account Detection
-        pci_dss: "Remove/disable after 90 days of inactivity"
+        pci_dss: "Remove/disable after 90 days of inactivity (8.2.6)"
         nist: "Organization-defined time period"
         soc2: "Risk-based determination"
         resolution: "Use 90 days to satisfy PCI-DSS requirement"
@@ -115,9 +115,9 @@ controls:
       - CC6.7
 
     pci_dss:
-      - 3.4
-      - 3.5
-      - 3.6
+      - 3.5.1
+      - 3.6.1
+      - 3.7.1
 
     cis_controls:
       - 3.11
@@ -189,11 +189,11 @@ controls:
       - CC7.3
 
     pci_dss:
-      - 10.1
-      - 10.2
-      - 10.3
-      - 10.6
-      - 10.7
+      - 10.2.1
+      - 10.2.2
+      - 10.3.1
+      - 10.4.1
+      - 10.5.1
 
     cis_controls:
       - 8.2
@@ -280,7 +280,7 @@ controls:
 
     pci_dss:
       - 5.2
-      - 6.2
+      - 6.3.1
       - 6.3.3
       - 11.3
 
@@ -311,7 +311,7 @@ controls:
         resolution: "Quarterly minimum for external, monthly for internal"
 
       - name: Critical Patch Timeline
-        pci_dss: "High-risk vulnerabilities patched within one month"
+        pci_dss: "Critical vulnerabilities patched within one month of release (6.3.3)"
         cis: "Critical vulnerabilities within 15 days"
         nist: "Organization-defined timeframes"
         resolution: "Critical: 15 days, High: 30 days, Medium: 90 days"
@@ -385,7 +385,7 @@ controls:
 
     conflicts:
       - name: Firewall Rule Review
-        pci_dss: "Review firewall rules every 6 months"
+        pci_dss: "Review network security control rulesets at least every six months (1.2.7)"
         nist: "Annual minimum"
         soc2: "Regular reviews based on risk"
         resolution: "Semi-annual (every 6 months) to satisfy PCI-DSS"
