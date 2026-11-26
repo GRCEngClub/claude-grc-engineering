@@ -141,7 +141,14 @@ const quiet = args.includes('--quiet');
 const force = args.includes('--force');
 const check = args.includes('--check');
 
-if (quiet || check) {
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(`Usage: node check-fedramp-updates.js [--check | --quiet | --force]
+
+  (no flag)   Sync FedRAMP 20x policy files from GitHub when they have changed.
+  --check     Report whether an update is available without downloading.
+  --quiet     Same as --check, printing only when an update exists.
+  --force     Sync even when the cached copy looks current.`);
+} else if (quiet || check) {
   checkOnly();
 } else {
   syncPolicies(force);

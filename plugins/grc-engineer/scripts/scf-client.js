@@ -389,9 +389,18 @@ async function fetchOrLoad(relativePath, { baseUrl, cacheDir, offline, version }
 const invokedFromCLI = import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invokedFromCLI) {
   const [, , cmd, ...args] = process.argv;
-  const client = await initSCF();
+  const usage = 'Usage: scf-client.js <version|summary|control|frameworks|crosswalk|resolve|expand> [args...]';
+  if (cmd === '--help' || cmd === '-h') {
+    console.log(usage);
+    process.exit(0);
+  }
+  if (!['version', 'summary', 'control', 'frameworks', 'crosswalk', 'resolve', 'expand'].includes(cmd)) {
+    console.error(usage);
+    process.exit(2);
+  }
   const emit = (o) => console.log(JSON.stringify(o, null, 2));
   try {
+    const client = await initSCF();
     switch (cmd) {
       case 'version':       emit({ version: client.version() }); break;
       case 'summary':       emit(client.summary()); break;
@@ -400,9 +409,6 @@ if (invokedFromCLI) {
       case 'crosswalk':     emit(await client.crosswalk(args[0])); break;
       case 'resolve':       emit(await client.resolve(args[0], args[1])); break;
       case 'expand':        emit(Object.fromEntries(await client.expand(args[0], args.slice(1)))); break;
-      default:
-        console.error('Usage: scf-client.js <version|summary|control|frameworks|crosswalk|resolve|expand> [args...]');
-        process.exit(2);
     }
   } catch (err) {
     console.error(`[scf-client] ${err.code || 'ERROR'}: ${err.message}`);

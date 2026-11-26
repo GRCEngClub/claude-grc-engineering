@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
@@ -101,9 +101,25 @@ test('commands and skills do not tell Claude to run checkout-relative script pat
   assert.deepEqual(problems, []);
 });
 
-test('every plugin script starts from an installed copy', { timeout: 300_000 }, () => {
+// Each script must start from an installed copy and handle --help without
+// doing work: it prints help or a usage error (exit 0, 1 or 2), and does not
+// crash, time out or touch the network. A preloaded shim records and blocks
+// every connection attempt, so a script that ignores --help and starts
+// collecting fails here.
+test('every plugin script answers --help from an installed copy, offline', { timeout: 300_000 }, () => {
   const cache = mkdtempSync(join(tmpdir(), 'plugin-cache-'));
   const cwd = mkdtempSync(join(tmpdir(), 'plugin-cwd-'));
+  const shim = join(cwd, 'no-network.cjs');
+  writeFileSync(shim, `
+    const fs = require('node:fs');
+    const blocked = () => {
+      fs.appendFileSync(process.env.SMOKE_NETWORK_LOG, process.argv[1] + '\\n');
+      throw new Error('network is blocked in the smoke test');
+    };
+    require('node:net').Socket.prototype.connect = blocked;
+    globalThis.fetch = async () => blocked();
+  `);
+  const networkLog = join(cwd, 'network.log');
   const problems = [];
   try {
     for (const plugin of plugins) {
@@ -114,13 +130,19 @@ test('every plugin script starts from an installed copy', { timeout: 300_000 }, 
       cpSync(plugin.dir, installed, { recursive: true, dereference: true, filter: src => !src.includes(`${sep}node_modules`) });
       for (const script of scripts) {
         const rel = relative(plugin.dir, script);
-        const run = spawnSync(process.execPath, [join(installed, rel), '--help'], {
+        const run = spawnSync(process.execPath, ['--require', shim, join(installed, rel), '--help'], {
           cwd, encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'],
-          env: { PATH: process.env.PATH, HOME: cwd },
+          env: { PATH: process.env.PATH, HOME: cwd, SMOKE_NETWORK_LOG: networkLog },
         });
         const output = `${run.stdout}${run.stderr}`;
-        const missing = output.match(/ERR_MODULE_NOT_FOUND|Cannot find (?:module|package) '[^']+'/);
-        if (missing) problems.push(`${plugin.name}/${rel}: ${missing[0]}`);
+        const label = `${plugin.name}/${rel}`;
+        const firstLine = output.trim().split('\n')[0].slice(0, 120);
+        if (run.error) problems.push(`${label}: ${run.error.code || run.error.message}`);
+        else if (run.signal) problems.push(`${label}: killed by ${run.signal}`);
+        else if (existsSync(networkLog)) problems.push(`${label}: --help tried to use the network`);
+        else if (/\nNode\.js v\d/.test(output)) problems.push(`${label}: uncaught exception: ${firstLine}`);
+        else if (![0, 1, 2].includes(run.status)) problems.push(`${label}: --help exited ${run.status}: ${firstLine}`);
+        rmSync(networkLog, { force: true });
       }
     }
   } finally {
