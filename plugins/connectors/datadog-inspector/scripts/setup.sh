@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# datadog-inspector:setup
 set -euo pipefail
 
 CONFIG_DIR="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors"

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# azure-inspector:status
 set -uo pipefail
 
 CONFIG_FILE="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors/azure-inspector.yaml"

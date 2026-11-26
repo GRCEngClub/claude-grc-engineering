@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# splunk-inspector:status
 set -uo pipefail
 
 CONFIG_FILE="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors/splunk-inspector.yaml"

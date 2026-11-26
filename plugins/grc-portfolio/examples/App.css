@@ -184,7 +184,6 @@ code {
   font-size: 0.9rem;
 }
 
-/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -218,7 +217,6 @@ code {
   }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .app-header h1 {
     font-size: 2rem;

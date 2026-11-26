@@ -1,8 +1,3 @@
-/**
- * Audit-Ready PR Reviewer
- * Reviews pull requests for compliance regressions
- */
-
 import { Octokit } from '@octokit/rest';
 
 const COMPLIANCE_CHECKS = {
@@ -15,7 +10,7 @@ const COMPLIANCE_CHECKS = {
     ],
     frameworks: {
       SOC2: 'CC6.1',
-      ISO27001: 'A.9.2.3',
+      ISO27001: 'A.8.2',
       NIST80053: 'AC-6'
     },
     severity: 'high',
@@ -29,7 +24,7 @@ const COMPLIANCE_CHECKS = {
     ],
     frameworks: {
       SOC2: 'CC7.2',
-      ISO27001: 'A.10.1.1',
+      ISO27001: 'A.8.24',
       NIST80053: 'SC-28'
     },
     severity: 'high',
@@ -43,7 +38,7 @@ const COMPLIANCE_CHECKS = {
     ],
     frameworks: {
       SOC2: 'CC7.1',
-      ISO27001: 'A.8.2.1'
+      ISO27001: 'A.5.12'
     },
     severity: 'medium',
     message: 'This change creates resources without required tags for governance and compliance tracking.'
@@ -56,7 +51,7 @@ const COMPLIANCE_CHECKS = {
     ],
     frameworks: {
       SOC2: 'CC7.2',
-      ISO27001: 'A.13.1.1',
+      ISO27001: 'A.8.20',
       NIST80053: 'AC-4'
     },
     severity: 'critical',
@@ -72,14 +67,12 @@ export async function reviewPR(repo, prNumber, framework = 'SOC2', githubToken) 
   const octokit = new Octokit({ auth: githubToken });
   const [owner, repoName] = repo.split('/');
 
-  // Get PR details
   const { data: pr } = await octokit.rest.pulls.get({
     owner,
     repo: repoName,
     pull_number: prNumber
   });
 
-  // Get PR files
   const { data: files } = await octokit.rest.pulls.listFiles({
     owner,
     repo: repoName,
@@ -88,11 +81,9 @@ export async function reviewPR(repo, prNumber, framework = 'SOC2', githubToken) 
 
   const issues = [];
 
-  // Review each file
   for (const file of files) {
     if (file.status === 'removed') continue;
 
-    // Get file content
     let content = '';
     if (file.patch) {
       content = file.patch;
@@ -108,17 +99,14 @@ export async function reviewPR(repo, prNumber, framework = 'SOC2', githubToken) 
           content = Buffer.from(fileData.content, 'base64').toString('utf-8');
         }
       } catch (err) {
-        // File might be binary or inaccessible
         continue;
       }
     }
 
-    // Check for compliance issues
     const fileIssues = analyzeFile(file.filename, content, framework);
     issues.push(...fileIssues);
   }
 
-  // Generate review comments
   const comments = generateComments(issues, framework);
 
   return {
@@ -149,7 +137,6 @@ function analyzeFile(filename, content, framework) {
     for (const pattern of check.patterns) {
       lines.forEach((line, index) => {
         if (pattern.test(line)) {
-          // Check if this is an addition (starts with +)
           const isAddition = line.startsWith('+') || !line.startsWith('-');
           
           if (isAddition) {

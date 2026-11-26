@@ -22,6 +22,16 @@ The optional `assessment_context` object accepts `scope`, `process`, `procedures
 
 The [official legacy Rev. 5 annual-assessment guidance](https://www.fedramp.gov/legacy/playbook/csp/continuous-monitoring/annual-assessment/#conduct-the-security-assessment-and-develop-sar) says the SAR documents actual assessment processes, procedures, methodologies, results, and risks corrected during testing or remaining at its conclusion. This motivates collecting context and preserving supplied classifications for human review; it does not define this prototype's schema or establish template conformance. The page is reference-only during the transition to the 2026 consolidated rules; no equivalence with 20x is implied.
 
+## Experimental comparison
+
+```sh
+node scripts/assessment-review-comparison.mjs before.json after.json comparison.json
+```
+
+This program-neutral review aid compares two valid inputs with the same assessment ID. It reports added and removed IDs, changed field names, source changes, and the review warnings for each input. IDs and field names are sorted; reference list ordering is ignored. Missing optional fields differ from supplied empty lists. An absent context and an empty context are equivalent. It does not show old or new values; inspect the inputs for details. Identical IDs are only a matching convention, not proof the snapshots describe the same real assessment. Changes, removals and corrected classifications do **not** establish remediation, closure, coverage, risk, assessment or authorization. Results and warnings may contain sensitive identifiers.
+
+Both inputs are validated before an output is created. The required output path is exclusively created with the same filesystem limitations, permissions and trusted-directory requirements described above for the draft. This comparison is not an official template, stable contract, or a substitute for independent review. It does not resolve the applicable FedRAMP program or the outstanding decisions for #170, #171 and #172.
+
 ## Experimental CSV exports
 
 ```sh

@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-# aws-inspector:setup
-# Idempotent setup for the aws-inspector connector.
-#
-# Verifies aws CLI + credentials, writes ~/.config/claude-grc/connectors/aws-inspector.yaml,
-# warns if the caller has admin privileges.
 
 set -euo pipefail
 
@@ -34,7 +29,6 @@ aws_() {
   fi
 }
 
-# 1. aws binary
 if ! command -v aws >/dev/null 2>&1; then
   cat <<'EOF' >&2
 [aws-inspector:setup] aws CLI not found on PATH.
@@ -51,7 +45,6 @@ fi
 AWS_BIN=$(command -v aws)
 AWS_VERSION=$(aws --version 2>&1 | awk '{print $1}' | sed 's|aws-cli/||')
 
-# 2. Credentials resolve?
 if ! IDENT_JSON=$(aws_ sts get-caller-identity --output json 2>/tmp/aws-setup.err); then
   cat <<EOF >&2
 [aws-inspector:setup] AWS credentials did not resolve.
@@ -76,19 +69,16 @@ fi
 ACCOUNT_ID=$(echo "$IDENT_JSON" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).Account))")
 CALLER_ARN=$(echo "$IDENT_JSON" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).Arn))")
 
-# 3. Default region
 if [[ -z "$REGION" ]]; then
   REGION="${AWS_REGION:-$(aws_ configure get region 2>/dev/null || true)}"
   [[ -z "$REGION" ]] && REGION="us-east-1"
 fi
 
-# 4. Admin privilege heuristic (warn, don't fail)
 ADMIN_WARN=0
 if echo "$CALLER_ARN" | grep -qE ':root$|:user/.*admin|:role/.*[Aa]dmin|:role/OrganizationAccountAccessRole'; then
   ADMIN_WARN=1
 fi
 
-# 5. Write config
 mkdir -p "$CONFIG_DIR"
 cat > "$CONFIG_FILE" <<EOF
 version: 1
@@ -103,7 +93,6 @@ defaults:
   services: ["iam", "s3", "cloudtrail", "ebs"]
 EOF
 
-# 6. Prepare cache dirs
 CACHE_DIR="$HOME/.cache/claude-grc/findings/aws-inspector"
 mkdir -p "$CACHE_DIR"
 touch "$HOME/.cache/claude-grc/runs.log"

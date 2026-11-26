@@ -1,7 +1,3 @@
-# Master Control Mapping Database
-# Maps security controls across all major compliance frameworks
-# Identifies overlaps, conflicts, and optimization opportunities
-
 version: "1.0"
 description: Universal control mapping for cross-framework compliance optimization
 
@@ -10,49 +6,46 @@ controls:
     name: Account Management
     category: Access Control
 
-    # Framework mappings
     nist_800_53:
       - AC-2
-      - AC-2(1)  # Automated account management
-      - AC-2(2)  # Temporary/emergency accounts
-      - AC-2(3)  # Disable inactive accounts
-      - AC-2(4)  # Automated audit actions
+      - AC-2(1)
+      - AC-2(2)
+      - AC-2(3)
+      - AC-2(4)
 
     iso_27001:
-      - A.9.2.1  # User registration and de-registration
-      - A.9.2.2  # User access provisioning
-      - A.9.2.3  # Management of privileged access rights
-      - A.9.2.5  # Review of user access rights
+      - A.5.16
+      - A.5.18
+      - A.8.2
 
     soc2:
-      - CC6.1  # Logical and physical access controls
-      - CC6.2  # Prior to issuing system credentials
-      - CC6.3  # Removes access when appropriate
+      - CC6.1
+      - CC6.2
+      - CC6.3
 
     pci_dss:
-      - 8.1    # Identification and authentication
-      - 8.1.1  # Unique user IDs
-      - 8.1.3  # Immediately revoke access for terminated users
-      - 8.1.4  # Remove/disable inactive accounts every 90 days
+      - 7.2.4
+      - 8.2.1
+      - 8.2.5
+      - 8.2.6
 
     cis_controls:
-      - 5.1    # Establish and maintain an inventory of accounts
-      - 5.2    # Use unique passwords
-      - 5.3    # Disable dormant accounts
-      - 6.1    # Establish access control policy
-      - 6.2    # Establish access based on need to know
+      - 5.1
+      - 5.2
+      - 5.3
+      - 6.1
+      - 6.2
 
     cmmc:
-      - AC.L2-3.1.1  # Authorized access control
-      - AC.L2-3.1.2  # Transaction and function control
-      - IA.L2-3.5.1  # Identify users
-      - IA.L2-3.5.2  # Authenticate users
+      - AC.L2-3.1.1
+      - AC.L2-3.1.2
+      - IA.L2-3.5.1
+      - IA.L2-3.5.2
 
     fedramp:
-      - AC-2     # NIST 800-53 control
+      - AC-2
       - baseline: Moderate
 
-    # Common requirements across all frameworks
     common_requirements:
       - Unique user IDs for all individuals
       - Formal access request and approval process
@@ -61,22 +54,20 @@ controls:
       - Separation of duties for privileged access
       - Audit trail of all account management actions
 
-    # Conflicting requirements
     conflicts:
       - name: Access Review Frequency
         soc2: "No specific frequency, risk-based approach recommended"
-        pci_dss: "Quarterly reviews required (every 90 days)"
+        pci_dss: "All user accounts reviewed at least once every six months (7.2.4)"
         nist: "Annually minimum, or when roles/responsibilities change"
         iso_27001: "At planned intervals (typically annually)"
-        resolution: "Use quarterly (90 days) to satisfy most restrictive requirement (PCI-DSS)"
+        resolution: "Review at least every six months to meet PCI-DSS 7.2.4, the most restrictive minimum; quarterly is a common choice for privileged access"
 
       - name: Inactive Account Detection
-        pci_dss: "Remove/disable after 90 days of inactivity"
+        pci_dss: "Remove/disable after 90 days of inactivity (8.2.6)"
         nist: "Organization-defined time period"
         soc2: "Risk-based determination"
         resolution: "Use 90 days to satisfy PCI-DSS requirement"
 
-    # Cloud implementation patterns
     cloud_implementation:
       aws: |
         - IAM users with unique identifiers
@@ -87,9 +78,9 @@ controls:
         - Lambda + EventBridge for automated lifecycle management
 
       azure: |
-        - Azure Active Directory users
-        - Azure AD Privileged Identity Management (PIM)
-        - Azure AD Access Reviews for periodic certification
+        - Microsoft Entra ID users
+        - Microsoft Entra Privileged Identity Management (PIM)
+        - Microsoft Entra access reviews for periodic certification
         - Azure Policy for compliance enforcement
         - Azure Monitor for audit logging
         - Logic Apps for automation
@@ -114,27 +105,26 @@ controls:
     category: Data Protection
 
     nist_800_53:
-      - SC-28     # Protection of information at rest
-      - SC-28(1)  # Cryptographic protection
+      - SC-28
+      - SC-28(1)
 
     iso_27001:
-      - A.10.1.1  # Policy on use of cryptographic controls
-      - A.10.1.2  # Key management
+      - A.8.24
 
     soc2:
-      - CC6.7  # Encryption of data at rest
+      - CC6.7
 
     pci_dss:
-      - 3.4    # Render PAN unreadable (encryption)
-      - 3.5    # Document and implement key management
-      - 3.6    # Cryptographic key procedures
+      - 3.5.1
+      - 3.6.1
+      - 3.7.1
 
     cis_controls:
-      - 3.11   # Encrypt sensitive data at rest
+      - 3.11
 
     cmmc:
-      - SC.L2-3.13.11  # Cryptographic protection
-      - SC.L2-3.13.16  # Protect confidentiality using encryption
+      - SC.L2-3.13.11
+      - SC.L2-3.13.16
 
     common_requirements:
       - Encrypt sensitive data at rest
@@ -183,38 +173,37 @@ controls:
     category: Audit and Accountability
 
     nist_800_53:
-      - AU-2     # Event logging
-      - AU-3     # Content of audit records
-      - AU-6     # Audit review, analysis, and reporting
-      - AU-11    # Audit record retention
-      - SI-4     # System monitoring
+      - AU-2
+      - AU-3
+      - AU-6
+      - AU-11
+      - SI-4
 
     iso_27001:
-      - A.12.4.1  # Event logging
-      - A.12.4.2  # Protection of log information
-      - A.12.4.3  # Administrator and operator logs
-      - A.12.4.4  # Clock synchronization
+      - A.8.15
+      - A.8.16
+      - A.8.17
 
     soc2:
-      - CC7.2  # System monitoring
-      - CC7.3  # Evaluation of system monitoring
+      - CC7.2
+      - CC7.3
 
     pci_dss:
-      - 10.1   # Implement audit trails
-      - 10.2   # Automated audit trails for all users
-      - 10.3   # Record audit trail entries
-      - 10.6   # Review logs and security events
-      - 10.7   # Retain audit trail history for one year
+      - 10.2.1
+      - 10.2.2
+      - 10.3.1
+      - 10.4.1
+      - 10.5.1
 
     cis_controls:
-      - 8.2    # Collect audit logs
-      - 8.3    # Ensure adequate storage for logs
-      - 8.5    # Collect detailed audit logs
-      - 8.11   # Conduct audit log reviews
+      - 8.2
+      - 8.3
+      - 8.5
+      - 8.11
 
     cmmc:
-      - AU.L2-3.3.1   # Create and retain system audit logs
-      - AU.L2-3.3.2   # Ensure actions can be traced to users
+      - AU.L2-3.3.1
+      - AU.L2-3.3.2
 
     common_requirements:
       - Comprehensive security event logging
@@ -277,35 +266,35 @@ controls:
     category: System and Information Integrity
 
     nist_800_53:
-      - RA-5     # Vulnerability scanning
-      - SI-2     # Flaw remediation (patching)
-      - SI-2(2)  # Automated flaw remediation status
+      - RA-5
+      - SI-2
+      - SI-2(2)
 
     iso_27001:
-      - A.12.6.1  # Management of technical vulnerabilities
-      - A.14.2.5  # Secure system engineering principles
+      - A.8.8
+      - A.8.27
 
     soc2:
-      - CC7.1  # Detection of anomalies and security events
-      - CC8.1  # Detect changes that could affect system
+      - CC7.1
+      - CC8.1
 
     pci_dss:
-      - 5.2    # Anti-malware mechanisms
-      - 6.2    # Ensure systems are protected from known vulnerabilities
-      - 6.3.3  # Review custom code prior to release
-      - 11.3   # External and internal vulnerability scans
+      - 5.2
+      - 6.3.1
+      - 6.3.3
+      - 11.3
 
     cis_controls:
-      - 7.1    # Establish vulnerability management program
-      - 7.2    # Establish vulnerability remediation process
-      - 7.3    # Perform automated OS patch management
-      - 7.4    # Perform automated application patch management
-      - 7.5    # Perform vulnerability scans
+      - 7.1
+      - 7.2
+      - 7.3
+      - 7.4
+      - 7.5
 
     cmmc:
-      - RA.L2-3.11.2  # Vulnerability scans
-      - SI.L2-3.14.1  # Identify and correct flaws
-      - SI.L2-3.14.2  # Malicious code protection
+      - RA.L2-3.11.2
+      - SI.L2-3.14.1
+      - SI.L2-3.14.2
 
     common_requirements:
       - Regular vulnerability scanning (monthly minimum)
@@ -322,7 +311,7 @@ controls:
         resolution: "Quarterly minimum for external, monthly for internal"
 
       - name: Critical Patch Timeline
-        pci_dss: "High-risk vulnerabilities patched within one month"
+        pci_dss: "Critical and high-security patches installed within one month of release (6.3.3)"
         cis: "Critical vulnerabilities within 15 days"
         nist: "Organization-defined timeframes"
         resolution: "Critical: 15 days, High: 30 days, Medium: 90 days"
@@ -358,34 +347,34 @@ controls:
     category: Network Security
 
     nist_800_53:
-      - SC-7     # Boundary protection
-      - SC-7(3)  # Access points
-      - SC-7(4)  # External telecommunications
-      - SC-7(5)  # Deny by default, allow by exception
+      - SC-7
+      - SC-7(3)
+      - SC-7(4)
+      - SC-7(5)
 
     iso_27001:
-      - A.13.1.1  # Network controls
-      - A.13.1.2  # Security of network services
-      - A.13.1.3  # Segregation in networks
+      - A.8.20
+      - A.8.21
+      - A.8.22
 
     soc2:
-      - CC6.6  # Logical access to system resources
+      - CC6.6
 
     pci_dss:
-      - 1.2    # Build firewall configurations that restrict connections
-      - 1.3    # Prohibit direct public access to cardholder data
-      - 1.4    # Install personal firewall software on mobile devices
-      - 2.1    # Establish configuration standards
+      - 1.2
+      - 1.3
+      - 1.4
+      - 2.1
 
     cis_controls:
-      - 12.1   # Ensure network infrastructure is up-to-date
-      - 12.2   # Establish and maintain secure network architecture
-      - 12.4   # Deny communication over unauthorized ports
-      - 13.1   # Centralize security event alerting
+      - 12.1
+      - 12.2
+      - 12.4
+      - 13.1
 
     cmmc:
-      - SC.L2-3.13.1  # Boundary protection
-      - SC.L2-3.13.5  # Public access protection
+      - SC.L2-3.13.1
+      - SC.L2-3.13.5
 
     common_requirements:
       - Network segmentation by trust level
@@ -396,7 +385,7 @@ controls:
 
     conflicts:
       - name: Firewall Rule Review
-        pci_dss: "Review firewall rules every 6 months"
+        pci_dss: "Review network security control rulesets at least every six months (1.2.7)"
         nist: "Annual minimum"
         soc2: "Regular reviews based on risk"
         resolution: "Semi-annual (every 6 months) to satisfy PCI-DSS"
@@ -431,7 +420,6 @@ controls:
         - Service mesh (Istio, Linkerd) for mTLS
         - NetworkPolicy enforcement (Calico, Cilium)
 
-# Cross-framework optimization tiers
 optimization_tiers:
   tier1_four_frameworks:
     description: "Controls that satisfy 4+ frameworks with single implementation"
@@ -461,7 +449,6 @@ optimization_tiers:
       - "NIST security authorization (CA-6)"
       - "ISO management review of ISMS"
 
-# Implementation effort estimates
 effort_estimates:
   access_control_account_management:
     hours: 40

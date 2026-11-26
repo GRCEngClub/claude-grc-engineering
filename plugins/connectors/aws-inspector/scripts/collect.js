@@ -1,18 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * aws-inspector:collect
- *
- * Runs AWS CLI read-only queries and emits findings conforming to
- * schemas/finding.schema.json v1.
- *
- * Usage:
- *   node collect.js [--regions=us-east-1,us-west-2]
- *                   [--services=iam,s3,cloudtrail,ebs]
- *                   [--profile=<name>] [--output=summary|silent|json]
- *                   [--quiet]
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -59,13 +46,11 @@ async function main(argv) {
 
   const ctx = { env, regions, runId, accountId };
 
-  // IAM is global; run once.
   if (services.includes('iam')) {
     try { findings.push(...await collectIAM(ctx, log)); }
     catch (err) { errors.push({ service: 'iam', error: err.message }); log(`iam failed: ${err.message}`); }
   }
 
-  // EBS default encryption is per-region.
   if (services.includes('ebs')) {
     for (const region of regions) {
       try { findings.push(...await collectEBS(ctx, region, log)); }
@@ -73,13 +58,11 @@ async function main(argv) {
     }
   }
 
-  // S3 list is global but operations are regional. Enumerate buckets once; probe bucket properties with us-east-1.
   if (services.includes('s3')) {
     try { findings.push(...await collectS3(ctx, log)); }
     catch (err) { errors.push({ service: 's3', error: err.message }); log(`s3 failed: ${err.message}`); }
   }
 
-  // CloudTrail: enumerate per region, multi-region trails appear once per home region.
   if (services.includes('cloudtrail')) {
     for (const region of regions) {
       try { findings.push(...await collectCloudTrail(ctx, region, log)); }
@@ -124,16 +107,12 @@ async function main(argv) {
   process.exit(errors.length ? EXIT.PARTIAL : EXIT.OK);
 }
 
-// ---------------------------------------------------------------------------
-// IAM checks (account-level)
-
 async function collectIAM(ctx, log) {
   const findings = [];
   const account = ctx.accountId;
   const resource = { type: 'aws_account', id: account, arn: `arn:aws:iam::${account}:root`, region: null, account_id: account };
   const evaluations = [];
 
-  // IAC-01.1: root has MFA, and AccountAccessKeysPresent=0
   try {
     const sum = JSON.parse((await aws(ctx.env, ['iam', 'get-account-summary', '--output', 'json'])).stdout);
     const s = sum.SummaryMap || {};
@@ -161,7 +140,6 @@ async function collectIAM(ctx, log) {
     evaluations.push({ control_framework: 'SCF', control_id: 'IAC-01.1', status: 'inconclusive', severity: 'medium', message: `Could not read account summary: ${err.message}` });
   }
 
-  // IAC-02: Password policy
   try {
     const pol = JSON.parse((await aws(ctx.env, ['iam', 'get-account-password-policy', '--output', 'json'])).stdout);
     const p = pol.PasswordPolicy || {};
@@ -208,9 +186,6 @@ async function collectIAM(ctx, log) {
   return findings;
 }
 
-// ---------------------------------------------------------------------------
-// EBS default encryption per region
-
 async function collectEBS(ctx, region, log) {
   try {
     const { stdout } = await aws(ctx.env, ['ec2', 'get-ebs-encryption-by-default', '--region', region, '--output', 'json']);
@@ -237,9 +212,6 @@ async function collectEBS(ctx, region, log) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// S3 — list all buckets, evaluate each
-
 async function collectS3(ctx, log) {
   const findings = [];
   const buckets = JSON.parse((await aws(ctx.env, ['s3api', 'list-buckets', '--output', 'json'])).stdout).Buckets || [];
@@ -249,7 +221,6 @@ async function collectS3(ctx, log) {
     const resource = { type: 'aws_s3_bucket', id: name, arn: `arn:aws:s3:::${name}`, region: null, account_id: ctx.accountId };
     const evaluations = [];
 
-    // CRY-05: default encryption
     try {
       const { stdout } = await aws(ctx.env, ['s3api', 'get-bucket-encryption', '--bucket', name, '--output', 'json']);
       const rules = JSON.parse(stdout).ServerSideEncryptionConfiguration?.Rules || [];
@@ -271,7 +242,6 @@ async function collectS3(ctx, log) {
       }
     }
 
-    // DCH-01.2: public access block
     try {
       const { stdout } = await aws(ctx.env, ['s3api', 'get-public-access-block', '--bucket', name, '--output', 'json']);
       const pab = JSON.parse(stdout).PublicAccessBlockConfiguration || {};
@@ -295,7 +265,6 @@ async function collectS3(ctx, log) {
       }
     }
 
-    // AST-05: versioning
     try {
       const { stdout } = await aws(ctx.env, ['s3api', 'get-bucket-versioning', '--bucket', name, '--output', 'json']);
       const v = JSON.parse(stdout || '{}');
@@ -317,9 +286,6 @@ async function collectS3(ctx, log) {
   return findings;
 }
 
-// ---------------------------------------------------------------------------
-// CloudTrail — per region
-
 async function collectCloudTrail(ctx, region, log) {
   const { stdout } = await aws(ctx.env, ['cloudtrail', 'describe-trails', '--region', region, '--output', 'json']);
   const trails = (JSON.parse(stdout).trailList || []).filter(t => t.HomeRegion === region);
@@ -327,7 +293,6 @@ async function collectCloudTrail(ctx, region, log) {
   const findings = [];
 
   if (!trails.length) {
-    // No trails in home region — if multi-region coverage exists elsewhere, it's ok, but flag for operator review.
     findings.push({
       schema_version: '1.0.0', source: SOURCE, source_version: SOURCE_VERSION, run_id: ctx.runId,
       collected_at: new Date().toISOString(),
@@ -359,7 +324,6 @@ async function collectCloudTrail(ctx, region, log) {
       remediation: { summary: 'Enable log file validation to detect tampering.', ref: 'grc-engineer://generate-implementation/audit_logging/aws', effort_hours: 0.1, automation: 'auto_fixable' }
     });
 
-    // Status check — is it actually logging?
     try {
       const st = JSON.parse((await aws(ctx.env, ['cloudtrail', 'get-trail-status', '--name', t.Name, '--region', region, '--output', 'json'])).stdout);
       if (st.IsLogging) evaluations.push({ control_framework: 'SCF', control_id: 'MON-02.2', status: 'pass', severity: 'info' });
@@ -379,9 +343,6 @@ async function collectCloudTrail(ctx, region, log) {
   }
   return findings;
 }
-
-// ---------------------------------------------------------------------------
-// Utilities
 
 async function aws(env, args) {
   try {
@@ -407,7 +368,7 @@ function parseArgs(argv) {
       case 'services': out.services = String(v || '').split(',').map(s => s.trim()).filter(Boolean); break;
       case 'profile':  out.profile = v || ''; break;
       case 'output':   out.output = v || 'summary'; break;
-      case 'refresh':  break; // placeholder; always refreshes for now
+      case 'refresh':  break;
       case 'quiet':    out.quiet = true; break;
       default: fail(EXIT.USAGE, `Unknown flag: --${k}`);
     }
@@ -425,7 +386,6 @@ function parseYaml(src) {
     while (stack.length && indent <= stack[stack.length - 1].indent) stack.pop();
     const parent = stack[stack.length - 1].obj;
     const trimmed = line.slice(indent);
-    // list item
     const listMatch = trimmed.match(/^-\s+(.*)$/);
     if (listMatch) {
       if (!Array.isArray(parent._list)) parent._list = [];
@@ -451,7 +411,6 @@ function parseYaml(src) {
       parent[key] = val;
     }
   }
-  // Post-process: convert objects with only _list into arrays
   const fix = (o) => {
     if (!o || typeof o !== 'object') return;
     for (const [k, v] of Object.entries(o)) {

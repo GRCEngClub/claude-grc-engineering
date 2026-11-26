@@ -8,8 +8,6 @@ concurrency:
   group: vouch-manage
   cancel-in-progress: false
 
-# All privileged operations (pushing, labeling) use the GitHub App token
-# issued in-step, so the workflow-level GITHUB_TOKEN only needs read access.
 permissions:
   contents: read
   issues: read

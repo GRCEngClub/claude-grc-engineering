@@ -1,7 +1,3 @@
-// Regression tests for the Kubernetes dispatch in scan-iac. Before the fix,
-// scanYaml called an undefined scanKubernetesResource inside a broad
-// try/catch, so every Kubernetes document was silently skipped and no
-// finding was ever produced for k8s manifests.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 

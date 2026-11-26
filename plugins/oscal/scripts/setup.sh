@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# oscal:setup — install/detect oscal-cli binary and record config
 set -euo pipefail
 
 CONFIG_DIR="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors"
@@ -40,8 +39,6 @@ EOF
     (cd "$TOOL_DIR" && git pull --ff-only >/dev/null 2>&1 || true)
   fi
 
-  # The upstream Makefile expects ./cmd/oscal/main.go; if it isn't there yet
-  # (early-stage repo), try building the root package directly as a fallback.
   if [[ -d "$TOOL_DIR/cmd/oscal" ]]; then
     (cd "$TOOL_DIR" && make build >/dev/null) || {
       echo "[oscal:setup] upstream 'make build' failed. See $TOOL_DIR for details." >&2
@@ -73,7 +70,6 @@ EOF
 
 if [[ -z "$BIN" || "$FROM_SOURCE" -eq 1 ]]; then
   if ! install_from_source; then
-    # If we can't build it, record a stub config so other commands can fail gracefully.
     mkdir -p "$CONFIG_DIR"
     cat > "$CONFIG_FILE" <<EOF
 version: 1

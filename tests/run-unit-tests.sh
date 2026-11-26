@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-# Runs every node:test suite under tests/.
-#
-# The file list is built here rather than handed to `node --test` as a glob or
-# a directory: Node 20 (the CI baseline) expands neither, and a directory
-# argument is resolved as a module path. Discovering by name instead means a
-# newly added tests/*.test.* file is picked up without touching CI config.
 set -eo pipefail
 
 suites=()

@@ -13,7 +13,7 @@ Evaluates readiness for Information System Security Management and Assessment Pr
 ## ISMAP Overview
 
 **Authority**: Japanese Government Digital Agency
-**Base Standards**: ISO/IEC 27001:2013, ISO/IEC 27017:2015, ISO/IEC 27018:2019
+**Base Standards**: ISO/IEC 27001:2013 structure (current control criteria; a draft revision adopts ISO/IEC 27001:2022), ISO/IEC 27017:2015, ISO/IEC 27018:2019
 **Scope**: Cloud service providers for Japanese government agencies
 
 ## ISO Standard Mapping

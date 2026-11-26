@@ -1,16 +1,3 @@
-"""
-Seed script — populates the Trust Center DynamoDB table with
-your company's compliance documents and configuration.
-
-Usage:
-  python seed_data.py --table trust-center-documents-prod --bucket trust-center-docs-prod
-
-This creates:
-  1. Site configuration (company name, certs, branding)
-  2. Document metadata for all policies, reports, and certifications
-  3. Certification entries displayed on the public page
-"""
-
 import argparse
 import json
 import boto3
@@ -27,7 +14,6 @@ def seed(table_name, bucket_name):
     table = dynamodb.Table(table_name)
     now = now_iso()
 
-    # ── Site Configuration ──────────────────────────────────────
     print("Seeding site configuration...")
     table.put_item(Item={
         "PK": "CONFIG",
@@ -69,11 +55,9 @@ def seed(table_name, bucket_name):
         },
     })
 
-    # ── Documents ───────────────────────────────────────────────
     print("Seeding document metadata...")
 
     documents = [
-        # PUBLIC documents (downloadable without login)
         {
             "id": "soc3-report",
             "name": "SOC 3 Report",
@@ -84,7 +68,6 @@ def seed(table_name, bucket_name):
             "s3Key": "documents/SOC3Report.pdf",
         },
 
-        # GATED documents (require access request / NDA)
         {
             "id": "soc2-type2",
             "name": "SOC 2 Type II Report",
@@ -96,7 +79,6 @@ def seed(table_name, bucket_name):
             "requiresNda": True,
         },
 
-        # POLICIES — all gated
         {
             "id": "pol-infosec",
             "name": "Information Security Policy",

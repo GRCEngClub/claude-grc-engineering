@@ -329,8 +329,8 @@ Controlling access to resources.
 **Cloud IAM Patterns**:
 
 - **Identity Federation**: SAML 2.0, OAuth 2.0, OpenID Connect (OIDC)
-- **SSO Providers**: Okta, Azure AD, Auth0, Ping Identity
-- **Cloud-Native IAM**: AWS IAM, Azure AD, GCP IAM
+- **SSO Providers**: Okta, Entra ID, Auth0, Ping Identity
+- **Cloud-Native IAM**: AWS IAM, Entra ID, GCP IAM
 - **Privileged Access Management**: CyberArk, BeyondTrust, Delinea
 
 **MFA Methods (in order of security)**:
@@ -506,7 +506,7 @@ Third-party and vendor risk management.
 
 **Third-Party Risk Assessment**:
 
-- Security questionnaires (SIG, CAIQ, VSAQ)
+- Security questionnaires (SIG, CAIQ, HECVAT, custom)
 - Financial stability review
 - Compliance certifications (SOC 2, ISO 27001)
 - Right to audit clauses

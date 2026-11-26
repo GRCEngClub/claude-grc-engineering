@@ -1,17 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ================================================================
-# Trust Center — One-Command Deploy Script
-# ================================================================
-# Usage:
-#   ./deploy.sh --email you@company.com
-#   ./deploy.sh --email you@company.com --domain trust.yourco.com --cert-arn arn:aws:acm:...
-#   ./deploy.sh --email you@company.com --stage dev
-#   ./deploy.sh --skip-frontend   # redeploy backend only
-#   ./deploy.sh --skip-infra      # redeploy code only (no CloudFormation)
-# ================================================================
-
 COMPANY_NAME="${COMPANY_NAME:-Your Company}"
 STAGE="${STAGE:-prod}"
 STACK_NAME="trust-center-${STAGE}"
@@ -26,14 +15,13 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 log()   { echo -e "${BLUE}[deploy]${NC} $1"; }
 ok()    { echo -e "${GREEN}  ✓${NC} $1"; }
 warn()  { echo -e "${YELLOW}  ⚠${NC} $1"; }
 fail()  { echo -e "${RED}  ✗${NC} $1"; exit 1; }
 
-# ── Parse arguments ─────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --email)       ADMIN_EMAIL="$2"; shift 2 ;;
@@ -52,7 +40,6 @@ if [[ -z "$ADMIN_EMAIL" ]]; then
   fail "Missing required --email. Usage: ./deploy.sh --email you@company.com"
 fi
 
-# ── Verify prerequisites ────────────────────────────────────
 log "Checking prerequisites..."
 
 command -v aws >/dev/null 2>&1 || fail "AWS CLI not found. Install: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html"
@@ -65,7 +52,6 @@ if [[ -z "$AWS_REGION" ]]; then
 fi
 ok "AWS CLI configured (region: $AWS_REGION)"
 
-# Warn if not us-east-1 (needed for CloudFront WAF)
 if [[ "$AWS_REGION" != "us-east-1" ]]; then
   warn "CloudFront WAF requires us-east-1. Your region is $AWS_REGION."
   warn "Set region: aws configure set region us-east-1"
@@ -74,7 +60,6 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ok "Working from: $SCRIPT_DIR"
 
-# ── Phase 1: Deploy CloudFormation ──────────────────────────
 if [[ "$SKIP_INFRA" == false ]]; then
   log "Deploying CloudFormation stack: $STACK_NAME ..."
 
@@ -98,7 +83,6 @@ else
   log "Skipping infrastructure (--skip-infra)"
 fi
 
-# ── Grab stack outputs ──────────────────────────────────────
 log "Reading stack outputs..."
 
 get_output() {
@@ -122,7 +106,6 @@ ok "Docs bucket:     $DOCS_BUCKET"
 ok "API URL:         $API_URL"
 ok "CloudFront:      https://$CLOUDFRONT_DOMAIN"
 
-# ── Phase 2: Deploy Lambda Code ─────────────────────────────
 log "Packaging and deploying Lambda function..."
 
 LAMBDA_ZIP="$SCRIPT_DIR/lambda-package.zip"
@@ -140,7 +123,6 @@ aws lambda update-function-code \
 rm -f "$LAMBDA_ZIP"
 ok "Lambda function updated"
 
-# ── Phase 3: Seed Database ──────────────────────────────────
 if [[ "$SKIP_SEED" == false ]]; then
   log "Seeding DynamoDB with document metadata..."
   python3 "$SCRIPT_DIR/backend/seed_data.py" \
@@ -151,13 +133,11 @@ else
   log "Skipping seed (--skip-seed)"
 fi
 
-# ── Phase 4: Build and Deploy Frontend ──────────────────────
 if [[ "$SKIP_FRONTEND" == false ]]; then
   log "Building frontend..."
 
   cd "$SCRIPT_DIR/frontend"
 
-  # Write env config
   cat > .env.production << EOF
 VITE_API_URL=$API_URL
 VITE_USER_POOL_ID=$USER_POOL_ID
@@ -183,7 +163,6 @@ else
   log "Skipping frontend (--skip-frontend)"
 fi
 
-# ── Done ────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}════════════════════════════════════════════${NC}"
 echo -e "${GREEN}  Trust Center deployed successfully!${NC}"

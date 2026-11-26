@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# github-inspector:status
-# Non-destructive health check for the connector.
 
 set -uo pipefail
 
@@ -10,14 +8,12 @@ RUNS_LOG="$HOME/.cache/claude-grc/runs.log"
 
 printf 'github-inspector\n'
 
-# 1. Config present?
 if [[ ! -f "$CONFIG_FILE" ]]; then
   printf '  status:        not-configured\n'
   printf '  fix:           run /github-inspector:setup\n'
   exit 2
 fi
 
-# 2. gh present?
 if ! command -v gh >/dev/null 2>&1; then
   printf '  status:        gh-not-installed\n'
   printf '  fix:           brew install gh (or equivalent), then /github-inspector:setup\n'
@@ -27,7 +23,6 @@ fi
 GH_VERSION=$(gh --version 2>/dev/null | head -1 | awk '{print $3}')
 printf '  gh:            %s v%s\n' "$(command -v gh)" "$GH_VERSION"
 
-# 3. auth valid?
 if AUTH_OUTPUT=$(gh auth status 2>&1); then
   LOGIN=$(gh api user --jq .login 2>/dev/null || echo "?")
   SCOPES=$(echo "$AUTH_OUTPUT" | awk -F'scopes:' '/Token scopes/ {gsub(/^ +| +$/,"",$2); print $2; exit}')
@@ -40,7 +35,6 @@ fi
 
 printf '  config:        %s\n' "$CONFIG_FILE"
 
-# 4. Last run?
 LATEST=$(ls -t "$CACHE_DIR"/*.json 2>/dev/null | head -1 || true)
 if [[ -z "$LATEST" ]]; then
   printf '  status:        ready (no runs yet)\n'
@@ -87,7 +81,6 @@ printf '  status:        %s\n' "$STATUS_LABEL"
 printf '  last run:      %s (%s)\n' "$AGE_LABEL" "$(basename "$LATEST" .json)"
 printf '  cached:        %s resources, %s evaluations\n' "$RESOURCES" "$EVALS"
 
-# 5. Rate limit
 if RL=$(gh api /rate_limit --jq '.rate | "\(.remaining)/\(.limit)"' 2>/dev/null); then
   printf '  rate limit:    %s remaining\n' "$RL"
 fi

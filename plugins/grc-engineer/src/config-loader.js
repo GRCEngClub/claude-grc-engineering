@@ -1,15 +1,3 @@
-/**
- * Configuration Loader
- * Loads YAML configuration files for frameworks, providers, and patterns
- *
- * Supports:
- * - NIST 800-53 control families (18 families)
- * - FedRAMP baselines (Low, Moderate, High)
- * - FedRAMP 20x Key Security Indicators (KSIs)
- * - Export control frameworks (ITAR, IRAP, ISMAP, PBMM)
- * - Cloud provider templates (AWS, Azure, GCP, Kubernetes)
- */
-
 import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'js-yaml';
@@ -19,12 +7,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const CONFIG_DIR = path.join(__dirname, '..', 'config');
 
-// Subdirectories for organized framework configs
 const NIST_DIR = path.join(CONFIG_DIR, 'frameworks', 'nist800-53');
 const FEDRAMP_DIR = path.join(CONFIG_DIR, 'frameworks', 'fedramp');
 const EXPORT_CONTROL_DIR = path.join(CONFIG_DIR, 'frameworks', 'export-control');
 
-// NIST 800-53 Control Family mappings
 const NIST_CONTROL_FAMILIES = {
   'AC': 'ac-access-control',
   'AT': 'at-awareness-training',
@@ -46,7 +32,6 @@ const NIST_CONTROL_FAMILIES = {
   'SI': 'si-system-information-integrity'
 };
 
-// Cache for loaded configurations
 const cache = new Map();
 
 /**
@@ -139,7 +124,6 @@ export function findMatchingTemplate(control, providerConfig) {
   const normalizedControl = control.toLowerCase();
   const templates = providerConfig.templates;
 
-  // Search through templates for keyword matches
   for (const [key, template] of Object.entries(templates)) {
     if (key === 'default') continue;
 
@@ -153,13 +137,9 @@ export function findMatchingTemplate(control, providerConfig) {
     }
   }
 
-  // Return default template if no match found
   return { key: 'default', template: templates.default };
 }
 
-/**
- * Clear the configuration cache
- */
 export function clearCache() {
   cache.clear();
 }
@@ -183,10 +163,6 @@ export async function getControlsByCategory(frameworkName) {
 
   return byCategory;
 }
-
-// ============================================================================
-// NIST 800-53 Control Family Functions
-// ============================================================================
 
 /**
  * Load a NIST 800-53 control family
@@ -245,7 +221,6 @@ export async function loadAllNISTFamilies() {
  * @returns {Promise<Object>} Control definition with cloud tests
  */
 export async function getNISTControl(controlId) {
-  // Parse control ID to get family (e.g., "AC-2(1)" -> "AC")
   const match = controlId.match(/^([A-Z]{2})-/i);
   if (!match) {
     throw new Error(`Invalid NIST 800-53 control ID format: ${controlId}`);
@@ -254,7 +229,6 @@ export async function getNISTControl(controlId) {
   const familyCode = match[1].toUpperCase();
   const family = await loadNISTFamily(familyCode);
 
-  // Normalize control ID for lookup
   const normalizedId = controlId.toUpperCase();
 
   if (family.controls && family.controls[normalizedId]) {
@@ -277,10 +251,6 @@ export function listNISTFamilies() {
   return { ...NIST_CONTROL_FAMILIES };
 }
 
-// ============================================================================
-// FedRAMP Baseline Functions
-// ============================================================================
-
 /**
  * Load a FedRAMP baseline configuration
  * @param {string} baseline - Baseline level (low, moderate, high)
@@ -302,8 +272,7 @@ export async function loadFedRAMPBaseline(baseline) {
   const filePath = path.join(FEDRAMP_DIR, `fedramp-${normalizedBaseline}.yaml`);
 
   try {
-    const content = await fs.readFile(filePath, 'utf-8');
-    const config = yaml.load(content);
+    const config = await loadBaselineWithIncludes(filePath);
     cache.set(cacheKey, config);
     return config;
   } catch (error) {
@@ -312,6 +281,16 @@ export async function loadFedRAMPBaseline(baseline) {
     }
     throw error;
   }
+}
+
+async function loadBaselineWithIncludes(filePath) {
+  const { includes = [], ...config } = yaml.load(await fs.readFile(filePath, 'utf-8'));
+  const inherited = {};
+  for (const included of includes) {
+    const parent = await loadBaselineWithIncludes(path.join(path.dirname(filePath), path.basename(included)));
+    Object.assign(inherited, parent.controls);
+  }
+  return { ...config, controls: { ...inherited, ...config.controls } };
 }
 
 /**
@@ -328,7 +307,6 @@ export async function getControlsByFedRAMPBaseline(baseline) {
     if (!family.controls) continue;
 
     for (const [controlId, control] of Object.entries(family.controls)) {
-      // Check if control applies to this baseline
       const controlBaselines = control.baseline || [];
       if (controlBaselines.includes(normalizedBaseline)) {
         controls.push({
@@ -407,7 +385,6 @@ export async function getAllKSIsByCategory() {
   const ksiConfig = await loadFedRAMP20xKSI();
   const byCategory = {};
 
-  // Initialize categories
   if (ksiConfig.categories) {
     for (const [code, info] of Object.entries(ksiConfig.categories)) {
       byCategory[code] = {
@@ -418,7 +395,6 @@ export async function getAllKSIsByCategory() {
     }
   }
 
-  // Populate controls
   if (ksiConfig.controls) {
     for (const [controlId, control] of Object.entries(ksiConfig.controls)) {
       const categoryCode = control.category || controlId.split('-')[1];
@@ -481,10 +457,6 @@ export async function getKSICloudCommands(ksiId, provider) {
   };
 }
 
-// ============================================================================
-// Export Control Framework Functions
-// ============================================================================
-
 /**
  * Load an export control framework
  * @param {string} framework - Framework name (itar, irap, ismap, pbmm)
@@ -532,10 +504,6 @@ export async function listExportControlFrameworks() {
     return [];
   }
 }
-
-// ============================================================================
-// Cloud CLI Command Functions
-// ============================================================================
 
 /**
  * Get cloud CLI commands for a specific control
@@ -695,7 +663,6 @@ export async function getExportControlCommands(framework, provider) {
 }
 
 export default {
-  // Basic config loading
   loadConfig,
   loadFramework,
   loadProvider,
@@ -706,32 +673,26 @@ export default {
   clearCache,
   getControlsByCategory,
 
-  // NIST 800-53
   loadNISTFamily,
   loadAllNISTFamilies,
   getNISTControl,
   listNISTFamilies,
 
-  // FedRAMP Baselines
   loadFedRAMPBaseline,
   getControlsByFedRAMPBaseline,
 
-  // FedRAMP 20x KSIs
   loadFedRAMP20xKSI,
   getKSIsByCategory,
   getAllKSIsByCategory,
   getKSICloudCommands,
 
-  // Export Control (ITAR, IRAP, ISMAP, PBMM)
   loadExportControlFramework,
   listExportControlFrameworks,
 
-  // Cloud CLI Commands
   getCloudCommands,
   getAllCloudCommands,
   generateEvidenceScript,
   getExportControlCommands,
 
-  // Constants
   NIST_CONTROL_FAMILIES
 };

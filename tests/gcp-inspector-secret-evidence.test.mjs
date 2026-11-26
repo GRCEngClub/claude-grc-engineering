@@ -9,8 +9,6 @@ const plugin = resolve('plugins/connectors/gcp-inspector');
 function run(mode, args = ['--services=secret-manager'], config = 'project_id: project-one\n', documented = false) {
   const dir = mkdtempSync(join(tmpdir(), 'inspector-secret-'));
   try {
-    // Model an independently installed marketplace cache: no repository root,
-    // sibling plugin, or root package.json is available to the child process.
     const installed = join(dir, 'cache', 'marketplace', 'gcp inspector', '0.1.0');
     cpSync(plugin, installed, { recursive: true });
     const collector = join(installed, 'scripts', 'collect.js');

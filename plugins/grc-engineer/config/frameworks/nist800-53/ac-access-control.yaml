@@ -67,7 +67,7 @@ controls:
       azure:
         commands:
           - cmd: "az ad user list --query '[].{UPN:userPrincipalName,Enabled:accountEnabled,Created:createdDateTime}'"
-            description: "List all Azure AD users with status"
+            description: "List all Entra ID users with status"
           - cmd: "az ad user list --query '[?accountEnabled==false]'"
             description: "Find disabled user accounts"
           - cmd: "az ad user list --filter \"signInActivity/lastSignInDateTime le 2024-01-01\""

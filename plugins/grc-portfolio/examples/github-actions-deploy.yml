@@ -1,20 +1,3 @@
-# GitHub Actions Workflow for Automatic AWS Deployment (OIDC)
-#
-# This workflow deploys the website to AWS on every push to main using
-# GitHub OIDC for keyless AWS authentication. No long-lived AWS access keys
-# are stored as GitHub secrets.
-#
-# This is the same workflow produced by `/grc-portfolio:cicd`. Use that
-# command to provision the matching IAM role automatically.
-#
-# Manual setup:
-# 1. Copy this file to .github/workflows/deploy.yml in your project.
-# 2. In AWS, create an OIDC identity provider for token.actions.githubusercontent.com
-#    and an IAM role with a trust policy scoped to repo:<owner>/<repo>:* and
-#    an inline policy granting s3:* on your bucket and cloudfront:CreateInvalidation
-#    on your distribution.
-# 3. Fill in the env values below with your role ARN, bucket name, and distribution ID.
-
 name: Deploy to AWS
 
 on:
@@ -51,8 +34,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Tests must pass to ship. If you don't have tests yet, remove this step
-      # rather than letting failures slip through.
       - name: Run tests
         run: npm test --if-present
 

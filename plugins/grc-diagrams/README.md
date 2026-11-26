@@ -28,7 +28,7 @@ Default output is a native `.drawio` file. If the user requests `png`, `svg`, or
 
 ## Generate a control-to-evidence flow
 
-For a reproducible single-control map, Python 3.9 or newer can generate the same four-node pattern without a draw.io installation. Supply a UTF-8 JSON object containing exactly five nonempty strings: `control`, `owner`, `evidence`, `cadence`, and `reviewer`. The generator escapes labels as plain text, draws control → owner → evidence → reviewer, and places cadence on the evidence-production edge. Unknown details should be explicitly labeled `unknown`, not invented. For example, from the repository root:
+For a reproducible single-control map, Python 3.9 or newer can generate the same four-node pattern without a draw.io installation. Supply a UTF-8 JSON object containing five required nonempty strings: `control`, `owner`, `evidence`, `cadence`, and `reviewer`. The generator escapes labels as plain text, draws control → owner → evidence → reviewer, and places cadence on the evidence-production edge. Unknown details should be explicitly labeled `unknown`, not invented. For example, from the repository root:
 
 ```bash
 python3 plugins/grc-diagrams/scripts/control-evidence.py \
@@ -42,8 +42,15 @@ python3 plugins/grc-diagrams/scripts/control-evidence.py \
   plugins/grc-diagrams/examples/multi-control-evidence-input.json multi-control.drawio
 ```
 
+Optionally, add `review_outcome` to any row as either `pending` or `changes requested`; this adds an editable outcome node connected to the reviewer. Omit it if unknown; no outcome is inferred. Other values are rejected, including approval claims. This is a user-supplied label, not proof of review or control effectiveness. For a fictional example:
+
+```bash
+python3 plugins/grc-diagrams/scripts/control-evidence.py \
+  plugins/grc-diagrams/examples/control-evidence-review-input.json review-flow.drawio
+```
+
 Open and edit the resulting native, uncompressed XML file in draw.io. The output must not already exist; invalid input or an existing output returns an error. The input and output are local files: do not put secrets, actual evidence, sensitive paths, or identifying details in them without authorization. The generator does not scan for secrets, verify control effectiveness, export images, or model exceptions, retention, or access controls. Long labels may need manual layout adjustment. Inspect the layout in draw.io and adapt it to the engagement before sharing. The original hand-authored example remains available in `examples/control-evidence-flow.drawio`.
 
-Run generator tests with `node --test tests/control-evidence-generator.test.js tests/control-evidence-multi.test.js`; the root unit suite also picks them up.
+Run generator tests with `node --test tests/control-evidence-generator.test.js tests/control-evidence-multi.test.js tests/control-evidence-outcome.test.js`; the root unit suite also picks them up.
 
 The separate `examples/validate-control-evidence.py` checks specific properties of the hand-authored example, including its edge identities and directions. It rejects DTDs and entity declarations, but is not a general draw.io validator or a security boundary for untrusted XML. It is not intended to validate arbitrary diagrams or generator output.

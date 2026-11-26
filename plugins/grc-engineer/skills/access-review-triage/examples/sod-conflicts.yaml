@@ -1,12 +1,7 @@
-# Separation-of-duty conflict pairs.
-# If a single user has BOTH roles in a pair on the same system, rule 2 fires
-# (Investigate, P0). Extend this file per your org's policy. Pairs are
-# unordered: ["a", "b"] and ["b", "a"] both match.
-
 conflicts:
   - roles: ["ap-creator", "ap-approver"]
     reason: "Accounts payable separation of duties. Whoever creates an invoice cannot approve it."
-    frameworks: ["soc2:CC6.1", "pci-dss:7.1", "iso27001:A.9", "us-sox:ITGC"]
+    frameworks: ["soc2:CC6.1", "pci-dss:7.1", "iso27001:A.5.3", "us-sox:ITGC"]
 
   - roles: ["iam-admin", "audit-log-reader"]
     reason: "An IAM admin who can also read the audit log can mask their own actions."

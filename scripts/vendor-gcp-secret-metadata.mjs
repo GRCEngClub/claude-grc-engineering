@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-// The metadata plugin is the source of truth. Copy only the helpers needed by
-// gcp-inspector; --check makes stale or missing copies a CI failure.
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 

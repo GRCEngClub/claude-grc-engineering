@@ -28,7 +28,7 @@ import { pathToFileURL } from 'node:url';
 
 const DEFAULT_BASE_URL = 'https://grcengclub.github.io/scf-api';
 const DEFAULT_CACHE_DIR = path.join(os.homedir(), '.cache', 'claude-grc', 'scf');
-const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — SCF itself updates weekly
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 export async function initSCF(opts = {}) {
   const baseUrl = (opts.baseUrl || process.env.CLAUDE_GRC_SCF_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, '');
@@ -54,8 +54,8 @@ class SCFClient {
     this._summary = summary;
     this._controlsById = null;
     this._frameworks = null;
-    this._crosswalks = new Map();        // frameworkId → payload
-    this._reverseIndex = null;           // Map<frameworkId, Map<frameworkControlId, Set<scfId>>>
+    this._crosswalks = new Map();
+    this._reverseIndex = null;
   }
 
   version() { return this._version; }
@@ -112,7 +112,6 @@ class SCFClient {
       if (!ctrl) return [];
       return [{ scf_id: ctrl.control_id, scf_control: ctrl, equivalents: [] }];
     }
-    // Find the matching SCF framework_id
     const resolvedFwId = await this._matchFrameworkId(fwKey, framework);
     if (!resolvedFwId) return [];
     const cw = await this.crosswalk(resolvedFwId);
@@ -144,10 +143,8 @@ class SCFClient {
 
   async _matchFrameworkId(normalizedKey, originalLabel) {
     const frameworks = await this.frameworks();
-    // First, try an exact match against framework_id
     const direct = frameworks.find(f => f.framework_id === originalLabel || f.framework_id === normalizedKey);
     if (direct) return direct.framework_id;
-    // Match by alias patterns — common labels users actually type
     const aliased = matchByAlias(frameworks, normalizedKey);
     return aliased ? aliased.framework_id : null;
   }
@@ -180,10 +177,7 @@ function normalizeFrameworkId(label) {
   return String(label).toLowerCase().replace(/[\s._]+/g, '-');
 }
 
-// Concrete alias → SCF framework_id. Verified against SCF v2026.1 crosswalks index.
-// User-friendly names on the left; the exact framework_id SCF publishes on the right.
 const FRAMEWORK_ALIASES = {
-  // AICPA / SOC 2
   'soc2':                         'general-aicpa-tsc-2017',
   'soc-2':                        'general-aicpa-tsc-2017',
   'soc2-tsc':                     'general-aicpa-tsc-2017',
@@ -191,7 +185,6 @@ const FRAMEWORK_ALIASES = {
   'aicpa-tsc':                    'general-aicpa-tsc-2017',
   'aicpa-pmf':                    'general-aicpa-pmf-2020',
 
-  // NIST 800-53
   'nist-800-53':                  'general-nist-800-53-r5-2',
   'nist-800-53-r5':               'general-nist-800-53-r5-2',
   'nist-800-53-r4':               'general-nist-800-53-r4',
@@ -200,20 +193,14 @@ const FRAMEWORK_ALIASES = {
   'nist-800-53-moderate':         'general-nist-800-53-r5-2-mod',
   'nist-800-53-high':             'general-nist-800-53-r5-2-high',
 
-  // NIST 800-171
   'nist-800-171':                 'general-nist-800-171-r3',
   'nist-800-171-r2':              'general-nist-800-171-r2',
   'nist-800-171-r3':              'general-nist-800-171-r3',
 
-  // NIST CSF
   'nist-csf':                     'general-nist-csf-2-0',
   'nist-csf-2':                   'general-nist-csf-2-0',
   'cybersecurity-framework':      'general-nist-csf-2-0',
 
-  // ISO
-  // Note: ISO 27001 is the ISMS management standard (51 SCF mappings, mostly governance).
-  // ISO 27002 is the Annex A control catalog (316 SCF mappings, technical depth).
-  // In practice "ISO 27001 compliance" requires both; users can request either or both.
   'iso-27001':                    'general-iso-27001-2022',
   'iso-27001-2022':               'general-iso-27001-2022',
   'iso27001':                     'general-iso-27001-2022',
@@ -223,7 +210,6 @@ const FRAMEWORK_ALIASES = {
   'iso-27017':                    'general-iso-27017-2015',
   'iso-27018':                    'general-iso-27018-2025',
 
-  // PCI
   'pci-dss':                      'general-pci-dss-4-0-1',
   'pci-dss-4':                    'general-pci-dss-4-0-1',
   'pci-dss-4-0-1':                'general-pci-dss-4-0-1',
@@ -231,7 +217,6 @@ const FRAMEWORK_ALIASES = {
   'pci-dss-saq-a-ep':             'general-pci-dss-4-0-1-saq-a-ep',
   'pci-dss-saq-b':                'general-pci-dss-4-0-1-saq-b',
 
-  // FedRAMP
   'fedramp':                      'usa-federal-gsa-fedramp-5-mod',
   'fedramp-low':                  'usa-federal-gsa-fedramp-5-low',
   'fedramp-moderate':             'usa-federal-gsa-fedramp-5-mod',
@@ -239,18 +224,26 @@ const FRAMEWORK_ALIASES = {
   'fedramp-high':                 'usa-federal-gsa-fedramp-5-high',
   'fedramp-li-saas':              'usa-federal-gsa-fedramp-5-li-saas',
 
-  // HIPAA
   'hipaa':                        'usa-federal-law-hipaa-security-rule-2013',
   'hipaa-security':               'usa-federal-law-hipaa-security-rule-2013',
 
-  // CMMC
+  // GovRAMP (formerly StateRAMP). The bare name resolves to Moderate, the usual
+  // baseline for Ready and Authorized; `stateramp` is the pre-2025 name.
+  'govramp':                      'general-govramp-mod',
+  'govramp-core':                 'general-govramp-core',
+  'govramp-low':                  'general-govramp-low',
+  'govramp-low-plus':             'general-govramp-low-plus',
+  'govramp-moderate':             'general-govramp-mod',
+  'govramp-mod':                  'general-govramp-mod',
+  'govramp-high':                 'general-govramp-high',
+  'stateramp':                    'general-govramp-mod',
+
   'cmmc':                         'usa-federal-dow-cmmc-2-level-2',
   'cmmc-2':                       'usa-federal-dow-cmmc-2-level-2',
   'cmmc-level-1':                 'usa-federal-dow-cmmc-2-level-1',
   'cmmc-level-2':                 'usa-federal-dow-cmmc-2-level-2',
   'cmmc-level-3':                 'usa-federal-dow-cmmc-2-level-3',
 
-  // CIS
   'cis':                          'general-cis-csc-8-1',
   'cis-v8':                       'general-cis-csc-8-1',
   'cis-controls':                 'general-cis-csc-8-1',
@@ -258,32 +251,26 @@ const FRAMEWORK_ALIASES = {
   'cis-ig2':                      'general-cis-csc-8-1-ig2',
   'cis-ig3':                      'general-cis-csc-8-1-ig3',
 
-  // Privacy / regional
   'gdpr':                         'emea-eu-gdpr-2016',
   'dora':                         'emea-eu-dora-2023',
 
-  // US state / sector
   'nydfs':                        'usa-state-ny-dfs-23-nycrr500-2023-amd2',
   '23-nycrr-500':                 'usa-state-ny-dfs-23-nycrr500-2023-amd2',
   'glba':                         'usa-federal-law-glba-cfr-314-2023',
 
-  // APAC / LATAM
   'essential-8':                  'apac-aus-essential-8-2024',
   'essential8':                   'apac-aus-essential-8-2024',
   'irap':                         'apac-aus-ism-2024-june',
   'ism':                          'apac-aus-ism-2024-june',
   'ismap':                        'apac-jpn-ismap',
 
-  // CSA
   'csa-ccm':                      'general-csa-cmm-4-1-0',
   'ccm':                          'general-csa-cmm-4-1-0',
 };
 
-// Frameworks not in SCF (proprietary / no public crosswalk). Used to give a clear error.
 const FRAMEWORKS_WITHOUT_SCF_CROSSWALK = {
   'hitrust':     'HITRUST CSF is proprietary; SCF does not publish a public crosswalk. Use the `hitrust` plugin directly.',
   'hitrust-csf': 'HITRUST CSF is proprietary; SCF does not publish a public crosswalk. Use the `hitrust` plugin directly.',
-  'stateramp':   'StateRAMP has no SCF crosswalk; it mirrors NIST 800-53. Use FedRAMP-Moderate or NIST-800-53 as a proxy.',
   'pbmm':        'PBMM (ITSG-33) has no direct SCF crosswalk; use NIST-800-53 as a close proxy.',
   'us-export':   'US Export Controls (ITAR/EAR) are not a security controls framework and have no SCF mapping.',
 };
@@ -299,15 +286,11 @@ export function frameworkWithoutCrosswalk(label) {
 }
 
 function buildReverseIndex(crosswalkPayload) {
-  // SCF v2026.1 shape:
-  //   framework_to_scf: { total_mappings, mappings: { [framework_control_id]: [scf_id, ...] } }
-  // Returns Map<frameworkControlId, Set<scfId>>.
   const idx = new Map();
   const raw = crosswalkPayload?.framework_to_scf?.mappings
            || crosswalkPayload?.mappings
            || {};
   if (Array.isArray(raw)) {
-    // Legacy/alt shape: array of {framework_control_id, scf_controls|scf_ids}
     for (const m of raw) {
       const fwCtrl = String(m.framework_control_id ?? m.control_id ?? '');
       const scfIds = m.scf_controls ?? m.scf_ids ?? [];
@@ -332,7 +315,6 @@ function buildReverseIndex(crosswalkPayload) {
 }
 
 function extractForwardMappings(crosswalkPayload, scfId) {
-  // SCF v2026.1 shape: scf_to_framework.mappings is { [scf_id]: [framework_control_id, ...] }
   const raw = crosswalkPayload?.scf_to_framework?.mappings
            || crosswalkPayload?.mappings
            || {};
@@ -355,7 +337,6 @@ function extractForwardMappings(crosswalkPayload, scfId) {
 
 async function fetchOrLoad(relativePath, { baseUrl, cacheDir, offline, version }) {
   const cachePath = path.join(cacheDir, version || '_unknown', relativePath);
-  // Try cache
   try {
     const stat = await fs.stat(cachePath);
     const fresh = Date.now() - stat.mtimeMs < CACHE_TTL_MS;
@@ -370,13 +351,11 @@ async function fetchOrLoad(relativePath, { baseUrl, cacheDir, offline, version }
       throw e;
     }
   }
-  // Fetch fresh
   const url = `${baseUrl}/${relativePath}`;
   let res;
   try {
     res = await fetch(url, { headers: { 'accept': 'application/json', 'user-agent': 'claude-grc-engineering/0.1' } });
   } catch (networkErr) {
-    // Fall back to stale cache if it exists
     try {
       return JSON.parse(await fs.readFile(cachePath, 'utf8'));
     } catch {
@@ -407,7 +386,6 @@ async function fetchOrLoad(relativePath, { baseUrl, cacheDir, offline, version }
   }
 }
 
-// CLI usage: `node scripts/scf-client.js <command> [args...]`
 const invokedFromCLI = import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invokedFromCLI) {
   const [, , cmd, ...args] = process.argv;

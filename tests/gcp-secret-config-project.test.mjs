@@ -47,7 +47,6 @@ test('lookup failures suppress provider output and never access secrets or launc
         const log = join(dir, 'calls');
         const childMarker = join(dir, 'child');
         if (scenario !== 'missing executable') {
-          // Absolute interpreter and isolated PATH ensure this mock is the only gcloud.
           writeFileSync(join(dir, 'gcloud'), `#!${process.execPath}
 const fs = require('fs');
 fs.appendFileSync(process.env.LOG, JSON.stringify(process.argv.slice(2)) + '\\n');

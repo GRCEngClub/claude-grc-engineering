@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# azure-inspector:setup
-# Idempotent setup for the azure-inspector connector.
 set -euo pipefail
 
 CONFIG_DIR="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors"

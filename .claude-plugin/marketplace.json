@@ -37,13 +37,13 @@
     {
       "name": "grc-internal",
       "source": "./plugins/grc-internal",
-      "description": "Policy management, risk registers, and compliance tracking for internal GRC teams",
+      "description": "Risk register, policy lifecycle, and compliance tracking for internal GRC teams, built on the grc-data record schemas",
       "version": "0.1.0"
     },
     {
       "name": "grc-tprm",
       "source": "./plugins/grc-tprm",
-      "description": "Vendor assessments, questionnaire analysis, and risk scoring for third-party risk management",
+      "description": "Vendor tiering and assessments, SOC 2 report review, SIG and CAIQ questionnaire analysis, and residual risk scoring for third-party risk management",
       "version": "0.1.0"
     },
     {
@@ -110,12 +110,6 @@
       "version": "0.1.0"
     },
     {
-      "name": "fedramp-rev5",
-      "source": "./plugins/frameworks/fedramp-rev5",
-      "description": "FedRAMP Rev 5 traditional authorization with SSP/SAP/SAR/POA&M and NIST 800-53 controls",
-      "version": "0.1.0"
-    },
-    {
       "name": "fedramp-20x",
       "source": "./plugins/frameworks/fedramp-20x",
       "description": "FedRAMP 20X automated authorization with KSIs, continuous monitoring, and auto-sync from official docs",
@@ -170,9 +164,9 @@
       "version": "0.1.0"
     },
     {
-      "name": "stateramp",
-      "source": "./plugins/frameworks/stateramp",
-      "description": "StateRAMP state/local government cloud authorization",
+      "name": "govramp",
+      "source": "./plugins/frameworks/govramp",
+      "description": "GovRAMP (formerly StateRAMP) security verification for state, local, tribal, and education government cloud",
       "version": "0.1.0"
     },
     {
@@ -214,7 +208,7 @@
     {
       "name": "irap",
       "source": "./plugins/frameworks/irap",
-      "description": "Australian IRAP (ISM + Essential Eight) for government cloud",
+      "description": "Australian IRAP assessments against the ASD Information Security Manual, with Essential Eight, classification, and data sovereignty",
       "version": "0.1.0"
     },
     {
@@ -320,12 +314,6 @@
       "version": "0.1.0"
     },
     {
-      "name": "fedramp-ssp",
-      "source": "./plugins/fedramp-ssp",
-      "description": "Convert FedRAMP Rev 5 SSP DOCX templates to validated OSCAL 1.2.0 SSP JSON. Wraps ethanolivertroy/frdocx-to-froscal-ssp.",
-      "version": "0.1.0"
-    },
-    {
       "name": "singapore-pdpa",
       "source": "./plugins/frameworks/singapore-pdpa",
       "description": "Singapore - Personal Data Protection Ac (PDPA) (2012) \u2014 reference-depth plugin backed by the SCF crosswalk (30 SCF \u2192 14 framework controls).",
@@ -334,7 +322,7 @@
     {
       "name": "us-finra",
       "source": "./plugins/frameworks/us-finra",
-      "description": "FINRA Broker-Dealer Cybersecurity Guidance \u2014 stub-depth plugin backed by the SCF crosswalk (17 SCF \u2192 39 framework controls).",
+      "description": "FINRA broker-dealer cybersecurity: FINRA Rules 3110 and 4370, SEC Reg S-P (2024 amendments), Reg S-ID, and Rule 17a-4, with scope and evidence by FINRA's 12 principles",
       "version": "0.1.0"
     },
     {
@@ -356,9 +344,9 @@
       "version": "0.1.0"
     },
     {
-      "name": "poam-automation",
-      "source": "./plugins/connectors/poam-automation",
-      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: converts vulnerability scans into FedRAMP POA&M Excel and emits NIST-800-53-r5 (SI-2) findings \u2192 v1 finding contract.",
+      "name": "vdr-automation",
+      "source": "./plugins/connectors/vdr-automation",
+      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: turns vulnerability scans into FedRAMP 20x VDR reports and emits NIST-800-53-r5 (SI-2) findings \u2192 v1 finding contract.",
       "version": "0.1.0"
     },
     {
@@ -430,13 +418,13 @@
     {
       "name": "nist-ai-rmf",
       "source": "./plugins/frameworks/nist-ai-rmf",
-      "description": "NIST AI 100-1 (AI RMF 1.0) \u2014 stub-depth plugin backed by the SCF crosswalk (158 SCF \u2192 91 framework controls).",
+      "description": "NIST AI 100-1 (AI RMF 1.0) \u2014 reference-depth plugin with scope, an evidence checklist by GOVERN/MAP/MEASURE/MANAGE, and SCF-backed assessment (158 SCF \u2192 91 framework controls).",
       "version": "0.1.0"
     },
     {
       "name": "nist-ai-600-1",
       "source": "./plugins/frameworks/nist-ai-600-1",
-      "description": "NIST AI 600-1 (Generative AI Profile) \u2014 stub-depth plugin backed by the SCF crosswalk (139 SCF controls map to 250 profile items and suggested actions).",
+      "description": "NIST AI 600-1 (Generative AI Profile) \u2014 reference-depth plugin with generative-AI scope, an evidence checklist by GAI risk, and SCF-backed review (139 SCF controls map to 250 profile items and suggested actions).",
       "version": "0.1.0"
     }
   ]

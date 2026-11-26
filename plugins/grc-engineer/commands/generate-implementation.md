@@ -79,7 +79,7 @@ generated/
 
 ```terraform
 # Generated for: Access Control - Account Management
-# Frameworks: NIST AC-2, ISO A.9.2, SOC2 CC6.1, PCI 8.1
+# Frameworks: NIST AC-2, ISO A.5.16, SOC2 CC6.1, PCI 8.2
 # Cloud Provider: AWS
 # Generated: 2025-01-15
 
@@ -87,7 +87,7 @@ generated/
 module "account_lifecycle" {
   source = "terraform-aws-modules/iam/aws//modules/iam-account"
 
-  # Quarterly access reviews (PCI-DSS requirement)
+  # Quarterly access reviews (exceeds the six-month minimum in PCI DSS 7.2.4)
   access_review_schedule = "rate(90 days)"
 
   # Automated detection of inactive users (90-day threshold)
@@ -124,12 +124,12 @@ resource "aws_accessanalyzer_analyzer" "compliance" {
 # EventBridge rule for quarterly access reviews
 resource "aws_cloudwatch_event_rule" "access_review" {
   name                = "quarterly-access-review"
-  description         = "Trigger quarterly access review (PCI 8.1.4)"
+  description         = "Trigger quarterly access review (PCI DSS 7.2.4 minimum: every six months)"
   schedule_expression = "rate(90 days)"
 
   tags = {
     Compliance = "PCI-DSS"
-    Requirement = "8.1.4"
+    Requirement = "7.2.4"
   }
 }
 
@@ -247,7 +247,7 @@ data "aws_caller_identity" "current" {}
 #!/usr/bin/env python3
 """
 Evidence Collection: Access Control - Account Management
-Frameworks: NIST AC-2, ISO A.9.2, SOC2 CC6.1, PCI 8.1
+Frameworks: NIST AC-2, ISO A.5.16, SOC2 CC6.1, PCI 8.2
 Generated: 2025-01-15
 """
 
@@ -271,7 +271,7 @@ class AccessControlEvidenceCollector:
         evidence = {
             'timestamp': self.timestamp,
             'control': 'access_control_account_management',
-            'frameworks': ['NIST AC-2', 'ISO A.9.2', 'SOC2 CC6.1', 'PCI 8.1'],
+            'frameworks': ['NIST AC-2', 'ISO A.5.16', 'SOC2 CC6.1', 'PCI 8.2'],
             'artifacts': []
         }
 
@@ -289,7 +289,7 @@ class AccessControlEvidenceCollector:
         evidence['artifacts'].append({
             'name': 'iam_credential_report.csv',
             'type': 'credential_status',
-            'requirement': 'Inactive account detection (PCI 8.1.4)'
+            'requirement': 'Inactive account detection (PCI 8.2.6)'
         })
 
         # 3. Access Analyzer Findings
@@ -314,7 +314,7 @@ class AccessControlEvidenceCollector:
         evidence['artifacts'].append({
             'name': 'access_review_report.json',
             'type': 'access_review',
-            'requirement': 'Quarterly reviews (PCI 8.1.4)'
+            'requirement': 'Access reviews at least every six months (PCI 7.2.4)'
         })
 
         # Save evidence manifest
@@ -475,7 +475,7 @@ class AccessControlEvidenceCollector:
             report['compliance_issues'].append({
                 'severity': 'HIGH',
                 'issue': f"{len(report['inactive_users'])} users inactive >90 days",
-                'requirement': 'PCI-DSS 8.1.4',
+                'requirement': 'PCI-DSS 8.2.6',
                 'action': 'Disable inactive accounts'
             })
 
@@ -517,9 +517,9 @@ if __name__ == '__main__':
 This implementation satisfies requirements from:
 
 - **NIST 800-53**: AC-2 (Account Management), AC-2(1-4)
-- **ISO 27001**: A.9.2.1, A.9.2.2, A.9.2.3, A.9.2.5
+- **ISO 27001**: A.5.16, A.5.18, A.8.2
 - **SOC 2**: CC6.1, CC6.2, CC6.3
-- **PCI-DSS**: 8.1, 8.1.1, 8.1.3, 8.1.4
+- **PCI-DSS**: 7.2.4, 8.2.1, 8.2.5, 8.2.6
 
 ## Architecture
 
@@ -595,7 +595,7 @@ Edit `terraform/terraform.tfvars`:
 ```hcl
 # Customize these values
 access_review_schedule       = "rate(90 days)"  # PCI requirement
-inactive_user_threshold_days = 90                # PCI 8.1.4
+inactive_user_threshold_days = 90                # PCI 8.2.6
 cloudtrail_retention_days    = 365               # 1 year for SOC2/PCI
 ```
 
@@ -604,9 +604,9 @@ cloudtrail_retention_days    = 365               # 1 year for SOC2/PCI
 **Access Review Frequency:**
 
 - SOC2: Risk-based (flexible)
-- PCI-DSS: Quarterly (mandatory)
+- PCI-DSS: At least every six months (7.2.4)
 - NIST: Annually minimum
-- **Implementation:** Quarterly (90 days) to satisfy PCI
+- **Implementation:** Quarterly (90 days), which meets or exceeds every framework's minimum
 
 **Inactive Account Threshold:**
 
@@ -711,9 +711,9 @@ docs/
 
 FRAMEWORKS SATISFIED:
   ✓ NIST 800-53: AC-2, AC-2(1-4)
-  ✓ ISO 27001: A.9.2.1, A.9.2.2, A.9.2.3, A.9.2.5
+  ✓ ISO 27001: A.5.16, A.5.18, A.8.2
   ✓ SOC 2: CC6.1, CC6.2, CC6.3
-  ✓ PCI-DSS: 8.1, 8.1.1, 8.1.3, 8.1.4
+  ✓ PCI-DSS: 7.2.4, 8.2.1, 8.2.5, 8.2.6
 
 NEXT STEPS:
 

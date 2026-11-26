@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// Operator-only: never expose provider or child output to the agent.
 import { spawnSync } from 'node:child_process';
 import { TextDecoder } from 'node:util';
 

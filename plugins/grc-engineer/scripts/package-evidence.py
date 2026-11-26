@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import io
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -14,7 +15,6 @@ import zipfile
 
 
 def package(source, output, fingerprint):
-    # Fingerprints must have been independently verified by the operator.
     fingerprint = fingerprint.upper()
     if not re.fullmatch(r'(?:[0-9A-F]{40}|[0-9A-F]{64})', fingerprint):
         raise ValueError('recipient must be a full 40- or 64-digit fingerprint')
@@ -69,6 +69,11 @@ def package(source, output, fingerprint):
                 archive.writestr(entry, data)
                 manifest.append({'path': relative, 'sha256': hashlib.sha256(data).hexdigest(), 'size': len(data)})
         archive.writestr('MANIFEST.json', json.dumps({'algorithm': 'sha256', 'files': manifest}, indent=2) + '\n')
+    spec = importlib.util.spec_from_file_location('evidence_verifier', Path(__file__).with_name('verify-evidence.py'))
+    verifier = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(verifier)
+    buf.seek(0)
+    verifier.verify(buf)
     encrypted = subprocess.run(['gpg', '--no-options', '--batch', '--yes', '--no-encrypt-to', '--trust-model', 'always', '--recipient', fingerprint, '--encrypt'], input=buf.getvalue(), capture_output=True, check=True).stdout
     fd = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
     try:

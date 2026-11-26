@@ -1,12 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * slack-inspector:collect
- *
- * Queries Slack Web API, evaluates workspace-level security posture, and
- * writes Finding documents to the shared claude-grc cache.
- */
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';

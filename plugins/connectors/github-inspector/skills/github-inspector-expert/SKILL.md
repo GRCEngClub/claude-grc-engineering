@@ -29,7 +29,7 @@ The roadmap adds: deploy key age (IAC-02), outside collaborator admin access (TD
 Each SCF control maps to multiple framework control IDs via SCF's crosswalk. Examples for the controls this connector emits:
 
 - **CHG-02** → SOC 2 CC2.2, CC3.4, CC8.1 · NIST 800-53 CM-03, SA-08(31) · ISO 27002 A.8.19, A.8.32 · PCI 6.5 · CMMC CM.L2-3.4.3
-- **MON-01** → SOC 2 CC7.2 · NIST 800-53 SI-04, CA-07 · ISO 27002 A.8.16 · PCI 10.7
+- **MON-01** → SOC 2 CC7.2 · NIST 800-53 SI-04, CA-07 · ISO 27002 A.8.16 · PCI 10.4.1
 - **MON-01.4** → SOC 2 CC7.1 · NIST 800-53 RA-05, SI-02 · ISO 27002 A.8.8 · PCI 6.3.3
 - **IAO-04** → SOC 2 CC8.1 · NIST 800-53 SA-11 · ISO 27002 A.8.28
 

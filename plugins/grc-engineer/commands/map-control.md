@@ -8,26 +8,21 @@ Maps infrastructure-as-code (IaC) files to specific compliance framework control
 
 ## Arguments
 
-- `$1` - IaC file path (required)
-- `$2` - Framework name (optional, defaults to SOC2)
+- `$1` - Path to one IaC file (required): Terraform (`.tf`, `.tfvars`) or a Kubernetes manifest (`.yaml`, `.yml`)
+- `$2` - Framework name (optional, defaults to `soc2`)
 
 ## Supported Frameworks
 
-- SOC2
-- ISO27001
-- NIST80053
-- PCIDSS
-- HIPAA
-- GDPR
-- CMMC
-- HITRUST
-- CIS
-- CSA-CCM
-- NYDFS
-- DORA
-- STATERAMP
-- ESSENTIAL8
-- GLBA
+The script ships control configs for three frameworks:
+
+- `soc2` - SOC 2 Trust Services Criteria
+- `iso27001` - ISO/IEC 27001:2022 Annex A
+- `nist800-53` (or `NIST80053`) - NIST SP 800-53 Rev. 5
+
+Any other name exits with `Unsupported framework`. For other frameworks:
+
+- `/grc-engineer:gap-assessment` resolves PCI DSS, HIPAA, GDPR, CMMC, CSA CCM, NYDFS, DORA, GovRAMP, Essential Eight, GLBA, and the rest of the SCF crosswalk.
+- `/grc-engineer:scan-iac` checks a whole directory of IaC against SOC 2, PCI-DSS, and NIST in one run.
 
 ## Instructions
 
@@ -49,12 +44,11 @@ Maps infrastructure-as-code (IaC) files to specific compliance framework control
 # Map to SOC 2 controls
 /grc-engineer:map-control main.tf SOC2
 
-# Map to PCI-DSS requirements
-/grc-engineer:map-control main.tf PCIDSS
-
-# Map to ISO 27001 controls
-/grc-engineer:map-control terraform/ ISO27001
+# Map a Kubernetes manifest to ISO 27001 controls
+/grc-engineer:map-control k8s/deployment.yaml ISO27001
 
 # Map to NIST 800-53 controls
-/grc-engineer:map-control infrastructure/ NIST80053
+/grc-engineer:map-control terraform/iam.tf NIST80053
 ```
+
+The report is also written next to the input file as `<name>_compliance_report.md`.

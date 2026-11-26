@@ -7,9 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is the official open-source Claude Code plugin marketplace of the [GRC Engineering Club](https://grcengclub.com) for Governance, Risk, and Compliance (GRC) professionals. `.claude-plugin/marketplace.json` is the authoritative plugin list; the categories below describe the shapes, not an exhaustive inventory.
 
 - **Persona plugins** (grc-engineer, grc-auditor, grc-internal, grc-tprm)
-- **Framework plugins** under `plugins/frameworks/` (soc2, nist-800-53, iso27001, fedramp-rev5, fedramp-20x, pci-dss, cmmc, and more) — see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) for the generated list
+- **Framework plugins** under `plugins/frameworks/` (soc2, nist-800-53, iso27001, fedramp-20x, pci-dss, cmmc, and more) — see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) for the generated list
 - **Connector plugins** under `plugins/connectors/` (aws-inspector, gcp-inspector, github-inspector, okta-inspector, and more) that emit findings matching `schemas/finding.schema.json`
-- **OSCAL tooling plugins** (oscal, fedramp-ssp) wrapping external upstream projects
+- **OSCAL tooling plugin** (oscal) wrapping an external upstream project
 - **Reporting and workflow plugins** (grc-reporter, grc-loop, grc-diagrams, teach-me, trust-center, compliance-posture-dashboard)
 - **grc-portfolio** — site-builder plugin that scaffolds and deploys a GRC engineer's portfolio website (React/Vite on S3 + CloudFront, optional Route 53/ACM and SES-backed contact form, GitHub Actions OIDC for CI/CD)
 
@@ -177,8 +177,7 @@ Each plugin has a unique namespace for commands:
 - `/soc2:` - SOC 2 expertise
 - `/nist:` - NIST 800-53 controls
 - `/iso:` - ISO 27001 ISMS
-- `/fedramp-rev5:` - Traditional FedRAMP
-- `/fedramp-20x:` - Modern FedRAMP with auto-sync
+- `/fedramp-20x:` - FedRAMP 20x with auto-sync
 - `/pci-dss:` - PCI DSS v4.0.1
 - `/us-export:` - US Export Controls (ITAR + EAR)
 - `/pbmm:` - Canadian Protected B cloud
@@ -210,7 +209,7 @@ The grc-engineer plugin now includes advanced cross-framework intelligence capab
 
 1. **`/grc-engineer:map-controls-unified <control>`**
    - Maps a single control across ALL frameworks
-   - Shows framework equivalencies (e.g., NIST AC-2 = ISO A.9.2 = SOC2 CC6.1)
+   - Shows framework equivalencies (e.g., NIST AC-2 = ISO A.5.16 = SOC2 CC6.1)
    - Identifies conflicts and resolutions
    - Provides cloud implementation patterns
 
@@ -351,9 +350,9 @@ generated/
 **Cloud Provider Support**:
 
 - `aws` - AWS with CloudTrail, IAM, KMS, CloudWatch
-- `azure` - Azure with Azure AD, Key Vault, Monitor
+- `azure` - Azure with Entra ID, Key Vault, Monitor
 - `gcp` - GCP with Cloud IAM, KMS, Logging
-- `kubernetes` - K8s with RBAC, NetworkPolicy, PodSecurityPolicy
+- `kubernetes` - K8s with RBAC, NetworkPolicy, Pod Security Admission
 
 **Usage Example**:
 
@@ -408,10 +407,11 @@ Scans existing infrastructure code for compliance violations:
 Automatically remediates:
 
 - ✓ Missing S3 bucket encryption
-- ✓ Disabled S3 versioning
+- ✓ Missing S3 versioning
 - ✓ Missing S3 public access blocks
-- ✓ Disabled KMS key rotation
-- ✓ Short log retention periods
+- ✓ Unencrypted EBS volumes and RDS storage
+- ✓ CloudTrail multi-region and log file validation
+- ✗ S3 protection that exists but is switched off, and settings given as expressions (requires manual review)
 - ✗ Security group rules (requires manual review)
 - ✗ IAM policies (security sensitive)
 
@@ -420,14 +420,17 @@ Automatically remediates:
 GitHub Actions:
 
 ```yaml
+# The job needs `permissions: { actions: read, contents: read, security-events: write }`; .grc is a checkout of this repo
 - name: Scan Infrastructure
-  run: /grc-engineer:scan-iac ./terraform SOC2,PCI-DSS,NIST sarif > results.sarif
+  run: node .grc/plugins/grc-engineer/scripts/scan-iac.js ./terraform SOC2,PCI-DSS,NIST sarif > results.sarif
 
 - name: Upload Results
-  uses: github/codeql-action/upload-sarif@v2
+  uses: github/codeql-action/upload-sarif@v4
   with:
     sarif_file: results.sarif
 ```
+
+The full workflow is in `plugins/grc-engineer/commands/scan-iac.md`.
 
 **Severity Levels**:
 
@@ -535,14 +538,14 @@ Total Tests: 15
 ⚠ Warnings: 2 (13%)
 
 FAILURES:
-- Quarterly access review overdue (92 days, PCI requires 90)
+- Access review overdue (190 days; PCI DSS 7.2.4 requires at least every six months)
 - Access review policy documentation outdated
 
 FRAMEWORK COMPLIANCE:
 NIST 800-53: ⚠ PARTIALLY COMPLIANT
 ISO 27001:   ⚠ PARTIALLY COMPLIANT
 SOC2:        ⚠ PARTIALLY COMPLIANT
-PCI-DSS:     ✗ NON-COMPLIANT (quarterly review requirement violated)
+PCI-DSS:     ✗ NON-COMPLIANT (six-month access review requirement 7.2.4 missed)
 
 Status: PARTIALLY EFFECTIVE
 Remediation: Run python scripts/access_review.py --immediate
@@ -554,7 +557,7 @@ Remediation: Run python scripts/access_review.py --immediate
 
 - ✓ Unique user IDs
 - ✓ Access approval process
-- ✗ Quarterly access reviews (schedule/execution)
+- ✗ Periodic access reviews (schedule/execution)
 - ✓ Automated provisioning
 - ✓ Least privilege (permissions boundaries)
 - ✓ CloudTrail logging active
@@ -730,7 +733,7 @@ This provides end-to-end compliance automation:
 
 The grc-engineer plugin includes an `access-review-triage` skill for teams running quarterly user access reviews (UARs) out of spreadsheets — the common shape for orgs without a dedicated IGA tool (Sailpoint, Saviynt, Okta Access Certifications).
 
-Lives at `plugins/grc-engineer/skills/access-review-triage/SKILL.md`. The skill takes a CSV or JSON access export (Okta, Azure AD, AWS IAM, GitHub, or generic) plus optional HR list, SoD config, and prior-cycle decisions, then walks 10 ordered decision rules to tag each row:
+Lives at `plugins/grc-engineer/skills/access-review-triage/SKILL.md`. The skill takes a CSV or JSON access export (Okta, Entra ID, AWS IAM, GitHub, or generic) plus optional HR list, SoD config, and prior-cycle decisions, then walks 10 ordered decision rules to tag each row:
 
 - Rule 1: terminated user with active access → Investigate (P0)
 - Rule 2: separation-of-duty conflict → Investigate (P0)
@@ -743,7 +746,7 @@ Lives at `plugins/grc-engineer/skills/access-review-triage/SKILL.md`. The skill 
 - Rule 9: unchanged since last cycle → Auto-certify
 - Rule 10: default → Manager confirm
 
-Output is four artifacts in `~/.cache/claude-grc/access-reviews/<system>-<YYYY-QN>/`: `triage.md` (human-readable report), `decisions.csv` (machine-readable per-row recommendations), `manager-emails/<manager>.md` (drafted confirmation emails), and `evidence.json` (audit-binder packet with control mappings to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.9, NIST AC-2).
+Output is four artifacts in `~/.cache/claude-grc/access-reviews/<system>-<YYYY-QN>/`: `triage.md` (human-readable report), `decisions.csv` (machine-readable per-row recommendations), `manager-emails/<manager>.md` (drafted confirmation emails), and `evidence.json` (audit-binder packet with control mappings to SOC 2 CC6.1/CC6.2, PCI 7-8, ISO A.5.15, A.5.16, A.5.18, A.8.2, and A.5.3 for separation-of-duty conflicts, NIST AC-2).
 
 The skill never auto-revokes — every recommendation is a draft for human review. It refuses to run for orgs that already have an IGA tool unless `--force` is passed.
 

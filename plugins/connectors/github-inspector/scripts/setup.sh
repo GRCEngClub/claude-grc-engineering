@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-# github-inspector:setup
-#
-# Idempotent setup for the github-inspector connector. Verifies gh CLI + auth,
-# writes config under $CLAUDE_GRC_CONFIG_DIR (default ~/.config/claude-grc),
-# runs a read-only health check, prints next steps.
 
 set -euo pipefail
 
@@ -14,7 +9,6 @@ SOURCE_VERSION="0.1.0"
 
 die() { echo "[$SOURCE:setup] $*" >&2; exit "${2:-1}"; }
 
-# 1. gh binary
 if ! command -v gh >/dev/null 2>&1; then
   cat <<EOF >&2
 [$SOURCE:setup] gh CLI not found on PATH.
@@ -32,7 +26,6 @@ fi
 GH_BIN=$(command -v gh)
 GH_VERSION=$(gh --version | head -1 | awk '{print $3}')
 
-# 2. auth status
 if ! gh auth status >/dev/null 2>&1; then
   cat <<EOF >&2
 [$SOURCE:setup] gh is not authenticated.
@@ -45,15 +38,12 @@ EOF
   exit 2
 fi
 
-# 3. Token works
 if ! LOGIN=$(gh api user --jq .login 2>/dev/null); then
   die "gh auth is present but 'gh api user' failed. Try 'gh auth refresh' and retry." 2
 fi
 
-# 4. Report scopes (non-fatal if undetectable)
 SCOPES=$(gh auth status 2>&1 | awk -F'scopes:' '/Token scopes/ {gsub(/^ +| +$/,"",$2); print $2; exit}' || true)
 
-# 5. Write config
 mkdir -p "$CONFIG_DIR"
 cat > "$CONFIG_FILE" <<EOF
 version: 1
@@ -70,7 +60,6 @@ defaults:
   concurrency: 4
 EOF
 
-# 6. Prepare cache + runs.log
 CACHE_DIR="$HOME/.cache/claude-grc/findings/github-inspector"
 mkdir -p "$CACHE_DIR"
 touch "$HOME/.cache/claude-grc/runs.log"

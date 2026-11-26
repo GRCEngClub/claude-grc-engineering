@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# gcp-inspector:status
 set -uo pipefail
 
 CONFIG_FILE="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors/gcp-inspector.yaml"
@@ -25,7 +24,6 @@ PROJECT=$(awk -F'"' '/^project_id:/ {print $2; exit}' "$CONFIG_FILE")
 REGION=$(awk -F'"' '/^default_region:/ {print $2; exit}' "$CONFIG_FILE")
 PROJECT_NUMBER=$(awk -F'"' '/^project_number:/ {print $2; exit}' "$CONFIG_FILE")
 
-# Active account
 ACTIVE=$(gcloud auth list --filter=status:ACTIVE --format='value(account)' 2>/dev/null | head -1)
 if [[ -z "$ACTIVE" ]]; then
   printf '  status:        credentials-expired\n'
@@ -33,7 +31,6 @@ if [[ -z "$ACTIVE" ]]; then
   exit 2
 fi
 
-# Project still accessible?
 if ! gcloud projects describe "$PROJECT" --format=json >/dev/null 2>&1; then
   printf '  status:        project-inaccessible\n'
   printf '  project:       %s\n' "$PROJECT"

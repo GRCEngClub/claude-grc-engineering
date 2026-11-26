@@ -1,15 +1,9 @@
 name: OpenSSF Scorecard
 
-# Supply-chain posture scoring via the OpenSSF Scorecard. Runs on the default
-# branch only (per Scorecard requirements) and emits SARIF to the Code
-# Scanning dashboard so security findings live alongside the other CI signal.
-#
-# Closes https://github.com/GRCEngClub/claude-grc-engineering/issues/73
-
 on:
   branch_protection_rule:
   schedule:
-    - cron: '0 6 * * MON'  # Monday 06:00 UTC, ahead of lychee's 08:00 weekly slot
+    - cron: '0 6 * * MON'
   push:
     branches: [main]
 
@@ -20,8 +14,8 @@ jobs:
     name: Scorecard analysis
     runs-on: ubuntu-latest
     permissions:
-      security-events: write   # upload SARIF to Code Scanning
-      id-token: write          # OIDC token for publish_results
+      security-events: write
+      id-token: write
       contents: read
       actions: read
 

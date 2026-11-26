@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# oscal:validate — run oscal-cli validate
 set -uo pipefail
 
 CONFIG_FILE="${CLAUDE_GRC_CONFIG_DIR:-$HOME/.config/claude-grc}/connectors/oscal.yaml"

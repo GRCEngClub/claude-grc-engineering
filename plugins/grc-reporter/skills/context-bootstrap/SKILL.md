@@ -15,7 +15,7 @@ Before any report command generates, verify:
 1. **Plugins installed.** Run `/plugin list` or inspect the marketplace. Need at least:
    - `grc-engineer` (the pipeline hub)
    - One connector (e.g., `github-inspector`, `aws-inspector`, `okta-inspector`)
-   - One framework plugin (e.g., `soc2`, `fedramp-rev5`, `iso27001`)
+   - One framework plugin (e.g., `soc2`, `fedramp-20x`, `iso27001`)
 
 2. **Findings cache populated.** Look in `~/.cache/claude-grc/findings/<source>/*.json`. Timestamps within the last 30 days mean the pipeline is active.
 
@@ -97,8 +97,8 @@ Deliver these steps in plain conversational form. Do not dump all commands at on
 7. **If the user wants `/report:program-health`, add a second framework now.**
 
    ```
-   /plugin install fedramp-rev5@grc-engineering-suite
-   /grc-engineer:gap-assessment SOC2,FedRAMP-Moderate --sources=github-inspector
+   /plugin install iso27001@grc-engineering-suite
+   /grc-engineer:gap-assessment SOC2,ISO27001 --sources=github-inspector
    ```
 
    `program-health` needs more than one framework in scope or it is not a portfolio view.

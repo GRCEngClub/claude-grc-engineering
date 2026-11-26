@@ -10,14 +10,13 @@ Parameters:
     ConstraintDescription: 'Must contain only lowercase letters, numbers, and hyphens'
 
 Resources:
-  # S3 Bucket for website content
   WebsiteBucket:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: !Sub '${ProjectName}-${AWS::AccountId}'
       WebsiteConfiguration:
         IndexDocument: 'index.html'
-        ErrorDocument: 'index.html'  # For SPA routing
+        ErrorDocument: 'index.html'
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -31,7 +30,6 @@ Resources:
         - Key: Project
           Value: !Ref ProjectName
 
-  # S3 Bucket Policy for CloudFront access
   WebsiteBucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
@@ -48,7 +46,6 @@ Resources:
               StringEquals:
                 'AWS:SourceArn': !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
 
-  # CloudFront Origin Access Control
   CloudFrontOAC:
     Type: 'AWS::CloudFront::OriginAccessControl'
     Properties:
@@ -58,7 +55,6 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
-  # CloudFront Distribution (without custom domain or certificate)
   CloudFrontDistribution:
     Type: 'AWS::CloudFront::Distribution'
     Properties:
@@ -67,7 +63,7 @@ Resources:
         Comment: !Sub 'CDN for ${ProjectName}'
         DefaultRootObject: 'index.html'
         HttpVersion: http2and3
-        PriceClass: PriceClass_100  # Use only North America and Europe (cheapest)
+        PriceClass: PriceClass_100
         ViewerCertificate:
           # Using CloudFront's default *.cloudfront.net certificate.
           # AWS does not let you set MinimumProtocolVersion when using the
@@ -95,7 +91,6 @@ Resources:
           OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf  # CORS-S3Origin
           ResponseHeadersPolicyId: 67f7725c-6f97-4210-82d7-5512b31e9d03  # SecurityHeadersPolicy
         CustomErrorResponses:
-          # Handle SPA routing - redirect all errors to index.html
           - ErrorCode: 403
             ResponseCode: 200
             ResponsePagePath: /index.html

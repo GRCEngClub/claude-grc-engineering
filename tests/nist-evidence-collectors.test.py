@@ -46,17 +46,14 @@ esac
                 assert stat.S_IMODE(f.stat().st_mode) == 0o600, f
                 if f.name.startswith('nist-ac2-privileged-'):
                     assert f.read_text().splitlines() == ['alice,AdministratorAccess']
-                f.chmod(0o666)  # Simulate a loose artifact from a previous run.
+                f.chmod(0o666)
             directory.chmod(0o777)
-            # Other collectors' artifacts are not touched; remove them between runs.
             if attempt == 0:
                 previous = {f.name for f in files}
             else:
                 for f in files:
                     f.unlink()
 
-    # Fail every AWS operation, including early and late operations in each
-    # multi-file collector, after first creating same-day artifacts.
     failures = [
         ['iam list-users', 'iam list-roles', 'iam list-groups',
          'iam generate-credential-report', 'iam get-credential-report'],

@@ -40,7 +40,7 @@ Ask which frameworks they specialize in. Present the full list — let them pick
 
 ```
 SOC 2 | ISO 27001 | NIST 800-53 | FedRAMP | PCI-DSS | HIPAA | CMMC | HITRUST |
-GDPR | CIS Controls | DORA | StateRAMP | NIST CSF | NYDFS | Essential Eight |
+GDPR | CIS Controls | DORA | GovRAMP | NIST CSF | NYDFS | Essential Eight |
 ISMAP | IRAP | PBMM | CSA CCM | GLBA
 ```
 
