@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const next = process.argv[2];
-if (!/^\d+\.\d+\.\d+$/.test(next || '')) {
+if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(next || '')) {
   console.error('Usage: node tools/bump-version.mjs <major.minor.patch>');
   process.exit(next === '--help' || next === '-h' ? 0 : 2);
 }
