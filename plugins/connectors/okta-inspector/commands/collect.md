@@ -10,7 +10,7 @@ Scans an Okta org and emits Findings evaluating identity-related SCF controls.
 ## How to run
 
 ```bash
-node plugins/connectors/okta-inspector/scripts/collect.js [options]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" [options]
 ```
 
 ## Arguments

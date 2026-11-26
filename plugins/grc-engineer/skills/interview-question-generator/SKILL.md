@@ -13,19 +13,19 @@ Use this skill when preparing audit or assessment interview questions for a clie
 **Generate markdown questions:**
 
 ```bash
-node plugins/grc-engineer/scripts/generate-interview-questions.js "AWS IAM users" SOC2,NIST-800-53,PCI-DSS
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-interview-questions.js" "AWS IAM users" SOC2,NIST-800-53,PCI-DSS
 ```
 
 **Generate JSON for downstream tooling:**
 
 ```bash
-node plugins/grc-engineer/scripts/generate-interview-questions.js "GitHub branch protection" SOC2 --format=json
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-interview-questions.js" "GitHub branch protection" SOC2 --format=json
 ```
 
 **Limit output for a short interview block:**
 
 ```bash
-node plugins/grc-engineer/scripts/generate-interview-questions.js "Okta MFA" ISO27001 --limit=5
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-interview-questions.js" "Okta MFA" ISO27001 --limit=5
 ```
 
 ## Supported Stack Hints

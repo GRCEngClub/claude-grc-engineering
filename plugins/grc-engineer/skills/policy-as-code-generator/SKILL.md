@@ -35,7 +35,7 @@ inferred. Example `spec.json`:
 ```
 
 ```bash
-node plugins/grc-engineer/scripts/generate-policy.js --spec spec.json
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-policy.js" --spec spec.json
 ```
 
 The CLI also writes a paired `.test.rego` starter file and prints the exact
@@ -63,7 +63,7 @@ OPA is unavailable; CI installs a checksum-pinned OPA and requires it.
 ## Example
 
 ```bash
-node plugins/grc-engineer/scripts/generate-policy.js "Ensure no S3 buckets are public" rego
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-policy.js" "Ensure no S3 buckets are public" rego
 ```
 
 The optional second argument selects the format; it defaults to `rego`. The output includes draft code and documentation, not validated test cases.

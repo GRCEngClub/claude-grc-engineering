@@ -29,7 +29,7 @@ Any other name exits with `Unsupported framework`. For other frameworks:
 1. Run the map-control script:
 
    ```bash
-   node plugins/grc-engineer/scripts/map-control.js $ARGUMENTS
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/map-control.js" $ARGUMENTS
    ```
 
 2. The script analyzes the IaC file and generates a compliance mapping report.

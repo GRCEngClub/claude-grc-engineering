@@ -7,7 +7,7 @@ export WIZ_CLIENT_ID="..."
 export WIZ_CLIENT_SECRET="..."
 export WIZ_API_URL="https://api.<region>.app.wiz.io/graphql"
 
-plugins/connectors/wiz-inspector/scripts/setup.sh \
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" \
   --api-url="$WIZ_API_URL" \
   --project-id="<optional-project-id>"
 ```

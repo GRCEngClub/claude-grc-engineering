@@ -9,9 +9,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PLUGIN_ROOT = path.resolve(__dirname, '..');
 const PUBLIC_DIR = path.join(PLUGIN_ROOT, 'public');
-const REPO_ROOT = path.resolve(PLUGIN_ROOT, '../../..');
+const BASE_DIR = process.cwd();
 
-const DEFAULT_DATA_PATH = path.join(REPO_ROOT, 'grc-data/dashboard/monitor-continuous');
+const DEFAULT_DATA_PATH = path.join(BASE_DIR, 'grc-data/dashboard/monitor-continuous');
 const MAX_SCAN_DEPTH = 8;
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -110,7 +110,7 @@ function asMonitorRuns(parsed, file) {
     .filter(doc => doc.kind === 'monitor_continuous_run' || (doc.summary && Array.isArray(doc.framework_results)))
     .map(doc => ({
       ...doc,
-      source_file: path.relative(REPO_ROOT, file)
+      source_file: path.relative(BASE_DIR, file)
     }));
 }
 
@@ -134,10 +134,10 @@ async function loadRuns(dataPaths, demo) {
       files.push(...await listJsonFiles(dataPath));
     } catch (err) {
       if (err.code === 'ENOENT') {
-        errors.push({ path: path.relative(REPO_ROOT, dataPath), message: 'path does not exist' });
+        errors.push({ path: path.relative(BASE_DIR, dataPath), message: 'path does not exist' });
         continue;
       }
-      errors.push({ path: path.relative(REPO_ROOT, dataPath), message: err.message });
+      errors.push({ path: path.relative(BASE_DIR, dataPath), message: err.message });
     }
   }
 
@@ -146,15 +146,15 @@ async function loadRuns(dataPaths, demo) {
       const parsed = JSON.parse(await fs.readFile(file, 'utf8'));
       runs.push(...asMonitorRuns(parsed, file));
     } catch (err) {
-      errors.push({ path: path.relative(REPO_ROOT, file), message: err.message });
+      errors.push({ path: path.relative(BASE_DIR, file), message: err.message });
     }
   }
 
   runs.sort((a, b) => new Date(a.generated_at || 0) - new Date(b.generated_at || 0));
   return {
     loaded_at: new Date().toISOString(),
-    data_paths: dataPaths.map(p => path.relative(REPO_ROOT, p) || '.'),
-    files: files.map(f => path.relative(REPO_ROOT, f)),
+    data_paths: dataPaths.map(p => path.relative(BASE_DIR, p) || '.'),
+    files: files.map(f => path.relative(BASE_DIR, f)),
     errors,
     runs
   };
@@ -300,7 +300,7 @@ async function main() {
   });
 
   server.listen(opts.port, opts.host, () => {
-    const data = opts.demo ? 'demo data' : opts.dataPaths.map(p => path.relative(REPO_ROOT, p) || '.').join(', ');
+    const data = opts.demo ? 'demo data' : opts.dataPaths.map(p => path.relative(BASE_DIR, p) || '.').join(', ');
     process.stderr.write(`compliance-posture dashboard: http://${opts.host}:${opts.port}\n`);
     process.stderr.write(`data: ${data}\n`);
   });

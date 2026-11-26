@@ -120,12 +120,14 @@ done
 
 ## CI/CD usage
 
+These paths assume the job has checked out `GRCEngClub/claude-grc-engineering` and runs from its root.
+
 Set `CLAUDE_PLUGIN_ROOT` to the installed gcp-inspector plugin directory when
 running outside Claude Code. The gap-assessment command below assumes a
 marketplace checkout as its working directory.
 
 ```bash
 gcloud auth activate-service-account --key-file=sa.json
-node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" --quiet
+node plugins/connectors/gcp-inspector/scripts/collect.js --quiet
 node plugins/grc-engineer/scripts/gap-assessment.js FedRAMP-Moderate --sources=gcp-inspector --output=sarif --quiet > gcp-gap.sarif
 ```

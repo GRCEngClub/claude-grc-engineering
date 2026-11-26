@@ -4,13 +4,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { initSCF } from './scf-client.js';
+import { requireRepoRoot } from '../src/plugin-locator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const REPO_ROOT = path.resolve(__dirname, '../../..');
 const TEMPLATES_DIR = path.join(__dirname, '..', 'templates', 'framework-plugin');
-const PLUGINS_DIR = path.join(REPO_ROOT, 'plugins', 'frameworks');
-const MARKETPLACE_FILE = path.join(REPO_ROOT, '.claude-plugin', 'marketplace.json');
+let REPO_ROOT;
+let PLUGINS_DIR;
+let MARKETPLACE_FILE;
 
 const REGION_NAMES = {
   americas: 'Americas',
@@ -171,6 +172,9 @@ async function main() {
     console.log(usage());
     process.exit(opts.help ? 0 : 1);
   }
+  REPO_ROOT = await requireRepoRoot('scaffold-framework');
+  PLUGINS_DIR = path.join(REPO_ROOT, 'plugins', 'frameworks');
+  MARKETPLACE_FILE = path.join(REPO_ROOT, '.claude-plugin', 'marketplace.json');
   if (!['stub', 'reference'].includes(opts.depth)) {
     console.error(`Unknown depth: ${opts.depth}. Use --depth=stub or --depth=reference.`);
     process.exit(1);

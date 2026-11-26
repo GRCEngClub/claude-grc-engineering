@@ -10,7 +10,7 @@ One-time configuration step. Verifies `testssl.sh` is reachable, captures its ve
 ## How to run
 
 ```bash
-bash plugins/connectors/testssl-inspector/scripts/setup.sh [options]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" [options]
 ```
 
 ## Options

@@ -10,7 +10,7 @@ Non-destructive health check. Shows whether the connector is configured, whether
 ## How to run
 
 ```bash
-bash plugins/connectors/gcp-inspector/scripts/status.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/status.sh"
 ```
 
 ## Output

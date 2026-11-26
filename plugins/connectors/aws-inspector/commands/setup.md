@@ -10,7 +10,7 @@ Prepares the aws-inspector connector. Confirms `aws` CLI is installed and creden
 ## How to run
 
 ```bash
-bash plugins/connectors/aws-inspector/scripts/setup.sh [--profile=<name>] [--region=<region>]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" [--profile=<name>] [--region=<region>]
 ```
 
 Exits 0 on success, 2 on missing/invalid credentials, 5 on missing `aws` binary.

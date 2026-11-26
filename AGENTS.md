@@ -8,7 +8,7 @@ This repo is a Claude Code plugin marketplace: mostly Markdown/YAML/JSON plugin 
 
 ## Setup, tests, and checks
 
-- Runtime: Node.js (CI pins Node 20; Node 22 works). Single `npm install` at the repo root installs all toolkit + test deps. There are no committed lockfiles, so installs resolve latest within semver ranges.
+- Runtime: Node.js 22 (the version CI pins). Plugin scripts use only Node built-ins and files inside their own plugin folder, because Claude Code installs each plugin by copying that folder alone; `tests/installed-plugin-smoke.test.mjs` enforces this. `npm ci` at the repo root installs the test-only dev dependencies from the committed `package-lock.json`.
 - Tests/lint/build commands are defined in the root `package.json` scripts and `.github/workflows/`; prefer those as the source of truth. Core checks: `npm run test:contract`, `npm run test:plugin-manifests`, `npm run test:grc-diagrams`, `npm run test:contract:findings`, `npm run test:unit` (runs every `tests/*.test.{js,mjs,cjs}` suite, so new test files are picked up without CI changes). Markdown lint matches the pre-commit hook: `npx markdownlint-cli2@0.18.1` (config in `.markdownlint-cli2.jsonc`); note the repo currently has some pre-existing `MD022` warnings.
 
 ## Gotchas

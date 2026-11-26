@@ -10,7 +10,7 @@ Scans AWS for compliance-relevant resources and configurations. Emits one Findin
 ## How to run
 
 ```bash
-node plugins/connectors/aws-inspector/scripts/collect.js [options]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js" [options]
 ```
 
 ## Arguments
@@ -119,6 +119,8 @@ The AWS-managed `SecurityAudit` policy is a superset that also works.
 ```
 
 ## CI/CD usage
+
+These paths assume the job has checked out `GRCEngClub/claude-grc-engineering` and runs from its root.
 
 ```bash
 aws sso login --profile=audit

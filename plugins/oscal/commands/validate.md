@@ -10,7 +10,7 @@ Validates an OSCAL document against the NIST JSON schemas bundled with `oscal-cl
 ## How to run
 
 ```bash
-bash plugins/oscal/scripts/validate.sh <file> [--quiet] [--json]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/validate.sh" <file> [--quiet] [--json]
 ```
 
 ## Arguments

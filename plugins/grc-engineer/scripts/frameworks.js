@@ -1,15 +1,8 @@
 #!/usr/bin/env node
 
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { initSCF } from './scf-client.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const REPO_ROOT = path.resolve(__dirname, '../../..');
-const FRAMEWORKS_DIR = path.join(REPO_ROOT, 'plugins', 'frameworks');
-const MARKETPLACE_FILE = path.join(REPO_ROOT, '.claude-plugin', 'marketplace.json');
+import { frameworkMetadata, listFrameworkPlugins } from '../src/plugin-locator.js';
 
 function parseArgs(argv) {
   const args = argv.slice(2);
@@ -69,24 +62,10 @@ function regionFromFrameworkId(frameworkId) {
   return 'global';
 }
 
-async function loadPluginMetadata(slug) {
-  const pluginFile = path.join(FRAMEWORKS_DIR, slug, '.claude-plugin', 'plugin.json');
-  try {
-    const raw = await fs.readFile(pluginFile, 'utf8');
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
 async function listShippedPlugins() {
-  const entries = await fs.readdir(FRAMEWORKS_DIR, { withFileTypes: true });
-  const slugs = entries.filter(e => e.isDirectory()).map(e => e.name);
   const plugins = [];
-  for (const slug of slugs) {
-    const meta = await loadPluginMetadata(slug);
-    if (!meta) continue;
-    const fwMeta = meta.framework_metadata || null;
+  for (const { slug, manifest: meta } of await listFrameworkPlugins()) {
+    const fwMeta = frameworkMetadata(meta);
     plugins.push({
       slug,
       display_name: meta.description ? meta.description.split('—')[0].trim().split(' Plugin')[0] : slug,

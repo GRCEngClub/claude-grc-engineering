@@ -23,7 +23,7 @@ For a simple, single control-to-evidence flow with supplied labels, the optional
 Validate the example from the repository root:
 
 ```bash
-python3 plugins/grc-diagrams/examples/validate-control-evidence.py
+python3 "${CLAUDE_PLUGIN_ROOT}/examples/validate-control-evidence.py"
 ```
 
 The parser checks escaping, cell IDs, edge references and geometry for this specific uncompressed example; it is not a general draw.io validator or a secret scanner. Open the file in draw.io to inspect layout and editability. The example does not model exceptions, retention, or evidence access controls; adapt it to the actual engagement and review for sensitive content before sharing.

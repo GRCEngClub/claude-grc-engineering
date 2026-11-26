@@ -49,7 +49,7 @@ Produce a multi-framework gap assessment by joining cached connector findings wi
 When the user invokes `/grc-engineer:gap-assessment`, run the orchestrator directly:
 
 ```bash
-node plugins/grc-engineer/scripts/gap-assessment.js <frameworks> [options]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/gap-assessment.js" <frameworks> [options]
 ```
 
 The script reads args from `argv`. Pass through the user's flags unchanged. The script prints the report to stdout and progress/errors to stderr. It also writes a report bundle directory containing:
@@ -74,7 +74,7 @@ The script reads args from `argv`. Pass through the user's flags unchanged. The 
 **CI/CD integration** (non-interactive):
 
 ```
-node plugins/grc-engineer/scripts/gap-assessment.js SOC2,PCI-DSS-4 --output=sarif --quiet > gap.sarif
+node "${CLAUDE_PLUGIN_ROOT}/scripts/gap-assessment.js" SOC2,PCI-DSS-4 --output=sarif --quiet > gap.sarif
 ```
 
 **OSCAL export** for a FedRAMP package:
@@ -128,7 +128,7 @@ This is a preview, not an executable script or GitHub API payload. Report genera
 To create **one** reviewed draft, first preview the exact title and body (index is zero-based). Substitute the printed report bundle directory, including any `--report-dir` override, for `gap-assessment-<run_id>`:
 
 ```sh
-node plugins/grc-engineer/scripts/create-gap-issue.js './gap-assessment-<run_id>/gap-report.github-issues.json' OWNER/REPO 0
+node "${CLAUDE_PLUGIN_ROOT}/scripts/create-gap-issue.js" './gap-assessment-<run_id>/gap-report.github-issues.json' OWNER/REPO 0
 ```
 
 After reviewing the displayed payload and confirming the GitHub.com repository, add `--create` to the same command. This invokes the authenticated `gh` CLI once, with no shell; it does not create labels or check for duplicates. Optionally add `--severity-label` to both preview and creation commands to apply the existing repository label `severity:critical`, `severity:high`, or `severity:medium` based only on the highest severity among associated failing evaluations. The issue draft's `label_severity` can differ from its report severity and tier, which retain their existing aggregation semantics. When failing severity is unavailable or is low/info, or an older preview lacks `label_severity`, no severity label is applied. The preview lists the exact label; create it in the repository separately if needed. Invalid `label_severity` values are rejected before `gh` runs. Without this option no label is applied. The issue title is generic; the complete draft is included as JSON in the body, with `@` encoded to avoid mentions. Anyone with repository access can read the finding data. Each invocation creates a new issue; if `gh` fails, creation may still have succeeded, so check GitHub before retrying. This workflow does not create policy logic.

@@ -66,14 +66,15 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../docs/GRC-DATA.md) and
 1. Run the writer directly:
 
    ```bash
-   node plugins/grc-engineer/scripts/record-automation-metrics.js "$ARGUMENTS"
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/record-automation-metrics.js" "$ARGUMENTS"
    ```
 
-   For batch mode, point it at the example config:
+   For batch mode, copy the example config into the project and point at the copy. Paths inside a config resolve from the config's own folder, so running the bundled file in place would write snapshots inside the plugin:
 
    ```bash
-   node plugins/grc-engineer/scripts/record-automation-metrics.js \
-     --config=plugins/grc-engineer/examples/automation-metrics.yaml \
+   cp "${CLAUDE_PLUGIN_ROOT}/examples/automation-metrics.yaml" ./automation-metrics.yaml
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/record-automation-metrics.js" \
+     --config=./automation-metrics.yaml \
      --window-label=current-week
    ```
 
@@ -101,6 +102,6 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../docs/GRC-DATA.md) and
 # Add an extra business-unit dimension
 /grc-engineer:record-automation-metrics iso27001 --controls-total=93 --controls-automated=40 --dimension=business_unit=platform --window-label=2026-W16
 
-# Write multiple snapshots from a config file
-/grc-engineer:record-automation-metrics --config=plugins/grc-engineer/examples/automation-metrics.yaml --window-label=current-week
+# Write multiple snapshots from a config file in the project
+/grc-engineer:record-automation-metrics --config=./automation-metrics.yaml --window-label=current-week
 ```

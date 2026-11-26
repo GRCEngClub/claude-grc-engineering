@@ -3,7 +3,7 @@
 Show `drata-cli` availability, auth state, and latest cache freshness.
 
 ```bash
-plugins/connectors/drata-inspector/scripts/status.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/status.sh"
 ```
 
 A cache older than seven days is reported as `stale`.

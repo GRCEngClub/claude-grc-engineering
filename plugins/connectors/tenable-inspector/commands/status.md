@@ -3,5 +3,5 @@
 Show Tenable API auth validity and latest cache freshness.
 
 ```bash
-plugins/connectors/tenable-inspector/scripts/status.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/status.sh"
 ```

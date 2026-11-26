@@ -1,9 +1,14 @@
 import { reviewPR } from '../src/pr-reviewer.js';
 import fs from 'fs/promises';
 import path from 'path';
-import dotenv from 'dotenv';
 
-dotenv.config();
+if (typeof process.loadEnvFile === 'function') {
+  try {
+    process.loadEnvFile();
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+}
 
 async function main() {
   const repo = process.argv[2];

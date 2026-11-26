@@ -57,11 +57,6 @@
     "url": "https://github.com/GRCEngClub/claude-grc-engineering/issues"
   },
   "author": "GRC Engineering Club Contributors",
-  "dependencies": {
-    "dotenv": "^16.4.5",
-    "js-yaml": "^4.1.1",
-    "@octokit/rest": "^20.0.2"
-  },
   "devDependencies": {
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1"
