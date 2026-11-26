@@ -569,7 +569,7 @@ async function main() {
   process.exit(exitCode);
 }
 
-const invokedFromCLI = import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href;
+const invokedFromCLI = import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })();
 if (invokedFromCLI) {
   main().catch(err => {
     process.stderr.write(`monitor-continuous: ${err.stack || err.message}\n`);

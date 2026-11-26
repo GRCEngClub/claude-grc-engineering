@@ -288,7 +288,7 @@ function fail(code, msg) {
   process.exit(code);
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+if (process.argv[1] !== undefined && import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })()) {
   main(process.argv.slice(2)).catch(err => {
     process.stderr.write(`[${SOURCE}] unhandled error: ${err.stack || err.message}\n`);
     process.exit(1);

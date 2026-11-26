@@ -387,7 +387,7 @@ async function fetchOrLoad(relativePath, { baseUrl, cacheDir, offline, version }
   }
 }
 
-const invokedFromCLI = import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href;
+const invokedFromCLI = import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })();
 if (invokedFromCLI) {
   const [, , cmd, ...args] = process.argv;
   const usage = 'Usage: scf-client.js <version|summary|control|frameworks|crosswalk|resolve|expand> [args...]';

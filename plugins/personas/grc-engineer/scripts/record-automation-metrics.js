@@ -874,7 +874,7 @@ async function main() {
   printSingleResult(result);
 }
 
-if (import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+if (import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })()) {
   main().catch(err => {
     console.error(`record-automation-metrics: ${err.message}`);
     if (process.env.DEBUG) {

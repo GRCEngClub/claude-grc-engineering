@@ -290,7 +290,7 @@ async function main() {
   console.log(`  - Commit and open a PR; CI will validate markdown and CODEOWNERS will route review.`);
 }
 
-if (import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+if (import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })()) {
   main().catch(err => {
     console.error('✗ scaffold-framework failed:', err.message);
     if (process.env.DEBUG) console.error(err);

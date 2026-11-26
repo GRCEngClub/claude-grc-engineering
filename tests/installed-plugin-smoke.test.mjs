@@ -5,6 +5,7 @@ import { builtinModules } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 
 // Claude Code installs each plugin by copying its folder alone into
 // <cache>/<marketplace>/<plugin>/<version>. Nothing outside the folder comes
@@ -183,5 +184,21 @@ test('the plugins/grc-engineer compatibility path runs a real scan', () => {
     assert.ok(report.summary.totalControls > 0, 'the scan evaluated controls');
   } finally {
     rmSync(work, { recursive: true, force: true });
+  }
+});
+
+// With `node -` or `node --eval`, process.argv[1] is "-" or missing. Importing a
+// script as a module there must not throw or start its CLI.
+test('scripts can be imported as modules when there is no entry file', () => {
+  const targets = [
+    'plugins/personas/grc-engineer/scripts/scan-iac.js',
+    'plugins/connectors/datadog-inspector/scripts/collect.js',
+    'tools/assessment-review-draft.mjs',
+  ];
+  for (const target of targets) {
+    const source = `await import(${JSON.stringify(pathToFileURL(join(repo, target)).href)}); console.log('imported');`;
+    const run = spawnSync(process.execPath, ['--input-type=module', '-'], { input: source, encoding: 'utf8', timeout: 20_000 });
+    assert.equal(run.status, 0, `${target}: ${run.stderr.trim().split('\n')[0]}`);
+    assert.equal(run.stdout.trim(), 'imported', target);
   }
 });

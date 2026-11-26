@@ -406,7 +406,7 @@ function fail(code, msg) {
 }
 
 const invokedFromCLI = process.argv[1] !== undefined
-  && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href;
+  && import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })();
 if (invokedFromCLI) {
   main(process.argv.slice(2)).catch(err => {
     process.stderr.write(`[${SOURCE}] unexpected error: ${err.stack || err.message}\n`);

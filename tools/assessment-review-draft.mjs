@@ -52,7 +52,7 @@ export function generateReview(data) {
   };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+if (process.argv[1] && import.meta.url === (() => { try { return pathToFileURL(realpathSync(process.argv[1])).href; } catch { return null; } })()) {
   try {
     if (process.argv.length !== 3 && process.argv.length !== 4) throw new Error('Usage: node tools/assessment-review-draft.mjs <input.json> [new-output.json]');
     const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
