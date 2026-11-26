@@ -31,7 +31,7 @@ Reject unknown formats and flags with a usage message.
 | Metrics | `./grc-data/metrics/` (`schemas/metric.schema.json`) | Trend lines from earlier runs |
 | Risks | `./grc-data/risks/` | Open risks linked to failing controls |
 
-Match Findings to the requested framework by each evaluation's `control_framework` (for example `SOC2-TSC-2017` for `soc2`, `ISO-27001-2022` for `iso27001`, `PCI-DSS-4.0` for `pci-dss`). Evaluations recorded against SCF or another framework need the crosswalk: run `/grc-engineer:gap-assessment <framework>` for that view and read its `findings.normalized.json` instead of mapping by hand.
+Match Findings to the requested framework by each evaluation's `control_framework` (for example `SOC2-TSC-2017` for `soc2`, `ISO-27001-2022` for `iso27001`, `PCI-DSS-4.0` for `pci-dss`). Evaluations recorded against SCF or another framework need the crosswalk. Use `/grc-engineer:gap-assessment <framework>` only for the control mapping, not for state: its `findings.normalized.json` merges every cached run, so an old failure stays a failure after a newer pass, and it drops `collected_at` and run IDs. Take state and freshness from the newest raw Finding for each resource and control (latest `collected_at` wins), and cite that Finding's source and run.
 
 Each source is optional. Name every source that was missing or empty in the report rather than treating silence as compliance. Skip Findings files that fail schema validation and list them under "Data quality".
 
@@ -100,7 +100,7 @@ Written to `~/.cache/claude-grc/reports/grc-internal/compliance-<framework>-<YYY
 - `controls.csv`: control, framework, state, newest evidence date, source, exception ID, linked risk
 - `calendar.md` (format `calendar`): obligations by due date over the window
 
-With `--record-metrics`, append rows to `./grc-data/metrics/compliance-<YYYY-MM-DD>.json` using the metric IDs from `docs/GRC-DATA.md` where they fit (`findings.open_critical`, `findings.open_high`, `policy.review_overdue`) and `dimensions.framework` for the framework.
+With `--record-metrics`, write one metric object per file, because `schemas/metric.schema.json` validates a single object per document. Name each file `<UTC timestamp>-<framework>-<metric_id>.json` under `./grc-data/metrics/`, as `/grc-engineer:record-automation-metrics` does. Use the metric IDs from `docs/GRC-DATA.md` where they fit (`findings.open_critical`, `findings.open_high`, `policy.review_overdue`) and set `dimensions.framework` to the framework.
 
 `summary` example:
 

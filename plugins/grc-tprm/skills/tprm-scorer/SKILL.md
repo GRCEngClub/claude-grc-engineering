@@ -22,10 +22,13 @@ Independent assurance; identity and access; data protection; vulnerability manag
 ## Combining
 
 - Control strength is Strong (no Weak domains, at least half Strong), Adequate (at most one Weak domain, not assurance or identity for critical or high tiers), Weak, or Insufficient evidence.
-- Residual rating comes from the tier × control strength matrix.
+- Residual rating comes from the tier × control strength matrix. Insufficient evidence gives no rating and no approval at any tier; report the missing items.
+- A disqualifying finding from `assess-vendor` (no admin MFA on access to our data, an adverse or disclaimed SOC opinion, refusal to provide required evidence) means "Do not approve" regardless of the rating, unless an executive records a risk acceptance with a dated plan.
 - Profile checks (PCI DSS AOC and responsibility split; DORA Article 30 contract provisions for critical or important functions; a HIPAA business associate agreement before PHI is shared) raise the rating one level when they fail.
 
 ## Treatment and timing
+
+These apply only when there is a rating and no disqualifying finding.
 
 | Rating | Treatment | Reassess |
 |---|---|---|

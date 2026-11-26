@@ -45,12 +45,16 @@ Overall control strength:
 
 ## Residual rating
 
-| Tier \ Control strength | Strong | Adequate | Weak | Insufficient evidence |
-|---|---|---|---|---|
-| critical | Medium | High | Critical | Critical |
-| high | Low | Medium | High | High |
-| medium | Low | Low | Medium | Medium |
-| low | Low | Low | Low | Low |
+| Tier \ Control strength | Strong | Adequate | Weak |
+|---|---|---|---|
+| critical | Medium | High | Critical |
+| high | Low | Medium | High |
+| medium | Low | Low | Medium |
+| low | Low | Low | Low |
+
+**Insufficient evidence is not a rating.** When required evidence for the tier is missing, the result is `Insufficient evidence` with the list of missing items, at every tier. Give no residual rating and no approval until the evidence arrives, or until the vendor is reassessed at a lower tier with a recorded reason.
+
+**Disqualifying findings override the matrix.** If `assess-vendor` found a disqualifying issue (for example no MFA on administrative access to our data, an adverse or disclaimed SOC opinion, or refusal to provide required evidence), the treatment is "Do not approve" whatever the matrix gives. The only way forward is executive risk acceptance recorded with `/grc-internal:manage-risk accept`, with a dated remediation plan.
 
 Profile must-pass checks raise the rating one level if they fail:
 
@@ -59,6 +63,8 @@ Profile must-pass checks raise the rating one level if they fail:
 - Any vendor in PCI DSS scope: a current Attestation of Compliance, and a written split of which PCI DSS requirements the vendor manages (12.8.5).
 
 ## Treatment by rating
+
+Apply these only when there is a rating and no disqualifying finding (see above).
 
 | Rating | Treatment |
 |---|---|
