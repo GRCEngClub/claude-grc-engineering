@@ -3,7 +3,7 @@
 Configure `drata-inspector`, a workflow wrapper over [`drata-cli`](https://github.com/ethanolivertroy/drata-cli).
 
 ```bash
-plugins/connectors/drata-inspector/scripts/setup.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh"
 ```
 
 The setup command verifies that `drata` is available, checks read-only auth, and writes:

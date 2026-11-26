@@ -3,5 +3,5 @@
 Show Falcon API auth validity and latest cache freshness.
 
 ```bash
-plugins/connectors/crowdstrike-inspector/scripts/status.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/status.sh"
 ```

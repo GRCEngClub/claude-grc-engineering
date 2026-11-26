@@ -3,7 +3,7 @@
 Configure `slack-inspector` for a Slack workspace.
 
 ```bash
-plugins/connectors/slack-inspector/scripts/setup.sh --token=xoxb-...
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" --token=xoxb-...
 ```
 
 The setup command is idempotent. Re-running it validates the active token with `auth.test` and rewrites the same connector config at:

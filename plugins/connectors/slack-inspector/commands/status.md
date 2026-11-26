@@ -3,7 +3,7 @@
 Show whether `slack-inspector` is configured, whether the token is still valid, and the freshness of the latest cached run.
 
 ```bash
-plugins/connectors/slack-inspector/scripts/status.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/status.sh"
 ```
 
 Output includes:

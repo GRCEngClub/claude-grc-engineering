@@ -3,7 +3,7 @@
 Configure `datadog-inspector` with a Datadog API key and application key.
 
 ```bash
-plugins/connectors/datadog-inspector/scripts/setup.sh --api-key=<key> --app-key=<key>
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh" --api-key=<key> --app-key=<key>
 ```
 
 The setup command validates credentials against the Datadog API and writes:
