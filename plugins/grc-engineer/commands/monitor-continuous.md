@@ -53,9 +53,11 @@ cadence.
 # Single pass over three frameworks using cached findings
 node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-continuous.js" SOC2,PCI-DSS,NIST-800-53
 
-# Daily monitoring driven by a config file
+# Daily monitoring driven by a config file. Copy the bundled example into the
+# project first: paths inside a config resolve from the config's own folder.
+cp "${CLAUDE_PLUGIN_ROOT}/examples/monitor-continuous.yaml" ./monitor-continuous.yaml
 node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-continuous.js" \
-  --config="${CLAUDE_PLUGIN_ROOT}/examples/monitor-continuous.yaml"
+  --config=./monitor-continuous.yaml
 
 # Chain automation-metrics snapshot on the same run
 node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-continuous.js" SOC2 \
