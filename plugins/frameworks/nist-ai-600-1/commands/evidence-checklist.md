@@ -149,7 +149,7 @@ The profile highlights four areas from NIST's public working group.
 - Access control and logging on model endpoints, prompts, retrieval stores,
   and model weights (MEASURE 2.7; connectors can collect much of this).
 - Least-privilege configuration for any tools or actions the system can
-  invoke (MANAGE 2.4).
+  invoke (MEASURE 2.7).
 
 **Intellectual property**
 
