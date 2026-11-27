@@ -106,9 +106,10 @@ function listRules(flags, index) {
   const rows = allRules(index)
     .filter(rule => !set || rule.ruleset === set)
     .filter(rule => !affects || rule.affects.some(a => a.toLowerCase() === affects))
+    .filter(rule => !flags.type || !rule.types.length || rule.types.includes(type === 'rev5' ? 'Rev5' : '20x'))
     .map(rule => ({ ...rule, applies: klass ? ruleApplicability(rule, index, { type, klass }) : 'applies', force_for_class: klass ? forceFor(rule, klass) : rule.force }))
     .filter(rule => rule.applies);
-  if (flags.json) { process.stdout.write(`${JSON.stringify({ rules_version: index.version, type, class: klass?.toUpperCase() ?? null, rules: rows }, null, 2)}\n`); return 0; }
+  if (flags.json) { process.stdout.write(`${JSON.stringify({ rules_version: index.version, type: flags.type || klass ? type : null, class: klass?.toUpperCase() ?? null, rules: rows }, null, 2)}\n`); return 0; }
   process.stdout.write(`FedRAMP rules ${index.version}${klass ? `, ${type === 'rev5' ? 'Rev5' : '20x'} Class ${klass.toUpperCase()}` : ''}: ${rows.length} rule(s)\n`);
   let last = null;
   for (const rule of rows) {

@@ -65,7 +65,7 @@ Reports three kinds of thing:
 node "${CLAUDE_PLUGIN_ROOT}/scripts/sdr.js" build sdr-working.json --out=security-decision-record.json
 ```
 
-Writes the record in the shape of `fedramp-security-decision-record-schema-2026-06-24.json`. It needs `certificationPackageOverviewUri` and `metadata` filled in, and it will not overwrite an existing file. Validate the result at <https://www.fedramp.gov/schemas/validator/> before sharing it; FedRAMP's schema is the authority, not this script.
+Writes the record in the shape of `fedramp-security-decision-record-schema-2026-06-24.json`. It needs `certificationPackageOverviewUri` and `metadata` filled in, it will not overwrite an existing file, and the file it writes is readable only by you. Validate the result at <https://www.fedramp.gov/schemas/validator/> before sharing it; FedRAMP's schema is the authority, not this script.
 
 ## Summary
 

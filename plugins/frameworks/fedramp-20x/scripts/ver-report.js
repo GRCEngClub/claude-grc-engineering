@@ -30,6 +30,7 @@ Commands:
 
 Options:
   --as-of=<ISO date>  Evaluate as of this moment instead of now
+  --force             Let build replace report files that already exist
   --json              Machine-readable output for check
   --help              Show this text
 `;
@@ -45,7 +46,7 @@ const isUri = value => { try { return Boolean(new URL(value).protocol); } catch 
 const isRating = value => Number.isInteger(value) && value >= 0 && value <= 5;
 
 const EXAMPLE = {
-  _about: 'Working file for /fedramp-20x:ver-report. One entry per vulnerability with activity in the period. Keys starting with _ are notes and are left out of the reports.',
+  _about: 'Working file for /fedramp-20x:ver-report. Keep every open and accepted vulnerability here, plus those closed during the period, and carry the file forward month to month. Keys starting with _ are notes and are left out of the reports.',
   certificationClass: 'C',
   certificationPackageOverviewUri: 'https://trust.example.com/fedramp/certification-package-overview.json',
   reportPeriod: { from: '2026-11-01T00:00:00Z', to: '2026-11-30T23:59:59Z' },
@@ -65,6 +66,7 @@ const EXAMPLE = {
       supplementaryRiskInformation: '',
       _finalDisposition: 'Add finalDisposition (Fully Mitigated, Partially Mitigated, Remediated, False Positive) when work ends. Omit while active.',
       _accepted: 'Set accepted to true and add acceptanceRationale when you decide to accept. The script also moves anything past 192 days from evaluation to the accepted list.',
+      _closedAt: 'Optional closedAt (date-time) records when work ended, so a closed item is reported in the period it closed and dropped afterwards.',
     },
   ],
 };
@@ -90,7 +92,9 @@ export function evaluate(vuln, { klass, index, asOf }) {
   const evaluated = Number.isFinite(evaluatedAt);
   if (vuln.evaluationCompletedAt && !evaluated) errors.push('evaluationCompletedAt is not a date-time.');
   const resolved = RESOLVED.includes(vuln.finalDisposition);
-  const out = { id, errors, resolved, evaluated, reasons: [], evaluationDue: null, mitigationDue: null, acceptDeadline: null, mustAccept: false, accepted: vuln.accepted === true, timeframe: null, cell: null };
+  if (vuln.closedAt !== undefined && !Number.isFinite(time(vuln.closedAt))) errors.push('closedAt is not a date-time.');
+  // A resolved vulnerability is closed even if it was accepted earlier.
+  const out = { id, errors, resolved, evaluated, reasons: [], evaluationDue: null, mitigationDue: null, acceptDeadline: null, mustAccept: false, accepted: vuln.accepted === true && !resolved, timeframe: null, cell: null };
 
   if (!evaluated && Number.isFinite(detectedAt)) {
     const limit = t.evaluation_from_detection.by_class[klass];
@@ -163,13 +167,20 @@ export function assemble(doc, index, asOf) {
     errors.push(...result.errors.map(e => `${label}: ${e}`));
     return { vuln, result, label };
   });
+  // Open and accepted items are always reported. A closed item is reported
+  // only when something dated falls inside the period, so the same file can
+  // be carried forward without closed items reappearing every month.
+  for (const row of rows) {
+    const dates = [row.vuln.detection?.detectedAt, row.vuln.evaluationCompletedAt, row.vuln.closedAt, ...(row.vuln.painReductionEvents || []).map(e => e?.reducedAt)].map(time).filter(Number.isFinite);
+    row.inPeriod = !row.result.resolved || dates.some(d => d >= from && d <= to);
+  }
   return { errors, klass, rows };
 }
 
 function markdown(doc, index, klass, rows, asOf) {
   const active = rows.filter(r => !r.result.accepted && !r.result.resolved);
   const accepted = rows.filter(r => r.result.accepted);
-  const closed = rows.filter(r => !r.result.accepted && r.result.resolved);
+  const closed = rows.filter(r => r.result.resolved && r.inPeriod);
   const overdue = rows.filter(r => r.result.overdue);
   const yesNo = v => (v === true ? 'yes' : v === false ? 'no' : 'not evaluated');
   const rating = v => (isRating(v.currentRating) ? `N${v.currentRating}` : 'not rated');
@@ -183,7 +194,7 @@ function markdown(doc, index, klass, rows, asOf) {
   lines.push(`- Certification Package Overview: ${doc.certificationPackageOverviewUri}`, '');
   lines.push('Exploitability, internet reachability and the Potential Agency Impact N-rating are the provider\'s evaluation. Due dates apply FedRAMP\'s published timeframes to those values. Descriptions are left out of this report; they are in the JSON reports.', '');
   lines.push('## Summary', '', '| | Count |', '|---|---|');
-  lines.push(`| Active vulnerabilities | ${active.length} |`, `| Accepted vulnerabilities | ${accepted.length} |`, `| Closed in this report | ${closed.length} |`, `| Overdue | ${overdue.length} |`, '');
+  lines.push(`| Active vulnerabilities | ${active.length} |`, `| Accepted vulnerabilities | ${accepted.length} |`, `| Closed in this period | ${closed.length} |`, `| Overdue | ${overdue.length} |`, '');
   lines.push('| N-rating | Active |', '|---|---|');
   for (const n of [5, 4, 3, 2, 1, 0]) lines.push(`| N${n} | ${active.filter(r => r.vuln.currentRating === n).length} |`);
   lines.push(`| Not yet rated | ${active.filter(r => !isRating(r.vuln.currentRating)).length} |`, '');
@@ -222,7 +233,7 @@ async function readWorkingFile(file) {
 }
 
 async function main(argv) {
-  const { flags, positional } = parseArgs(argv, ['help', 'json', 'out', 'out-dir', 'as-of']);
+  const { flags, positional } = parseArgs(argv, ['help', 'json', 'out', 'out-dir', 'as-of', 'force']);
   const command = positional[0];
   if (flags.help || !command) { process.stdout.write(USAGE); return command || flags.help ? 0 : 2; }
 
@@ -230,7 +241,7 @@ async function main(argv) {
     const text = `${JSON.stringify(EXAMPLE, null, 2)}\n`;
     if (!flags.out || flags.out === true) process.stdout.write(text);
     else {
-      await fs.writeFile(flags.out, text, { flag: 'wx' }).catch(err => { throw new Error(err.code === 'EEXIST' ? `${flags.out} already exists.` : err.message); });
+      await fs.writeFile(flags.out, text, { flag: 'wx', mode: 0o600 }).catch(err => { throw new Error(err.code === 'EEXIST' ? `${flags.out} already exists.` : err.message); });
       process.stderr.write(`Wrote ${flags.out}\n`);
     }
     return 0;
@@ -268,10 +279,10 @@ async function main(argv) {
   if (!flags['out-dir'] || flags['out-dir'] === true) throw new UsageError('build needs --out-dir=<directory>.');
   if (errors.length) throw new Error(`Cannot build the reports:\n${errors.map(e => `  - ${e}`).join('\n')}`);
   const outDir = String(flags['out-dir']);
-  await fs.mkdir(outDir, { recursive: true });
+  await fs.mkdir(outDir, { recursive: true, mode: 0o700 });
   const base = { certificationPackageOverviewUri: doc.certificationPackageOverviewUri };
   const period = { from: doc.reportPeriod.from, to: doc.reportPeriod.to };
-  const activeRows = rows.filter(r => !r.result.accepted);
+  const activeRows = rows.filter(r => !r.result.accepted && r.inPeriod);
   const acceptedRows = rows.filter(r => r.result.accepted);
   const acceptedInfo = acceptedRows.map(r => ({ vulnerabilityDetail: detail(r.vuln, r.result), acceptanceRationale: r.vuln.acceptanceRationale }));
   const files = {
@@ -279,8 +290,20 @@ async function main(argv) {
     'accepted-vulnerability-info.json': { ...base, reportPeriod: period, acceptedVulnerabilities: acceptedInfo },
     'historical-ver-activity.json': { ...base, generatedAt: iso(asOf), activeVulnerabilities: activeRows.filter(r => !r.result.resolved).map(r => detail(r.vuln, r.result)), acceptedVulnerabilities: acceptedInfo },
   };
-  for (const [name, content] of Object.entries(files)) await fs.writeFile(path.join(outDir, name), `${JSON.stringify(content, null, 2)}\n`);
-  await fs.writeFile(path.join(outDir, 'vulnerability-activity-report.md'), markdown(doc, index, klass, rows, asOf));
+  const outputs = Object.entries(files).map(([name, content]) => [name, `${JSON.stringify(content, null, 2)}\n`]);
+  outputs.push(['vulnerability-activity-report.md', markdown(doc, index, klass, rows, asOf)]);
+  // Last month's reports are a record. Refuse to replace them unless asked,
+  // and never write through a symlink left in the directory.
+  for (const [name] of outputs) {
+    const existing = await fs.lstat(path.join(outDir, name)).catch(() => null);
+    if (existing?.isSymbolicLink()) throw new Error(`${path.join(outDir, name)} is a symbolic link. Remove it or choose another directory.`);
+    if (existing && !flags.force) throw new Error(`${path.join(outDir, name)} already exists. Use a new directory for each period, or pass --force to replace it.`);
+  }
+  for (const [name, text] of outputs) {
+    const target = path.join(outDir, name);
+    await fs.rm(target, { force: true });
+    await fs.writeFile(target, text, { flag: 'wx', mode: 0o600 });
+  }
   process.stdout.write(`Wrote 4 files to ${outDir}\n`);
   process.stdout.write(`  ${activeRows.length} in the detail report, ${acceptedRows.length} accepted, ${rows.filter(r => r.result.overdue).length} overdue\n`);
   process.stdout.write(`JSON shapes follow ${SCHEMAS}fedramp-vulnerability-detail-report-schema-2026-06-24.json and its companions. Validate at ${SCHEMAS}validator/ before sharing.\n`);

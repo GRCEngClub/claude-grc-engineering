@@ -25,9 +25,11 @@ Under the VER ruleset a provider reports vulnerability activity at least monthly
 node "${CLAUDE_PLUGIN_ROOT}/scripts/ver-report.js" init --out=ver-working.json
 ```
 
-One entry per vulnerability with activity in the period. Field names are FedRAMP's: `providerTrackingId`, `detection.detectedAt`, `detection.detectionSource`, `vulnerabilityDescription`, `evaluationCompletedAt`, `isInternetReachable`, `isLikelyExploitable`, `currentRating`, `painReductionEvents`, `projectedNextReduction`, `finalDisposition`. Set `certificationClass` at the top; every timeframe depends on it.
+Keep **every open and accepted vulnerability** in the file, plus those closed during the period, and carry the file forward from month to month. The history snapshot is built from it, so an open item left out of the file disappears from the history. Field names are FedRAMP's: `providerTrackingId`, `detection.detectedAt`, `detection.detectionSource`, `vulnerabilityDescription`, `evaluationCompletedAt`, `isInternetReachable`, `isLikelyExploitable`, `currentRating`, `painReductionEvents`, `projectedNextReduction`, `finalDisposition`. Set `certificationClass` at the top; every timeframe depends on it.
 
-Two fields are this script's own and are left out of the reports: `accepted` (set `true` when the provider decides to accept) and `overdueExplanation` (the provider's reason, added to the computed one).
+Three fields are this script's own and are left out of the reports: `accepted` (set `true` when the provider decides to accept), `overdueExplanation` (the provider's reason, added to the computed one) and `closedAt` (when work ended).
+
+A closed item is reported in the period in which something dated happened to it (detection, evaluation, a rating reduction or `closedAt`) and is left out of later periods. A `finalDisposition` of Remediated, Fully Mitigated or False Positive closes an item even if it was accepted earlier.
 
 To load a scanner export, map its rows into this shape and leave the three evaluations empty for the provider to fill in. Do not copy a scanner's severity into `currentRating`.
 
@@ -52,11 +54,11 @@ Print the table of timeframes for a class with `node "${CLAUDE_PLUGIN_ROOT}/scri
 node "${CLAUDE_PLUGIN_ROOT}/scripts/ver-report.js" build ver-working.json --out-dir=ver-reports
 ```
 
-Writes four files:
+Writes four files, readable only by you. It refuses to replace reports that already exist, so use a new directory for each period (`--force` overrides):
 
 | File | Rule | Content |
 |---|---|---|
-| `vulnerability-detail-report.json` | `VER-RPT-VDT` | Vulnerabilities that are not accepted, with activity in the period |
+| `vulnerability-detail-report.json` | `VER-RPT-VDT` | Open vulnerabilities that are not accepted, and those closed in the period |
 | `accepted-vulnerability-info.json` | `VER-RPT-AVI` | Accepted vulnerabilities and the reason for each |
 | `historical-ver-activity.json` | `VER-TFR-MRH` | Snapshot of all active and accepted vulnerabilities for automated retrieval |
 | `vulnerability-activity-report.md` | `VER-TFR-MHR` | The monthly human-readable report: counts by N-rating, each item's dates and status, overdue items, rating changes |

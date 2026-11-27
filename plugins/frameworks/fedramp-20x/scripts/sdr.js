@@ -40,7 +40,10 @@ const STATUSES = ['Implemented', 'Not Implemented', 'Partially Implemented'];
 const EVIDENCE_TYPES = ['Log', 'Report', 'Screenshot', 'Configuration', 'Policy', 'Procedure', 'Audit Record'];
 const SCHEMA_URL = 'https://www.fedramp.gov/schemas/fedramp-security-decision-record-schema-2026-06-24.json';
 
-const strings = value => (Array.isArray(value) ? value.filter(v => typeof v === 'string' && v.trim()) : []);
+// Statement fields are arrays of strings. A single string is kept as a
+// one-item array so a statement typed without brackets is not lost.
+const strings = value => (typeof value === 'string' ? [value] : Array.isArray(value) ? value : []).filter(v => typeof v === 'string' && v.trim());
+const badStatements = value => value !== undefined && typeof value !== 'string' && (!Array.isArray(value) || value.some(v => typeof v !== 'string'));
 
 function isUri(value) {
   try { return Boolean(new URL(value).protocol); } catch { return false; }
@@ -58,7 +61,8 @@ async function readWorkingFile(file) {
 
 async function writeOut(file, text) {
   if (!file || file === true) { process.stdout.write(text); return; }
-  await fs.writeFile(file, text, { flag: 'wx' }).catch(err => {
+  // Records hold assessment statements; keep them readable by the owner only.
+  await fs.writeFile(file, text, { flag: 'wx', mode: 0o600 }).catch(err => {
     if (err.code === 'EEXIST') throw new Error(`${file} already exists. Choose another name or remove it first.`);
     throw err;
   });
@@ -130,6 +134,7 @@ export function checkWorkingFile(doc, index) {
     const rule = knownRules.get(id);
     if (!rule) { errors.push(`${id} is not a rule in FedRAMP rules ${index.version}.`); continue; }
     if (entry.frrImplementationStatus && !STATUSES.includes(entry.frrImplementationStatus)) errors.push(`${id}: frrImplementationStatus must be one of ${STATUSES.join(', ')}.`);
+    for (const field of ['frrImplementation', 'frrValidation', 'frrAssessment']) if (badStatements(entry[field])) errors.push(`${id}: ${field} must be a list of text statements.`);
     if (!strings(entry.frrImplementation).length) gaps.push(`${id}: no implementation statement.`);
     if (!strings(entry.frrValidation).length) gaps.push(`${id}: no provider validation statement.`);
     if (!strings(entry.frrAssessment).length) gaps.push(`${id}: no independent assessment statement.`);
@@ -149,6 +154,8 @@ export function checkWorkingFile(doc, index) {
     if (!ksi) { errors.push(`${id} is not a Key Security Indicator in FedRAMP rules ${index.version}.`); continue; }
     if (klass && !ksiApplicability(ksi, klass)) notes.push(`${id} is not among the KSIs for Class ${klass.toUpperCase()}; it is included voluntarily.`);
     if (entry.ksiImplementationStatus && !STATUSES.includes(entry.ksiImplementationStatus)) errors.push(`${id}: ksiImplementationStatus must be one of ${STATUSES.join(', ')}.`);
+    for (const field of ['ksiImplementation', 'ksiValidation', 'ksiAssessment', 'ksiTests']) if (badStatements(entry[field])) errors.push(`${id}: ${field} must be a list of text statements.`);
+    if (entry.ksiEvidence !== undefined && !Array.isArray(entry.ksiEvidence)) errors.push(`${id}: ksiEvidence must be a list of evidence entries.`);
     for (const [field, label] of [['ksiImplementation', 'implementation statement'], ['ksiValidation', 'provider validation statement'], ['ksiAssessment', 'independent assessment statement'], ['ksiTests', 'test']]) {
       if (!strings(entry[field]).length) gaps.push(`${id}: no ${label}.`);
     }
