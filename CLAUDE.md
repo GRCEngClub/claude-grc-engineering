@@ -29,14 +29,13 @@ plugins/<category>/<plugin>/
   scripts/, src/, config/         # script-backed plugins only
 tools/                            # repo maintenance: scaffold-framework, generate-coverage, assessment scripts
 schemas/                          # Finding, plugin, marketplace and grc-data schemas
-tests/<area>/                     # node:test suites grouped as engineer, connectors, frameworks, reporting, tools, repo
-tests/                            # contract fixtures, helpers and the shell validators
+tests/                            # schema and plugin validators, and the contract fixtures they check
 docs/                             # architecture, contributing, guides
 ```
 
 ## How plugins reach users, and the rules that follow
 
-Claude Code installs a plugin by copying its folder, alone, into `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`. Nothing outside the folder comes along: no repo-root `node_modules`, no sibling plugins, no `schemas/`. Code that works in a clone can still be broken for every installed user. CI enforces every rule below except the last; [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md#plugin-rules-that-ci-enforces) explains them.
+Claude Code installs a plugin by copying its folder, alone, into `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`. Nothing outside the folder comes along: no repo-root `node_modules`, no sibling plugins, no `schemas/`. Code that works in a clone can still be broken for every installed user. CI checks manifests with `claude plugin validate --strict` and the repo schemas. The other rules below are not checked automatically while the unit tests are being rewritten, so check them by hand; [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md#plugin-rules) explains them.
 
 - A plugin is self-contained. Scripts import only Node built-ins and files inside their own plugin. `engineer` vendors `js-yaml` in `vendor/`.
 - Skills and hooks call scripts as `node "${CLAUDE_PLUGIN_ROOT}/scripts/x.js"`, never `node plugins/.../scripts/x.js`. CI examples that check out this repo are the exception.
@@ -50,7 +49,7 @@ Claude Code installs a plugin by copying its folder, alone, into `~/.claude/plug
 
 - **New framework plugin**: `node tools/scaffold-framework.js <scf-framework-id>` creates the folder and registers it. Depth tiers (Stub, Reference, Full) are defined in [docs/FRAMEWORK-PLUGIN-GUIDE.md](docs/FRAMEWORK-PLUGIN-GUIDE.md). Afterwards run `npm run generate-coverage`.
 - **New connector**: follow [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md#how-to-add-a-connector). Add contract fixtures under `tests/fixtures/`.
-- **New `engineer` skill**: add `skills/<name>/SKILL.md`, `scripts/<name>.js` (logic in `src/` when shared), and a test in `tests/`.
+- **New `engineer` skill**: add `skills/<name>/SKILL.md` and `scripts/<name>.js` (logic in `src/` when shared).
 - **Any new plugin**: add it to `.claude-plugin/marketplace.json` and to the README plugin table.
 - **Try a plugin locally**: `claude --plugin-dir ./plugins/<path-to-plugin>`.
 
@@ -60,7 +59,6 @@ Run what CI runs before pushing:
 
 ```bash
 npm ci
-npm run test:unit              # every tests/<area>/*.test.{js,mjs,cjs}
 npm run test:contract          # fixtures against every schema
 npm run test:plugin-manifests  # repo schemas for plugin.json and marketplace.json
 npm run test:claude-validate   # claude plugin validate --strict, marketplace and every plugin
@@ -70,7 +68,7 @@ npm run test:claude-validate   # claude plugin validate --strict, marketplace an
 
 ## Versions
 
-Every `plugin.json` carries the same `version`, which matches `metadata.version` in `marketplace.json`; marketplace entries carry none. Installed users stay on their cached copy until that string changes, so a merged fix does not reach them until the version is bumped. Bump every plugin together with `npm run bump-version <x.y.z>`: plugins call each other's commands, and a stale cached copy of one can call a name that no longer exists in another. `tests/repo/skill-conventions.test.mjs` checks the versions agree.
+Every `plugin.json` carries the same `version`, which matches `metadata.version` in `marketplace.json`; marketplace entries carry none. Installed users stay on their cached copy until that string changes, so a merged fix does not reach them until the version is bumped. Bump every plugin together with `npm run bump-version <x.y.z>`: plugins call each other's commands, and a stale cached copy of one can call a name that no longer exists in another.
 
 ## Licensing
 

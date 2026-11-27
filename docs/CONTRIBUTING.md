@@ -170,9 +170,9 @@ Framework plugins are for implementation guidance, assessment workflows, and evi
 - **Paraphrase or summarize the framework's requirements**: acceptable if paraphrased in your own words
 - **Copy verbatim control text from the standard**: rejected
 
-## Plugin rules that CI enforces
+## Plugin rules
 
-Claude Code installs a plugin by copying its folder, alone, into a cache. These rules follow from that and from how Claude Code reads plugin files. `npm run test:unit` and `npm run test:claude-validate` check them.
+Claude Code installs a plugin by copying its folder, alone, into a cache. These rules follow from that and from how Claude Code reads plugin files. `npm run test:claude-validate` checks manifests and skill frontmatter; the rest are not checked automatically while the unit tests are being rewritten, so reviewers check them by hand.
 
 - **A plugin is self-contained.** Scripts import only Node built-ins and files inside their own plugin folder. No npm packages, no `../../` paths into another plugin or the repo root. Vendor a dependency into the plugin if you need one.
 - **Call scripts through the plugin root.** In skills and hooks, write `node "${CLAUDE_PLUGIN_ROOT}/scripts/collect.js"`, not `node plugins/connectors/<name>/scripts/collect.js`. The second form only exists inside a clone. CI examples that check out this repo are the exception; put them under a heading that says CI.
@@ -186,7 +186,7 @@ Claude Code installs a plugin by copying its folder, alone, into a cache. These 
 PRs should include:
 
 - A short description of the user problem the change solves
-- Contract tests (for connectors) or golden-file tests (for commands that produce reports)
+- Contract fixtures (for connectors) that pass `npm run test:contract`
 - A note in `CHANGELOG.md` if behavior changes
 
 Reviewers will look for:

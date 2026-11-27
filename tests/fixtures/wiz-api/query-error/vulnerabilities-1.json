@@ -1,7 +1,0 @@
-{
-  "errors": [
-    {
-      "message": "Field 'vulnerabilities' is not available for this tenant"
-    }
-  ]
-}

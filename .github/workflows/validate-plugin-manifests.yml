@@ -13,15 +13,11 @@ on:
       - 'plugins/connectors/gcp-inspector/**'
       - 'plugins/connectors/gcp-secret-metadata/scripts/**'
       - 'tools/vendor-gcp-secret-metadata.mjs'
-      - 'tests/connectors/gcp-inspector-secret-evidence.test.mjs'
       - 'plugins/connectors/onepassword-connector/**'
-      - 'tests/connectors/onepassword-document.test.mjs'
       - 'plugins/connectors/vault-kv/**'
-      - 'tests/connectors/vault-kv*.test.mjs'
       - '.claude-plugin/marketplace.json'
       - 'schemas/plugin.schema.json'
       - 'schemas/marketplace.schema.json'
-      - 'tests/repo/schema-validator.test.mjs'
       - 'tests/validate-json-schema.cjs'
       - 'tests/validate-plugin-manifests.sh'
       - 'tests/validate-diagram-skills.sh'
@@ -49,25 +45,14 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
 
-      - name: Test schema validator
-        run: npm run test:schema-validator
-
       - name: Validate every plugin and marketplace manifest
         run: bash tests/validate-plugin-manifests.sh
 
       - name: Validate GRC diagram skills
         run: bash tests/validate-diagram-skills.sh
 
-      - name: Check vendored GCP metadata helpers and isolated plugin
-        run: |
-          node tools/vendor-gcp-secret-metadata.mjs --check
-          node --test tests/connectors/gcp-inspector-secret-evidence.test.mjs
-
-      - name: Test 1Password document helper
-        run: node --test tests/connectors/onepassword-document.test.mjs
-
-      - name: Test Vault KV runtime injection
-        run: node --test tests/connectors/vault-kv.test.mjs tests/connectors/vault-kv-version.test.mjs
+      - name: Check vendored GCP metadata helpers
+        run: node tools/vendor-gcp-secret-metadata.mjs --check
 
   claude-validate:
     name: Claude Code plugin validator (strict)

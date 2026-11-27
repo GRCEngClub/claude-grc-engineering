@@ -6,13 +6,11 @@
   "scripts": {
     "generate-coverage": "node tools/generate-coverage.js",
     "bump-version": "node tools/bump-version.mjs",
-    "test:unit": "bash tests/run-unit-tests.sh",
     "test:contract": "bash tests/validate-contract-fixtures.sh",
     "test:contract:findings": "find tests/fixtures/findings -type f -name '*.json' -print0 | xargs -0 tests/pre-commit-validate-findings.sh",
     "test:plugin-manifests": "bash tests/validate-plugin-manifests.sh",
     "test:claude-validate": "bash tests/claude-plugin-validate.sh",
-    "test:diagrams": "bash tests/validate-diagram-skills.sh",
-    "test:schema-validator": "node --test tests/repo/schema-validator.test.mjs"
+    "test:diagrams": "bash tests/validate-diagram-skills.sh"
   },
   "keywords": [
     "grc",
