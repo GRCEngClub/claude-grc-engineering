@@ -46,5 +46,6 @@ arguments, shell history, tickets, findings, or agent conversations. Arguments a
 passed literally without a shell; pipes and redirects are not interpreted.
 The helper cannot control files or network calls made by the selected program.
 Use a secure collector that writes sanitized evidence itself. For Document items,
-see `/onepassword-connector:document`. Metadata discovery, finding generation,
+see `/onepassword-connector:document`; to pass a field on standard input instead of
+the environment, see `/onepassword-connector:field`. Metadata discovery, finding generation,
 and automatic integration with `collect-evidence` are not implemented.

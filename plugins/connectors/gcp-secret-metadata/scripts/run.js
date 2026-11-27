@@ -3,12 +3,16 @@ import { spawnSync } from 'node:child_process';
 import { TextDecoder } from 'node:util';
 
 const args = process.argv.slice(2);
-const [projectArg, secret, version, variable, separator, command, ...commandArgs] = args;
+const [projectArg, secret, version, variable] = args;
+const locationArg = args[4]?.startsWith('--location=') ? args[4] : undefined;
+const [separator, command, ...commandArgs] = args.slice(locationArg ? 5 : 4);
 const projectPattern = /^[a-z][a-z0-9-]{4,28}[a-z0-9](?![\s\S])/;
+// Restrict the argument to a single location identifier; GCP validates existence.
+const locationPattern = /^--location=[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?(?![\s\S])/;
 if (!(projectArg === '--configured-project' || projectPattern.test(projectArg || '')) || !/^[A-Za-z0-9_-]{1,255}$/.test(secret || '') ||
     !/^(?:latest|[1-9][0-9]*)$/.test(version || '') || variable !== 'GCP_SECRET_VALUE' ||
-    separator !== '--' || !command || command.startsWith('-')) {
-  console.error('Usage: node run.js <project-id|--configured-project> <secret-id> <latest|version> GCP_SECRET_VALUE -- <trusted-command> [args...]');
+    (locationArg && !locationPattern.test(locationArg)) || separator !== '--' || !command || command.startsWith('-')) {
+  console.error('Usage: node run.js <project-id|--configured-project> <secret-id> <latest|version> GCP_SECRET_VALUE [--location=LOCATION] -- <trusted-command> [args...]');
   process.exit(2);
 }
 let project = projectArg;
@@ -23,7 +27,7 @@ if (projectArg === '--configured-project') {
   }
   project = configured;
 }
-const result = spawnSync('gcloud', ['secrets', 'versions', 'access', version, `--secret=${secret}`, `--project=${project}`, '--format=get(payload.data)', '--quiet'], {
+const result = spawnSync('gcloud', ['secrets', 'versions', 'access', version, `--secret=${secret}`, `--project=${project}`, ...(locationArg ? [locationArg] : []), '--format=get(payload.data)', '--quiet'], {
   encoding: 'utf8', shell: false, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1024 * 1024, timeout: 15000, killSignal: 'SIGKILL',
 });
 if (result.error || result.signal || result.status !== 0) {
