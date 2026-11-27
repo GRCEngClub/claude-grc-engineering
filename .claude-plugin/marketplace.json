@@ -316,7 +316,7 @@
     },
     {
       "name": "compliance-posture-dashboard",
-      "source": "./plugins/reporting/compliance-posture",
+      "source": "./plugins/reporting/compliance-posture-dashboard",
       "description": "Localhost compliance posture dashboard for monitor-continuous JSON output. Reference implementation of the Dashboards category from RFC #38."
     },
     {
