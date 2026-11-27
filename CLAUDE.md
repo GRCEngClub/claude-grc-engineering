@@ -27,7 +27,7 @@ plugins/<category>/<plugin>/
   skills/<name>/SKILL.md          # invoked as /<plugin>:<name>, or by Claude when it fits
   hooks/hooks.json                # optional
   scripts/, src/, config/         # script-backed plugins only
-tools/                            # repo maintenance: scaffold-framework, generate-coverage, assessment scripts
+tools/                            # repo maintenance: scaffold-framework, generate-coverage, bump-version, build-fedramp-index
 schemas/                          # Finding, plugin, marketplace and grc-data schemas
 tests/                            # schema and plugin validators, and the contract fixtures they check
 docs/                             # architecture, contributing, guides
@@ -52,6 +52,7 @@ Claude Code installs a plugin by copying its folder, alone, into `~/.claude/plug
 - **New `engineer` skill**: add `skills/<name>/SKILL.md` and `scripts/<name>.js` (logic in `src/` when shared).
 - **Any new plugin**: add it to `.claude-plugin/marketplace.json` and to the README plugin table.
 - **Try a plugin locally**: `claude --plugin-dir ./plugins/<path-to-plugin>`.
+- **FedRAMP publishes a rules release** (about monthly): `node tools/build-fedramp-index.mjs` regenerates the index `fedramp-20x` bundles. Review the diff, then check the plugin's skills for anything the release changed.
 
 ## Checks
 

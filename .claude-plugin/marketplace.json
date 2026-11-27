@@ -97,7 +97,7 @@
     {
       "name": "fedramp-20x",
       "source": "./plugins/frameworks/fedramp-20x",
-      "description": "FedRAMP 20X automated authorization with KSIs, continuous monitoring, and auto-sync from official docs"
+      "description": "FedRAMP 20x under the Consolidated Rules for 2026: Key Security Indicators by certification class, the 17 rulesets, Security Decision Record and vulnerability report builders, synced with FedRAMP's machine-readable rules"
     },
     {
       "name": "pci-dss",
