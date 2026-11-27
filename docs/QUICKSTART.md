@@ -71,7 +71,7 @@ flowchart TD
     D -->|Audit evidence review| AUDIT[auditor]
     D -->|Internal GRC workflows| INTERNAL[internal]
     D -->|Third-party risk| TPRM[tprm]
-    D -->|Dashboard from monitoring JSON| DASH[compliance-posture-dashboard]
+    D -->|Dashboard from monitoring JSON| DASH[dashboard]
 ```
 
 A few rules of thumb:
