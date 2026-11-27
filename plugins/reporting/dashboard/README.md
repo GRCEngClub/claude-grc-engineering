@@ -8,10 +8,10 @@ outside Claude's context window.
 ## Install
 
 ```text
-/plugin install compliance-posture-dashboard --marketplace GRCEngClub/claude-grc-engineering
+/plugin install dashboard --marketplace GRCEngClub/claude-grc-engineering
 ```
 
-On Claude Code older than 2.1.275, add the marketplace first with `/plugin marketplace add GRCEngClub/claude-grc-engineering`, then run `/plugin install compliance-posture-dashboard@grc-engineering-suite`.
+On Claude Code older than 2.1.275, add the marketplace first with `/plugin marketplace add GRCEngClub/claude-grc-engineering`, then run `/plugin install dashboard@grc-engineering-suite`.
 
 The dashboard reads runs produced by `/engineer:monitor-continuous`, so install the `engineer` plugin from the same marketplace too. `--demo` works without it.
 
@@ -26,7 +26,7 @@ Generate one or more monitor runs:
 Serve the dashboard:
 
 ```text
-/compliance-posture-dashboard:compliance-posture --data=grc-data/dashboard/monitor-continuous --port=8787
+/dashboard:compliance-posture --data=grc-data/dashboard/monitor-continuous --port=8787
 ```
 
 Open `http://127.0.0.1:8787`.
@@ -34,13 +34,13 @@ Open `http://127.0.0.1:8787`.
 If you only want to see the UI shape before collecting real data:
 
 ```text
-/compliance-posture-dashboard:compliance-posture --demo --port=8788
+/dashboard:compliance-posture --demo --port=8788
 ```
 
 From a clone of this repository, the same server runs without Claude Code. Options take the `--key=value` form:
 
 ```bash
-node plugins/reporting/compliance-posture-dashboard/scripts/serve.js --demo --port=8788
+node plugins/reporting/dashboard/scripts/serve.js --demo --port=8788
 ```
 
 ## Data Contract

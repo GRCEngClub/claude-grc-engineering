@@ -14,7 +14,7 @@ This repo is a Claude Code plugin marketplace: mostly Markdown/YAML/JSON plugin 
 ## Gotchas
 
 - Network-dependent scripts: `frameworks.js` (and other scripts that fetch the SCF API at `grcengclub.github.io/scf-api`) fail in restricted-egress environments with `SCF fetch failed and no cached copy`. This is an environment limitation, not a code bug. For an offline check of core functionality use `node plugins/personas/engineer/scripts/map-control.js <iac-file> soc2` (also supports `iso27001`, `nist800-53`) — it maps IaC patterns (e.g. `aws_iam_role`, `aws_security_group`, `kms_key_id`, `encrypted = true`) to controls with no network access.
-- Optional local dashboard: `node plugins/reporting/compliance-posture-dashboard/scripts/serve.js --demo --host=127.0.0.1 --port=8787`. Args MUST use `--key=value` syntax (space-separated like `--host 127.0.0.1` is mis-parsed and the server fails to bind). `--demo` serves built-in sample runs so no `grc-data/` is needed.
+- Optional local dashboard: `node plugins/reporting/dashboard/scripts/serve.js --demo --host=127.0.0.1 --port=8787`. Args MUST use `--key=value` syntax (space-separated like `--host 127.0.0.1` is mis-parsed and the server fails to bind). `--demo` serves built-in sample runs so no `grc-data/` is needed.
 
 ## Cursor Cloud specific instructions
 

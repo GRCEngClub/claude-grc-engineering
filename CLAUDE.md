@@ -13,7 +13,7 @@ The open-source Claude Code plugin marketplace of the [GRC Engineering Club](htt
 | Personas | `plugins/personas/` | `engineer` (script-backed), `auditor`, `internal`, `tprm` (prompt-only) |
 | Frameworks | `plugins/frameworks/` | One per framework, mostly prompt-only. [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) is the generated list |
 | Connectors | `plugins/connectors/` | Script-backed. Emit Findings matching `schemas/finding.schema.json` |
-| Reporting | `plugins/reporting/` | `reporter`, `diagrams`, `compliance-posture-dashboard` |
+| Reporting | `plugins/reporting/` | `reporter`, `diagrams`, `dashboard` |
 | Workflows | `plugins/workflows/` | `loop`, `teach-me`, `oscal`, `gcp-docs`, `academic-research-companion` |
 
 Every plugin sits exactly one level below a category folder; `schemas/marketplace.schema.json` enforces it. `portfolio` is listed in the marketplace but lives in [GRCEngClub/grc-portfolio](https://github.com/GRCEngClub/grc-portfolio).

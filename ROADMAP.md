@@ -33,7 +33,7 @@ Priority candidates for new connector scaffolds:
 
 ## Plugin categories beyond frameworks
 
-Reporting (`reporter`) and dashboards (`compliance-posture-dashboard`)
+Reporting (`reporter`) and dashboards (`dashboard`)
 have shipped. Categories still open for proposals:
 
 - Document transformation

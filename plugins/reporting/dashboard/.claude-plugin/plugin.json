@@ -1,0 +1,10 @@
+{
+  "name": "dashboard",
+  "description": "Local compliance posture dashboard for saved /engineer:monitor-continuous runs: current posture, framework health, alerts and run-over-run changes.",
+  "version": "0.2.0",
+  "author": {
+    "name": "GRC Engineering Club Contributors"
+  },
+  "repository": "https://github.com/GRCEngClub/claude-grc-engineering",
+  "license": "MIT"
+}
