@@ -82,6 +82,9 @@ export function ruleApplicability(rule, index, { type, klass }) {
   const wanted = type === 'rev5' ? 'Rev5' : '20x';
   if (rule.types.length && !rule.types.includes(wanted)) return null;
   if (klass === 'a') {
+    // The Class A lists describe provider obligations. Rules for agencies,
+    // assessors and FedRAMP follow the ordinary class check.
+    if (!rule.affects.includes('Providers')) return rule.classes.includes('a') ? 'applies' : null;
     if (index.class_a.mandatory.includes(rule.id)) return 'mandatory';
     if (index.class_a.recommended.includes(rule.id)) return 'recommended';
     if (index.class_a.optional.includes(rule.id)) return 'optional';

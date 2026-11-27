@@ -180,7 +180,9 @@ export function checkWorkingFile(doc, index) {
       if (applies && applies !== 'optional' && applies !== 'recommended' && !seen.has(rule.id)) gaps.push(`${rule.id} (${rule.name}) applies to Class ${klass.toUpperCase()} and has no entry.`);
     }
     for (const ksi of allKsis(index)) {
-      if (ksiApplicability(ksi, klass) === 'required' && !seen.has(ksi.id)) gaps.push(`${ksi.id} (${ksi.name}) applies to Class ${klass.toUpperCase()} and has no entry.`);
+      const applies = ksiApplicability(ksi, klass);
+      if (applies === 'required' && !seen.has(ksi.id)) gaps.push(`${ksi.id} (${ksi.name}) applies to Class ${klass.toUpperCase()} and has no entry.`);
+      else if (applies === 'optional' && !seen.has(ksi.id)) gaps.push(`${ksi.id} (${ksi.name}) is optional for Class ${klass.toUpperCase()} and has no entry. Keep the entry and record whether it was addressed.`);
     }
   }
   return { errors, gaps, notes, klass };
