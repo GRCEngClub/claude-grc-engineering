@@ -20,6 +20,7 @@ Run `/rippling-inspector:setup` first. The token must be exported in the shell t
 - `--services=<csv>`: subset of `access,devices,apps,activity` (default: all)
 - `--offboarding-window-days=<n>`: report passing offboardings, and look up app accounts, for workers terminated within n days (default: 365). Active accounts of terminated workers are reported however old the termination is.
 - `--max-app-lookups=<n>`: most recent terminated workers to look up app accounts for (default: 200). Each is one API call.
+- `--max-pages=<n>`: pages of 100 records to read per list before stopping (default: 2000, which is 200,000 records). If a list is cut off, the checks that need the whole list report `inconclusive` instead of guessing.
 - `--stale-device-days=<n>`: flag active devices with no check-in for n days (default: 30)
 - `--retired-states=<csv>`: device lifecycle states that count as returned (default: `DECOMMISSIONED,FULL_WIPED,E_CYCLED,SOLD,LOCKED,MDM_LOCKED`)
 - `--top-level-workers=<n>`: active workers allowed to have no manager (default: 1)
@@ -55,7 +56,9 @@ A person rehired into the company has several worker records for one user. The o
   findings: ~/.cache/claude-grc/findings/rippling-inspector/20261127011211-40f55d7c.json
   ```
 
-Findings identify people and devices by Rippling's opaque IDs. Names, emails, phone numbers, addresses, pay and termination reasons are never written, even when the API returns them. Device serial numbers are kept in `raw_attributes` so a device can be found.
+Findings identify people and devices by Rippling's opaque IDs. Names, emails, phone numbers, addresses, pay and termination reasons are never written, even when the API returns them. Apps are named by their catalog handle (`slack`, `github`), not by the display name, which is free text a customer can put anything in. Device serial numbers are kept in `raw_attributes` so a device can be found.
+
+When the connector could not check something (a hidden field, a list that was cut off, terminated workers beyond `--max-app-lookups`), it writes an `inconclusive` finding saying so. A clean run with inconclusive findings is not a clean result.
 
 ## Exit codes
 

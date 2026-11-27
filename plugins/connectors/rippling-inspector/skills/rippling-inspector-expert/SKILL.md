@@ -26,6 +26,8 @@ The token lives in an environment variable in the user's shell. Do not ask for i
 - **Missing scope or product.** A 403 produces one inconclusive finding that names the scopes needed. "Insufficient entitlements" means the company has not bought that API; device and app data need Rippling's IT products.
 - **Redacted fields.** Rippling returns `null` for fields the token's owner cannot see and lists them in `__meta.redacted_fields`. The connector reports inconclusive instead of treating `null` as "no manager" or "inactive".
 - **Activity log.** Only full admins and Activity Log admins see company-wide events.
+- **Cut-off lists.** If a list stops at `--max-pages`, offboarding and reporting-line checks are not attempted, because a rehire's active record could be on a page that was not read.
+- **Missing end dates.** Terminated workers with no readable end date cannot be placed in the look-back window, so their app accounts are not checked and the run says how many.
 
 ## Limits to state plainly
 

@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "source": "rippling-inspector",
-  "source_version": "0.1.0",
+  "source_version": "0.2.0",
   "run_id": "fixture-rippling-0002",
   "collected_at": "2026-11-27T01:12:11Z",
   "resource": {

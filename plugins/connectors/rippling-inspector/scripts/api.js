@@ -2,12 +2,16 @@
 // Node built-ins only. Every request is a GET, and the token is sent to one
 // origin only: the API base URL.
 
+import { readFileSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
 export const SOURCE = 'rippling-inspector';
-export const SOURCE_VERSION = '0.1.0';
+// Findings record the plugin's own version, read from its manifest.
+export const SOURCE_VERSION = (() => {
+  try { return JSON.parse(readFileSync(new URL('../.claude-plugin/plugin.json', import.meta.url), 'utf8')).version || 'unknown'; } catch { return 'unknown'; }
+})();
 export const DEFAULT_BASE_URL = 'https://rest.ripplingapis.com';
 export const API_VERSION = '2024-08-01';
 export const DEFAULT_TOKEN_ENV = 'RIPPLING_API_TOKEN';
@@ -19,6 +23,7 @@ export const CACHE_DIR = path.join(CACHE_ROOT, 'findings', SOURCE);
 export const RUNS_LOG = path.join(CACHE_ROOT, 'runs.log');
 
 const MAX_RETRIES = 4;
+const MAX_RETRY_AFTER_MS = 120_000;
 const MAX_REDIRECTS = 2;
 const REQUEST_TIMEOUT_MS = 60_000;
 
@@ -57,11 +62,16 @@ export function errorDetail(body) {
   return text.replace(/\s+/g, ' ').trim().slice(0, 200);
 }
 
+// Returns how long to wait before retrying, or null when the server asks for
+// a longer wait than this run should sit through. Retrying sooner than
+// Retry-After only burns the retries.
 function retryDelayMs(res, attempt) {
   const header = res?.headers?.get('retry-after');
-  const seconds = header && /^\d+$/.test(header) ? Number(header) : null;
-  const backoff = 1000 * 2 ** attempt;
-  return Math.min(seconds !== null ? seconds * 1000 : backoff, 30_000);
+  if (header && /^\d+$/.test(header)) {
+    const requested = Number(header) * 1000;
+    return requested > MAX_RETRY_AFTER_MS ? null : requested;
+  }
+  return Math.min(1000 * 2 ** attempt, 30_000);
 }
 
 export function createClient({ token, baseUrl = DEFAULT_BASE_URL, fetchImpl = fetch, sleep = ms => new Promise(r => setTimeout(r, ms)) }) {
@@ -93,11 +103,17 @@ export function createClient({ token, baseUrl = DEFAULT_BASE_URL, fetchImpl = fe
         continue;
       }
       if (res.status === 429 || res.status >= 500) {
-        if (attempt < MAX_RETRIES) { await sleep(retryDelayMs(res, attempt++)); continue; }
-        if (res.status === 429) throw new ApiError('RATE_LIMIT', `Rippling rate limit on ${url.pathname} after ${MAX_RETRIES} retries.`, 429);
+        const delay = attempt < MAX_RETRIES ? retryDelayMs(res, attempt) : null;
+        if (delay !== null) { attempt += 1; await sleep(delay); continue; }
+        if (res.status === 429) throw new ApiError('RATE_LIMIT', `Rippling rate limit on ${url.pathname}; retries exhausted or the requested wait is over ${MAX_RETRY_AFTER_MS / 1000} seconds. Run again later.`, 429);
         throw new ApiError('HTTP', `Rippling returned HTTP ${res.status} on ${url.pathname} after ${MAX_RETRIES} retries.`, res.status);
       }
-      const text = await res.text();
+      let text;
+      try { text = await res.text(); } catch (err) {
+        // The connection can drop after the headers arrive.
+        if (attempt < MAX_RETRIES) { await sleep(1000 * 2 ** attempt++); continue; }
+        throw new ApiError('NETWORK', `Network error reading the response from ${url.pathname}: ${err.cause?.code || err.name}.`);
+      }
       let body = null;
       try { body = text ? JSON.parse(text) : null; } catch { body = null; }
       if (res.ok) {
@@ -126,7 +142,10 @@ export function createClient({ token, baseUrl = DEFAULT_BASE_URL, fetchImpl = fe
       if (pages >= maxPages) return { results, redacted, truncated: true };
       const body = await get(next);
       pages += 1;
-      if (Array.isArray(body.results)) results.push(...body.results);
+      // A page without a results array is not an empty list; treating it as one
+      // would turn a broken response into passing evidence.
+      if (!Array.isArray(body.results)) throw new ApiError('HTTP', `Unexpected response shape from ${new URL(next, `${origin}/`).pathname}: no results array.`);
+      results.push(...body.results);
       for (const field of body.__meta?.redacted_fields || []) {
         if (field && typeof field.name === 'string') redacted.add(field.name);
       }

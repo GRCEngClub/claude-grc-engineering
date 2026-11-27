@@ -31,6 +31,7 @@ rippling-inspector
 - `stale`: last run is more than 7 days old
 - `not-configured`: setup has not been run
 - `token-missing`: the token environment variable is not set in this shell
+- `company-mismatch`: the token is valid but belongs to a different company than the one setup recorded. Run setup again with the intended token.
 - `token-invalid`: Rippling returned 401. The token is wrong, revoked, unused for more than 30 days, or its owner was offboarded. Create a new one and run `/rippling-inspector:setup` again.
 - `network-error`, `api-error`: Rippling could not be reached or returned an unexpected response
 

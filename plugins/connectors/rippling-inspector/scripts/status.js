@@ -49,12 +49,21 @@ async function main(argv) {
     line('fix', `export ${tokenEnv}=<token> in your own terminal`);
     return 2;
   }
+  let company = null;
   try {
-    await fetchCompany(createClient({ token, baseUrl: resolveBaseUrl() }));
+    company = await fetchCompany(createClient({ token, baseUrl: resolveBaseUrl() }));
   } catch (err) {
     if (!(err instanceof ApiError)) throw err;
     if (err.code === 'AUTH') { line('status', 'token-invalid'); line('detail', err.message); return 2; }
     if (err.code !== 'FORBIDDEN') { line('status', err.code === 'NETWORK' ? 'network-error' : 'api-error'); line('detail', err.message); return 2; }
+  }
+  const configured = config.company_id && config.company_id !== 'unknown' ? config.company_id : null;
+  if (company?.id && configured && company.id !== configured) {
+    // A valid token for a different company would otherwise look ready.
+    line('status', 'company-mismatch');
+    line('detail', `the token belongs to company ${company.id}, but setup recorded ${configured}`);
+    line('fix', 'run /rippling-inspector:setup again with the intended token');
+    return 2;
   }
   line('company id', config.company_id || 'unknown');
   line('token source', `$${tokenEnv} (valid)`);

@@ -24,6 +24,8 @@ Tell the user to do these steps themselves:
    export RIPPLING_API_TOKEN=<token>
    ```
 
+5. Start Claude Code from that same terminal. A session that was already running does not see a variable exported afterwards, and setup will report the token as missing.
+
 ## How to run
 
 ```bash

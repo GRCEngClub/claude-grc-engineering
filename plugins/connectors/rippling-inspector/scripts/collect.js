@@ -30,6 +30,7 @@ Options:
   --offboarding-window-days=<n> Report passing offboardings and look up app accounts
                                 for workers terminated within n days (default: 365)
   --max-app-lookups=<n>         Most recent terminated workers to look up app accounts for (default: 200)
+  --max-pages=<n>               Pages of 100 to read per list before stopping (default: 2000)
   --stale-device-days=<n>       Flag active devices with no check-in for n days (default: 30)
   --retired-states=<csv>        Device lifecycle states that count as returned
                                 (default: ${DEFAULT_RETIRED_STATES.join(',')})
@@ -64,8 +65,14 @@ function latestEnd(records) {
  * person's worker records is terminated. Grouping by user_id matters because
  * a rehire has several worker records for one user.
  */
-export function evaluateOffboarding(workers, { now, windowDays, redacted = new Set() }) {
+export function evaluateOffboarding(workers, { now, windowDays, redacted = new Set(), truncated = false }) {
   const posture = { type: 'rippling_offboarding_posture', id: 'offboarding' };
+  if (truncated) {
+    // "Every worker record is terminated" cannot be decided from a partial
+    // list: a rehire's active record may be on a page that was not fetched.
+    return [{ resource: posture, evaluations: [scf('IAC-07.2', 'inconclusive', 'medium',
+      `The worker list was cut off at ${workers.length} records, so offboarding was not evaluated. Raise --max-pages and run again.`)] }];
+  }
   if (redacted.has('status') || redacted.has('user_id') || redacted.has('user')) {
     return [{ resource: posture, evaluations: [scf('IAC-07.2', 'inconclusive', 'medium',
       'The token owner cannot read worker status or the linked user account, so offboarding could not be checked.')] }];
@@ -116,8 +123,12 @@ export function evaluateOffboarding(workers, { now, windowDays, redacted = new S
  * Reporting lines: manager-based access reviews need a manager on every
  * active worker. A few people at the top of the organisation have none.
  */
-export function evaluateManagers(workers, { topLevelWorkers, redacted = new Set() }) {
+export function evaluateManagers(workers, { topLevelWorkers, redacted = new Set(), truncated = false }) {
   const resource = { type: 'rippling_reporting_structure', id: 'managers' };
+  if (truncated) {
+    return [{ resource, evaluations: [scf('IAC-17', 'inconclusive', 'low',
+      `The worker list was cut off at ${workers.length} records, so reporting lines were not evaluated. Raise --max-pages and run again.`)] }];
+  }
   if (redacted.has('manager_id') || redacted.has('manager') || redacted.has('status')) {
     return [{ resource, evaluations: [scf('IAC-17', 'inconclusive', 'low',
       'The token owner cannot read worker managers, so reporting lines could not be checked.')] }];
@@ -138,7 +149,7 @@ export function evaluateManagers(workers, { topLevelWorkers, redacted = new Set(
 }
 
 /** Devices: disk encryption, MDM management, recent check-in, and return on termination. */
-export function evaluateDevices(devices, { now, staleDays, retiredStates = DEFAULT_RETIRED_STATES }) {
+export function evaluateDevices(devices, { now, staleDays, retiredStates = DEFAULT_RETIRED_STATES, redacted = new Set() }) {
   const retired = new Set(retiredStates);
   const docs = [];
   for (const device of devices) {
@@ -169,11 +180,21 @@ export function evaluateDevices(devices, { now, staleDays, retiredStates = DEFAU
           manual('Locate the device, or update its lifecycle state if it is lost or retired.', 0.5)));
       } else evaluations.push(scf('AST-02', 'pass', 'info'));
     }
+    const state = typeof device.lifecycle_state === 'string' && device.lifecycle_state ? device.lifecycle_state : null;
+    if (!state) {
+      // Without the lifecycle state it is unknown whether the device is in use.
+      evaluations.push(scf('END-01', 'inconclusive', 'low', 'Rippling returned no lifecycle state for this device, so it was not evaluated.'));
+    }
     const holder = device.worker && typeof device.worker === 'object' ? device.worker : null;
-    if (device.worker_id && holder?.status === 'TERMINATED') {
+    if (device.worker_id && (!holder || typeof holder.status !== 'string' || redacted.has('worker'))) {
+      evaluations.push(scf('AST-10', 'inconclusive', 'low',
+        'The device is assigned to a worker whose status this token cannot read, so return on termination was not checked. The token needs workers.read.'));
+    } else if (device.worker_id && holder.status === 'TERMINATED') {
       const end = parseTime(holder.end_date);
       const when = Number.isFinite(end) ? `${daysBetween(now, end)} day(s) ago` : 'on an unknown date';
-      if (retired.has(device.lifecycle_state)) evaluations.push(scf('AST-10', 'pass', 'info'));
+      if (!state) {
+        evaluations.push(scf('AST-10', 'inconclusive', 'low', `The device is assigned to a worker terminated ${when}, but its lifecycle state is not readable.`));
+      } else if (retired.has(state)) evaluations.push(scf('AST-10', 'pass', 'info'));
       else {
         evaluations.push(scf('AST-10', 'fail', 'medium',
           `Device is still assigned to a worker terminated ${when} and its lifecycle state is ${device.lifecycle_state || 'unknown'}.`,
@@ -207,10 +228,13 @@ export function evaluateAppUsers(appUsers, { daysSinceEnd }) {
   const docs = [];
   for (const account of appUsers) {
     if (typeof account.id !== 'string') continue;
-    const app = account.app_display_name || account.app_handle || 'an app';
+    // app_display_name is free text set by the customer and can hold an email
+    // address, so only the catalog handle is written to findings.
+    const handle = typeof account.app_handle === 'string' ? account.app_handle.toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 60) : '';
+    const app = handle || 'a connected app';
     const state = account.push_state || 'unknown';
     const when = daysSinceEnd === null ? 'on an unknown date' : `${daysSinceEnd} day(s) ago`;
-    const fix = manual(`Remove or suspend the ${app} account, then confirm in ${app} itself.`, 0.25);
+    const fix = manual(`Remove or suspend the ${app} account, then confirm in the app itself.`, 0.25);
     let evaluation;
     if (REMOVED.has(state)) evaluation = scf('IAC-07.2', 'pass', 'info');
     else if (REMOVAL_FAILED.has(state)) {
@@ -223,7 +247,7 @@ export function evaluateAppUsers(appUsers, { daysSinceEnd }) {
       evaluation = scf('IAC-07.2', 'inconclusive', 'low', `The ${app} account of a terminated worker is in state ${state}, which does not show whether access remains.`);
     }
     const tags = {};
-    if (account.app_handle) tags.app_handle = String(account.app_handle);
+    if (handle) tags.app_handle = handle;
     docs.push({
       resource: { type: 'rippling_app_user', id: account.id, tags },
       evaluations: [evaluation],
@@ -298,24 +322,28 @@ export async function collect({ client, options, now, log = () => {} }) {
 
   async function loadWorkers() {
     if (workers) return workers;
-    const page = await client.list(query('/workers/', { limit: 100, expand: 'user' }));
-    if (page.truncated) notes.push('workers: page limit reached, results are partial');
+    const page = await client.list(query('/workers/', { limit: 100, expand: 'user' }), { maxPages: options.maxPages });
+    if (page.truncated) notes.push(`workers: stopped at ${options.maxPages} pages; worker-based checks are inconclusive`);
     workers = page;
     log(`workers: ${page.results.length}`);
     return page;
   }
 
   await run('access', async () => {
-    const { results, redacted } = await loadWorkers();
-    docs.push(...evaluateOffboarding(results, { now, windowDays: options.offboardingWindowDays, redacted }));
-    docs.push(...evaluateManagers(results, { topLevelWorkers: options.topLevelWorkers, redacted }));
+    const { results, redacted, truncated } = await loadWorkers();
+    docs.push(...evaluateOffboarding(results, { now, windowDays: options.offboardingWindowDays, redacted, truncated }));
+    docs.push(...evaluateManagers(results, { topLevelWorkers: options.topLevelWorkers, redacted, truncated }));
   });
 
   await run('devices', async () => {
-    const page = await client.list(query('/devices/', { limit: 100, expand: 'worker' }));
-    if (page.truncated) notes.push('devices: page limit reached, results are partial');
+    const page = await client.list(query('/devices/', { limit: 100, expand: 'worker' }), { maxPages: options.maxPages });
     log(`devices: ${page.results.length}`);
-    const found = evaluateDevices(page.results, { now, staleDays: options.staleDeviceDays, retiredStates: options.retiredStates });
+    const found = evaluateDevices(page.results, { now, staleDays: options.staleDeviceDays, retiredStates: options.retiredStates, redacted: page.redacted });
+    if (page.truncated) {
+      notes.push(`devices: stopped at ${options.maxPages} pages; the fleet is only partly covered`);
+      docs.push({ resource: { type: 'rippling_device_fleet', id: 'devices' }, evaluations: [scf('END-01', 'inconclusive', 'low',
+        `The device list was cut off at ${page.results.length} records. Devices beyond that were not evaluated. Raise --max-pages and run again.`)] });
+    }
     if (found.length) docs.push(...found);
     else {
       docs.push({ resource: { type: 'rippling_device_fleet', id: 'devices' }, evaluations: [scf('END-01', 'inconclusive', 'low',
@@ -324,8 +352,28 @@ export async function collect({ client, options, now, log = () => {} }) {
   });
 
   await run('apps', async () => {
-    const { results } = await loadWorkers();
+    const { results, redacted, truncated } = await loadWorkers();
+    const posture = { type: 'rippling_app_access', id: 'app-users' };
+    if (redacted.has('status') || redacted.has('end_date')) {
+      // Without status and end date, recently terminated workers cannot be
+      // picked out, and an empty selection would read as a clean result.
+      docs.push({ resource: posture, evaluations: [scf('IAC-07.2', 'inconclusive', 'medium',
+        'The token owner cannot read worker status or end date, so terminated workers could not be selected and no app accounts were checked.')] });
+      return;
+    }
+    const terminated = results.filter(w => w.status === 'TERMINATED');
+    const undated = terminated.filter(w => !Number.isFinite(parseTime(w.end_date))).length;
     const recent = recentTerminations(results, { now, windowDays: options.offboardingWindowDays, limit: options.maxAppLookups });
+    const inWindow = recentTerminations(results, { now, windowDays: options.offboardingWindowDays, limit: Infinity }).length;
+    const gaps = [];
+    if (truncated) gaps.push(`the worker list was cut off at ${results.length} records`);
+    if (undated) gaps.push(`${undated} terminated worker(s) have no readable end date`);
+    if (inWindow > recent.length) gaps.push(`${inWindow - recent.length} of ${inWindow} recently terminated workers are beyond --max-app-lookups`);
+    if (gaps.length) {
+      notes.push(`apps: partial coverage (${gaps.join('; ')})`);
+      docs.push({ resource: { type: 'rippling_app_access', id: 'app-users-coverage' }, evaluations: [scf('IAC-07.2', 'inconclusive', 'low',
+        `App accounts were checked for ${recent.length} terminated worker(s) only: ${gaps.join('; ')}.`)] });
+    }
     log(`apps: looking up app accounts for ${recent.length} terminated worker(s)`);
     let accounts = 0;
     for (const worker of recent) {
@@ -333,8 +381,8 @@ export async function collect({ client, options, now, log = () => {} }) {
       accounts += page.results.length;
       docs.push(...evaluateAppUsers(page.results, { daysSinceEnd: daysBetween(now, worker.end) }));
     }
-    if (accounts === 0) {
-      docs.push({ resource: { type: 'rippling_app_access', id: 'app-users' }, evaluations: [scf('IAC-07.2', 'pass', 'info',
+    if (accounts === 0 && !gaps.length) {
+      docs.push({ resource: posture, evaluations: [scf('IAC-07.2', 'pass', 'info',
         `No app accounts are recorded for the ${recent.length} worker(s) terminated in the last ${options.offboardingWindowDays} days.`)] });
     }
   });
@@ -362,7 +410,7 @@ export function parseArgs(argv) {
   const options = {
     services: [...SERVICES], output: 'summary', quiet: false, help: false,
     offboardingWindowDays: 365, maxAppLookups: 200, staleDeviceDays: 30,
-    retiredStates: [...DEFAULT_RETIRED_STATES], topLevelWorkers: 1, activityDays: 30,
+    retiredStates: [...DEFAULT_RETIRED_STATES], topLevelWorkers: 1, activityDays: 30, maxPages: 2000,
   };
   for (const token of argv) {
     if (token === '--help' || token === '-h') { options.help = true; continue; }
@@ -384,6 +432,7 @@ export function parseArgs(argv) {
         break;
       case 'offboarding-window-days': options.offboardingWindowDays = positiveInt(key, value); break;
       case 'max-app-lookups': options.maxAppLookups = positiveInt(key, value, 5000); break;
+      case 'max-pages': options.maxPages = Math.max(1, positiveInt(key, value, 100_000)); break;
       case 'stale-device-days': options.staleDeviceDays = positiveInt(key, value); break;
       case 'top-level-workers': options.topLevelWorkers = positiveInt(key, value); break;
       case 'activity-days': options.activityDays = positiveInt(key, value, 90); break;
