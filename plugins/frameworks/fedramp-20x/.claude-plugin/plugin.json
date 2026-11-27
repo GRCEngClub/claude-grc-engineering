@@ -1,6 +1,6 @@
 {
   "name": "fedramp-20x",
-  "description": "FedRAMP 20X Plugin - Modern automated authorization with Key Security Indicators (KSIs), continuous monitoring, and machine-readable policies synced from official FedRAMP docs",
+  "description": "FedRAMP 20x under the Consolidated Rules for 2026: Key Security Indicators by certification class, the 17 rulesets, Security Decision Record and vulnerability report builders, and a sync with FedRAMP's machine-readable rules",
   "version": "0.2.0",
   "author": {
     "name": "GRC Engineering Club Contributors"
@@ -12,7 +12,7 @@
       "display_name": "FedRAMP 20x",
       "region": "Americas",
       "country": "US",
-      "depth": "reference"
+      "depth": "full"
     }
   }
 }

@@ -1,0 +1,144 @@
+#!/usr/bin/env node
+// Builds plugins/frameworks/fedramp-20x/data/cr26-index.json from FedRAMP's
+// machine-readable Consolidated Rules. Run it when FedRAMP publishes a release
+// (monthly, usually the first week), then review the diff.
+//
+//   node tools/build-fedramp-index.mjs [path-or-url] [--check]
+//
+// The index is what the plugin ships so it works offline: KSI IDs, names,
+// statements and control mappings, every rule's ID, name, force and
+// applicability, and the timeframe tables. Rule statements are not bundled;
+// /fedramp-20x:sync-rules downloads the full dataset for those.
+
+import { readFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+
+export const RULES_URL = 'https://raw.githubusercontent.com/FedRAMP/rules/2026/fedramp-consolidated-rules.json';
+const OUT = fileURLToPath(new URL('../plugins/frameworks/fedramp-20x/data/cr26-index.json', import.meta.url));
+const ID = /\b(?:KSI|[A-Z]{3})-[A-Z0-9]{3}-[A-Z0-9]{3}\b/g;
+const CLASSES = ['a', 'b', 'c', 'd'];
+
+const timeframe = node => (node && node.timeframe_num !== undefined ? { num: node.timeframe_num, type: node.timeframe_type } : null);
+
+function ruleEntry(id, rule, bucket, subset, applicability) {
+  const entry = { id, name: rule.name, subset, bucket, affects: rule.affects || applicability.affects || [] };
+  if (rule.varies_by_class) {
+    entry.force = Object.fromEntries(CLASSES.filter(c => rule.varies_by_class[c]).map(c => [c, rule.varies_by_class[c].force]));
+  } else entry.force = rule.force;
+  entry.types = bucket === '20x' ? ['20x'] : bucket === 'rev5' ? ['Rev5'] : applicability.types || [];
+  entry.classes = (applicability.classes || []).map(c => c.toLowerCase());
+  if (rule.schema?.url) entry.schema = rule.schema.url;
+  return entry;
+}
+
+export function buildIndex(dataset) {
+  const { info, FRR, KSI } = dataset;
+  const find = id => {
+    for (const set of Object.values(FRR)) for (const subsets of Object.values(set.data)) for (const rules of Object.values(subsets)) if (rules[id]) return rules[id];
+    throw new Error(`Rule ${id} is missing from the dataset; the index builder needs updating.`);
+  };
+  const classA = (id) => {
+    const rule = find(id);
+    return [...new Set([...(rule.following_information || []), ...(rule.related || [])].flatMap(text => String(text).match(ID) || []))];
+  };
+  const mandatoryA = classA('FRC-CLA-MFR');
+  const classAKsis = mandatoryA.filter(id => id.startsWith('KSI-'));
+
+  const themes = Object.entries(KSI).map(([key, theme]) => ({
+    id: key,
+    name: theme.name,
+    status: theme.status,
+    indicators: Object.entries(theme.indicators).map(([id, ksi]) => {
+      const b = ksi.varies_by_class?.b?.statement;
+      const c = ksi.varies_by_class?.c?.statement;
+      const optionalB = typeof b === 'string' && /^\*\*Optional:\*\*/.test(b);
+      return {
+        id,
+        name: ksi.name,
+        statement: ksi.statement || c || b,
+        class_a: classAKsis.includes(id),
+        class_b: optionalB ? 'optional' : 'required',
+        class_c: 'required',
+        controls: ksi.controls || [],
+      };
+    }),
+  }));
+
+  const rulesets = Object.entries(FRR).map(([key, set]) => {
+    const subsetInfo = { ...(set.info.subsets || {}), ...(set.info['20x']?.subsets || {}), ...(set.info.rev5?.subsets || {}) };
+    const rules = [];
+    for (const [bucket, subsets] of Object.entries(set.data)) {
+      for (const [subset, group] of Object.entries(subsets)) {
+        for (const [id, rule] of Object.entries(group)) rules.push(ruleEntry(id, rule, bucket, subset, subsetInfo[subset]?.applicability || {}));
+      }
+    }
+    const effective = type => {
+      const e = (set.info[type] || set.info).effective;
+      return e ? { is: e.is, obtain: e.date?.obtain ?? null, maintain: e.date?.maintain ?? null, grace: e.date?.grace?.default ?? null, grace_until_next_assessment: e.date?.grace?.until_next_assessment === true } : null;
+    };
+    return { key, name: set.info.name, status: set.info.status, tag: set.info.tag, effective: { '20x': effective('20x'), rev5: effective('rev5') }, rules };
+  });
+
+  const pvr = find('VDR-TFR-PVR').varies_by_class;
+  const mitigation = Object.fromEntries(CLASSES.map(c => [c, Object.fromEntries(Object.entries(pvr[c].pain_timeframes).map(([rating, cells]) =>
+    [rating, Object.fromEntries(Object.entries(cells).map(([cell, value]) => [cell, timeframe(value)]))]))]));
+  const perClass = id => Object.fromEntries(CLASSES.filter(c => find(id).varies_by_class?.[c]).map(c => [c, { force: find(id).varies_by_class[c].force, ...timeframe(find(id).varies_by_class[c]) }]));
+  const automated = Object.fromEntries(CLASSES.map(c => {
+    const node = find('FRC-CSX-VVK').varies_by_class[c];
+    const match = /at least (\d+) automated method/.exec(node.statement);
+    return [c, { force: node.force, methods_per_ksi: match ? Number(match[1]) : 0 }];
+  }));
+
+  return {
+    note: 'Generated by tools/build-fedramp-index.mjs from FedRAMP\'s Consolidated Rules. Do not edit by hand.',
+    source: 'https://github.com/FedRAMP/rules',
+    version: info.version,
+    last_updated: info.last_updated,
+    counts: {
+      themes: themes.length,
+      indicators: themes.reduce((n, t) => n + t.indicators.length, 0),
+      rulesets: rulesets.length,
+      rules: rulesets.reduce((n, s) => n + s.rules.length, 0),
+    },
+    class_a: { mandatory: mandatoryA, recommended: classA('FRC-CLA-RFR'), optional: classA('FRC-CLA-OFR') },
+    themes,
+    rulesets,
+    timeframes: {
+      mitigation_from_evaluation: { rule: 'VDR-TFR-PVR', force: 'SHOULD', by_class: mitigation },
+      evaluation_from_detection: { rule: 'VER-TFR-EVU', by_class: perClass('VER-TFR-EVU') },
+      accepted_after: { rule: 'VER-TFR-MAV', ...timeframe(find('VER-TFR-MAV')) },
+      machine_readable_history: { rule: 'VER-TFR-MRH', by_class: perClass('VER-TFR-MRH') },
+      human_readable_report: { rule: 'VER-TFR-MHR', ...timeframe(find('VER-TFR-MHR')) },
+      automated_ksi_validation: { rule: 'FRC-CSX-VVK', by_class: automated },
+    },
+  };
+}
+
+async function load(source) {
+  if (/^https:\/\//.test(source)) {
+    const res = await fetch(source, { signal: AbortSignal.timeout(60_000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${source}`);
+    return res.json();
+  }
+  return JSON.parse(await readFile(source, 'utf8'));
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const args = process.argv.slice(2);
+  if (args.includes('--help') || args.includes('-h')) {
+    process.stdout.write(`Usage: node tools/build-fedramp-index.mjs [path-or-url] [--check]\n\nDefault source: ${RULES_URL}\n--check exits 1 when the committed index differs from the source.\n`);
+  } else {
+    const check = args.includes('--check');
+    const source = args.find(a => !a.startsWith('--')) || RULES_URL;
+    const text = `${JSON.stringify(buildIndex(await load(source)), null, 1)}\n`;
+    if (check) {
+      const current = await readFile(OUT, 'utf8').catch(() => '');
+      if (current !== text) { process.stderr.write(`${OUT} is out of date. Run node tools/build-fedramp-index.mjs\n`); process.exitCode = 1; }
+      else process.stdout.write('FedRAMP index is current.\n');
+    } else {
+      await writeFile(OUT, text);
+      const index = JSON.parse(text);
+      process.stdout.write(`Wrote ${OUT}\nversion ${index.version}: ${index.counts.indicators} KSIs in ${index.counts.themes} themes, ${index.counts.rules} rules in ${index.counts.rulesets} rulesets\n`);
+    }
+  }
+}
