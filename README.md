@@ -82,7 +82,7 @@ Install only the plugins you need. The full list is in [.claude-plugin/marketpla
 | Engineering hub | `engineer`: gap assessment, IaC scanning, evidence collection, remediation and policy generation, PR review, continuous monitoring, multi-framework optimization |
 | Personas and workflows | `auditor`, `internal`, `tprm`, `reporter`, `loop`, `teach-me`, `academic-research-companion` |
 | Frameworks | `soc2`, `nist-800-53`, `iso27001`, `fedramp-20x`, `pci-dss`, `cmmc`, `hitrust`, `cis-controls`, `gdpr`, `dora`, `us-hipaa-security`, and more; see [docs/FRAMEWORK-COVERAGE.md](docs/FRAMEWORK-COVERAGE.md) |
-| Connectors | `aws-inspector`, `github-inspector`, `gcp-inspector`, `azure-inspector`, `okta-inspector`, `slack-inspector`, `datadog-inspector`, `crowdstrike-inspector`, `drata-inspector`, `splunk-inspector`, `tenable-inspector`, `snowflake-inspector`, `wiz-inspector`, `testssl-inspector`, `vdr-automation` |
+| Connectors | `aws-inspector`, `github-inspector`, `gcp-inspector`, `azure-inspector`, `okta-inspector`, `rippling-inspector`, `slack-inspector`, `datadog-inspector`, `crowdstrike-inspector`, `drata-inspector`, `splunk-inspector`, `tenable-inspector`, `snowflake-inspector`, `wiz-inspector`, `testssl-inspector`, `vdr-automation` |
 | Secrets connectors | `aws-secrets-inspector`, `gcp-secret-metadata`, `onepassword-connector`, `vault-kv` |
 | OSCAL tooling | `oscal` |
 | Diagrams | `diagrams`: editable draw.io system boundaries, evidence flows, control maps, crosswalks, and more |

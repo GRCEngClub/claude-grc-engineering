@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "source": "rippling-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-rippling-0002",
+  "collected_at": "2026-11-27T01:12:11Z",
+  "resource": {
+    "type": "rippling_device",
+    "id": "66a1c0de5f1b2a0012345678",
+    "account_id": "example-company",
+    "tags": {
+      "platform": "WINDOWS",
+      "lifecycle_state": "ACTIVE"
+    }
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "CRY-05",
+      "status": "fail",
+      "severity": "high",
+      "message": "Disk encryption is off on this WINDOWS device.",
+      "remediation": {
+        "summary": "Turn on FileVault or BitLocker through a Rippling device policy.",
+        "effort_hours": 0.5,
+        "automation": "manual"
+      }
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "END-01",
+      "status": "pass",
+      "severity": "info"
+    },
+    {
+      "control_framework": "SCF",
+      "control_id": "AST-02",
+      "status": "pass",
+      "severity": "info"
+    }
+  ],
+  "raw_attributes": {
+    "serial_number": "EXAMPLE-SERIAL",
+    "os_version": "11.0",
+    "enrollment_status": "ENROLLED",
+    "mdm_provider": "RIPPLING",
+    "worker_id": "65699281fb7bc7c3510f44b7"
+  }
+}

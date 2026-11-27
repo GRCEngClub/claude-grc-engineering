@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "source": "rippling-inspector",
+  "source_version": "0.1.0",
+  "run_id": "fixture-rippling-0003",
+  "collected_at": "2026-11-27T01:12:11Z",
+  "resource": {
+    "type": "rippling_device_fleet",
+    "id": "devices",
+    "account_id": "example-company"
+  },
+  "evaluations": [
+    {
+      "control_framework": "SCF",
+      "control_id": "END-01",
+      "status": "inconclusive",
+      "severity": "low",
+      "message": "Could not read this data: HTTP 403 on /devices/. Insufficient oauth scopes to access devices The token needs devices.read and workers.read."
+    }
+  ]
+}
