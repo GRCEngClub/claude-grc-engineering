@@ -7,7 +7,7 @@ This guide covers deploying Claude Code with GRC Engineering plugins through AWS
 | Benefit | What's actually documented |
 |---------|---------|
 | **Cloud-account routing** | For Bedrock and Vertex AI, inference requests go through your AWS or GCP account rather than Anthropic's API. Data residency and in-region processing guarantees are defined by the cloud provider's docs ([Bedrock data protection](https://docs.aws.amazon.com/bedrock/latest/userguide/data-protection.html), [Vertex AI locations](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/locations)), not by this toolkit. Some Vertex endpoints don't guarantee in-region ML processing for every operation; check the provider docs for your region and model. |
-| **Compliance authorizations** | FedRAMP, HIPAA, SOC 2, and other authorizations are held by the cloud provider for their Anthropic-model offering. See the AWS Bedrock and GCP FedRAMP pages for current status (authorization scope changes). |
+| **Compliance certifications** | FedRAMP Certification (formerly called FedRAMP authorization), HIPAA eligibility, SOC 2 reports, and similar attestations are held by the cloud provider for their Anthropic-model offering. See the AWS Bedrock and GCP FedRAMP pages for current status (scope changes). |
 | **Model training use** | Per Anthropic's [commercial terms](https://www.anthropic.com/legal/commercial-terms), prompts and completions to commercial endpoints are not used to train models. Confirm the same for your cloud provider's terms. |
 | **Enterprise support** | Cloud provider SLAs and support apply. |
 | **Audit trails** | Invocations log to CloudTrail or Cloud Audit Logs per the provider's standard logging. |
@@ -235,6 +235,8 @@ Claude is available in these Vertex AI regions:
 Compliance authorizations for Anthropic models hosted on third-party cloud providers move as the providers add and extend them. Always check the provider's current authorization page before committing to a posture in a customer-facing compliance document.
 
 ### FedRAMP
+
+FedRAMP now grants a FedRAMP Certification and uses Certification Class A to D in place of Low, Moderate and High. Class D loosely aligns with High and is not identical to it. The statements below keep the "FedRAMP High authorization" wording the providers published, so check the FedRAMP Marketplace for each offering's current certification type and class. A FedRAMP Certification does not authorize your use: an agency still issues its own authorization to operate (ATO) for a system that uses the service.
 
 - **AWS Bedrock**: Anthropic Claude models are offered in AWS GovCloud regions under AWS's FedRAMP High authorization. Verify the specific Bedrock endpoints and model variants you plan to use against the [AWS GovCloud Bedrock availability page](https://aws.amazon.com/bedrock/) and the [AWS FedRAMP marketplace entry](https://marketplace.fedramp.gov/products) before relying on it.
 - **Vertex AI (Claude on Vertex AI)**: Google announced on October 31, 2025 that Claude on Vertex AI operates within a FedRAMP High authorization boundary (formerly Moderate). See the [Google Cloud FedRAMP page for Claude on Vertex AI](https://cloud.google.com/security/compliance/fedramp-claude-on-vertex-ai) for the current scope.

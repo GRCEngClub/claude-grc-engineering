@@ -7,7 +7,9 @@ description: "Generates audit-ready evidence collection checklists for NIST SP 8
 
 Generates audit-ready evidence collection checklists for NIST SP 800-53 Rev 5 controls and control families, scoped to a NIST SP 800-53B baseline (Low / Moderate / High). Evidence depth tracks the baseline: higher baselines pull in additional control enhancements and tighter organization-defined parameters, so the checklist grows accordingly.
 
-NIST 800-53 is a control *catalog*, not a regulation. Enforcement comes from the authorizing program that profiles it — FISMA for federal systems, the FedRAMP PMO for cloud services, GovRAMP (formerly StateRAMP) for state/local, CMMC/NIST 800-171 for the defense industrial base. This command produces the evidence an assessor asks for under any of those programs, organized by the framework's own control families and aligned to the NIST SP 800-53A assessment methods (examine / interview / test).
+NIST 800-53 is a control *catalog*, not a regulation. Enforcement comes from the authorizing program that profiles it — FISMA for federal systems, FedRAMP for cloud services certified under its Rev5 type, GovRAMP (formerly StateRAMP) for state/local, CMMC/NIST 800-171 for the defense industrial base. This command produces the evidence an assessor asks for under any of those programs, organized by the framework's own control families and aligned to the NIST SP 800-53A assessment methods (examine / interview / test).
+
+FedRAMP 20x does not use an 800-53 control checklist. It measures Key Security Indicators, so use the `fedramp-20x` plugin there. For Rev5, FedRAMP ties its control lists to Certification Class B, C and D, which loosely align with Low, Moderate and High and are not identical to them. FedRAMP no longer sets most parameter values, so take them from the provider's Security Decision Record.
 
 > **Never commit evidence artifacts to source control.** The outputs below include real usernames, credential reports, MFA device states, and privileged-account inventories. `.gitignore` covers `evidence/` by default so `git add -A` will not sweep it up, but durable storage is your responsibility. Use an encrypted, access-controlled evidence locker (encrypted S3 with least-privilege IAM, a GRC platform, or a shared drive with full-disk encryption and MFA-gated access).
 
@@ -420,7 +422,7 @@ The default `markdown` output is the human-readable checklist above. `json` and 
     "artifact": "Inactive-account report from IAM credential report",
     "method": "test",
     "frequency": "weekly",
-    "odp_note": "Confirm inactivity window against SSP (FedRAMP commonly 90 days)"
+    "odp_note": "Confirm inactivity window against the SSP, or for FedRAMP the Security Decision Record"
   }
 ]
 ```
@@ -775,7 +777,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Collect NIST 800-53 AC-2 evidence.")
     parser.add_argument("--baseline", choices=["low", "moderate", "high"], default="moderate")
     parser.add_argument("--inactivity-days", type=int, default=90,
-                        help="Inactivity ODP; reconcile to your SSP (FedRAMP commonly 90).")
+                        help="Inactivity ODP; reconcile to your SSP or Security Decision Record.")
     args = parser.parse_args()
     AC2Evidence(args.baseline, args.inactivity_days).run()
 ```

@@ -6,8 +6,21 @@ CONFIG_FILE="${HOME}/.config/claude-grc/connectors/vdr-automation.yaml"
 POAM_FILE=""
 BASELINE="moderate"
 
+print_usage() {
+  cat <<'USAGE'
+Usage: collect.sh --poam <path> [--baseline <low|moderate|high>]
+
+  --poam <path>   Findings workbook (the upstream tool calls it a POA&M).
+  --baseline <v>  Passed to the upstream tool. Default: moderate.
+                  FedRAMP timeframes depend on Certification Class. Use low
+                  for Class B, moderate for Class C, high for Class D. There
+                  is no value for Class A; low is the closest.
+  -h, --help      Show this help and exit.
+USAGE
+}
+
 usage() {
-  echo "Usage: collect.sh --poam <path> [--baseline <low|moderate|high>]" >&2
+  print_usage >&2
   exit 2
 }
 
@@ -17,6 +30,7 @@ while [[ $# -gt 0 ]]; do
     --poam) POAM_FILE="${2}"; shift ;;
     --baseline=*) BASELINE="${1#*=}" ;;
     --baseline) BASELINE="${2}"; shift ;;
+    -h|--help) print_usage; exit 0 ;;
     *) usage ;;
   esac
   shift
@@ -73,7 +87,7 @@ findings = []
 run_id = "${RUN_ID}"
 collected_at = "${COLLECTED_AT}"
 
-n_to_severity = {"N5": "critical", "N4": "high", "N3": "medium", "N2": "low", "N1": "info"}
+n_to_severity = {"N5": "critical", "N4": "high", "N3": "medium", "N2": "low", "N1": "info", "N0": "info"}
 
 for v in vdr.get("active_vulnerabilities", []):
     sev = n_to_severity.get(v.get("adverse_impact", "N2"), "medium")

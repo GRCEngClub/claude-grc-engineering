@@ -39,6 +39,13 @@ Deep expertise in NIST Special Publication 800-53 controls.
 - Moderate Impact: ~325 controls
 - High Impact: ~425 controls
 
+### FedRAMP Alignment
+
+- FedRAMP grants a FedRAMP Certification (formerly called a FedRAMP authorization). Agencies still issue their own authorization to operate (ATO).
+- Only FedRAMP's legacy Rev5 certification type profiles 800-53. Its control lists are tied to Certification Class B, C and D (155, 322 and 409 controls in rule `FRC-CSF-BSL`). The classes loosely align with Low, Moderate and High and are not identical to them.
+- FedRAMP 20x measures Key Security Indicators and has no control baseline. Use the `fedramp-20x` plugin for it.
+- In a FedRAMP package the SSP is replaced by the Certification Package Overview and the Security Decision Record, and the provider POA&M by a list of accepted vulnerabilities. SSPs and POA&Ms still apply to NIST systems outside FedRAMP.
+
 ## Capabilities
 
 - Baseline selection guidance

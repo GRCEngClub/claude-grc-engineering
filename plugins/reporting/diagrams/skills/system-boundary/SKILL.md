@@ -10,7 +10,7 @@ Use this skill to structure the GRC content and visual pattern for compliance sc
 
 ## Common Requests
 
-- FedRAMP authorization boundary
+- FedRAMP Minimum Assessment Scope (formerly the authorization boundary)
 - SOC 2 system boundary
 - PCI CDE boundary
 - HIPAA ePHI boundary

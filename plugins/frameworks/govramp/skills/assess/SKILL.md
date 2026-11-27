@@ -47,7 +47,7 @@ Provisional means the Authorized requirements are met, but the product relies on
    - For a crosswalk-based first pass, run `/engineer:gap-assessment GovRAMP-Core` (or `GovRAMP-Low`, `GovRAMP`, `GovRAMP-High`). SCF publishes crosswalks for each GovRAMP baseline.
 4. **Documentation check.** See `/govramp:documentation` for the package each status needs.
 5. **Continuous monitoring readiness.** Core submissions need 90 days of continuous monitoring data and a POA&M. Ready and Authorized need monthly ConMon after verification.
-6. **Reuse existing federal work.** A current FedRAMP Ready status can be used toward GovRAMP Ready, and GovRAMP Fast Track accepts existing RAR, SAR, and ConMon material. For FedRAMP itself, use the `fedramp-20x` plugin.
+6. **Reuse existing federal work.** A current FedRAMP Ready status can be used toward GovRAMP Ready, and GovRAMP Fast Track accepts existing RAR, SAR, and ConMon material. FedRAMP retired FedRAMP Ready in July 2026 and no longer requires a RAR or SAR, so confirm with GovRAMP what it accepts from a provider certified under FedRAMP's current rules. For FedRAMP itself, use the `fedramp-20x` plugin.
 
 ## Output
 

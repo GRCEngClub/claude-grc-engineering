@@ -17,7 +17,7 @@ Reference-depth adds scope determination, evidence checklist, and framework-spec
 
 ### Level up to Full
 
-Full depth adds framework-native workflow commands tied to the Swiss audit ritual (e.g. `/ch-fadp:dpia-review`, `/ch-fadp:transfer-mechanism-check`, `/ch-fadp:breach-triage`). See the existing Full-depth plugins (`gdpr`, `soc2`, `fedramp-rev5`) for reference.
+Full depth adds framework-native workflow commands tied to the Swiss audit ritual (e.g. `/ch-fadp:dpia-review`, `/ch-fadp:transfer-mechanism-check`, `/ch-fadp:breach-triage`). See the existing Full-depth plugins (`gdpr`, `soc2`) for reference.
 
 ## Metadata
 

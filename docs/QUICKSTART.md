@@ -43,7 +43,7 @@ flowchart TD
     B -->|AWS cloud controls| AWS[aws-inspector]
     B -->|GCP cloud controls| GCP[gcp-inspector]
     B -->|Okta identity controls| OKTA[okta-inspector]
-    B -->|FedRAMP 20x VDR from vuln scans| VDR[vdr-automation]
+    B -->|FedRAMP vulnerability reports from vuln scans| VDR[vdr-automation]
     B -->|No, I need framework expertise| C{Which obligation?}
 
     C -->|SOC 2 audit| SOC2[soc2]
