@@ -1,9 +1,6 @@
 # Compliance Posture Dashboard
 
-Localhost dashboard for the `/dashboard:` category proposed in
-[RFC #38](https://github.com/GRCEngClub/claude-grc-engineering/issues/38).
-
-This first pass intentionally avoids deployment infrastructure. It reads saved
+A dashboard that runs on your own machine, with no deployment infrastructure. It reads saved
 JSON output from `/engineer:monitor-continuous`, serves a local web UI, and
 derives current posture, framework health, alerts, and run-over-run deltas
 outside Claude's context window.
@@ -16,31 +13,34 @@ outside Claude's context window.
 
 On Claude Code older than 2.1.275, add the marketplace first with `/plugin marketplace add GRCEngClub/claude-grc-engineering`, then run `/plugin install compliance-posture-dashboard@grc-engineering-suite`.
 
+The dashboard reads runs produced by `/engineer:monitor-continuous`, so install the `engineer` plugin from the same marketplace too. `--demo` works without it.
+
 ## Run It
 
 Generate one or more monitor runs:
 
-```bash
-node plugins/personas/engineer/scripts/monitor-continuous.js SOC2,NIST-800-53 \
-  --cache-dir=tests/fixtures/findings \
-  --no-exit-code \
-  --output=grc-data/dashboard/monitor-continuous/latest.json
+```text
+/engineer:monitor-continuous SOC2,NIST-800-53 --no-exit-code --output=grc-data/dashboard/monitor-continuous/latest.json
 ```
 
 Serve the dashboard:
 
-```bash
-npm run dashboard:compliance-posture -- \
-  --data=grc-data/dashboard/monitor-continuous \
-  --port=8787
+```text
+/compliance-posture-dashboard:compliance-posture --data=grc-data/dashboard/monitor-continuous --port=8787
 ```
 
 Open `http://127.0.0.1:8787`.
 
 If you only want to see the UI shape before collecting real data:
 
+```text
+/compliance-posture-dashboard:compliance-posture --demo --port=8788
+```
+
+From a clone of this repository, the same server runs without Claude Code. Options take the `--key=value` form:
+
 ```bash
-npm run dashboard:compliance-posture -- --demo --port=8788
+node plugins/reporting/compliance-posture-dashboard/scripts/serve.js --demo --port=8788
 ```
 
 ## Data Contract

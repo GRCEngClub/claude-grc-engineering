@@ -14,7 +14,7 @@ Implementation:
 ## Usage
 
 ```bash
-/dashboard:compliance-posture --data=<path> [--port=8787]
+/compliance-posture-dashboard:compliance-posture --data=<path> [--port=8787]
 ```
 
 Local script form:

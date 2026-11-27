@@ -138,7 +138,7 @@ One plugin holds the cross-cutting commands. Other plugins either *feed* the hub
 3. **Persona plugins**: `auditor` (audit workflows), `internal` (internal GRC team), `tprm` (third-party risk). Orchestrate commands from the hub and framework plugins for a specific role.
 4. **Connector plugins**: everything under `plugins/connectors/` (`aws-inspector`, `github-inspector`, `gcp-inspector`, `okta-inspector`, and the rest). Thin integration layer over external tools. Emit Findings, conform to the contract.
 5. **OSCAL plugin**: `oscal` (wraps `oscal-cli`). Turns the OSCAL tooling into first-class Claude commands.
-6. **Reporting and workflow plugins**: `reporter`, `loop`, `diagrams`, `teach-me`, `compliance-posture`. Turn Findings and assessments into artifacts for humans: reports, diagrams, dashboards.
+6. **Reporting and workflow plugins**: `reporter`, `loop`, `diagrams`, `teach-me`, `compliance-posture-dashboard`. Turn Findings and assessments into artifacts for humans: reports, diagrams, dashboards.
 7. **Knowledge sources and site builders**: `gcp-docs` (API-backed documentation lookup), `portfolio` (portfolio site scaffolding and deployment; lives in [GRCEngClub/grc-portfolio](https://github.com/GRCEngClub/grc-portfolio) and is listed in this marketplace).
 
 `.claude-plugin/marketplace.json` is the authoritative inventory; the categories describe shapes, not an exhaustive list.

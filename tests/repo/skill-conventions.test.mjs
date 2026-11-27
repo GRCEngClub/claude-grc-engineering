@@ -52,6 +52,19 @@ test('skills escape every literal dollar sign that precedes a digit', () => {
   assert.deepEqual(problems, []);
 });
 
+// The folder name is the name users install and type before the colon.
+test('every plugin folder, plugin.json name and marketplace entry name agree', () => {
+  const problems = [];
+  for (const entry of marketplace.plugins) {
+    if (typeof entry.source !== 'string') continue;
+    const dir = resolve(repo, entry.source);
+    const manifest = JSON.parse(readFileSync(join(dir, '.claude-plugin/plugin.json'), 'utf8'));
+    if (manifest.name !== entry.name) problems.push(`${entry.source}: plugin.json name "${manifest.name}" differs from marketplace name "${entry.name}"`);
+    if (basename(dir) !== entry.name) problems.push(`${entry.source}: folder "${basename(dir)}" differs from plugin name "${entry.name}"`);
+  }
+  assert.deepEqual(problems, []);
+});
+
 // Installed users keep a cached copy until the version string changes, and
 // plugins call each other's commands, so every plugin moves together.
 test('every plugin shares the marketplace version, declared only in plugin.json', () => {

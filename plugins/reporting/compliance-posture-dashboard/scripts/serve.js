@@ -23,7 +23,7 @@ const MIME_TYPES = {
 
 function usage() {
   return `Usage:
-  node plugins/reporting/compliance-posture/scripts/serve.js [options]
+  node scripts/serve.js [options]
 
 Options:
   --data=<path[,path]>   Monitor JSON file or directory (default: grc-data/dashboard/monitor-continuous)
