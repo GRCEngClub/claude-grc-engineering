@@ -13,6 +13,8 @@ outside Claude's context window.
 
 On Claude Code older than 2.1.275, add the marketplace first with `/plugin marketplace add GRCEngClub/claude-grc-engineering`, then run `/plugin install compliance-posture-dashboard@grc-engineering-suite`.
 
+The dashboard reads runs produced by `/engineer:monitor-continuous`, so install the `engineer` plugin from the same marketplace too. `--demo` works without it.
+
 ## Run It
 
 Generate one or more monitor runs:
