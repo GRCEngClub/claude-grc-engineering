@@ -6,6 +6,7 @@ import {
   getCloudCommands,
   getAllCloudCommands,
   getControlsByFedRAMPBaseline,
+  FEDRAMP_REV5_CLASSES,
   getExportControlCommands,
   generateEvidenceScript as generateBaselineEvidenceScript
 } from './config-loader.js';
@@ -408,8 +409,12 @@ export async function generateNISTControlEvidenceAllProviders(controlId) {
 }
 
 /**
- * Generate a complete evidence collection script for a FedRAMP baseline
- * @param {string} baseline - FedRAMP baseline (low, moderate, high)
+ * Generate a complete evidence collection script for a FedRAMP Rev5 control list.
+ *
+ * The total is the official control count for the class (rule FRC-CSF-BSL).
+ * "Automated" counts the controls this toolkit has a cloud check for; that is a
+ * measure of the toolkit's coverage, not of a provider's implementation.
+ * @param {string} baseline - Baseline name: low (Rev5 Class B), moderate (Class C), high (Class D)
  * @param {string} provider - Cloud provider
  * @returns {Promise<Object>} Full evidence collection script and metadata
  */
@@ -435,6 +440,8 @@ export async function generateFedRAMPBaselineEvidence(baseline, provider = 'aws'
 
   return {
     baseline: normalizedBaseline,
+    certificationType: 'Rev5',
+    certificationClass: FEDRAMP_REV5_CLASSES[normalizedBaseline],
     provider: normalizedProvider,
     script,
     metadata: {
@@ -454,8 +461,8 @@ export async function generateFedRAMPBaselineEvidence(baseline, provider = 'aws'
 }
 
 /**
- * Get a summary of FedRAMP baseline controls with evidence availability
- * @param {string} baseline - FedRAMP baseline
+ * Get a summary of a FedRAMP Rev5 control list with evidence availability
+ * @param {string} baseline - Baseline name: low (Rev5 Class B), moderate (Class C), high (Class D)
  * @param {string} provider - Cloud provider
  * @returns {Promise<Object>} Summary of controls and evidence availability
  */
@@ -492,6 +499,8 @@ export async function getFedRAMPBaselineSummary(baseline, provider = 'aws') {
 
   return {
     baseline: normalizedBaseline,
+    certificationType: 'Rev5',
+    certificationClass: FEDRAMP_REV5_CLASSES[normalizedBaseline],
     provider: normalizedProvider,
     totalControls: controls.length,
     families: byFamily

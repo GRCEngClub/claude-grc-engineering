@@ -255,6 +255,11 @@
       "description": "GRC connector wrapping testssl.sh: TLS/SSL protocol, cipher, certificate, and known-CVE checks on HTTPS endpoints → v1 finding contract"
     },
     {
+      "name": "rippling-inspector",
+      "source": "./plugins/connectors/rippling-inspector",
+      "description": "GRC connector for Rippling: offboarded workers with active accounts or app access, device encryption and management, reporting lines, activity-log availability → v1 finding contract"
+    },
+    {
       "name": "okta-inspector",
       "source": "./plugins/connectors/okta-inspector",
       "description": "GRC connector for Okta: password/MFA/session policies, inactive users, admin factor enrollment \u2192 v1 finding contract"
@@ -292,7 +297,7 @@
     {
       "name": "vdr-automation",
       "source": "./plugins/connectors/vdr-automation",
-      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: turns vulnerability scans into FedRAMP 20x VDR reports and emits NIST-800-53-r5 (SI-2) findings \u2192 v1 finding contract."
+      "description": "GRC connector wrapping networkbm/POAM-Automation-Tool: turns vulnerability scans into FedRAMP VDR and VER vulnerability reports and emits NIST-800-53-r5 (SI-2) findings \u2192 v1 finding contract."
     },
     {
       "name": "eu-nis2",

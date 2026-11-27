@@ -289,7 +289,7 @@ aws_govcloud:
   benefits:
     - US-located regions
     - US persons only personnel
-    - FedRAMP High authorization
+    - FedRAMP Certified (formerly listed as a FedRAMP High authorization; check the FedRAMP Marketplace for the current Certification Class)
     - Documented ITAR support story from AWS
   verification_command: "aws ec2 describe-regions --region us-gov-west-1"
 
@@ -298,7 +298,7 @@ azure_government:
   benefits:
     - US-located datacenters
     - Screened US personnel
-    - FedRAMP High authorization
+    - FedRAMP Certified (formerly listed as a FedRAMP High authorization; check the FedRAMP Marketplace for the current Certification Class)
   verification_command: "az cloud list --query '[?name==`AzureUSGovernment`]'"
 
 gcp_assured_workloads:

@@ -252,9 +252,29 @@ export function listNISTFamilies() {
 }
 
 /**
- * Load a FedRAMP baseline configuration
- * @param {string} baseline - Baseline level (low, moderate, high)
- * @returns {Promise<Object>} FedRAMP baseline configuration
+ * FedRAMP Rev5 Certification Class behind each baseline name this toolkit accepts.
+ * FedRAMP's Consolidated Rules for 2026 (CR26) name the Rev5 control lists by class.
+ * The class loosely aligns with the former impact level; it is not the same thing.
+ */
+export const FEDRAMP_REV5_CLASSES = { low: 'B', moderate: 'C', high: 'D' };
+
+/**
+ * Describe a baseline name for output, e.g. "Rev5 Class C (fedramp-moderate)"
+ * @param {string} baseline - Baseline name (low, moderate, high)
+ * @returns {string} Label, or the upper-cased name when it is not a known baseline
+ */
+export function describeFedRAMPBaseline(baseline) {
+  const normalized = String(baseline).toLowerCase();
+  const certificationClass = FEDRAMP_REV5_CLASSES[normalized];
+  return certificationClass
+    ? `Rev5 Class ${certificationClass} (fedramp-${normalized})`
+    : String(baseline).toUpperCase();
+}
+
+/**
+ * Load a FedRAMP Rev5 control list (the official list from rule FRC-CSF-BSL)
+ * @param {string} baseline - Baseline name: low (Rev5 Class B), moderate (Class C), high (Class D)
+ * @returns {Promise<Object>} Baseline configuration with included files merged into `controls`
  */
 export async function loadFedRAMPBaseline(baseline) {
   const normalizedBaseline = baseline.toLowerCase();
@@ -294,36 +314,41 @@ async function loadBaselineWithIncludes(filePath) {
 }
 
 /**
- * Get NIST 800-53 controls filtered by FedRAMP baseline
- * @param {string} baseline - FedRAMP baseline (low, moderate, high)
- * @returns {Promise<Object[]>} Array of controls applicable to the baseline
+ * Get the controls in a FedRAMP Rev5 control list.
+ *
+ * Membership comes from the official list in fedramp-<baseline>.yaml. Where this
+ * toolkit has a definition for a control in its NIST 800-53 family files, the
+ * title, description and cloud_tests from that definition are added. Controls
+ * the toolkit has no definition for are still returned, without cloud_tests.
+ * @param {string} baseline - Baseline name: low (Rev5 Class B), moderate (Class C), high (Class D)
+ * @returns {Promise<Object[]>} Every control in the list, in list order
  */
 export async function getControlsByFedRAMPBaseline(baseline) {
-  const normalizedBaseline = baseline.toLowerCase();
+  const config = await loadFedRAMPBaseline(baseline);
   const allFamilies = await loadAllNISTFamilies();
   const controls = [];
 
-  for (const [familyCode, family] of Object.entries(allFamilies)) {
-    if (!family.controls) continue;
+  for (const [controlId, entry] of Object.entries(config.controls || {})) {
+    const familyCode = controlId.split('-')[0];
+    const family = allFamilies[familyCode];
+    const definition = family && family.controls ? family.controls[controlId] : null;
 
-    for (const [controlId, control] of Object.entries(family.controls)) {
-      const controlBaselines = control.baseline || [];
-      if (controlBaselines.includes(normalizedBaseline)) {
-        controls.push({
-          id: controlId,
-          family: familyCode,
-          familyName: family.family,
-          ...control
-        });
-      }
-    }
+    controls.push({
+      id: controlId,
+      family: familyCode,
+      familyName: family ? family.family : familyCode,
+      title: entry && entry.notes ? entry.notes : controlId,
+      ...definition
+    });
   }
 
   return controls;
 }
 
 /**
- * Load FedRAMP 20x Key Security Indicators (KSIs)
+ * Load FedRAMP 20x Key Security Indicators (KSIs).
+ * The file is generated from FedRAMP's Consolidated Rules for 2026 dataset
+ * (https://github.com/FedRAMP/rules); `version` is the dataset version.
  * @returns {Promise<Object>} FedRAMP 20x KSI configuration
  */
 export async function loadFedRAMP20xKSI() {
@@ -348,24 +373,25 @@ export async function loadFedRAMP20xKSI() {
 }
 
 /**
- * Get FedRAMP 20x KSIs filtered by category
- * @param {string} category - KSI category (AFR, CED, CMT, CNA, IAM, INR, MLA, PIY)
+ * Get FedRAMP 20x KSIs filtered by category (FedRAMP calls a category a theme)
+ * @param {string} category - KSI theme code (CED, CMT, CNA, IAM, INR, MLA, PIY, RPL, SCR, SVC).
+ *   The valid codes are read from the KSI file, so they follow the dataset.
  * @returns {Promise<Object[]>} Array of KSIs in the specified category
  */
 export async function getKSIsByCategory(category) {
-  const normalizedCategory = category.toUpperCase();
-  const validCategories = ['AFR', 'CED', 'CMT', 'CNA', 'IAM', 'INR', 'MLA', 'PIY'];
+  const normalizedCategory = String(category).toUpperCase().replace(/^KSI-/, '');
+  const ksiConfig = await loadFedRAMP20xKSI();
+  const validCategories = Object.keys(ksiConfig.categories || {});
 
   if (!validCategories.includes(normalizedCategory)) {
     throw new Error(`Unknown KSI category: ${category}. Must be one of: ${validCategories.join(', ')}`);
   }
 
-  const ksiConfig = await loadFedRAMP20xKSI();
   const ksis = [];
 
   if (ksiConfig.controls) {
     for (const [controlId, control] of Object.entries(ksiConfig.controls)) {
-      if (control.category === normalizedCategory || controlId.startsWith(`KSI-${normalizedCategory}`)) {
+      if (control.category === normalizedCategory || controlId.startsWith(`KSI-${normalizedCategory}-`)) {
         ksis.push({
           id: controlId,
           ...control
@@ -411,9 +437,41 @@ export async function getAllKSIsByCategory() {
 }
 
 /**
- * Get cloud CLI commands for a FedRAMP 20x KSI
- * @param {string} ksiId - KSI ID (e.g., "KSI-IAM-01")
- * @param {string} provider - Cloud provider (aws, azure, gcp)
+ * Get FedRAMP 20x KSIs that apply to a 20x Certification Class
+ * @param {string} certificationClass - A, B or C. FedRAMP has not defined the KSIs for 20x Class D yet.
+ * @returns {Promise<Object[]>} KSIs for the class. Class A returns the KSIs named in rule
+ *   FRC-CLA-MFR. Class B and C return every KSI; each carries `optional`, true where
+ *   FedRAMP marks the KSI Optional for that class.
+ */
+export async function getKSIsByClass(certificationClass) {
+  const normalizedClass = String(certificationClass).toLowerCase();
+  const validClasses = ['a', 'b', 'c'];
+
+  if (!validClasses.includes(normalizedClass)) {
+    throw new Error(`Unknown or undefined FedRAMP 20x class for KSIs: ${certificationClass}. Must be one of: A, B, C`);
+  }
+
+  const ksiConfig = await loadFedRAMP20xKSI();
+  const ksis = [];
+
+  for (const [controlId, control] of Object.entries(ksiConfig.controls || {})) {
+    const applicability = control.classes ? control.classes[normalizedClass] : undefined;
+    if (!applicability || applicability === 'not_named') continue;
+    ksis.push({
+      id: controlId,
+      optional: applicability === 'optional',
+      ...control
+    });
+  }
+
+  return ksis;
+}
+
+/**
+ * Get this toolkit's illustrative cloud CLI commands for a FedRAMP 20x KSI.
+ * FedRAMP defines no commands or pass criteria for KSIs; these are starting points.
+ * @param {string} ksiId - KSI ID (e.g., "KSI-IAM-APM")
+ * @param {string} provider - Cloud provider (aws, azure, gcp, kubernetes)
  * @returns {Promise<Object>} CLI commands for the KSI
  */
 export async function getKSICloudCommands(ksiId, provider) {
@@ -569,24 +627,25 @@ export async function getAllCloudCommands(controlId) {
 }
 
 /**
- * Generate a compliance evidence collection script for a baseline
- * @param {string} baseline - FedRAMP baseline (low, moderate, high)
+ * Generate an evidence collection script for a FedRAMP Rev5 control list
+ * @param {string} baseline - Baseline name: low (Rev5 Class B), moderate (Class C), high (Class D)
  * @param {string} provider - Cloud provider
  * @returns {Promise<string>} Combined bash script for evidence collection
  */
 export async function generateEvidenceScript(baseline, provider) {
   const controls = await getControlsByFedRAMPBaseline(baseline);
   const normalizedProvider = provider.toLowerCase();
+  const baselineLabel = describeFedRAMPBaseline(baseline);
 
   let script = `#!/bin/bash
-# FedRAMP ${baseline.toUpperCase()} Baseline Evidence Collection
+# FedRAMP ${baselineLabel} Evidence Collection
 # Provider: ${normalizedProvider.toUpperCase()}
 # Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 set -e
 
 echo "============================================"
-echo "FedRAMP ${baseline.toUpperCase()} Evidence Collection"
+echo "FedRAMP ${baselineLabel} Evidence Collection"
 echo "Provider: ${normalizedProvider.toUpperCase()}"
 echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo "============================================"
@@ -678,12 +737,15 @@ export default {
   getNISTControl,
   listNISTFamilies,
 
+  FEDRAMP_REV5_CLASSES,
+  describeFedRAMPBaseline,
   loadFedRAMPBaseline,
   getControlsByFedRAMPBaseline,
 
   loadFedRAMP20xKSI,
   getKSIsByCategory,
   getAllKSIsByCategory,
+  getKSIsByClass,
   getKSICloudCommands,
 
   loadExportControlFramework,

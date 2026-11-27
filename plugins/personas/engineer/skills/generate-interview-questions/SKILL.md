@@ -27,7 +27,7 @@ Pass options after the arguments:
 - `PCI` or `PCI-DSS`
 - `CIS`
 - `CMMC`
-- `FedRAMP`
+- `FedRAMP` (FedRAMP Rev5, mapped through NIST SP 800-53 Rev. 5 controls; 20x Key Security Indicators are not covered)
 
 ## Instructions
 
