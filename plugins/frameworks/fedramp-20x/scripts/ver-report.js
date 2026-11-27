@@ -66,7 +66,7 @@ const EXAMPLE = {
       supplementaryRiskInformation: '',
       _finalDisposition: 'Add finalDisposition (Fully Mitigated, Partially Mitigated, Remediated, False Positive) when work ends. Omit while active.',
       _accepted: 'Set accepted to true and add acceptanceRationale when you decide to accept. The script also moves anything past 192 days from evaluation to the accepted list.',
-      _closedAt: 'Optional closedAt (date-time) records when work ended, so a closed item is reported in the period it closed and dropped afterwards.',
+      _closedAt: 'When you add a resolving finalDisposition, also add closedAt (date-time). The item is reported in the period it closed and left out afterwards.',
     },
   ],
 };
@@ -93,6 +93,13 @@ export function evaluate(vuln, { klass, index, asOf }) {
   if (vuln.evaluationCompletedAt && !evaluated) errors.push('evaluationCompletedAt is not a date-time.');
   const resolved = RESOLVED.includes(vuln.finalDisposition);
   if (vuln.closedAt !== undefined && !Number.isFinite(time(vuln.closedAt))) errors.push('closedAt is not a date-time.');
+  // Without a closing date a resolved item cannot be placed in a period and
+  // would silently drop out of the reports.
+  if (resolved && vuln.closedAt === undefined) errors.push(`closedAt (date-time) is required when finalDisposition is ${vuln.finalDisposition}.`);
+  // The script reads the file as it stands today. It cannot rebuild the state
+  // at an earlier date from a file that already records later events.
+  const later = [vuln.detection?.detectedAt, vuln.evaluationCompletedAt, vuln.closedAt, ...(vuln.painReductionEvents || []).map(e => e?.reducedAt)].map(time).filter(d => Number.isFinite(d) && d > asOf);
+  if (later.length) errors.push(`has an event dated ${day(Math.max(...later))}, after the evaluation date ${day(asOf)}. Use a copy of the working file from that date, or a later --as-of.`);
   // A resolved vulnerability is closed even if it was accepted earlier.
   const out = { id, errors, resolved, evaluated, reasons: [], evaluationDue: null, mitigationDue: null, acceptDeadline: null, mustAccept: false, accepted: vuln.accepted === true && !resolved, timeframe: null, cell: null };
 
@@ -218,9 +225,11 @@ function markdown(doc, index, klass, rows, asOf) {
   if (!overdue.length) lines.push('None.');
   for (const { vuln, result } of overdue) lines.push(`- ${cell(vuln.providerTrackingId)}: ${[...result.reasons, vuln.overdueExplanation].filter(Boolean).join(' ')}`);
   lines.push('', '## Rating changes', '');
-  const changed = rows.filter(r => (r.vuln.painReductionEvents || []).length);
-  if (!changed.length) lines.push('None recorded.');
-  for (const { vuln } of changed) lines.push(`- ${cell(vuln.providerTrackingId)}: ${vuln.painReductionEvents.map(e => `N${e.rating} on ${date(e.reducedAt)}`).join(', ')}`);
+  const from = time(doc.reportPeriod.from);
+  const to = time(doc.reportPeriod.to);
+  const changed = rows.map(r => ({ vuln: r.vuln, events: (r.vuln.painReductionEvents || []).filter(e => time(e.reducedAt) >= from && time(e.reducedAt) <= to) })).filter(r => r.events.length);
+  if (!changed.length) lines.push('None in this period.');
+  for (const { vuln, events } of changed) lines.push(`- ${cell(vuln.providerTrackingId)}: ${events.map(e => `N${e.rating} on ${date(e.reducedAt)}`).join(', ')}`);
   lines.push('');
   return `${lines.join('\n')}\n`;
 }

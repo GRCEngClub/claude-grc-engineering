@@ -29,7 +29,9 @@ Keep **every open and accepted vulnerability** in the file, plus those closed du
 
 Three fields are this script's own and are left out of the reports: `accepted` (set `true` when the provider decides to accept), `overdueExplanation` (the provider's reason, added to the computed one) and `closedAt` (when work ended).
 
-A closed item is reported in the period in which something dated happened to it (detection, evaluation, a rating reduction or `closedAt`) and is left out of later periods. A `finalDisposition` of Remediated, Fully Mitigated or False Positive closes an item even if it was accepted earlier.
+A `finalDisposition` of Remediated, Fully Mitigated or False Positive closes an item, even if it was accepted earlier, and needs a `closedAt` date-time. The item is reported in the period it closed and is left out of later periods.
+
+The script reads the file as it stands. To rebuild a report for an earlier date, use the copy of the working file from that date: `--as-of` is refused when the file records events later than it.
 
 To load a scanner export, map its rows into this shape and leave the three evaluations empty for the provider to fill in. Do not copy a scanner's severity into `currentRating`.
 
