@@ -4,6 +4,12 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-11-27
+
+The first release since 0.0.4. It reorganises the repository, renames plugins, and rewrites the FedRAMP content for the rules FedRAMP published in 2026.
+
+**Upgrading from 0.0.4.** Plugin names lost their `grc-` prefix, so installed plugins must be reinstalled under the new names (for example `/plugin install engineer@grc-engineering-suite`) and the old ones uninstalled. Commands follow the plugin name: `/grc-engineer:gap-assessment` is now `/engineer:gap-assessment`. `compliance-posture-dashboard` is now `dashboard`. `portfolio` moved to [GRCEngClub/grc-portfolio](https://github.com/GRCEngClub/grc-portfolio) and is still installable from this marketplace. Entries below that mention a `grc-` name describe the plugin as it was called when the change was made.
+
 ### Added
 
 - **`/fedramp-20x:sdr`.** Builds a FedRAMP Security Decision Record for a 20x certification: one entry per applicable rule and Key Security Indicator, tracing implementation, provider validation, independent assessment, tests and evidence. `init` lists what applies to a class (154 rules and 46 KSIs for Class B or C; 42 and 7 for Class A), `check` reports gaps, `build` writes JSON that validates against FedRAMP's SDR schema, and `summary` prints a traceability table and the facts an assessor's overall summary must cover. It records what people supply and never fills in a result. This is the current form of what #170 and #172 asked for: FedRAMP no longer requires an SRTM or a Security Assessment Report.
