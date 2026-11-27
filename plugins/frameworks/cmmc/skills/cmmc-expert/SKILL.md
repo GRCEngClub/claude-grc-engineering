@@ -169,7 +169,7 @@ Per **32 CFR 170.19** and the CMMC L2 Scoping Guide, each asset falls into one o
 
 1. **CMMC enclave** — isolate CUI into a dedicated environment; assess all applicable asset categories, including security protection assets outside the enclave.
 2. **Remove CUI from systems** that don't need it; reassess their asset category rather than assuming they exit scope.
-3. **FedRAMP-authorized CSP** — document shared responsibilities; authorization does not eliminate customer-side obligations.
+3. **FedRAMP Certified CSP** — document shared responsibilities; certification does not eliminate customer-side obligations.
 4. **Genuinely isolated systems** — air-gapped test networks with no path to CUI.
 
 ### CUI Identification — Required Before Scoping
@@ -191,13 +191,14 @@ A CSP is a cloud service provider; a CSP may also be an ESP, including when it p
 
 - For an external cloud service provider handling covered defense information under DFARS 7012, the clause requires security requirements equivalent to the FedRAMP Moderate baseline and specified incident-related obligations; review the contract and applicable clause. See [48 CFR 252.204-7012(b)(2)(ii)(D)](https://www.ecfr.gov/current/title-48/section-252.204-7012).
 - For Level 2 certification, the cloud offering processing CUI must be FedRAMP Moderate (or higher) authorized **or** meet equivalent security requirements in accordance with DoD policy; the on-premises infrastructure connecting to it is in scope. CRM security requirements must be documented or referenced in the SSP. See [32 CFR 170.17(c)(5)](https://www.ecfr.gov/current/title-32/section-170.17#p-170.17(c)(5)).
-- Do not assume every CSP is outside assessment scope: see the SPD-only row below. FedRAMP authorization alone does not resolve customer responsibilities.
+- Do not assume every CSP is outside assessment scope: see the SPD-only row below. FedRAMP Certification alone does not resolve customer responsibilities.
+- The regulations above use FedRAMP's older terms. FedRAMP now grants a FedRAMP Certification (formerly called a FedRAMP authorization) in Certification Class A to D. Class C loosely aligns with Moderate and is not identical to it. How DoD reads "FedRAMP Moderate authorized" and "equivalent" against classes and FedRAMP 20x certifications is DoD policy, so check current DoD guidance before you rely on a specific offering.
 
 **Common CSP options for CUI:**
 
-Verify the exact offering and authorization boundary in the [FedRAMP Marketplace](https://marketplace.fedramp.gov/) and applicable DoD policy; platform names alone do not establish authorization, equivalence, or suitability for specific data.
+Verify the exact offering, its certification status and its scope in the [FedRAMP Marketplace](https://marketplace.fedramp.gov/) and applicable DoD policy; platform names alone do not establish certification, equivalence, or suitability for specific data.
 
-**ITAR/EAR caution:** A CSP can be FedRAMP-authorized **and** technically eligible — but still ineligible to process specific CUI categories due to export-control restrictions on foreign-national access. Evaluate CUI category restrictions independently of FedRAMP authorization.
+**ITAR/EAR caution:** A CSP can be FedRAMP Certified **and** technically eligible — but still ineligible to process specific CUI categories due to export-control restrictions on foreign-national access. Evaluate CUI category restrictions independently of FedRAMP Certification.
 
 ### External Service Provider (ESP)
 

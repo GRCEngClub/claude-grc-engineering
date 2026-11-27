@@ -99,6 +99,6 @@ export OKTA_API_TOKEN=00abc...
 # Just authentication policies (fast)
 /okta-inspector:collect --services=policies
 
-# Strict inactivity threshold (e.g., FedRAMP 30-day requirement)
+# Strict inactivity threshold (for example a 30-day window in your security documentation)
 /okta-inspector:collect --inactive-threshold-days=30
 ```

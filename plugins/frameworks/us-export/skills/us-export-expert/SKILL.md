@@ -511,6 +511,8 @@ Step 3: Item not on USML or CCL
 
 ### Cloud Platform Recommendations
 
+"FedRAMP High authorized" below is the wording the providers have used. FedRAMP now lists offerings as FedRAMP Certified with a Certification Class (Class D loosely aligns with High), so check the [FedRAMP Marketplace](https://marketplace.fedramp.gov/) for each provider's current listing.
+
 **ITAR Workloads**:
 
 1. **AWS GovCloud** (highly recommended)

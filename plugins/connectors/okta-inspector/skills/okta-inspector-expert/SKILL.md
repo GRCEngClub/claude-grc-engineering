@@ -43,7 +43,7 @@ You are the interpretation layer between Okta configuration and compliance frame
 
 ### Password policy fails (IAC-06)
 
-Okta's default policy is lenient (minLength=8, no age, no history). Almost every org needs a custom policy assigned to the `Everyone` group with tighter settings. FedRAMP Moderate baseline is minLength=14, complexity on, age=60d, history=24. The fix is usually straightforward but requires admin access to Okta.
+Okta's default policy is lenient (minLength=8, no age, no history). Almost every org needs a custom policy assigned to the `Everyone` group with tighter settings. FedRAMP no longer sets password length, age or history values for Rev5: the provider assigns them and records them in its Security Decision Record, and FedRAMP's IA-5 guidance requires authenticators that meet the NIST Digital Identity Guidelines. For FedRAMP 20x, see the `fedramp-20x` plugin. The fix is usually straightforward but requires admin access to Okta.
 
 ### MFA enforcement fails (IAC-01.2)
 
@@ -54,11 +54,11 @@ Two distinct failures under this control:
 
 ### Session timeouts (IAC-15, IAC-15.1)
 
-FedRAMP requires session termination after inactivity. Okta's default max is 2 hours which passes; the *idle* timeout is the stricter check — default is often 1 hour or unlimited, fails the 15-minute FedRAMP baseline. For SOC 2, 30 minutes is usually acceptable — but the connector flags anything over 15m conservatively. Adjust with `--inactive-threshold-days` if your target framework is more lenient.
+FedRAMP's Rev5 control lists for Class C and D include the session controls (AC-11, AC-12), but FedRAMP no longer sets the timeout value. The provider assigns it. Okta's default max is 2 hours which passes; the *idle* timeout is the stricter check — default is often 1 hour or unlimited, which fails a 15-minute assignment. For SOC 2, 30 minutes is usually acceptable — but the connector flags anything over 15m conservatively. Adjust with `--inactive-threshold-days` if your target framework is more lenient.
 
 ### Inactive users (IAC-15.1)
 
-FedRAMP is notoriously strict here — 35 days is the cutoff for Moderate. SOC 2 doesn't have a hard number but most auditors expect ≤90. The default threshold is 90; pass `--inactive-threshold-days=35` for FedRAMP.
+FedRAMP's Rev5 control lists for Class C and D include AC-2(3), but FedRAMP no longer sets the inactivity window. The provider assigns it. SOC 2 doesn't have a hard number but most auditors expect ≤90. The default threshold is 90; pass `--inactive-threshold-days=<n>` to match the window in your security documentation (35 is a common strict choice).
 
 **"Never logged in" users**: separate signal. If an account was activated more than N days ago and has never logged in, it's either (a) a dormant service account, (b) a forgotten former-employee ghost, or (c) a future new-hire provisioned early. Any of those warrant review.
 
@@ -70,7 +70,7 @@ Okta has built-in admin roles: Super Admin, Org Admin, App Admin, Group Admin, H
 
 Not covered yet:
 
-- **Factor types evaluated** (is the admin using SMS instead of WebAuthn? SMS-only MFA is a FedRAMP red flag)
+- **Factor types evaluated** (is the admin using SMS instead of WebAuthn? FedRAMP's IA-2 guidance requires phishing-resistant MFA, which SMS is not)
 - **Okta Identity Engine** (OIE) policy features: authenticators, phishing-resistant constraints
 - **Password hashing algorithm** (bcrypt vs older)
 - **API token inventory and age** (how many tokens exist, how old, what scope)

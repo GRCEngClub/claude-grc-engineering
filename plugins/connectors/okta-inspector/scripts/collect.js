@@ -204,7 +204,7 @@ const serviceHandlers = {
         control_framework: 'SCF', control_id: 'IAC-15.1', status: 'fail', severity: 'medium',
         message: `${parts.join(' · ')}.`,
         remediation: {
-          summary: `Deactivate or re-certify users inactive beyond ${threshold} days. FedRAMP requires review at ≤35 days.`,
+          summary: `Deactivate or re-certify users inactive beyond ${threshold} days.`,
           ref: 'engineer://generate-implementation/user_lifecycle/okta',
           effort_hours: 1,
           automation: 'semi_automated'

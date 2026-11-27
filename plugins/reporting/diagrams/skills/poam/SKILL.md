@@ -10,7 +10,8 @@ Use this skill to structure the GRC content and visual pattern for POA&M items, 
 
 ## Common Requests
 
-- FedRAMP POA&M lifecycle
+- agency or NIST system POA&M lifecycle
+- FedRAMP accepted vulnerability lifecycle (FedRAMP replaced provider POA&Ms with a list of accepted vulnerabilities in 2026)
 - audit finding remediation
 - vulnerability exception to POA&M
 - corrective action tracking

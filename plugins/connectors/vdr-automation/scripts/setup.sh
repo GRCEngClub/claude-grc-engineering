@@ -8,6 +8,21 @@ TOOL_BASE="${HOME}/.local/share/claude-grc/tools"
 TOOL_DIR="${TOOL_BASE}/vdr-automation"
 TOOL_REPO="https://github.com/networkbm/POAM-Automation-Tool.git"
 
+case "${1:-}" in
+  -h|--help)
+    cat <<'USAGE'
+Usage: setup.sh
+
+Clones or updates networkbm/POAM-Automation-Tool under
+~/.local/share/claude-grc/tools/vdr-automation, installs openpyxl into a
+virtualenv there, and writes ~/.config/claude-grc/connectors/vdr-automation.yaml.
+Also moves a findings cache left by the old poam-automation name out of the
+findings directory. Takes no options.
+USAGE
+    exit 0
+    ;;
+esac
+
 echo "=== vdr-automation setup ==="
 
 if ! command -v python3 &>/dev/null; then

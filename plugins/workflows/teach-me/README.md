@@ -22,7 +22,7 @@ Every other framework plugin in this toolkit assumes you already know the framew
 
 ## What this plugin is not
 
-- Not a substitute for reading the framework. The user's licensed copy of SOC 2, FedRAMP Rev 5, ISO 27001, etc. is still the source of truth. This plugin paraphrases and points; it does not reproduce normative text.
+- Not a substitute for reading the framework. The user's licensed copy of SOC 2 or ISO 27001, or the published FedRAMP rules, is still the source of truth. This plugin paraphrases and points; it does not reproduce normative text.
 - Not an exam-prep tool. The quiz drills application, not memorization.
 - Not stateful. v0.1 holds quiz coverage in the current CLI session only. No history, no scoring, no leaderboard.
 

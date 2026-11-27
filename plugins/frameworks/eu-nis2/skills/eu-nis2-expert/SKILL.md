@@ -160,7 +160,7 @@ Beyond fines, Article 32(4) and (5) give competent authorities a strong correcti
 
 ## Mandatory artifacts
 
-The directive does not name a single canonical artifact in the way GDPR names ROPAs, PCI DSS names ROCs, or FedRAMP names SSPs. But a NIS2-compliant programme typically maintains:
+The directive does not name a single canonical artifact in the way GDPR names ROPAs, PCI DSS names ROCs, or FedRAMP names the Security Decision Record. But a NIS2-compliant programme typically maintains:
 
 - **Risk-management policy and risk register** covering the ten Article 21 domains (Article 21(2)(a), (f)).
 - **Asset inventory** (hardware, software, data, third-party services) feeding the risk register (Article 21(2)(i)).

@@ -61,7 +61,7 @@ Treat as blocking. Root MFA missing or S3 public access block missing = you cann
 
 ### "fail" with high severity
 
-Blocks most audits but isn't a "stop everything" moment. Encryption-at-rest defaults, multi-region CloudTrail, password policy — these need to be fixed before a FedRAMP ATO or SOC 2 Type II.
+Blocks most audits but isn't a "stop everything" moment. Encryption-at-rest defaults, multi-region CloudTrail, password policy — these need to be fixed before a FedRAMP Certification or SOC 2 Type II.
 
 ### "inconclusive"
 

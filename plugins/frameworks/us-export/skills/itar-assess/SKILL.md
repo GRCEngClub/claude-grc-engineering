@@ -116,6 +116,8 @@ Deep dive assessment for International Traffic in Arms Regulations (ITAR) compli
 
 ## Recommended Cloud Platforms
 
+"FedRAMP High" below is the wording the providers have used. FedRAMP now lists offerings as FedRAMP Certified with a Certification Class (Class D loosely aligns with High), so check the [FedRAMP Marketplace](https://marketplace.fedramp.gov/) for each provider's current listing.
+
 | Platform | Recommendation | Notes |
 |----------|---------------|-------|
 | **AWS GovCloud** | Highly Recommended | FedRAMP High, US-located, US persons only |

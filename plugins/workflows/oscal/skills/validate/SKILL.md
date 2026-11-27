@@ -40,9 +40,9 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/validate.sh" <file> [--quiet] [--json]
 /oscal:validate gap-assessment-20260413/gap-report.oscal-ar
 ```
 
-This checks that `/engineer:gap-assessment`'s OSCAL Assessment Results output is well-formed before handing it to downstream tooling (Compliance Trestle, eMASS, FedRAMP 20X).
+This checks that `/engineer:gap-assessment`'s OSCAL Assessment Results output is well-formed before handing it to downstream tooling (Compliance Trestle, eMASS).
 
 ## Non-goals
 
 - **Semantic validation** (e.g., does this SSP actually align with its referenced catalog?). Use `oscal-cli resolve` (coming in a future release) or Compliance Trestle for that.
-- **FedRAMP-specific constraint checking**. For that, combine this with the `fedramp-docs` MCP for spec lookups.
+- **FedRAMP-specific checking**. FedRAMP 20x and Rev5 certification packages use FedRAMP's own JSON schemas, not OSCAL. Check those with FedRAMP's validator at <https://www.fedramp.gov/schemas/validator/>. For legacy FedRAMP OSCAL constraints, combine this with the `fedramp-docs` MCP for spec lookups.

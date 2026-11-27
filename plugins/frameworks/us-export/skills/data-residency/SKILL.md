@@ -239,6 +239,8 @@ Item-controlled access → Russia, Belarus  ❌ for items under 15 CFR 746.8
 
 ## Cloud Provider Support Matrix
 
+"FedRAMP High" below is the wording the providers have used. FedRAMP now lists offerings as FedRAMP Certified with a Certification Class (Class D loosely aligns with High), so check the [FedRAMP Marketplace](https://marketplace.fedramp.gov/) for each provider's current listing.
+
 | Provider | ITAR Support | EAR Support | FIPS 140-2 | Notes |
 |----------|--------------|-------------|------------|-------|
 | **AWS GovCloud** | ✅ Highly Recommended | ✅ Yes | Level 2+ | FedRAMP High, US persons |

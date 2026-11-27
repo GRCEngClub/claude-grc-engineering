@@ -32,7 +32,7 @@ Every status lasts 12 months and is kept through continuous monitoring.
 
 - **Core** launched in May 2025. Its 60 controls were selected using the MITRE ATT&CK framework and align with the Moderate baseline. It gives smaller providers a verified APL listing without paying for a 3PAO up front.
 - **Provisional** means the Authorized requirements are met, but the product depends on interconnected technology that is not yet GovRAMP or FedRAMP verified. It may carry limited POA&M items, and it moves to Authorized once those dependencies are resolved.
-- **Reuse of federal work**: a current FedRAMP Ready status can be used toward GovRAMP Ready. GovRAMP Fast Track accepts existing RAR, SAR, and ConMon material instead of a repeat assessment.
+- **Reuse of federal work**: a current FedRAMP Ready status can be used toward GovRAMP Ready. GovRAMP Fast Track accepts existing RAR, SAR, and ConMon material instead of a repeat assessment. FedRAMP retired FedRAMP Ready in July 2026 and no longer requires a RAR or SAR, so confirm with GovRAMP what it accepts from a provider certified under FedRAMP's current rules.
 
 ## Core submission contents
 
@@ -101,7 +101,7 @@ Document every control as provider, customer, shared, or inherited.
 
 ## Relationship to other frameworks
 
-- **FedRAMP**: both build on NIST SP 800-53 Rev. 5, but FedRAMP's 2026 Consolidated Rules replaced the SSP and POA&M for federal work, while GovRAMP still uses them. Use the `fedramp-20x` plugin for FedRAMP. A FedRAMP Ready package can be used toward GovRAMP Ready.
+- **FedRAMP**: GovRAMP and FedRAMP's Rev5 certification type both build on NIST SP 800-53 Rev. 5. FedRAMP's Consolidated Rules for 2026 replaced the SSP and the provider POA&M in FedRAMP packages, while GovRAMP still uses them. FedRAMP also now grants a FedRAMP Certification in Class A to D in place of Low, Moderate and High authorizations. Use the `fedramp-20x` plugin for FedRAMP. A FedRAMP Ready package can be used toward GovRAMP Ready.
 - **SOC 2 and ISO/IEC 27001:2022**: useful supporting evidence for policies and operations, but neither replaces a GovRAMP verification.
 - **CJIS**: law enforcement systems usually need both a GovRAMP status and CJIS Security Policy compliance.
 - **TX-RAMP**: a separate Texas program with its own requirements.

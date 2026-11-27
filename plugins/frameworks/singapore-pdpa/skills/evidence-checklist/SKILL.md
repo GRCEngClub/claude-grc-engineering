@@ -30,7 +30,7 @@ Markdown checklist grouped by SCF family with:
 
 TODO: at Reference depth, replace this section with framework-specific evidence patterns. Items worth capturing:
 
-- Mandatory artifacts unique to Singapore - Personal Data Protection Ac (PDPA) (2012) (e.g. DPIA for GDPR, ROC for PCI DSS, SSP for FedRAMP)
+- Mandatory artifacts unique to Singapore - Personal Data Protection Ac (PDPA) (2012) (e.g. DPIA for GDPR, ROC for PCI DSS, Security Decision Record for FedRAMP)
 - Assessor expectations per control family
 - Retention periods required by the regulator
 - Artifacts auditors request repeatedly across engagements
