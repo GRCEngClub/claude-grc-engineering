@@ -66,6 +66,7 @@ All notable changes follow the format from [Keep a Changelog](https://keepachang
 
 ### Removed
 
+- **The unit test suites.** All 61 `node:test` and Python test files under `tests/` are removed, with their runner, helpers and API fixtures, ahead of a rewrite. CI still validates every manifest (repo schemas and `claude plugin validate --strict`), the contract fixtures and the diagram skills. The plugin rules those tests enforced (self-contained scripts, `--help` on every script, skills-only layout, shared version) are now checked by hand.
 - **`plugins/workflows/gcp-docs/config/cache.yaml`.** Nothing read it; `/gcp-docs:setup` writes the real configuration to `~/.config/claude-grc/knowledge-sources/gcp-docs.yaml`.
 - **Stale leftovers.** `.gitignore` no longer lists three plugin folders that never existed in this repo, and `ROADMAP.md` no longer plans a Vanta bridge that was built and then removed.
 - **`trust-center` plugin.** The trust center moves to a separate project, `open-ctrl-tools`, so the plugin, its marketplace entry and its docs references are removed. The stray root `.claude-plugin/plugin.json`, a copy of the trust-center manifest that made the repo root look like that plugin, is removed with it. Closes [#148](https://github.com/GRCEngClub/claude-grc-engineering/issues/148).
