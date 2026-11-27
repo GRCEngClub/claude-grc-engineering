@@ -88,8 +88,9 @@ FedRAMP Requirement (VDR and VER rules, Class C):
     internet-reachable or not, likely exploitable or not
   - Reduce the N-rating within the VDR timeframe for the class and rating
   - Vulnerability activity report to all necessary parties every month
-  - No POA&M. Anything not resolved within 192 days of evaluation is
-    listed as an accepted vulnerability
+  - No POA&M. Anything that is not, or will not be, resolved within
+    192 days of evaluation is listed as an accepted vulnerability. List
+    a known long-term item as soon as that is clear, not on day 192
 
 Implementation:
 
@@ -189,7 +190,8 @@ Step 4: Automated Vulnerability Remediation
     - Automated patching via SSM Patch Manager
     - Patch within the VDR timeframe for the finding's N-rating
     - Known Exploited Vulnerabilities by the CISA KEV catalog due date
-    - Past 192 days from evaluation: list as an accepted vulnerability
+    - Not resolved, or known not to be resolvable, within 192 days of
+      evaluation: list as an accepted vulnerability straight away
 
     ```bash
     # Create patch baseline

@@ -467,8 +467,9 @@ Monthly:
 2. Vulnerability Activity Report (human-readable)
    - Each vulnerability with its N-rating, reachability, exploitability
      and status
-   - Anything not resolved within 192 days of evaluation is listed as
-     an accepted vulnerability
+   - Anything that is not, or will not be, resolved within 192 days of
+     evaluation is listed as an accepted vulnerability, as soon as that
+     is known
 
 Per Event:
 
