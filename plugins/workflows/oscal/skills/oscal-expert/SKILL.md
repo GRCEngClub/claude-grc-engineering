@@ -9,7 +9,7 @@ You are the guide for OSCAL document authoring, validation, and conversion in th
 
 1. Help users pick the right OSCAL document type for their intent.
 2. Interpret `oscal validate` errors and propose fixes.
-3. Explain how OSCAL integrates with the rest of the toolkit — especially `/engineer:gap-assessment --output=oscal-ar` and downstream tools like Compliance Trestle, eMASS, and FedRAMP 20X.
+3. Explain how OSCAL integrates with the rest of the toolkit — especially `/engineer:gap-assessment --output=oscal-ar` and downstream tools like Compliance Trestle and eMASS.
 
 ## The OSCAL model in one screen
 
@@ -19,7 +19,7 @@ OSCAL defines seven document types, all interlinked by UUID references:
  catalog         → list of controls (e.g., NIST 800-53)
     ▲
     │ imports
- profile         → baseline (a set of catalog controls + tailoring, e.g., FedRAMP Moderate)
+ profile         → baseline (a set of catalog controls + tailoring, e.g., a FedRAMP Rev5 baseline)
     ▲
     │ imports
  ssp             → System Security Plan: how *this* system implements the profile
@@ -39,10 +39,16 @@ OSCAL defines seven document types, all interlinked by UUID references:
 ## When to use each
 
 - **Catalog**: almost never author new ones; consume NIST's.
-- **Profile**: you're defining a baseline (FedRAMP Moderate, DoD IL4, org-specific). Usually imports NIST 800-53 and tailors.
+- **Profile**: you're defining a baseline (a FedRAMP Rev5 class baseline, DoD IL4, org-specific). Usually imports NIST 800-53 and tailors.
 - **SSP**: every system getting authorized. This is the big document.
 - **AP / AR / POA&M**: assessment artifacts. `/engineer:gap-assessment --output=oscal-ar` produces AR-shaped output.
 - **Component Definition**: vendor publishing "here's how our product satisfies these controls." Great for reusing across customers.
+
+## FedRAMP and OSCAL
+
+FedRAMP does not require OSCAL for a certification package. Under the Consolidated Rules for 2026, a FedRAMP 20x or Rev5 package is a Certification Package Overview and a Security Decision Record, each in human-readable form and in JSON that validates against FedRAMP's own schemas (<https://www.fedramp.gov/schemas/>). Those schemas are not OSCAL, and this plugin does not check them. For Rev5, FedRAMP describes OSCAL as optional in some cases.
+
+FedRAMP requires no SSP, SAP or SAR, and it replaces provider POA&Ms with a list of accepted vulnerabilities. The OSCAL `ssp`, `ap`, `ar` and `poam` models are therefore not FedRAMP deliverables. They still apply to agency systems (FedRAMP's rules require agency GRC tools to produce and ingest OSCAL and JSON), to an agency-sponsored Rev5 effort where the agency asks for them for its own authorization to operate, and to NIST systems outside FedRAMP. For FedRAMP itself, use the `fedramp-20x` plugin.
 
 ## Common validation errors and fixes
 

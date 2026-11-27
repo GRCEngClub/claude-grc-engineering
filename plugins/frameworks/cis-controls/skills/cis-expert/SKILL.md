@@ -1258,7 +1258,7 @@ The core innovation of CIS Controls: tailored security based on organizational m
 **Compliance Requirements**:
 
 - **PCI DSS**: Annual external pentest, internal if significant changes
-- **FedRAMP**: Annual external, pre-authorization
+- **FedRAMP**: No fixed frequency; penetration testing counts as vulnerability detection under the Vulnerability Detection and Response rules
 - **HIPAA**: Not required but recommended (especially for BAs)
 - **CMMC**: Level 2+ requires periodic assessments
 

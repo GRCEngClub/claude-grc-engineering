@@ -12,7 +12,7 @@ body:
     id: framework_name
     attributes:
       label: Framework or baseline
-      placeholder: HIPAA, APRA CPS 234, MAS TRM, FedRAMP Low...
+      placeholder: HIPAA, APRA CPS 234, MAS TRM, FedRAMP 20x...
     validations:
       required: true
 
@@ -41,7 +41,7 @@ body:
     attributes:
       label: Target baselines, profiles, or maturity levels
       description: Name the versions or profiles that matter first.
-      placeholder: FedRAMP Low Rev. 5, CPS 234 core requirements, MAS TRM 2021...
+      placeholder: FedRAMP Rev5 Class B, CPS 234 core requirements, MAS TRM 2021...
 
   - type: textarea
     id: scf_status

@@ -5,7 +5,19 @@ description: Set up NIST 800-53 continuous monitoring per RA-5, SI-4, and CA-7
 
 # NIST 800-53 Continuous Monitoring Setup
 
-Establishes comprehensive continuous monitoring program compliant with NIST 800-53 requirements (RA-5, SI-4, CA-7), including vulnerability scanning, security event monitoring, configuration management, and automated reporting for FedRAMP and other authorizations.
+Establishes comprehensive continuous monitoring program compliant with NIST 800-53 requirements (RA-5, SI-4, CA-7), including vulnerability scanning, security event monitoring, configuration management, and automated reporting for FedRAMP and other programs.
+
+## FedRAMP today
+
+FedRAMP now calls this work Ongoing Certification. The `fedramp` program type follows FedRAMP's Consolidated Rules for 2026 (CR26), which apply to every FedRAMP Certified offering, 20x and Rev5:
+
+- The monthly ConMon deliverable is replaced by an Ongoing Certification Report every 3 months and a vulnerability activity report at least monthly. For Rev5 offerings the report rules apply to new certifications from 2027-01-01 and to existing ones from 2027-04-02.
+- Provider POA&Ms are replaced by a list of accepted vulnerabilities. Agencies keep POA&Ms for their own actions.
+- Vulnerability handling follows the Vulnerability Detection and Response (VDR) and Vulnerability Evaluation and Reporting (VER) rules, mandatory from 2026-12-07. Timeframes depend on Certification Class (A to D) and on each vulnerability's Potential Agency Impact N-rating (N0 to N5), likely exploitability and internet reachability.
+- Reports go to all necessary parties (FedRAMP and every agency customer) through the provider's trust center.
+- The yearly assessment is a FedRAMP independent assessment by a FedRAMP Recognized independent assessment service (formerly called a 3PAO).
+
+Classes B, C and D loosely align with Low, Moderate and High and are not identical to them. The example below is a Rev5 Class C offering. For a NIST system outside FedRAMP, use the `fisma` or `standard` program type. Monthly reporting and POA&Ms still apply there as the authorizing agency defines them.
 
 ## Usage
 
@@ -24,7 +36,7 @@ Establishes comprehensive continuous monitoring program compliant with NIST 800-
 # Set up standard NIST 800-53 continuous monitoring
 /nist:continuous-monitoring-setup standard
 
-# Set up FedRAMP continuous monitoring (monthly reports)
+# Set up FedRAMP Ongoing Certification monitoring and reports
 /nist:continuous-monitoring-setup fedramp
 
 # Auto-deploy monitoring stack
@@ -41,12 +53,13 @@ Establishes comprehensive continuous monitoring program compliant with NIST 800-
 NIST 800-53 CONTINUOUS MONITORING SETUP
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Program Type: FedRAMP Continuous Monitoring
+Program Type: FedRAMP Ongoing Certification
 Environment: Cloud (AWS)
 Compliance Requirements:
   - NIST 800-53 Rev 5
-  - FedRAMP Moderate Baseline
-  - Monthly deliverables to FedRAMP PMO
+  - FedRAMP Rev5, Class C (the Moderate-aligned class)
+  - Ongoing Certification Report every 3 months
+  - Vulnerability activity report every month
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PHASE 1: VULNERABILITY SCANNING (RA-5)
@@ -67,11 +80,16 @@ NIST Requirement:
            organization-defined information system components] for selected
            vulnerability scanning activities.
 
-FedRAMP Requirement:
-  - Monthly vulnerability scans (authenticated/credentialed)
-  - All assets must be scanned
-  - Report submitted to FedRAMP within 30 days
-  - POA&M for any findings >30 days old
+FedRAMP Requirement (VDR and VER rules, Class C):
+  - Detect vulnerabilities persistently, by scanning and other means
+  - Detection cadence (SHOULD): samples of similar resources every
+    3 days, resources likely to drift every 14 days, the rest monthly
+  - Evaluate each vulnerability within 5 days of detection: N-rating,
+    internet-reachable or not, likely exploitable or not
+  - Reduce the N-rating within the VDR timeframe for the class and rating
+  - Vulnerability activity report to all necessary parties every month
+  - No POA&M. Anything not resolved within 192 days of evaluation is
+    listed as an accepted vulnerability
 
 Implementation:
 
@@ -101,7 +119,7 @@ Step 1: Deploy Vulnerability Scanning Tool
     Cost: \$0.09/instance/month + \$0.01/scan for Lambda
 
   Option B: Tenable.io (Industry Standard)
-    ✓ Pros: FedRAMP authorized, comprehensive coverage, widely accepted by 3PAOs
+    ✓ Pros: FedRAMP authorized, comprehensive coverage, widely accepted by assessors
     ✓ Cons: Additional cost, requires credential management
 
     Deployment:
@@ -120,7 +138,7 @@ Step 1: Deploy Vulnerability Scanning Tool
     Cost: \$1,995/year (up to 100 assets)
 
   RECOMMENDATION: Use Inspector for continuous scanning + Tenable for monthly
-                  FedRAMP scans (3PAO accepts Tenable reports)
+                  full scans (assessors accept Tenable reports)
 
 Step 2: Configure Authenticated Scanning (RA-5(5))
 
@@ -144,7 +162,10 @@ Step 2: Configure Authenticated Scanning (RA-5(5))
     aws iam create-access-key --user-name tenable-scanner
     ```
 
-Step 3: Schedule Monthly Scans (FedRAMP Requirement)
+Step 3: Schedule Monthly Full Scans
+
+  Inspector covers the 3-day and 14-day detection cadences. This monthly
+  scan covers resources that are not likely to drift.
 
   EventBridge Rule: monthly-vulnerability-scan
     - Schedule: First Monday of each month, 2 AM UTC
@@ -155,7 +176,7 @@ Step 3: Schedule Monthly Scans (FedRAMP Requirement)
     aws events put-rule \
       --name monthly-vulnerability-scan \
       --schedule-expression "cron(0 2 ? * 2#1 *)" \
-      --description "Monthly FedRAMP vuln scan"
+      --description "Monthly full vulnerability scan"
 
     aws events put-targets \
       --rule monthly-vulnerability-scan \
@@ -166,8 +187,9 @@ Step 4: Automated Vulnerability Remediation
 
   Critical/High Vulnerabilities:
     - Automated patching via SSM Patch Manager
-    - Patch within 30 days (FedRAMP requirement)
-    - Exceptions documented in POA&M
+    - Patch within the VDR timeframe for the finding's N-rating
+    - Known Exploited Vulnerabilities by the CISA KEV catalog due date
+    - Past 192 days from evaluation: list as an accepted vulnerability
 
     ```bash
     # Create patch baseline
@@ -185,16 +207,17 @@ Step 4: Automated Vulnerability Remediation
 
 Step 5: Vulnerability Reporting
 
-  Monthly FedRAMP Deliverable:
-    - Scan report (all findings)
-    - Remediation summary
-    - POA&M for open items >30 days
+  Monthly Vulnerability Activity Report (FedRAMP, human-readable):
+    - Per vulnerability: tracking ID, detection time and source,
+      evaluation time, internet-reachable, likely exploitable, N-rating
+      history, next planned reduction, overdue status, final disposition
+    - Accepted vulnerabilities, each with the reason for acceptance
 
     Generated automatically:
     ```bash
     # Lambda function: generate-fedramp-vuln-report
     # Triggers: 5th of each month
-    # Outputs: PDF report to S3, email to FedRAMP PMO
+    # Outputs: report to S3, published to the trust center
     ```
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -215,10 +238,12 @@ NIST Requirement:
   SI-4(5): Alert [Assignment: organization-defined personnel or roles] when
            indications of compromises or potential compromises occur.
 
-FedRAMP Requirement:
-  - 24/7 continuous monitoring
-  - Incident reporting to FedRAMP within 1 hour (high severity)
-  - Monthly security metrics
+FedRAMP Requirement (Incident Evaluation and Communication rules, Class C):
+  - Decide promptly whether an incident is a FedRAMP Reportable Incident
+    and give it an N-rating (N5 if not estimated)
+  - Initial Incident Report: within 1 hour for N3 to N5, 24 hours for N2,
+    1 business day for N1
+  - Send to fedramp_security@fedramp.gov and to affected agencies
 
 Implementation:
 
@@ -376,9 +401,11 @@ NIST Requirement:
   CM-6: The organization establishes and documents mandatory configuration
         settings for information technology products employed.
 
-FedRAMP Requirement:
-  - Monthly change report to FedRAMP PMO
-  - Significant changes require pre-approval
+FedRAMP Requirement (Significant Change Notification rules):
+  - Routine recurring changes: no notice
+  - Adaptive changes: notify within 10 business days after
+  - Transformative changes: notify 30 and 10 business days before
+  - No advance approval by default
 
 Implementation:
 
@@ -399,7 +426,7 @@ Step 1: Enable AWS Config
 
 Step 2: Deploy Compliance Rules
 
-  FedRAMP-Required Config Rules:
+  Config Rules That Support FedRAMP Controls:
     - iam-user-mfa-enabled
     - root-account-mfa-enabled
     - s3-bucket-public-read-prohibited
@@ -467,38 +494,40 @@ NIST Requirement:
 
 FedRAMP Requirement:
 
-- Monthly deliverables (vulnerability scan, POA&M, change log, incidents)
-- Annual assessment by 3PAO
-- Quarterly self-assessment
+- Ongoing Certification Report every 3 months, then a Quarterly Review
+- Vulnerability activity report every month
+- Verify and validate machine-based resources monthly and other
+  resources every 3 months
+- Annual FedRAMP independent assessment by a FedRAMP Recognized assessor
 
 Implementation:
 
-Monthly FedRAMP Deliverables:
+FedRAMP Deliverables:
 
-1. Vulnerability Scan Report
+1. Vulnerability Activity Report (monthly)
    - Generated: 5th of each month
    - Source: Tenable/Inspector
-   - Format: PDF + CSV
-   - Upload: FedRAMP Secure Repository (FSR)
+   - Format: human-readable, plus JSON history
+   - Publish: trust center
 
-2. Plan of Action & Milestones (POA&M)
-   - All open findings
-   - Status updates
-   - Remediation timeline
-   - Risk ratings
-
-3. Incident Summary
-   - All P1/P2 incidents
-   - Root cause analysis
-   - Remediation actions
+2. Ongoing Certification Report (every 3 months)
+   - Changes and planned changes to certification data
+   - Accepted vulnerabilities
+   - Transformative changes
+   - FedRAMP Reportable Incidents, or a statement that there were none
    - Lessons learned
 
-4. Change Log
-   - All significant changes (architecture, new services)
-   - Change approval evidence
+3. Incident Reports (per incident)
+   - Initial, ongoing and final reports
+   - Root cause analysis
+   - Remediation actions
+
+4. Significant Change Notifications (per change)
+   - Adaptive and transformative changes (architecture, new services)
+   - Audit records of each change
    - Rollback plans
 
-5. Inventory Updates
+5. Certification Package Updates
    - New/decommissioned assets
    - Software updates
    - Third-party integrations
@@ -510,13 +539,13 @@ Automated Report Generation:
   # Schedule: 1st of each month
   # Actions:
   #   1. Collect vulnerability scan results
-  #   2. Export POA&M from Jira
+  #   2. Export accepted vulnerabilities from Jira
   #   3. Export incident summary from PagerDuty
   #   4. Export change log from GitHub + Terraform Cloud
   #   5. Export asset inventory from Config
-  #   6. Generate PDF package
-  #   7. Upload to FSR
-  #   8. Email confirmation to FedRAMP PMO
+  #   6. Generate the monthly vulnerability activity report
+  #   7. Every third month, generate the Ongoing Certification Report
+  #   8. Publish to the trust center and notify all necessary parties
   ```
 
 Continuous Monitoring Dashboard:
@@ -591,7 +620,7 @@ What Gets Deployed:
 - PagerDuty integration (critical alerts)
 - Slack webhooks (medium alerts)
 - Email notifications (daily digest)
-- Monthly FedRAMP report automation
+- FedRAMP report automation (monthly and 3-monthly)
 
 ✓ Dashboards:
 
@@ -610,12 +639,12 @@ POST-DEPLOYMENT CHECKLIST
 □ Test vulnerability scan (run manual scan, verify results)
 □ Validate alerts (trigger test alert, confirm PagerDuty/Slack notification)
 □ Review GuardDuty findings (address any immediate issues)
-□ Configure FedRAMP report automation (set up FSR upload)
-□ Schedule first monthly report (mark calendar)
+□ Configure FedRAMP report automation (publish to the trust center)
+□ Schedule first monthly report and first Ongoing Certification Report
 □ Document monitoring procedures (runbooks for alerts)
 □ Train security team (how to respond to alerts)
-□ Schedule quarterly self-assessment
-□ Schedule annual 3PAO assessment
+□ Schedule the Quarterly Review that follows each Ongoing Certification Report
+□ Schedule the annual FedRAMP independent assessment
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 COST SUMMARY

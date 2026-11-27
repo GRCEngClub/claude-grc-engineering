@@ -5,7 +5,7 @@ description: GovRAMP package documentation by verification status (SSP, RAR, SAR
 
 # GovRAMP Documentation Guidance
 
-Explains what goes into a GovRAMP submission for each verification status and how to prepare it. GovRAMP still uses an SSP and POA&M. FedRAMP's 2026 rules replaced those for federal work, so don't carry FedRAMP 20x terms into a GovRAMP package. For FedRAMP, use the `fedramp-20x` plugin.
+Explains what goes into a GovRAMP submission for each verification status and how to prepare it. GovRAMP still uses an SSP and POA&M. FedRAMP's Consolidated Rules for 2026 replaced them in FedRAMP packages with the Security Decision Record and a list of accepted vulnerabilities, so don't carry those FedRAMP terms into a GovRAMP package. For FedRAMP, use the `fedramp-20x` plugin.
 
 ## Arguments
 
@@ -44,7 +44,7 @@ Everything Core needs, for the 80 Ready controls, plus a **Readiness Assessment 
 - A POA&M for open findings
 - Approval by a government sponsor or the GovRAMP Approvals Committee
 
-GovRAMP Fast Track accepts existing federal RAR, SAR, and ConMon material in place of repeating an assessment.
+GovRAMP Fast Track accepts existing federal RAR, SAR, and ConMon material in place of repeating an assessment. FedRAMP retired FedRAMP Ready in July 2026 and no longer requires a RAR or SAR, so confirm with GovRAMP what it accepts from a provider certified under FedRAMP's current rules.
 
 ## Writing the SSP
 

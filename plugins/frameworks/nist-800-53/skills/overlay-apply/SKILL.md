@@ -7,6 +7,20 @@ description: Apply NIST 800-53 overlays (FedRAMP, DoD, Privacy, etc.) to existin
 
 Applies overlay requirements from FedRAMP, DoD, Privacy, and other specialized frameworks to NIST 800-53 baselines, identifying additional controls, parameter changes, and implementation guidance.
 
+## FedRAMP today
+
+A control overlay applies only to FedRAMP's legacy Rev5 certification type. FedRAMP 20x measures Key Security Indicators instead, so use the `fedramp-20x` plugin for it. FedRAMP stops accepting new Rev5 applications on 2027-06-11.
+
+Under FedRAMP's Consolidated Rules for 2026 (CR26), which new Rev5 applications may follow now and must follow from 2027-01-01:
+
+- The outcome is a FedRAMP Certification (formerly called a FedRAMP authorization). Agencies still issue their own authorization to operate (ATO).
+- Low, Moderate and High are replaced by Certification Class B, C and D. The classes loosely align with the NIST baselines and are not identical to them. The `low`, `moderate` and `high` arguments of this command select Class B, C and D for the `fedramp` overlay.
+- Rule `FRC-CSF-BSL` lists the Rev5 controls for each class: 155 for Class B, 322 for Class C, 409 for Class D. Take the control list from that rule, not from the example below.
+- FedRAMP no longer sets most parameter values. The provider assigns them, follows FedRAMP's Rev5 control guidance where a control has an entry, and records them in the Security Decision Record (`FRC-CSF-ACP`).
+- FedRAMP requires no SSP, SAP, SAR or provider POA&M and publishes no templates. The example's documentation, process and monitoring sections describe what it expects instead.
+
+The example output is illustrative. Its controls were checked against the Class C list, but its rationales, effort and cost figures are not FedRAMP's.
+
 ## Usage
 
 ```bash
@@ -45,33 +59,26 @@ Applies overlay requirements from FedRAMP, DoD, Privacy, and other specialized f
 NIST 800-53 OVERLAY APPLICATION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Overlay: FedRAMP Moderate
+Overlay: FedRAMP Rev5, Class C (argument: moderate)
 Base Baseline: NIST 800-53 Rev 5 Moderate
-Authorization Type: Agency ATO (initial)
+Certification Path: Agency (agency ATO, then FedRAMP Certification)
 Cloud Service Model: IaaS
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SUMMARY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Baseline Controls: 325 controls
-FedRAMP Additions: 28 controls
-FedRAMP Removals: 0 controls (none)
-Parameter Changes: 47 parameters
-Total Required: 353 controls
-
-Categorization:
-  Low Impact: 0 controls (not applicable for Moderate)
-  Moderate Impact: 353 controls
-  High Impact: 0 controls (can optionally implement)
+FedRAMP Rev5 Class C Controls: 322 (rule FRC-CSF-BSL)
+Controls Detailed Below: 20 (examples, not the full list)
+Parameters: assigned by the provider (rule FRC-CSF-ACP)
 
 Impact Analysis:
-  Effort Increase: +15% (28 additional controls)
+  Effort Increase: +15%
   Cost Increase: +\$35k-\$50k (initial), +\$15k/year (ongoing)
   Timeline Impact: +6-8 weeks (implementation)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-FEDRAMP-SPECIFIC ADDITIONS
+FEDRAMP REV5 CLASS C CONTROLS TO REVIEW
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 HIGH PRIORITY (Must Implement Before Assessment):
@@ -108,28 +115,6 @@ HIGH PRIORITY (Must Implement Before Assessment):
   Effort: 12 hours
   Cost: \$100/month (storage)
   Evidence: Session logs, API call records
-
-+ AU-4(1) - Transfer to Alternate Storage
-  Requirement: Transfer audit logs to alternate/independent storage
-  FedRAMP Rationale: Prevent log tampering by admins
-  Implementation:
-    - Cross-region CloudTrail replication
-    - Separate AWS account for log aggregation
-    - S3 Object Lock (compliance mode, 1 year)
-  Effort: 16 hours
-  Cost: \$200/month (cross-region transfer + storage)
-  Evidence: S3 replication configuration, Object Lock proof
-
-+ CA-7(3) - Trend Analyses
-  Requirement: Perform security trend analysis
-  FedRAMP Rationale: Proactive threat identification
-  Implementation:
-    - CloudWatch Insights queries (weekly)
-    - GuardDuty trend reports (monthly)
-    - Security dashboard with 30-day trends
-  Effort: 32 hours
-  Cost: \$300/month (CloudWatch Insights)
-  Evidence: Trend analysis reports, dashboards
 
 + CP-9(8) - Cryptographic Protection (Backups)
   Requirement: Encrypt backups with cryptographic mechanisms
@@ -187,9 +172,9 @@ HIGH PRIORITY (Must Implement Before Assessment):
 + IA-5(1) - Password-Based Authentication (Complexity)
   Requirement: Enhanced password requirements
   FedRAMP Parameters:
-    - Minimum 15 characters (NIST baseline: 14)
-    - Password history: 24 (NIST baseline: flexible)
-    - Maximum age: 60 days (NIST removed this, but FedRAMP kept it)
+    - No FedRAMP-set length, history or age. The provider assigns them
+    - Authenticators must meet NIST Digital Identity Guidelines level 2
+      for Class C (FedRAMP IA-5 guidance)
   Implementation:
     - Okta password policy update
     - IAM password policy (for emergency accounts)
@@ -199,11 +184,12 @@ HIGH PRIORITY (Must Implement Before Assessment):
 
 + IR-5 - Incident Monitoring
   Requirement: Real-time incident tracking and reporting
-  FedRAMP Rationale: Report incidents to FedRAMP within 1 hour
+  FedRAMP Rationale: Incident Evaluation and Communication (IEC) rules.
+    Class C: Initial Incident Report within 1 hour for N3 to N5 incidents
   Implementation:
     - PagerDuty integration for critical alerts
     - Automated incident ticket creation (Jira)
-    - Notification to FedRAMP PMO (automated email)
+    - Notification to fedramp_security@fedramp.gov and affected agencies
   Effort: 16 hours
   Cost: \$200/month (PagerDuty)
   Evidence: Incident response runbook, PagerDuty logs
@@ -219,20 +205,12 @@ HIGH PRIORITY (Must Implement Before Assessment):
   Cost: \$50/month (Lambda)
   Evidence: Lambda function code, sample incident reports
 
-+ PE-3(1) - Information System Access - Video Surveillance
-  Requirement: Video surveillance of physical facilities
-  FedRAMP Rationale: Physical security for government data
-  Implementation: N/A (cloud-only, AWS handles physical security)
-  Cloud Provider: AWS physical security attestation
-  Inherited: Yes (from AWS FedRAMP package)
-  Evidence: AWS FedRAMP authorization letter
-
 + RA-5(5) - Privileged Access for Vulnerability Scanning
   Requirement: Credentialed vulnerability scans
   FedRAMP Rationale: More thorough vulnerability detection
   Implementation:
     - Amazon Inspector (agent-based, credentialed)
-    - Tenable.io or Qualys integration (if 3PAO requires)
+    - Tenable.io or Qualys integration (if your assessor requires)
     - Weekly credentialed scans
   Effort: 16 hours
   Cost: \$500/month (Inspector + optional Tenable)
@@ -260,20 +238,10 @@ HIGH PRIORITY (Must Implement Before Assessment):
   Cost: \$50/month (WAF)
   Evidence: Security group configs showing default deny
 
-+ SC-12(1) - Cryptographic Key Availability
-  Requirement: Ensure cryptographic keys available when needed
-  FedRAMP Rationale: Prevent data loss due to key unavailability
-  Implementation:
-    - KMS multi-region keys
-    - Key backup to separate region
-    - Documented key recovery process
-  Effort: 12 hours
-  Cost: \$50/month (additional KMS keys)
-  Evidence: KMS key policies, backup documentation
-
-+ SC-13 - Cryptographic Protection (FedRAMP Approved Algorithms)
-  Requirement: Use only FIPS 140-2 validated cryptography
-  FedRAMP Parameters: AES-256, RSA-2048+, SHA-256+
++ SC-13 - Cryptographic Protection
+  Requirement: Follow FedRAMP's Cryptographic Module Use rules
+  FedRAMP Parameters: Document each module and its NIST CMVP validation
+    status. Validated modules: SHOULD for Class C, MUST for Class D
   Implementation:
     - KMS uses FIPS 140-2 validated modules
     - TLS 1.2+ only (no TLS 1.0/1.1)
@@ -304,17 +272,6 @@ HIGH PRIORITY (Must Implement Before Assessment):
   Effort: 16 hours
   Cost: \$100/month (SSM)
   Evidence: Patch compliance reports
-
-+ SI-3(1) - Central Management (Malware)
-  Requirement: Centrally manage malware detection
-  FedRAMP Rationale: Consistent protection across systems
-  Implementation:
-    - GuardDuty (AWS-native, auto-enabled)
-    - CrowdStrike or Trend Micro (if EC2 workloads)
-    - Central dashboard for all alerts
-  Effort: 20 hours
-  Cost: \$1,000/month (3rd party AV)
-  Evidence: GuardDuty + AV console screenshots
 
 + SI-4(2) - Automated Tools for Real-Time Analysis
   Requirement: Real-time security event analysis
@@ -350,110 +307,114 @@ HIGH PRIORITY (Must Implement Before Assessment):
   Evidence: Agent deployment status
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PARAMETER CHANGES (FedRAMP vs NIST Baseline)
+PARAMETER ASSIGNMENTS (FedRAMP Rev5)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-More Restrictive Parameters:
+The provider assigns each organization-defined parameter and records it
+in the Security Decision Record (rule FRC-CSF-ACP). FedRAMP's Rev5
+control guidance sets a value or gives direction for some controls only.
 
 AC-2(j) - Account Review Frequency
   NIST Moderate: "Organization-defined frequency"
-  FedRAMP: "At least annually"
-  RECOMMENDED: Quarterly (exceeds FedRAMP and PCI DSS 7.2.4's six-month minimum)
+  FedRAMP: no value set, provider-assigned
+  RECOMMENDED: Quarterly (exceeds PCI DSS 7.2.4's six-month minimum)
 
 AU-11 - Audit Record Retention
   NIST Moderate: "Organization-defined time period"
-  FedRAMP: "At least 90 days online, 1 year total"
-  RECOMMENDED: 365 days online (easier compliance)
+  FedRAMP: no value set, provider-assigned
+  RECOMMENDED: 365 days online
 
 IA-5(1) - Password Requirements
-  NIST Moderate: 14 characters minimum
-  FedRAMP: 15 characters minimum + 60-day max age
-  IMPLEMENTATION: 15 chars, 90-day age (balanced)
+  FedRAMP: no value set, provider-assigned (see IA-5(1) above)
+  IMPLEMENTATION: 15 chars (example assignment)
 
 SC-28 - Data at Rest Encryption
   NIST Moderate: "Organization-defined information at rest"
-  FedRAMP: "ALL data at rest must be encrypted"
+  FedRAMP: no value set, provider-assigned
   IMPLEMENTATION: Default encryption on all storage
 
 SI-2 - Flaw Remediation Timeline
   NIST Moderate: "Organization-defined time period"
-  FedRAMP: "Within 30 days (high), 60 days (moderate)"
-  IMPLEMENTATION: 30 days for all (best practice)
+  FedRAMP: follow the VDR and VER rules. Timeframes depend on class,
+    N-rating, likely exploitability and internet reachability, counted
+    from evaluation (rule VDR-TFR-PVR)
+  IMPLEMENTATION: Track each vulnerability against its VDR timeframe
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 FEDRAMP DOCUMENTATION REQUIREMENTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Required Deliverables:
+FedRAMP Certification Package (human-readable and JSON, no templates):
 
-1. System Security Plan (SSP)
-   - FedRAMP template (300+ pages typical)
-   - All 353 controls documented
-   - Control implementation details
-   - Evidence attachments
-   Tool: /nist:ssp-section-generate
+1. Certification Package Overview
+   - Short overview of the offering: services, information flows,
+     third-party resources, cryptographic modules, policy index
+   - Includes the assessor's overall summary
 
-2. Security Assessment Plan (SAP)
-   - Provided by 3PAO (Third Party Assessment Organization)
-   - Review and approve
-   - Identify testable assertions
+2. Security Decision Record (SDR)
+   - Replaces the System Security Plan
+   - One entry per applicable FedRAMP rule and per Rev5 control:
+     parameters, implementation status, verification, validation
+   - Holds the assessor's summaries. There is no SAP or SAR
 
-3. Security Assessment Report (SAR)
-   - Created by 3PAO after testing
-   - Documents findings (open, risk-adjusted)
-   - Remediation plans
+3. Ongoing Certification Report
+   - A real or example report with the initial package
+   - Then every 3 months
 
-4. Plan of Action & Milestones (POA&M)
-   - All open findings
-   - Remediation timeline
-   - Risk ratings
-   - Monthly updates required
+4. Accepted Vulnerabilities List
+   - Replaces the provider POA&M
+   - Part of vulnerability reporting under the VER rules
 
-5. Incident Response Plan
-   - FedRAMP-specific requirements
-   - 1-hour notification to FedRAMP PMO
-   - Templates provided by FedRAMP
+5. Secure Configuration Guide
+   - How customers securely set up and run top-level admin accounts
 
-6. Configuration Management Plan
+Also Expected:
+
+6. Incident Response Plan
+   - Reports follow the IEC rules (timeframes by class and N-rating)
+   - Sent to fedramp_security@fedramp.gov and affected agencies
+
+7. Configuration Management Plan
    - Baseline configurations
    - Change management process
    - Version control
 
-7. Continuous Monitoring Plan
-   - Monthly vulnerability scans (required)
-   - Annual penetration test
-   - Monthly security metrics to FedRAMP
+Legacy Documents (SSP, SAP, SAR, POA&M):
+   - Only when a sponsoring agency asks for them for its own ATO on
+     the Rev5 Agency path, or for a NIST system outside FedRAMP
+   Tool: /nist:ssp-section-generate
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-FEDRAMP AUTHORIZATION PROCESS
+FEDRAMP CERTIFICATION PROCESS (Rev5, Agency path)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Step 1: Readiness Assessment (2-3 months, \$75k-\$150k)
-  - Self-assessment against FedRAMP controls
+Step 1: Preparation (2-3 months, \$75k-\$150k)
+  - Self-assessment against the Class C controls and FedRAMP rules
   - Gap remediation
-  - Documentation preparation
-  - Pre-assessment by 3PAO (optional, recommended)
+  - Certification Package Overview and Security Decision Record
+  - FedRAMP Marketplace listing (Initial Implementation Phase),
+    required before applying
+  - FedRAMP Ready and the Readiness Assessment Report are retired
 
-Step 2: 3PAO Assessment (3-4 months, \$150k-\$300k)
-  - Kickoff and planning
-  - Documentation review
-  - Testing (design + operating effectiveness)
-  - SAR creation
+Step 2: FedRAMP Independent Assessment (3-4 months, \$150k-\$300k)
+  - By a FedRAMP Recognized independent assessment service
+    (formerly called a 3PAO)
+  - Verification and validation of the real implementation
+  - Assessor summaries go into the SDR and the overview. No SAR
 
-Step 3: Agency ATO (1-3 months, varies)
-  - Submit package to agency
-  - Agency review and acceptance
-  - ConMon agreement
-  - ATO issuance
+Step 3: Agency ATO and FedRAMP Certification (1-3 months, varies)
+  - Agency reviews the package, issues its ATO and sponsors
+  - The provider applies to FedRAMP itself
+  - FedRAMP reviews and grants the FedRAMP Certification
 
 Total Timeline: 6-10 months
-Total Cost: \$225k-\$450k (initial), \$100k-\$200k/year (ConMon)
+Total Cost: \$225k-\$450k (initial), \$100k-\$200k/year (ongoing)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 INHERITED CONTROLS (from AWS)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-FedRAMP allows inheritance from AWS (already FedRAMP authorized):
+FedRAMP allows inheritance from AWS (already FedRAMP Certified):
 
 Physical Controls (fully inherited):
   - PE-2: Physical Access Authorizations
@@ -470,7 +431,7 @@ Environmental Controls:
   - PE-11: Emergency Power
   - PE-12: Emergency Lighting
 
-Evidence: AWS FedRAMP authorization package (publicly available)
+Evidence: AWS FedRAMP Certification Package
 Your Responsibility: Reference AWS package, include inheritance table
 
 Shared Controls (partial inheritance):
@@ -486,37 +447,45 @@ Customer Responsibility (no inheritance):
   - SC-7: Boundary Protection (your VPC configuration)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CONTINUOUS MONITORING REQUIREMENTS
+ONGOING CERTIFICATION REQUIREMENTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Monthly Deliverables to FedRAMP:
+Reports go to all necessary parties (FedRAMP and every agency customer)
+through the provider's trust center. The monthly ConMon deliverable
+and the POA&M are gone.
 
-1. Vulnerability Scan Results
-   - Authenticated scans (all assets)
-   - Credentialed scans required
-   - POA&M for findings >30 days old
+Every 3 Months:
 
-2. POA&M Updates
-   - All open findings
-   - Status updates
-   - Risk ratings
+1. Ongoing Certification Report
+   - Changes to certification data, accepted vulnerabilities,
+     transformative changes, reportable incidents or a statement of none
+   - Quarterly Review meeting 3 to 10 business days later
+     (MUST for Class C and D)
 
-3. Incident Summary
-   - All security incidents
-   - Root cause analysis for P1/P2
-   - Remediation status
+Monthly:
 
-4. Change Requests
-   - Significant changes require approval
-   - Examples: new services, architecture changes
-   - Submit via FedRAMP portal
+2. Vulnerability Activity Report (human-readable)
+   - Each vulnerability with its N-rating, reachability, exploitability
+     and status
+   - Anything not resolved within 192 days of evaluation is listed as
+     an accepted vulnerability
+
+Per Event:
+
+3. Incident Reports
+   - Initial, ongoing and final reports under the IEC rules
+
+4. Significant Change Notifications
+   - No advance approval by default
+   - Adaptive changes: notify within 10 business days after
+   - Transformative changes: notify 30 and 10 business days before
 
 Annual Requirements:
 
-1. Security Assessment
-   - Full re-assessment every 3 years
-   - Annual self-assessment in between
-   - Penetration test
+1. FedRAMP Independent Assessment
+   - At least once a year, by a FedRAMP Recognized assessor
+   - A listed core set of Rev5 controls every year
+   - Every applicable control at least once every 3 years
 
 2. ISSO Review
    - Information System Security Officer
@@ -536,15 +505,15 @@ COST SUMMARY
 Initial Authorization:
   Readiness Assessment:        \$75,000 - \$150,000
   Gap Remediation (IaC):        \$25,000 - \$50,000
-  3PAO Assessment:             \$150,000 - \$300,000
+  Independent Assessment:      \$150,000 - \$300,000
   Documentation (internal):     \$40,000 (400 hours @ \$100/hr)
   Misc (tools, training):       \$10,000
   TOTAL INITIAL:               \$300,000 - \$550,000
 
 Ongoing (Annual):
-  3PAO Annual Assessment:       \$75,000 - \$125,000
-  Monthly ConMon:               \$15,000 - \$30,000
-  Vuln Scanning (monthly):      \$12,000
+  Annual Independent Assessment: \$75,000 - \$125,000
+  Ongoing Certification Reports: \$15,000 - \$30,000
+  Vulnerability Detection:      \$12,000
   Incident Response (retainer): \$10,000
   TOTAL ANNUAL:                \$112,000 - \$177,000
 
@@ -566,8 +535,8 @@ RECOMMENDATIONS
 Before Starting FedRAMP:
 
 1. Ensure NIST 800-53 Moderate compliance (baseline)
-2. Complete gap remediation for 28 additional controls
-3. Select and engage 3PAO (get quotes from 3+)
+2. Complete gap remediation against the Class C control list
+3. Select a FedRAMP Recognized assessor (get quotes from 3+)
 4. Budget appropriately (\$300k-\$550k initial)
 5. Allocate internal resources (400-800 hours)
 
@@ -576,13 +545,11 @@ Quick Wins (Implement First):
 1. SC-28(1) - Data at rest encryption (\$0 cost, 8 hours)
 2. IA-5(1) - Update password policy (\$0 cost, 2 hours)
 3. SI-2(2) - Patch Manager (\$100/month, 16 hours)
-4. AU-4(1) - Cross-region log replication (\$200/month, 16 hours)
 
 High Impact:
 
 1. IA-2(12) - PIV/CAC support (\$5k, 40 hours) - REQUIRED for gov users
-2. CA-7(3) - Trend analysis (\$300/month, 32 hours)
-3. RA-5(5) - Credentialed scanning (\$500/month, 16 hours)
+2. RA-5(5) - Credentialed scanning (\$500/month, 16 hours)
 
 Generate Implementation Code:
 
@@ -605,7 +572,7 @@ Generate Implementation Code:
 
 ### DoD Impact Level 4 (IL4)
 
-Similar to FedRAMP High, with additional DoD-specific requirements:
+Similar to FedRAMP Rev5 Class D (the High-aligned class), with additional DoD-specific requirements:
 - DISA STIGs compliance
 - DoD-approved cryptography only
 - Additional logging requirements
@@ -632,5 +599,5 @@ Maps NIST 800-53 to CMMC levels:
 - `/nist:control-tailor` - Tailor individual controls
 - `/nist:select-baseline` - Select appropriate baseline
 - `/nist:ssp-section-generate` - Generate SSP text
-- `/fedramp:assess` - FedRAMP-specific assessment
+- The `fedramp-20x` plugin - FedRAMP 20x and the Consolidated Rules for 2026
 - `/engineer:generate-implementation` - Generate IaC for gaps

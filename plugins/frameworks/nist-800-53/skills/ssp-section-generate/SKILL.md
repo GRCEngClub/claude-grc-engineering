@@ -5,7 +5,11 @@ description: Generate System Security Plan (SSP) sections for NIST 800-53 contro
 
 # NIST 800-53 SSP Section Generator
 
-Generates production-ready System Security Plan (SSP) sections for NIST 800-53 controls, including control statements, implementation details, responsible roles, and evidence references in compliance with FedRAMP and NIST templates.
+Generates production-ready System Security Plan (SSP) sections for NIST 800-53 controls, including control statements, implementation details, responsible roles, and evidence references that follow NIST guidance and the legacy FedRAMP Rev5 SSP layout.
+
+## FedRAMP today
+
+FedRAMP's Consolidated Rules for 2026 replace the System Security Plan with a Certification Package Overview and a Security Decision Record, and FedRAMP no longer publishes document templates. Use this command for a NIST system outside FedRAMP, or when a sponsoring agency asks for an SSP for its own authorization to operate on the Rev5 Agency path. The `fedramp` template produces the legacy FedRAMP Rev5 SSP layout. For a FedRAMP Certification Package, the same control content (parameters, implementation status, how the control is verified and validated) goes into the Security Decision Record.
 
 ## Usage
 
@@ -42,7 +46,7 @@ Generates production-ready System Security Plan (SSP) sections for NIST 800-53 c
 SSP SECTION: AC-2 - ACCOUNT MANAGEMENT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Template: FedRAMP Rev 5 Moderate
+Template: FedRAMP Rev5 Moderate (legacy SSP layout)
 System: Your Company Cloud Platform
 Date: 2025-01-28
 
@@ -581,7 +585,7 @@ Oversight:
 
 Assessment:
   - Internal Audit
-  - Third Party Assessor (3PAO)
+  - Independent assessor (for FedRAMP, a FedRAMP Recognized assessor, formerly called a 3PAO)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PART D: IMPLEMENTATION EVIDENCE
@@ -618,7 +622,7 @@ Operational Evidence:
 Audit Evidence:
   - Annual penetration test (2024-11-15)
   - Quarterly vulnerability scans (2024 Q1-Q4)
-  - Control effectiveness testing results (from 3PAO assessment)
+  - Control effectiveness testing results (from the independent assessment)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PART E: CUSTOMER RESPONSIBILITIES (CRMs)
