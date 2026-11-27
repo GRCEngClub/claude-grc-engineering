@@ -26,7 +26,7 @@ Analyzes multiple compliance frameworks to identify "implement once, satisfy man
 - `PCI` or `PCI-DSS` - PCI DSS v4.0.1
 - `CIS` - CIS Controls v8
 - `CMMC` - CMMC 2.0
-- `FedRAMP` - FedRAMP (uses NIST 800-53)
+- `FedRAMP` - FedRAMP Rev5 (uses NIST SP 800-53 Rev. 5 controls). FedRAMP 20x Key Security Indicators are not in the crosswalk.
 - `HITRUST` - HITRUST CSF
 - `GDPR` - GDPR
 - `HIPAA` - HIPAA

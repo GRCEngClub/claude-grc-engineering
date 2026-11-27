@@ -218,11 +218,19 @@ const FRAMEWORK_ALIASES = {
   'pci-dss-saq-a-ep':             'general-pci-dss-4-0-1-saq-a-ep',
   'pci-dss-saq-b':                'general-pci-dss-4-0-1-saq-b',
 
+  // SCF publishes its FedRAMP crosswalks under the former impact-level names
+  // (low, mod, high). FedRAMP's Consolidated Rules for 2026 call the Rev5 control
+  // lists Class B, C and D, which loosely align with those names. The rev5-class
+  // aliases resolve to the loosely aligned SCF set, which can differ from
+  // FedRAMP's current list. FedRAMP 20x Key Security Indicators have no alias here.
   'fedramp':                      'usa-federal-gsa-fedramp-5-mod',
   'fedramp-low':                  'usa-federal-gsa-fedramp-5-low',
   'fedramp-moderate':             'usa-federal-gsa-fedramp-5-mod',
   'fedramp-mod':                  'usa-federal-gsa-fedramp-5-mod',
   'fedramp-high':                 'usa-federal-gsa-fedramp-5-high',
+  'fedramp-rev5-class-b':         'usa-federal-gsa-fedramp-5-low',
+  'fedramp-rev5-class-c':         'usa-federal-gsa-fedramp-5-mod',
+  'fedramp-rev5-class-d':         'usa-federal-gsa-fedramp-5-high',
   'fedramp-li-saas':              'usa-federal-gsa-fedramp-5-li-saas',
 
   'hipaa':                        'usa-federal-law-hipaa-security-rule-2013',

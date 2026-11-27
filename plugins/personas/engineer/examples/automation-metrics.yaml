@@ -5,6 +5,7 @@ defaults:
     audience: ciso-weekly
 
 entries:
+  # fedramp-moderate is FedRAMP's Rev5 Class C control list (322 controls).
   - framework: fedramp-moderate
     provider: aws
 

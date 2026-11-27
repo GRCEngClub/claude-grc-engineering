@@ -89,9 +89,9 @@ CMMC:
   ✓ IA.L2-3.5.1  - Identify Users
   ✓ IA.L2-3.5.2  - Authenticate Users
 
-FedRAMP:
+FedRAMP Rev5:
   ✓ AC-2     - NIST 800-53 Control
-  Baseline: Moderate
+  Rev5 Classes: B, C, D
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 COMMON REQUIREMENTS (All Frameworks)
@@ -173,7 +173,7 @@ OPTIMIZATION INSIGHT
    ✓ PCI-DSS (4 controls)
    ✓ CIS Controls (5 controls)
    ✓ CMMC (4 controls)
-   ✓ FedRAMP (1 control)
+   ✓ FedRAMP Rev5 (1 control)
 
    Total: 25 controls satisfied
    Estimated effort: 40 hours

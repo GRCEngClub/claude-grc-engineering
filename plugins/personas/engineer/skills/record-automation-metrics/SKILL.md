@@ -18,9 +18,14 @@ The command always writes these metric IDs:
 Use it in one of three modes:
 
 1. **Derived mode** for `fedramp-low`, `fedramp-moderate`, `fedramp-high`, or
-   `fedramp-20x-ksi`, where the toolkit can count automated controls from the
-   evidence collector config. This is a **tooling-capability baseline**, not
-   proof that your program is already running every automation in production.
+   `fedramp-20x-ksi`. The first three are FedRAMP's Rev5 Class B, C and D
+   control lists (155, 322 and 409 controls). `fedramp-20x-ksi` is the 46
+   FedRAMP 20x Key Security Indicators. Both come from FedRAMP's Consolidated
+   Rules for 2026 dataset. The total is FedRAMP's count, and the automated count
+   is the number of those items the toolkit has a cloud check for on the chosen
+   provider. This is a **tooling-capability baseline**, not proof that your
+   program is already running every automation in production. The checks are
+   the toolkit's own, not FedRAMP's.
 2. **Manual mode** for any framework alias, where you provide the total and
    automated counts directly. Use this for operator-observed reporting.
 3. **Framework metadata total mode** for framework plugins that publish
@@ -40,7 +45,7 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../../../docs/GRC-DATA.md) and
 
 ## Arguments
 
-- Argument 1 - Framework alias or FedRAMP scope
+- Argument 1 - Framework alias, or one of the four FedRAMP names above
 - Argument 2 - Provider in derived mode (optional, defaults to `aws`)
 
 ## Common options
@@ -88,10 +93,10 @@ Metric rows follow [`docs/GRC-DATA.md`](../../../../../docs/GRC-DATA.md) and
 ## Examples
 
 ```bash
-# Derive coverage for FedRAMP Moderate on AWS
+# Derive coverage for the FedRAMP Rev5 Class C control list (fedramp-moderate) on AWS
 /engineer:record-automation-metrics fedramp-moderate aws --window-label=2026-W16
 
-# Derive coverage for FedRAMP 20x on GCP
+# Derive coverage for the FedRAMP 20x Key Security Indicators on GCP
 /engineer:record-automation-metrics fedramp-20x-ksi gcp --window-label=2026-W16
 
 # Record an operator-observed SOC 2 snapshot

@@ -1,15 +1,35 @@
-name: FedRAMP Moderate Baseline
-version: Rev 5
-description: |
-  FedRAMP Moderate Impact baseline for systems with serious risk to organizational operations,
-  assets, individuals, and the Nation. Approximately 325 controls.
+# FedRAMP Rev5 Class C control list
+#
+# The control IDs come from FedRAMP's machine-readable Consolidated Rules for 2026
+# (CR26), dataset version 2026.11.02.01, rule FRC-CSF-BSL, Class C list:
+#   https://github.com/FedRAMP/rules (file fedramp-consolidated-rules.json)
+# When FedRAMP publishes a new dataset version, update this file from the dataset.
+#
+# The "notes" text is a short control title for readers. It is not FedRAMP text.
+# Titles added in this revision are from the NIST SP 800-53 Rev. 5 catalog (release 5.2.0).
+#
+# The file name and the framework ID fedramp-moderate are kept so existing commands keep
+# working. FedRAMP now names this list by Certification Class, not by impact level.
 
-impact_level: Moderate
+name: FedRAMP Rev5 Class C Baseline
+version: Rev5
+description: |
+  The 322 NIST SP 800-53 Rev. 5 controls that a provider seeking a FedRAMP Rev5 Class C
+  Certification must include, at a minimum, in its Security Decision Record (rule FRC-CSF-BSL).
+  Rev5 is FedRAMP's legacy Certification Type. Class C loosely aligns with the former Moderate
+  impact level, and FedRAMP says the two are not the same thing. FedRAMP stops accepting
+  applications for new Rev5 Certifications on 2027-06-11.
+
+source: https://github.com/FedRAMP/rules
+dataset_version: "2026.11.02.01"
+source_rule: FRC-CSF-BSL
+certification_type: Rev5
+certification_class: C
+loosely_aligned_impact_level: Moderate
+control_count: 322
+new_rev5_applications_end: "2027-06-11"
 applicable_to:
-  - Moderate impact federal information systems
-  - Controlled Unclassified Information (CUI)
-  - PII and PHI data
-  - Most SaaS offerings
+  - Providers seeking or holding a FedRAMP Rev5 Class C Certification
 
 controls:
   AC-1: { required: true, notes: "Policy and Procedures" }
@@ -18,18 +38,24 @@ controls:
   AC-2(2): { required: true, notes: "Automated Temporary/Emergency Accounts" }
   AC-2(3): { required: true, notes: "Disable Accounts" }
   AC-2(4): { required: true, notes: "Automated Audit Actions" }
+  AC-2(5): { required: true, notes: "Inactivity Logout" }
+  AC-2(7): { required: true, notes: "Privileged User Accounts" }
+  AC-2(9): { required: true, notes: "Restrictions on Use of Shared and Group Accounts" }
+  AC-2(12): { required: true, notes: "Account Monitoring for Atypical Usage" }
+  AC-2(13): { required: true, notes: "Disable Accounts for High-Risk Individuals" }
   AC-3: { required: true, notes: "Access Enforcement" }
   AC-4: { required: true, notes: "Information Flow Enforcement" }
+  AC-4(21): { required: true, notes: "Physical or Logical Separation of Information Flows" }
   AC-5: { required: true, notes: "Separation of Duties" }
   AC-6: { required: true, notes: "Least Privilege" }
   AC-6(1): { required: true, notes: "Authorize Access to Security Functions" }
   AC-6(2): { required: true, notes: "Non-Privileged Access for Non-Security Functions" }
   AC-6(5): { required: true, notes: "Privileged Accounts" }
+  AC-6(7): { required: true, notes: "Review of User Privileges" }
   AC-6(9): { required: true, notes: "Log Use of Privileged Functions" }
   AC-6(10): { required: true, notes: "Prohibit Non-Privileged Users from Executing Privileged Functions" }
   AC-7: { required: true, notes: "Unsuccessful Logon Attempts" }
   AC-8: { required: true, notes: "System Use Notification" }
-  AC-10: { required: true, notes: "Concurrent Session Control" }
   AC-11: { required: true, notes: "Device Lock" }
   AC-11(1): { required: true, notes: "Pattern-Hiding Displays" }
   AC-12: { required: true, notes: "Session Termination" }
@@ -41,6 +67,7 @@ controls:
   AC-17(4): { required: true, notes: "Privileged Commands/Access" }
   AC-18: { required: true, notes: "Wireless Access" }
   AC-18(1): { required: true, notes: "Authentication and Encryption" }
+  AC-18(3): { required: true, notes: "Disable Wireless Networking" }
   AC-19: { required: true, notes: "Access Control for Mobile Devices" }
   AC-19(5): { required: true, notes: "Full Device/Container-Based Encryption" }
   AC-20: { required: true, notes: "Use of External Systems" }
@@ -52,6 +79,7 @@ controls:
   AT-1: { required: true, notes: "Policy and Procedures" }
   AT-2: { required: true, notes: "Literacy Training and Awareness" }
   AT-2(2): { required: true, notes: "Insider Threat" }
+  AT-2(3): { required: true, notes: "Social Engineering and Mining" }
   AT-3: { required: true, notes: "Role-Based Training" }
   AT-4: { required: true, notes: "Training Records" }
 
@@ -67,7 +95,6 @@ controls:
   AU-7: { required: true, notes: "Audit Record Reduction and Report Generation" }
   AU-7(1): { required: true, notes: "Automatic Processing" }
   AU-8: { required: true, notes: "Time Stamps" }
-  AU-8(1): { required: true, notes: "Synchronization with Authoritative Time Source" }
   AU-9: { required: true, notes: "Protection of Audit Information" }
   AU-9(4): { required: true, notes: "Access by Subset of Privileged Users" }
   AU-11: { required: true, notes: "Audit Record Retention" }
@@ -76,22 +103,30 @@ controls:
   CA-1: { required: true, notes: "Policy and Procedures" }
   CA-2: { required: true, notes: "Control Assessments" }
   CA-2(1): { required: true, notes: "Independent Assessors" }
+  CA-2(3): { required: true, notes: "Leveraging Results from External Organizations" }
   CA-3: { required: true, notes: "Information Exchange" }
-  CA-5: { required: true, notes: "Plan of Action and Milestones" }
   CA-6: { required: true, notes: "Authorization" }
   CA-7: { required: true, notes: "Continuous Monitoring" }
   CA-7(1): { required: true, notes: "Independent Assessment" }
+  CA-7(4): { required: true, notes: "Risk Monitoring" }
+  CA-8: { required: true, notes: "Penetration Testing" }
+  CA-8(1): { required: true, notes: "Independent Penetration Agent" }
+  CA-8(2): { required: true, notes: "Red Team Exercises" }
   CA-9: { required: true, notes: "Internal System Connections" }
 
   CM-1: { required: true, notes: "Policy and Procedures" }
   CM-2: { required: true, notes: "Baseline Configuration" }
-  CM-2(1): { required: true, notes: "Reviews and Updates" }
+  CM-2(2): { required: true, notes: "Automation Support for Accuracy and Currency" }
   CM-2(3): { required: true, notes: "Retention of Previous Configurations" }
   CM-2(7): { required: true, notes: "Configure Systems and Components for High-Risk Areas" }
   CM-3: { required: true, notes: "Configuration Change Control" }
   CM-3(2): { required: true, notes: "Testing, Validation, and Documentation" }
+  CM-3(4): { required: true, notes: "Security Representative" }
   CM-4: { required: true, notes: "Impact Analyses" }
+  CM-4(2): { required: true, notes: "Verification of Controls" }
   CM-5: { required: true, notes: "Access Restrictions for Change" }
+  CM-5(1): { required: true, notes: "Automated Access Enforcement/Audit Records" }
+  CM-5(5): { required: true, notes: "Privilege Limitation for Production and Operation" }
   CM-6: { required: true, notes: "Configuration Settings" }
   CM-6(1): { required: true, notes: "Automated Management" }
   CM-7: { required: true, notes: "Least Functionality" }
@@ -104,6 +139,8 @@ controls:
   CM-9: { required: true, notes: "Configuration Management Plan" }
   CM-10: { required: true, notes: "Software Usage Restrictions" }
   CM-11: { required: true, notes: "User-Installed Software" }
+  CM-12: { required: true, notes: "Information Location" }
+  CM-12(1): { required: true, notes: "Automated Tools to Support Information Location" }
 
   CP-1: { required: true, notes: "Policy and Procedures" }
   CP-2: { required: true, notes: "Contingency Plan" }
@@ -125,6 +162,7 @@ controls:
   CP-8(2): { required: true, notes: "Single Points of Failure" }
   CP-9: { required: true, notes: "System Backup" }
   CP-9(1): { required: true, notes: "Testing for Reliability and Integrity" }
+  CP-9(8): { required: true, notes: "Cryptographic Protection" }
   CP-10: { required: true, notes: "System Recovery and Reconstitution" }
   CP-10(2): { required: true, notes: "Transaction Recovery" }
 
@@ -132,6 +170,8 @@ controls:
   IA-2: { required: true, notes: "Identification and Authentication" }
   IA-2(1): { required: true, notes: "MFA for Privileged Accounts" }
   IA-2(2): { required: true, notes: "MFA for Non-Privileged Accounts" }
+  IA-2(5): { required: true, notes: "Individual Authentication with Group Authentication" }
+  IA-2(6): { required: true, notes: "Access to Accounts - Separate Device" }
   IA-2(8): { required: true, notes: "Replay Resistant" }
   IA-2(12): { required: true, notes: "Acceptance of PIV Credentials" }
   IA-3: { required: true, notes: "Device Identification and Authentication" }
@@ -141,12 +181,18 @@ controls:
   IA-5(1): { required: true, notes: "Password-Based Authentication" }
   IA-5(2): { required: true, notes: "Public Key-Based Authentication" }
   IA-5(6): { required: true, notes: "Protection of Authenticators" }
+  IA-5(7): { required: true, notes: "No Embedded Unencrypted Static Authenticators" }
   IA-6: { required: true, notes: "Authentication Feedback" }
   IA-7: { required: true, notes: "Cryptographic Module Authentication" }
   IA-8: { required: true, notes: "Identification and Authentication (Non-Org Users)" }
   IA-8(1): { required: true, notes: "Acceptance of PIV Credentials" }
   IA-8(2): { required: true, notes: "Acceptance of External Authenticators" }
   IA-8(4): { required: true, notes: "Use of Defined Profiles" }
+  IA-11: { required: true, notes: "Re-authentication" }
+  IA-12: { required: true, notes: "Identity Proofing" }
+  IA-12(2): { required: true, notes: "Identity Evidence" }
+  IA-12(3): { required: true, notes: "Identity Evidence Validation and Verification" }
+  IA-12(5): { required: true, notes: "Address Confirmation" }
 
   IR-1: { required: true, notes: "Policy and Procedures" }
   IR-2: { required: true, notes: "Incident Response Training" }
@@ -157,18 +203,24 @@ controls:
   IR-5: { required: true, notes: "Incident Monitoring" }
   IR-6: { required: true, notes: "Incident Reporting" }
   IR-6(1): { required: true, notes: "Automated Reporting" }
+  IR-6(3): { required: true, notes: "Supply Chain Coordination" }
   IR-7: { required: true, notes: "Incident Response Assistance" }
   IR-7(1): { required: true, notes: "Automation Support for Availability" }
   IR-8: { required: true, notes: "Incident Response Plan" }
+  IR-9: { required: true, notes: "Information Spillage Response" }
+  IR-9(2): { required: true, notes: "Training" }
+  IR-9(3): { required: true, notes: "Post-Spill Operations" }
+  IR-9(4): { required: true, notes: "Exposure to Unauthorized Personnel" }
 
   MA-1: { required: true, notes: "Policy and Procedures" }
   MA-2: { required: true, notes: "Controlled Maintenance" }
   MA-3: { required: true, notes: "Maintenance Tools" }
   MA-3(1): { required: true, notes: "Inspect Tools" }
   MA-3(2): { required: true, notes: "Inspect Media" }
+  MA-3(3): { required: true, notes: "Prevent Unauthorized Removal" }
   MA-4: { required: true, notes: "Nonlocal Maintenance" }
-  MA-4(2): { required: true, notes: "Document Nonlocal Maintenance" }
   MA-5: { required: true, notes: "Maintenance Personnel" }
+  MA-5(1): { required: true, notes: "Individuals Without Appropriate Access" }
   MA-6: { required: true, notes: "Timely Maintenance" }
 
   MP-1: { required: true, notes: "Policy and Procedures" }
@@ -177,9 +229,7 @@ controls:
   MP-4: { required: true, notes: "Media Storage" }
   MP-5: { required: true, notes: "Media Transport" }
   MP-6: { required: true, notes: "Media Sanitization" }
-  MP-6(2): { required: true, notes: "Equipment Testing" }
   MP-7: { required: true, notes: "Media Use" }
-  MP-7(1): { required: true, notes: "Prohibit Use Without Owner" }
 
   PE-1: { required: true, notes: "Policy and Procedures" }
   PE-2: { required: true, notes: "Physical Access Authorizations" }
@@ -194,52 +244,43 @@ controls:
   PE-11: { required: true, notes: "Emergency Power" }
   PE-12: { required: true, notes: "Emergency Lighting" }
   PE-13: { required: true, notes: "Fire Protection" }
+  PE-13(1): { required: true, notes: "Detection Systems - Automatic Activation and Notification" }
   PE-13(2): { required: true, notes: "Suppression Systems" }
-  PE-13(3): { required: true, notes: "Automatic Fire Suppression" }
   PE-14: { required: true, notes: "Environmental Controls" }
-  PE-14(2): { required: true, notes: "Monitoring with Alarms" }
   PE-15: { required: true, notes: "Water Damage Protection" }
   PE-16: { required: true, notes: "Delivery and Removal" }
   PE-17: { required: true, notes: "Alternate Work Site" }
 
   PL-1: { required: true, notes: "Policy and Procedures" }
   PL-2: { required: true, notes: "System Security and Privacy Plans" }
-  PL-2(3): { required: true, notes: "Plan/Coordinate with Other Entities" }
   PL-4: { required: true, notes: "Rules of Behavior" }
   PL-4(1): { required: true, notes: "Social Media Restrictions" }
   PL-8: { required: true, notes: "Security and Privacy Architectures" }
   PL-10: { required: true, notes: "Baseline Selection" }
   PL-11: { required: true, notes: "Baseline Tailoring" }
 
-  PM-1: { required: true, notes: "Information Security Program Plan" }
-  PM-2: { required: true, notes: "Information Security Program Leadership Role" }
-  PM-3: { required: true, notes: "Information Security and Privacy Resources" }
-  PM-4: { required: true, notes: "Plan of Action and Milestones Process" }
-  PM-5: { required: true, notes: "System Inventory" }
-  PM-6: { required: true, notes: "Measures of Performance" }
-  PM-7: { required: true, notes: "Enterprise Architecture" }
-  PM-9: { required: true, notes: "Risk Management Strategy" }
-  PM-10: { required: true, notes: "Authorization Process" }
-  PM-11: { required: true, notes: "Mission and Business Process Definition" }
-  PM-14: { required: true, notes: "Testing, Training, and Monitoring" }
-  PM-16: { required: true, notes: "Threat Awareness Program" }
-
   PS-1: { required: true, notes: "Policy and Procedures" }
   PS-2: { required: true, notes: "Position Risk Designation" }
   PS-3: { required: true, notes: "Personnel Screening" }
+  PS-3(3): { required: true, notes: "Information Requiring Special Protective Measures" }
   PS-4: { required: true, notes: "Personnel Termination" }
   PS-5: { required: true, notes: "Personnel Transfer" }
   PS-6: { required: true, notes: "Access Agreements" }
   PS-7: { required: true, notes: "External Personnel Security" }
   PS-8: { required: true, notes: "Personnel Sanctions" }
+  PS-9: { required: true, notes: "Position Descriptions" }
 
   RA-1: { required: true, notes: "Policy and Procedures" }
   RA-2: { required: true, notes: "Security Categorization" }
   RA-3: { required: true, notes: "Risk Assessment" }
+  RA-3(1): { required: true, notes: "Supply Chain Risk Assessment" }
   RA-5: { required: true, notes: "Vulnerability Monitoring and Scanning" }
-  RA-5(1): { required: true, notes: "Update Vulnerabilities" }
   RA-5(2): { required: true, notes: "Update Frequency/Prior to Scan" }
+  RA-5(3): { required: true, notes: "Breadth/Depth of Coverage" }
   RA-5(5): { required: true, notes: "Privileged Access" }
+  RA-5(11): { required: true, notes: "Public Disclosure Program" }
+  RA-7: { required: true, notes: "Risk Response" }
+  RA-9: { required: true, notes: "Criticality Analysis" }
 
   SA-1: { required: true, notes: "Policy and Procedures" }
   SA-2: { required: true, notes: "Allocation of Resources" }
@@ -252,10 +293,15 @@ controls:
   SA-5: { required: true, notes: "System Documentation" }
   SA-8: { required: true, notes: "Security and Privacy Engineering Principles" }
   SA-9: { required: true, notes: "External System Services" }
+  SA-9(1): { required: true, notes: "Risk Assessments/Organizational Approvals" }
   SA-9(2): { required: true, notes: "Identification of Functions/Ports/Protocols" }
+  SA-9(5): { required: true, notes: "Processing, Storage, and Service Location" }
   SA-10: { required: true, notes: "Developer Configuration Management" }
   SA-11: { required: true, notes: "Developer Testing and Evaluation" }
   SA-11(1): { required: true, notes: "Static Code Analysis" }
+  SA-11(2): { required: true, notes: "Threat Modeling/Vulnerability Analysis" }
+  SA-15: { required: true, notes: "Development Process, Standards, and Tools" }
+  SA-15(3): { required: true, notes: "Criticality Analysis" }
   SA-22: { required: true, notes: "Unsupported System Components" }
 
   SC-1: { required: true, notes: "Policy and Procedures" }
@@ -268,17 +314,16 @@ controls:
   SC-7(5): { required: true, notes: "Deny by Default/Allow by Exception" }
   SC-7(7): { required: true, notes: "Split Tunneling" }
   SC-7(8): { required: true, notes: "Route Traffic to Authenticated Proxy" }
+  SC-7(12): { required: true, notes: "Host-Based Protection" }
   SC-7(18): { required: true, notes: "Fail Secure" }
   SC-8: { required: true, notes: "Transmission Confidentiality and Integrity" }
   SC-8(1): { required: true, notes: "Cryptographic Protection" }
   SC-10: { required: true, notes: "Network Disconnect" }
   SC-12: { required: true, notes: "Cryptographic Key Management" }
-  SC-12(1): { required: true, notes: "Availability" }
   SC-13: { required: true, notes: "Cryptographic Protection" }
   SC-15: { required: true, notes: "Collaborative Computing Devices" }
   SC-17: { required: true, notes: "PKI Certificates" }
   SC-18: { required: true, notes: "Mobile Code" }
-  SC-19: { required: true, notes: "VoIP" }
   SC-20: { required: true, notes: "Secure Name/Address Resolution (Authoritative)" }
   SC-21: { required: true, notes: "Secure Name/Address Resolution (Recursive)" }
   SC-22: { required: true, notes: "Name/Address Resolution Architecture" }
@@ -286,30 +331,64 @@ controls:
   SC-28: { required: true, notes: "Protection of Information at Rest" }
   SC-28(1): { required: true, notes: "Cryptographic Protection" }
   SC-39: { required: true, notes: "Process Isolation" }
+  SC-45: { required: true, notes: "System Time Synchronization" }
+  SC-45(1): { required: true, notes: "Synchronization with Authoritative Time Source" }
 
   SI-1: { required: true, notes: "Policy and Procedures" }
   SI-2: { required: true, notes: "Flaw Remediation" }
   SI-2(2): { required: true, notes: "Automated Flaw Remediation Status" }
+  SI-2(3): { required: true, notes: "Time to Remediate Flaws and Benchmarks for Corrective Actions" }
   SI-3: { required: true, notes: "Malicious Code Protection" }
-  SI-3(1): { required: true, notes: "Central Management" }
-  SI-3(2): { required: true, notes: "Automatic Updates" }
   SI-4: { required: true, notes: "System Monitoring" }
+  SI-4(1): { required: true, notes: "System-wide Intrusion Detection System" }
   SI-4(2): { required: true, notes: "Automated Tools for Real-Time Analysis" }
   SI-4(4): { required: true, notes: "Inbound and Outbound Traffic" }
   SI-4(5): { required: true, notes: "System-Generated Alerts" }
+  SI-4(16): { required: true, notes: "Correlate Monitoring Information" }
+  SI-4(18): { required: true, notes: "Analyze Traffic and Covert Exfiltration" }
+  SI-4(23): { required: true, notes: "Host-based Devices" }
   SI-5: { required: true, notes: "Security Alerts, Advisories, and Directives" }
+  SI-6: { required: true, notes: "Security and Privacy Function Verification" }
   SI-7: { required: true, notes: "Software, Firmware, and Information Integrity" }
   SI-7(1): { required: true, notes: "Integrity Checks" }
+  SI-7(7): { required: true, notes: "Integration of Detection and Response" }
   SI-8: { required: true, notes: "Spam Protection" }
-  SI-8(1): { required: true, notes: "Central Management" }
   SI-8(2): { required: true, notes: "Automatic Updates" }
   SI-10: { required: true, notes: "Information Input Validation" }
   SI-11: { required: true, notes: "Error Handling" }
   SI-12: { required: true, notes: "Information Management and Retention" }
   SI-16: { required: true, notes: "Memory Protection" }
 
+  SR-1: { required: true, notes: "Policy and Procedures" }
+  SR-2: { required: true, notes: "Supply Chain Risk Management Plan" }
+  SR-2(1): { required: true, notes: "Establish SCRM Team" }
+  SR-3: { required: true, notes: "Supply Chain Controls and Processes" }
+  SR-5: { required: true, notes: "Acquisition Strategies, Tools, and Methods" }
+  SR-6: { required: true, notes: "Supplier Assessments and Reviews" }
+  SR-8: { required: true, notes: "Notification Agreements" }
+  SR-10: { required: true, notes: "Inspection of Systems or Components" }
+  SR-11: { required: true, notes: "Component Authenticity" }
+  SR-11(1): { required: true, notes: "Anti-counterfeit Training" }
+  SR-11(2): { required: true, notes: "Configuration Control for Component Service and Repair" }
+  SR-12: { required: true, notes: "Component Disposal" }
+
+# Cadences that FedRAMP's Consolidated Rules for 2026 set for a Rev5 Class C
+# certification, each with the rule it comes from. Every ruleset has its own Rev5
+# effective dates; read the "effective" blocks in the dataset before treating a
+# cadence as already in force. The rules set no fixed penetration test frequency.
 fedramp_additional:
-  continuous_monitoring_frequency: monthly
-  penetration_testing: annual
-  vulnerability_scanning: monthly
-  assessment_frequency: annual
+  ongoing_certification_report: { cadence: "every 3 months", force: MUST, rule: CCM-OCR-AVL }
+  vulnerability_activity_report: { cadence: "at least monthly, human-readable", force: MUST, rule: VER-TFR-MHR }
+  machine_verification_and_validation: { cadence: "at least once every month", force: MUST, rule: VDR-TFR-MVF }
+  non_machine_verification_and_validation: { cadence: "at least once every 3 months", force: MUST, rule: VDR-TFR-NMV }
+  vulnerability_detection:
+    representative_samples: { cadence: "at least once every 3 days", force: SHOULD, rule: VDR-TFR-PSD }
+    resources_likely_to_drift: { cadence: "at least once every 14 days", force: SHOULD, rule: VDR-TFR-PDD }
+    resources_not_likely_to_drift: { cadence: "at least once every month", force: SHOULD, rule: VDR-TFR-PCD }
+  independent_assessment:
+    cadence: "at least once every year"
+    force: MUST
+    rule: IVV-CSO-FIA
+    controls_assessed_every_year: 80  # rule IVV-CSF-AIA
+    all_controls_assessed_within: "3 years"  # rule IVV-CSF-MCA
+  certification_package_maintenance: { cadence: "at least once every year", force: MUST, rule: CPO-CSF-CPM }

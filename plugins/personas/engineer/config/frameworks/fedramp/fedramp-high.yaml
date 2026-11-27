@@ -1,56 +1,75 @@
-name: FedRAMP High Baseline
-version: Rev 5
-description: |
-  FedRAMP High Impact baseline for systems with severe or catastrophic risk to organizational
-  operations, assets, individuals, and the Nation. Approximately 421 controls.
+# FedRAMP Rev5 Class D control list
+#
+# The control IDs come from FedRAMP's machine-readable Consolidated Rules for 2026
+# (CR26), dataset version 2026.11.02.01, rule FRC-CSF-BSL, Class D list:
+#   https://github.com/FedRAMP/rules (file fedramp-consolidated-rules.json)
+# When FedRAMP publishes a new dataset version, update this file from the dataset.
+#
+# The "notes" text is a short control title for readers. It is not FedRAMP text.
+# Titles added in this revision are from the NIST SP 800-53 Rev. 5 catalog (release 5.2.0).
+#
+# The file name and the framework ID fedramp-high are kept so existing commands keep
+# working. FedRAMP now names this list by Certification Class, not by impact level.
 
-impact_level: High
+name: FedRAMP Rev5 Class D Baseline
+version: Rev5
+description: |
+  The 409 NIST SP 800-53 Rev. 5 controls that a provider seeking a FedRAMP Rev5 Class D
+  Certification must include, at a minimum, in its Security Decision Record (rule FRC-CSF-BSL).
+  87 controls are listed here and 322 come from fedramp-moderate.yaml through "includes".
+  Rev5 is FedRAMP's legacy Certification Type. Class D loosely aligns with the former High
+  impact level, and FedRAMP says the two are not the same thing. FedRAMP stops accepting
+  applications for new Rev5 Certifications on 2027-06-11.
+
+source: https://github.com/FedRAMP/rules
+dataset_version: "2026.11.02.01"
+source_rule: FRC-CSF-BSL
+certification_type: Rev5
+certification_class: D
+loosely_aligned_impact_level: High
+control_count: 409
+new_rev5_applications_end: "2027-06-11"
 includes:
   - fedramp-moderate.yaml
 applicable_to:
-  - High impact federal information systems
-  - Law enforcement and emergency services data
-  - Financial systems
-  - Health systems
-  - Critical infrastructure
-  - Any system where loss of confidentiality, integrity, or availability could have severe effects
+  - Providers seeking or holding a FedRAMP Rev5 Class D Certification
 
 controls:
-
-  AC-2(5): { required: true, notes: "Inactivity Logout" }
   AC-2(11): { required: true, notes: "Usage Conditions" }
-  AC-2(12): { required: true, notes: "Account Monitoring for Atypical Usage" }
-  AC-2(13): { required: true, notes: "Disable Accounts for High-Risk Individuals" }
-  AC-3(2): { required: true, notes: "Dual Authorization" }
   AC-4(4): { required: true, notes: "Flow Control of Encrypted Information" }
   AC-6(3): { required: true, notes: "Network Access to Privileged Commands" }
-  AC-17(9): { required: true, notes: "Disconnect/Disable Access" }
+  AC-6(8): { required: true, notes: "Privilege Levels for Code Execution" }
+  AC-10: { required: true, notes: "Concurrent Session Control" }
+  AC-18(4): { required: true, notes: "Restrict Configurations by Users" }
+  AC-18(5): { required: true, notes: "Antennas and Transmission Power Levels" }
 
-  AT-2(1): { required: true, notes: "Practical Exercises" }
-  AT-2(3): { required: true, notes: "Social Engineering and Mining" }
-  AT-2(5): { required: true, notes: "Advanced Persistent Threat" }
-  AT-3(3): { required: true, notes: "Practical Exercises" }
-
+  AU-5(1): { required: true, notes: "Storage Capacity Warning" }
+  AU-5(2): { required: true, notes: "Real-time Alerts" }
+  AU-6(4): { required: true, notes: "Central Review and Analysis" }
+  AU-6(5): { required: true, notes: "Integrated Analysis of Audit Records" }
+  AU-6(6): { required: true, notes: "Correlation with Physical Monitoring" }
+  AU-6(7): { required: true, notes: "Permitted Actions" }
   AU-9(2): { required: true, notes: "Store on Separate Physical Systems" }
+  AU-9(3): { required: true, notes: "Cryptographic Protection" }
   AU-10: { required: true, notes: "Non-repudiation" }
   AU-12(1): { required: true, notes: "System-Wide/Time-Correlated Audit Trail" }
   AU-12(3): { required: true, notes: "Changes by Authorized Individuals" }
 
   CA-2(2): { required: true, notes: "Specialized Assessments" }
-  CA-8: { required: true, notes: "Penetration Testing" }
-  CA-8(1): { required: true, notes: "Independent Penetration Agent" }
+  CA-3(6): { required: true, notes: "Transfer Authorizations" }
 
   CM-3(1): { required: true, notes: "Automated Documentation/Notification/Prohibition" }
-  CM-3(4): { required: true, notes: "Security Representative" }
-  CM-5(1): { required: true, notes: "Automated Access Enforcement/Audit Records" }
+  CM-3(6): { required: true, notes: "Cryptography Management" }
+  CM-4(1): { required: true, notes: "Separate Test Environments" }
   CM-6(2): { required: true, notes: "Respond to Unauthorized Changes" }
-  CM-7(4): { required: true, notes: "Unauthorized Software/Blacklisting" }
+  CM-8(2): { required: true, notes: "Automated Maintenance" }
   CM-8(4): { required: true, notes: "Accountability Information" }
-  CM-8(5): { required: true, notes: "No Duplicate Accounting" }
-  CM-12: { required: true, notes: "Information Location" }
   CM-14: { required: true, notes: "Signed Components" }
 
+  CP-2(2): { required: true, notes: "Capacity Planning" }
   CP-2(5): { required: true, notes: "Continue Mission Functions" }
+  CP-3(1): { required: true, notes: "Simulated Events" }
+  CP-4(2): { required: true, notes: "Alternate Processing Site" }
   CP-6(2): { required: true, notes: "Recovery Time/Point Objectives" }
   CP-7(4): { required: true, notes: "Preparation for Use" }
   CP-8(3): { required: true, notes: "Separation of Primary/Alternate Providers" }
@@ -59,136 +78,83 @@ controls:
   CP-9(3): { required: true, notes: "Separate Storage for Critical Information" }
   CP-9(5): { required: true, notes: "Transfer to Alternate Storage Site" }
   CP-10(4): { required: true, notes: "Restore Within Time Period" }
-  CP-11: { required: true, notes: "Alternate Communications Protocols" }
-  CP-12: { required: true, notes: "Safe Mode" }
-  CP-13: { required: true, notes: "Alternative Security Mechanisms" }
 
-  IA-2(6): { required: true, notes: "Access to Accounts - Separate Device" }
-  IA-3(1): { required: true, notes: "Cryptographic Bidirectional Authentication" }
-  IA-5(7): { required: true, notes: "No Embedded Unencrypted Static Authenticators" }
-  IA-8(3): { required: true, notes: "Use of Ficam-Approved Products" }
-  IA-9: { required: true, notes: "Service Identification and Authentication" }
-  IA-11: { required: true, notes: "Re-authentication" }
-  IA-12: { required: true, notes: "Identity Proofing" }
-  IA-12(2): { required: true, notes: "Identity Evidence" }
-  IA-12(3): { required: true, notes: "Identity Evidence Validation and Verification" }
+  IA-5(8): { required: true, notes: "Multiple System Accounts" }
+  IA-5(13): { required: true, notes: "Expiration of Cached Authenticators" }
+  IA-12(4): { required: true, notes: "In-person Validation and Verification" }
 
-  IR-3(1): { required: true, notes: "Automated Testing" }
-  IR-4(3): { required: true, notes: "Continuity of Operations" }
+  IR-2(1): { required: true, notes: "Simulated Events" }
+  IR-2(2): { required: true, notes: "Automated Training Environments" }
+  IR-4(2): { required: true, notes: "Dynamic Reconfiguration" }
   IR-4(4): { required: true, notes: "Information Correlation" }
   IR-4(6): { required: true, notes: "Insider Threats" }
-  IR-4(7): { required: true, notes: "Insider Threats - Intra-Organization Coordination" }
+  IR-4(11): { required: true, notes: "Integrated Incident Response Team" }
   IR-5(1): { required: true, notes: "Automated Tracking/Data Collection/Analysis" }
-  IR-7(2): { required: true, notes: "Coordination with External Providers" }
-  IR-9: { required: true, notes: "Information Spillage Response" }
-  IR-9(1): { required: true, notes: "Responsible Personnel" }
-  IR-9(2): { required: true, notes: "Training" }
-  IR-9(3): { required: true, notes: "Post-Spill Operations" }
-  IR-9(4): { required: true, notes: "Exposure to Unauthorized Personnel" }
-  IR-10: { required: true, notes: "Integrated Information Security Analysis Team" }
 
-  MA-3(3): { required: true, notes: "Prevent Unauthorized Removal" }
+  MA-2(2): { required: true, notes: "Automated Maintenance Activities" }
   MA-4(3): { required: true, notes: "Comparable Security/Sanitization" }
-  MA-5(1): { required: true, notes: "Individuals Without Appropriate Access" }
 
-  MP-4(2): { required: true, notes: "Automated Restricted Access" }
-  MP-5(3): { required: true, notes: "Custodians" }
-  MP-5(4): { required: true, notes: "Cryptographic Protection" }
   MP-6(1): { required: true, notes: "Review/Approve/Track/Document/Verify" }
+  MP-6(2): { required: true, notes: "Equipment Testing" }
   MP-6(3): { required: true, notes: "Nondestructive Techniques" }
-  MP-8: { required: true, notes: "Media Downgrading" }
-  MP-8(1): { required: true, notes: "Documentation of Process" }
-  MP-8(2): { required: true, notes: "Equipment Testing" }
-  MP-8(3): { required: true, notes: "Controlled Unclassified Information" }
 
-  PE-2(1): { required: true, notes: "Access by Position/Role" }
-  PE-2(2): { required: true, notes: "Two Forms of Identification" }
   PE-3(1): { required: true, notes: "System Access" }
-  PE-3(3): { required: true, notes: "Continuous Guards" }
-  PE-3(4): { required: true, notes: "Lockable Casings" }
-  PE-6(2): { required: true, notes: "Automated Intrusion Recognition/Responses" }
-  PE-6(3): { required: true, notes: "Video Surveillance" }
   PE-6(4): { required: true, notes: "Monitoring Physical Access to Systems" }
+  PE-8(1): { required: true, notes: "Automated Records Maintenance and Review" }
   PE-11(1): { required: true, notes: "Alternate Power Supply - Self-Contained" }
-  PE-13(4): { required: true, notes: "Inspections" }
+  PE-14(2): { required: true, notes: "Monitoring with Alarms" }
   PE-15(1): { required: true, notes: "Automation Support" }
   PE-18: { required: true, notes: "Location of System Components" }
-  PE-18(1): { required: true, notes: "Facility Site" }
 
-  PL-8(1): { required: true, notes: "Defense in Depth" }
-  PL-8(2): { required: true, notes: "Supplier Diversity" }
-
-  PS-3(3): { required: true, notes: "Information Requiring Special Protective Measures" }
   PS-4(2): { required: true, notes: "Automated Actions" }
-  PS-6(2): { required: true, notes: "Classified Information Requiring Special Protection" }
-  PS-9: { required: true, notes: "Position Descriptions" }
 
-  RA-3(1): { required: true, notes: "Supply Chain Risk Assessment" }
-  RA-5(3): { required: true, notes: "Breadth/Depth of Coverage" }
   RA-5(4): { required: true, notes: "Discoverable Information" }
-  RA-5(6): { required: true, notes: "Automated Trend Analysis" }
-  RA-7: { required: true, notes: "Risk Response" }
-  RA-9: { required: true, notes: "Criticality Analysis" }
+  RA-5(8): { required: true, notes: "Review Historic Audit Logs" }
 
   SA-4(5): { required: true, notes: "System/Component/Service Configurations" }
-  SA-8(1): { required: true, notes: "Clear Abstractions" }
-  SA-8(2): { required: true, notes: "Least Common Mechanism" }
-  SA-9(1): { required: true, notes: "Risk Assessments/Organizational Approvals" }
-  SA-9(4): { required: true, notes: "Consistent Interests of Consumers and Providers" }
-  SA-9(5): { required: true, notes: "Processing, Storage, and Service Location" }
-  SA-10(1): { required: true, notes: "Software/Firmware Integrity Verification" }
-  SA-11(2): { required: true, notes: "Threat Modeling/Vulnerability Analysis" }
-  SA-11(8): { required: true, notes: "Dynamic Code Analysis" }
-  SA-12: { required: true, notes: "Supply Chain Protection" }
-  SA-15: { required: true, notes: "Development Process, Standards, and Tools" }
-  SA-15(1): { required: true, notes: "Quality Metrics" }
-  SA-15(9): { required: true, notes: "Use of Live Data" }
+  SA-16: { required: true, notes: "Developer-provided Training" }
   SA-17: { required: true, notes: "Developer Security and Privacy Architecture" }
+  SA-21: { required: true, notes: "Developer Screening" }
 
   SC-3: { required: true, notes: "Security Function Isolation" }
-  SC-3(1): { required: true, notes: "Hardware Separation" }
-  SC-3(2): { required: true, notes: "Access/Flow Control Functions" }
-  SC-5(1): { required: true, notes: "Restrict Ability to Launch DOS Attacks" }
-  SC-5(2): { required: true, notes: "Capacity/Bandwidth/Redundancy" }
-  SC-7(9): { required: true, notes: "Restrict Threatening Outgoing Traffic" }
   SC-7(10): { required: true, notes: "Prevent Exfiltration" }
-  SC-7(11): { required: true, notes: "Restrict Incoming Traffic" }
-  SC-7(12): { required: true, notes: "Host-Based Protection" }
-  SC-7(13): { required: true, notes: "Isolation of Security Tools" }
-  SC-7(14): { required: true, notes: "Protect Against Unauthorized Physical Connections" }
-  SC-7(17): { required: true, notes: "Automated Enforcement of Protocol Formats" }
   SC-7(20): { required: true, notes: "Dynamic Isolation/Segregation" }
   SC-7(21): { required: true, notes: "Isolation of System Components" }
-  SC-8(2): { required: true, notes: "Pre/Post Transmission Handling" }
-  SC-12(2): { required: true, notes: "Symmetric Keys" }
-  SC-12(3): { required: true, notes: "Asymmetric Keys" }
+  SC-12(1): { required: true, notes: "Availability" }
   SC-24: { required: true, notes: "Fail in Known State" }
-  SC-28(2): { required: true, notes: "Offline Storage" }
-  SC-43: { required: true, notes: "Usage Restrictions" }
 
-  SI-2(1): { required: true, notes: "Central Management" }
-  SI-3(7): { required: true, notes: "Nonsignature-Based Detection" }
-  SI-3(8): { required: true, notes: "Detect Unauthorized Commands" }
   SI-4(10): { required: true, notes: "Visibility of Encrypted Communications" }
+  SI-4(11): { required: true, notes: "Analyze Communications Traffic Anomalies" }
   SI-4(12): { required: true, notes: "Automated Organization-Generated Alerts" }
   SI-4(14): { required: true, notes: "Wireless Intrusion Detection" }
+  SI-4(19): { required: true, notes: "Risk for Individuals" }
   SI-4(20): { required: true, notes: "Privileged Users" }
   SI-4(22): { required: true, notes: "Unauthorized Network Services" }
-  SI-6: { required: true, notes: "Security and Privacy Function Verification" }
-  SI-6(2): { required: true, notes: "Automation Support for Distributed Testing" }
+  SI-5(1): { required: true, notes: "Automated Alerts and Advisories" }
   SI-7(2): { required: true, notes: "Automated Notifications of Integrity Violations" }
   SI-7(5): { required: true, notes: "Automated Response to Integrity Violations" }
-  SI-7(7): { required: true, notes: "Integration of Detection and Response" }
-  SI-7(14): { required: true, notes: "Binary or Machine Executable Code" }
   SI-7(15): { required: true, notes: "Code Authentication" }
-  SI-10(1): { required: true, notes: "Manual Override Capability" }
 
+  SR-9: { required: true, notes: "Tamper Resistance and Detection" }
+  SR-9(1): { required: true, notes: "Multiple Stages of System Development Life Cycle" }
+
+# Cadences that FedRAMP's Consolidated Rules for 2026 set for a Rev5 Class D
+# certification, each with the rule it comes from. Every ruleset has its own Rev5
+# effective dates; read the "effective" blocks in the dataset before treating a
+# cadence as already in force. The rules set no fixed penetration test frequency.
 fedramp_additional:
-  continuous_monitoring_frequency: monthly
-  penetration_testing: annual
-  vulnerability_scanning: monthly
-  assessment_frequency: annual
-  specialized_assessments:
-    - red_team_exercises
-    - penetration_testing
-    - malware_analysis
+  ongoing_certification_report: { cadence: "every 3 months", force: MUST, rule: CCM-OCR-AVL }
+  vulnerability_activity_report: { cadence: "at least monthly, human-readable", force: MUST, rule: VER-TFR-MHR }
+  machine_verification_and_validation: { cadence: "at least once every month", force: MUST, rule: VDR-TFR-MVF }
+  non_machine_verification_and_validation: { cadence: "at least once every 3 months", force: MUST, rule: VDR-TFR-NMV }
+  vulnerability_detection:
+    representative_samples: { cadence: "at least once every day", force: SHOULD, rule: VDR-TFR-PSD }
+    resources_likely_to_drift: { cadence: "at least once every 7 days", force: SHOULD, rule: VDR-TFR-PDD }
+    resources_not_likely_to_drift: { cadence: "at least once every month", force: SHOULD, rule: VDR-TFR-PCD }
+  independent_assessment:
+    cadence: "at least once every year"
+    force: MUST
+    rule: IVV-CSO-FIA
+    controls_assessed_every_year: 101  # rule IVV-CSF-AIA
+    all_controls_assessed_within: "3 years"  # rule IVV-CSF-MCA
+  certification_package_maintenance: { cadence: "at least once every 6 months", force: MUST, rule: CPO-CSF-CPM }

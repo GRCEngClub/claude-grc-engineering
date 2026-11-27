@@ -6,7 +6,7 @@ import path from 'node:path';
 import yaml from '../vendor/js-yaml.cjs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { generateFedRAMPBaselineEvidence } from '../src/evidence-collector.js';
-import { loadFedRAMP20xKSI } from '../src/config-loader.js';
+import { FEDRAMP_REV5_CLASSES, loadFedRAMP20xKSI } from '../src/config-loader.js';
 import { displayPath, frameworkMetadata, listFrameworkPlugins, repoRoot } from '../src/plugin-locator.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,6 +23,13 @@ function usage() {
 Derived mode (FedRAMP only):
   <framework>                      fedramp-low | fedramp-moderate | fedramp-high | fedramp-20x-ksi
   [provider]                       aws | azure | gcp | kubernetes (default: aws)
+
+  fedramp-low, fedramp-moderate and fedramp-high are FedRAMP's Rev5 Class B, C and D
+  control lists (155, 322 and 409 controls). fedramp-20x-ksi is the 46 FedRAMP 20x
+  Key Security Indicators. The total is FedRAMP's count. The automated count is the
+  number of those items this toolkit has a cloud check for on the provider. It
+  measures the toolkit, not your implementation. The checks are the toolkit's own,
+  not FedRAMP's.
 
 Manual mode (any framework alias):
   --controls-total=<n>             Total in-scope controls
@@ -388,6 +395,8 @@ async function deriveFedRAMP20x(provider) {
     defaultSource: `${DEFAULT_SOURCE}/capability-baseline`,
     metadata: {
       derivation: 'fedramp-20x-ksi',
+      certification_type: '20x',
+      ksi_dataset_version: config.version,
       provider: normalizedProvider,
       total_controls: total,
       automated_controls: automated,
@@ -420,6 +429,8 @@ export async function deriveCounts(opts) {
       metadata: {
         derivation: 'fedramp-baseline',
         baseline: fedrampMode.baseline,
+        certification_type: 'Rev5',
+        certification_class: FEDRAMP_REV5_CLASSES[fedrampMode.baseline],
         provider: derived.provider,
         total_controls: derived.metadata.totalControls,
         automated_controls: derived.metadata.automatedControls,
