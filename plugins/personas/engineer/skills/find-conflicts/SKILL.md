@@ -26,7 +26,7 @@ Analyzes your selected compliance frameworks to identify conflicting requirement
 - `PCI` or `PCI-DSS` - PCI DSS
 - `CIS` - CIS Controls
 - `CMMC` - CMMC 2.0
-- `FedRAMP` - FedRAMP (Rev 5 or 20X)
+- `FedRAMP` - FedRAMP Rev5 (NIST SP 800-53 Rev. 5 controls). FedRAMP 20x Key Security Indicators are not in the crosswalk.
 - `HITRUST` - HITRUST CSF
 - `GDPR` - GDPR
 

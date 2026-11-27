@@ -16,7 +16,7 @@ Produce a multi-framework gap assessment by joining cached connector findings wi
 **Arguments**:
 
 - `<frameworks>` (required): comma-separated list. Use common names or SCF framework IDs.
-  - Aliases: `SOC2`, `ISO-27001-2022`, `NIST-800-53-r5`, `PCI-DSS-4`, `FedRAMP-Moderate`, `FedRAMP-High`, `CMMC-2`, `CIS-v8`, `HIPAA`, `GDPR`, `NYDFS`, `DORA`, `Essential-8`, `IRAP`, `ISMAP`, `GLBA`, `GovRAMP` (Moderate; also `GovRAMP-Core`, `GovRAMP-Low`, `GovRAMP-High`, and the old name `StateRAMP`)
+  - Aliases: `SOC2`, `ISO-27001-2022`, `NIST-800-53-r5`, `PCI-DSS-4`, `FedRAMP-Moderate`, `FedRAMP-High` (the SCF crosswalks for FedRAMP Rev5; `FedRAMP-Rev5-Class-B`, `-C` and `-D` resolve to the Low, Moderate and High crosswalks), `CMMC-2`, `CIS-v8`, `HIPAA`, `GDPR`, `NYDFS`, `DORA`, `Essential-8`, `IRAP`, `ISMAP`, `GLBA`, `GovRAMP` (Moderate; also `GovRAMP-Core`, `GovRAMP-Low`, `GovRAMP-High`, and the old name `StateRAMP`)
   - Or: any SCF framework_id (see `curl https://grcengclub.github.io/scf-api/api/crosswalks.json | jq '.frameworks[].framework_id'`)
   - Not supported: `HITRUST-CSF` (proprietary; SCF publishes no public crosswalk), `PBMM` (no direct crosswalk; use NIST-800-53 as a proxy), `US-Export` (not a security controls framework). Requesting one of these, or any label that does not resolve in the crosswalk, aborts with exit code `7` before any report is produced.
 
@@ -77,7 +77,7 @@ The script reads args from `argv`. Pass through the user's flags unchanged. The 
 node "${CLAUDE_PLUGIN_ROOT}/scripts/gap-assessment.js" SOC2,PCI-DSS-4 --output=sarif --quiet > gap.sarif
 ```
 
-**OSCAL export** for a FedRAMP package:
+**OSCAL export** of the results for the FedRAMP Rev5 Moderate crosswalk (FedRAMP now calls the loosely aligned control list Rev5 Class C):
 
 ```
 /engineer:gap-assessment FedRAMP-Moderate --output=oscal-ar --sources=aws-inspector

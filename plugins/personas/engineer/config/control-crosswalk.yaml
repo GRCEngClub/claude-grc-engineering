@@ -44,7 +44,7 @@ controls:
 
     fedramp:
       - AC-2
-      - baseline: Moderate
+      - rev5_classes: B, C, D
 
     common_requirements:
       - Unique user IDs for all individuals

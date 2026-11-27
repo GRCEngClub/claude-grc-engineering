@@ -370,7 +370,9 @@ function displayFramework(framework) {
     pci_dss: 'PCI DSS',
     cis_controls: 'CIS Controls',
     cmmc: 'CMMC',
-    fedramp: 'FedRAMP'
+    // The crosswalk maps FedRAMP through NIST SP 800-53 controls, which is the
+    // Rev5 Certification Type. FedRAMP 20x Key Security Indicators are not mapped.
+    fedramp: 'FedRAMP Rev5'
   };
   return names[framework] || framework;
 }

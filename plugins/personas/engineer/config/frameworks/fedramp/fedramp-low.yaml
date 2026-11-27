@@ -1,14 +1,35 @@
-name: FedRAMP Low Baseline
-version: Rev 5
-description: |
-  FedRAMP Low Impact baseline for systems with low risk to organizational operations,
-  assets, individuals, and the Nation. Approximately 125 controls.
+# FedRAMP Rev5 Class B control list
+#
+# The control IDs come from FedRAMP's machine-readable Consolidated Rules for 2026
+# (CR26), dataset version 2026.11.02.01, rule FRC-CSF-BSL, Class B list:
+#   https://github.com/FedRAMP/rules (file fedramp-consolidated-rules.json)
+# When FedRAMP publishes a new dataset version, update this file from the dataset.
+#
+# The "notes" text is a short control title for readers. It is not FedRAMP text.
+# Titles added in this revision are from the NIST SP 800-53 Rev. 5 catalog (release 5.2.0).
+#
+# The file name and the framework ID fedramp-low are kept so existing commands keep
+# working. FedRAMP now names this list by Certification Class, not by impact level.
 
-impact_level: Low
+name: FedRAMP Rev5 Class B Baseline
+version: Rev5
+description: |
+  The 155 NIST SP 800-53 Rev. 5 controls that a provider seeking a FedRAMP Rev5 Class B
+  Certification must include, at a minimum, in its Security Decision Record (rule FRC-CSF-BSL).
+  Rev5 is FedRAMP's legacy Certification Type. Class B loosely aligns with the former Low
+  impact level, and FedRAMP says the two are not the same thing. FedRAMP stops accepting
+  applications for new Rev5 Certifications on 2027-06-11.
+
+source: https://github.com/FedRAMP/rules
+dataset_version: "2026.11.02.01"
+source_rule: FRC-CSF-BSL
+certification_type: Rev5
+certification_class: B
+loosely_aligned_impact_level: Low
+control_count: 155
+new_rev5_applications_end: "2027-06-11"
 applicable_to:
-  - Low impact federal information systems
-  - Systems containing publicly available data
-  - Non-sensitive, non-confidential workloads
+  - Providers seeking or holding a FedRAMP Rev5 Class B Certification
 
 controls:
   AC-1: { required: true, notes: "Policy and Procedures" }
@@ -25,6 +46,7 @@ controls:
 
   AT-1: { required: true, notes: "Policy and Procedures" }
   AT-2: { required: true, notes: "Literacy Training and Awareness" }
+  AT-2(2): { required: true, notes: "Insider Threat" }
   AT-3: { required: true, notes: "Role-Based Training" }
   AT-4: { required: true, notes: "Training Records" }
 
@@ -41,10 +63,12 @@ controls:
 
   CA-1: { required: true, notes: "Policy and Procedures" }
   CA-2: { required: true, notes: "Control Assessments" }
+  CA-2(1): { required: true, notes: "Independent Assessors" }
   CA-3: { required: true, notes: "Information Exchange" }
-  CA-5: { required: true, notes: "Plan of Action and Milestones" }
   CA-6: { required: true, notes: "Authorization" }
   CA-7: { required: true, notes: "Continuous Monitoring" }
+  CA-7(4): { required: true, notes: "Risk Monitoring" }
+  CA-8: { required: true, notes: "Penetration Testing" }
   CA-9: { required: true, notes: "Internal System Connections" }
 
   CM-1: { required: true, notes: "Policy and Procedures" }
@@ -68,12 +92,18 @@ controls:
   IA-2: { required: true, notes: "Identification and Authentication" }
   IA-2(1): { required: true, notes: "MFA for Privileged Accounts" }
   IA-2(2): { required: true, notes: "MFA for Non-Privileged Accounts" }
+  IA-2(8): { required: true, notes: "Replay Resistant" }
+  IA-2(12): { required: true, notes: "Acceptance of PIV Credentials" }
   IA-4: { required: true, notes: "Identifier Management" }
   IA-5: { required: true, notes: "Authenticator Management" }
   IA-5(1): { required: true, notes: "Password-Based Authentication" }
   IA-6: { required: true, notes: "Authentication Feedback" }
   IA-7: { required: true, notes: "Cryptographic Module Authentication" }
   IA-8: { required: true, notes: "Identification and Authentication (Non-Org Users)" }
+  IA-8(1): { required: true, notes: "Acceptance of PIV Credentials" }
+  IA-8(2): { required: true, notes: "Acceptance of External Authenticators" }
+  IA-8(4): { required: true, notes: "Use of Defined Profiles" }
+  IA-11: { required: true, notes: "Re-authentication" }
 
   IR-1: { required: true, notes: "Policy and Procedures" }
   IR-2: { required: true, notes: "Incident Response Training" }
@@ -107,17 +137,10 @@ controls:
   PL-1: { required: true, notes: "Policy and Procedures" }
   PL-2: { required: true, notes: "System Security and Privacy Plans" }
   PL-4: { required: true, notes: "Rules of Behavior" }
+  PL-4(1): { required: true, notes: "Social Media Restrictions" }
+  PL-8: { required: true, notes: "Security and Privacy Architectures" }
   PL-10: { required: true, notes: "Baseline Selection" }
-
-  PM-1: { required: true, notes: "Information Security Program Plan" }
-  PM-2: { required: true, notes: "Information Security Program Leadership Role" }
-  PM-3: { required: true, notes: "Information Security and Privacy Resources" }
-  PM-4: { required: true, notes: "Plan of Action and Milestones Process" }
-  PM-5: { required: true, notes: "System Inventory" }
-  PM-6: { required: true, notes: "Measures of Performance" }
-  PM-9: { required: true, notes: "Risk Management Strategy" }
-  PM-10: { required: true, notes: "Authorization Process" }
-  PM-14: { required: true, notes: "Testing, Training, and Monitoring" }
+  PL-11: { required: true, notes: "Baseline Tailoring" }
 
   PS-1: { required: true, notes: "Policy and Procedures" }
   PS-2: { required: true, notes: "Position Risk Designation" }
@@ -127,28 +150,40 @@ controls:
   PS-6: { required: true, notes: "Access Agreements" }
   PS-7: { required: true, notes: "External Personnel Security" }
   PS-8: { required: true, notes: "Personnel Sanctions" }
+  PS-9: { required: true, notes: "Position Descriptions" }
 
   RA-1: { required: true, notes: "Policy and Procedures" }
   RA-2: { required: true, notes: "Security Categorization" }
   RA-3: { required: true, notes: "Risk Assessment" }
+  RA-3(1): { required: true, notes: "Supply Chain Risk Assessment" }
   RA-5: { required: true, notes: "Vulnerability Monitoring and Scanning" }
+  RA-5(2): { required: true, notes: "Update Frequency/Prior to Scan" }
+  RA-5(11): { required: true, notes: "Public Disclosure Program" }
+  RA-7: { required: true, notes: "Risk Response" }
 
   SA-1: { required: true, notes: "Policy and Procedures" }
   SA-2: { required: true, notes: "Allocation of Resources" }
   SA-3: { required: true, notes: "System Development Life Cycle" }
   SA-4: { required: true, notes: "Acquisition Process" }
+  SA-4(10): { required: true, notes: "Use of Approved PIV Products" }
   SA-5: { required: true, notes: "System Documentation" }
+  SA-8: { required: true, notes: "Security and Privacy Engineering Principles" }
   SA-9: { required: true, notes: "External System Services" }
+  SA-22: { required: true, notes: "Unsupported System Components" }
 
   SC-1: { required: true, notes: "Policy and Procedures" }
   SC-5: { required: true, notes: "Denial-of-Service Protection" }
   SC-7: { required: true, notes: "Boundary Protection" }
+  SC-8: { required: true, notes: "Transmission Confidentiality and Integrity" }
+  SC-8(1): { required: true, notes: "Cryptographic Protection" }
   SC-12: { required: true, notes: "Cryptographic Key Management" }
   SC-13: { required: true, notes: "Cryptographic Protection" }
   SC-15: { required: true, notes: "Collaborative Computing Devices" }
   SC-20: { required: true, notes: "Secure Name/Address Resolution (Authoritative)" }
   SC-21: { required: true, notes: "Secure Name/Address Resolution (Recursive)" }
   SC-22: { required: true, notes: "Name/Address Resolution Architecture" }
+  SC-28: { required: true, notes: "Protection of Information at Rest" }
+  SC-28(1): { required: true, notes: "Cryptographic Protection" }
   SC-39: { required: true, notes: "Process Isolation" }
 
   SI-1: { required: true, notes: "Policy and Procedures" }
@@ -158,8 +193,35 @@ controls:
   SI-5: { required: true, notes: "Security Alerts, Advisories, and Directives" }
   SI-12: { required: true, notes: "Information Management and Retention" }
 
+  SR-1: { required: true, notes: "Policy and Procedures" }
+  SR-2: { required: true, notes: "Supply Chain Risk Management Plan" }
+  SR-2(1): { required: true, notes: "Establish SCRM Team" }
+  SR-3: { required: true, notes: "Supply Chain Controls and Processes" }
+  SR-5: { required: true, notes: "Acquisition Strategies, Tools, and Methods" }
+  SR-8: { required: true, notes: "Notification Agreements" }
+  SR-10: { required: true, notes: "Inspection of Systems or Components" }
+  SR-11: { required: true, notes: "Component Authenticity" }
+  SR-11(1): { required: true, notes: "Anti-counterfeit Training" }
+  SR-11(2): { required: true, notes: "Configuration Control for Component Service and Repair" }
+  SR-12: { required: true, notes: "Component Disposal" }
+
+# Cadences that FedRAMP's Consolidated Rules for 2026 set for a Rev5 Class B
+# certification, each with the rule it comes from. Every ruleset has its own Rev5
+# effective dates; read the "effective" blocks in the dataset before treating a
+# cadence as already in force. The rules set no fixed penetration test frequency.
 fedramp_additional:
-  continuous_monitoring_frequency: monthly
-  penetration_testing: annual
-  vulnerability_scanning: monthly
-  assessment_frequency: annual
+  ongoing_certification_report: { cadence: "every 3 months", force: MUST, rule: CCM-OCR-AVL }
+  vulnerability_activity_report: { cadence: "at least monthly, human-readable", force: MUST, rule: VER-TFR-MHR }
+  machine_verification_and_validation: { cadence: "at least once every month", force: SHOULD, rule: VDR-TFR-MVF }
+  non_machine_verification_and_validation: { cadence: "at least once every 3 months", force: MUST, rule: VDR-TFR-NMV }
+  vulnerability_detection:
+    representative_samples: { cadence: "at least once every 7 days", force: SHOULD, rule: VDR-TFR-PSD }
+    resources_likely_to_drift: { cadence: "at least once every month", force: SHOULD, rule: VDR-TFR-PDD }
+    resources_not_likely_to_drift: { cadence: "at least once every 6 months", force: SHOULD, rule: VDR-TFR-PCD }
+  independent_assessment:
+    cadence: "at least once every year"
+    force: MUST
+    rule: IVV-CSO-FIA
+    controls_assessed_every_year: 35  # rule IVV-CSF-AIA
+    all_controls_assessed_within: "3 years"  # rule IVV-CSF-MCA
+  certification_package_maintenance: { cadence: "at least once every year", force: MUST, rule: CPO-CSF-CPM }
