@@ -32,7 +32,22 @@ before secret access. This option is only for the operator runtime helper;
 metadata commands still require an explicit project.
 See [gcloud config get](https://cloud.google.com/sdk/gcloud/reference/config/get).
 
-Only global secrets are supported. The helper resolves one UTF-8,
+To access a regional secret instead, opt in by placing its exact location before
+the `--` separator:
+
+```bash
+node /path/to/gcp-secret-metadata/scripts/run.js PROJECT_ID SECRET_ID latest GCP_SECRET_VALUE --location=us-central1 -- /path/to/trusted-command
+```
+
+The location is passed explicitly to gcloud; a failed regional request never
+falls back to a global secret. Verify the project, secret, location and identity
+before running. The helper checks location syntax, not whether the location
+exists or is authorized. Omitting the option keeps the global behavior. This
+option applies only to runtime access; the metadata and inspector commands do
+not support regional secrets. See Google's
+[regional access documentation](https://cloud.google.com/secret-manager/regional-secrets/access-secret-version-rs).
+
+The helper resolves one UTF-8,
 non-NUL payload into `GCP_SECRET_VALUE`, then runs the specified
 program without a shell. Provider and child output are suppressed, stdin is
 closed, and only generic errors are shown. The variable name is fixed to avoid
